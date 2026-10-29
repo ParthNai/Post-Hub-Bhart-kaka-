@@ -1,0 +1,340 @@
+{
+  "version": 7,
+  "status": "draft",
+  "lastSavedAt": "2026-10-29T08:47:41.368Z",
+  "lastSavedBy": "Unit Test Runner",
+  "brandAssets": [
+    {
+      "id": "primary-logo",
+      "title": "Primary Logo",
+      "format": "PNG · 1200 × 400",
+      "status": "available",
+      "dimensions": "1200 × 400",
+      "filename": "posthub_primary_logo.png",
+      "updatedAt": "2026-10-24T10:00:00.000Z"
+    },
+    {
+      "id": "app-icon",
+      "title": "App Icon",
+      "format": "PNG · 1024 × 1024",
+      "status": "available",
+      "dimensions": "1024 × 1024",
+      "filename": "posthub_app_icon.png",
+      "updatedAt": "2026-10-24T10:00:00.000Z"
+    },
+    {
+      "id": "light-logo",
+      "title": "Light Background Logo",
+      "format": "PNG · 1200 × 400",
+      "status": "available",
+      "dimensions": "1200 × 400",
+      "filename": "posthub_light_logo.png",
+      "updatedAt": "2026-10-24T10:00:00.000Z"
+    },
+    {
+      "id": "dark-logo",
+      "title": "Dark Background Logo",
+      "format": "PNG · 1200 × 400",
+      "status": "not_uploaded",
+      "dimensions": "1200 × 400"
+    }
+  ],
+  "guidelines": {
+    "brandTone": "Professional",
+    "visualStyle": "Clean and editorial",
+    "theme": "Light",
+    "accentColor": "Violet"
+  },
+  "colorTokens": {
+    "primaryViolet": "#7956C9",
+    "softLavender": "#E8DFF5",
+    "warmIvory": "#FAF7F2",
+    "mainText": "#24213A",
+    "secondaryText": "#777184",
+    "border": "#EAE4EE"
+  },
+  "typography": {
+    "fontFamily": "Inter, -apple-system, sans-serif",
+    "headlineSize": "24px",
+    "headlineWeight": "700",
+    "bodySize": "14px",
+    "bodyLineHeight": "1.5",
+    "metadataSize": "11px"
+  },
+  "icons": {
+    "iconSet": "Lucide Outline",
+    "defaultSize": "18px",
+    "strokeWidth": "2px"
+  },
+  "components": {
+    "borderRadius": "8px",
+    "cardBorderRadius": "16px",
+    "buttonPadding": "10px 20px",
+    "shadowIntensity": "subtle"
+  },
+  "spacing": {
+    "baseUnit": "4px",
+    "containerPadding": "24px",
+    "cardGap": "16px"
+  },
+  "spacingAndLayout": {
+    "scale": [
+      {
+        "id": "space-1",
+        "label": "Space 1",
+        "value": 4,
+        "unit": "px"
+      },
+      {
+        "id": "space-2",
+        "label": "Space 2",
+        "value": 8,
+        "unit": "px"
+      },
+      {
+        "id": "space-3",
+        "label": "Space 3",
+        "value": 12,
+        "unit": "px"
+      },
+      {
+        "id": "space-4",
+        "label": "Space 4",
+        "value": 16,
+        "unit": "px"
+      },
+      {
+        "id": "space-5",
+        "label": "Space 5",
+        "value": 24,
+        "unit": "px"
+      },
+      {
+        "id": "space-6",
+        "label": "Space 6",
+        "value": 32,
+        "unit": "px"
+      },
+      {
+        "id": "space-7",
+        "label": "Space 7",
+        "value": 48,
+        "unit": "px"
+      },
+      {
+        "id": "space-8",
+        "label": "Space 8",
+        "value": 64,
+        "unit": "px"
+      }
+    ],
+    "components": {
+      "buttonPaddingX": 16,
+      "buttonPaddingY": 10,
+      "inputPaddingX": 12,
+      "inputPaddingY": 10,
+      "cardPadding": 20,
+      "cardGap": 12,
+      "formFieldGap": 16,
+      "sectionGap": 24
+    },
+    "radii": {
+      "none": 0,
+      "small": 4,
+      "medium": 8,
+      "large": 12,
+      "extraLarge": 16,
+      "pill": 999,
+      "activeKey": "medium"
+    },
+    "dimensions": {
+      "contentMaxWidth": 1200,
+      "sidebarWidth": 248,
+      "standardControlHeight": 44,
+      "compactControlHeight": 36,
+      "gridGutter": 24
+    }
+  },
+  "history": [
+    {
+      "version": 6,
+      "savedAt": "2026-10-29T08:47:41.368Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v7)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "24px",
+          "headlineWeight": "700",
+          "bodySize": "14px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    },
+    {
+      "version": 5,
+      "savedAt": "2026-10-29T08:47:41.365Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v6)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "24px",
+          "headlineWeight": "700",
+          "bodySize": "14px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    },
+    {
+      "version": 4,
+      "savedAt": "2026-10-29T08:44:36.158Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v5)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "24px",
+          "headlineWeight": "700",
+          "bodySize": "14px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    },
+    {
+      "version": 3,
+      "savedAt": "2026-10-29T08:44:36.144Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v4)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "24px",
+          "headlineWeight": "700",
+          "bodySize": "14px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    },
+    {
+      "version": 2,
+      "savedAt": "2026-10-29T08:43:56.653Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v3)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "24px",
+          "headlineWeight": "700",
+          "bodySize": "14px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    },
+    {
+      "version": 1,
+      "savedAt": "2026-10-29T08:43:56.649Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v2)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "24px",
+          "headlineWeight": "700",
+          "bodySize": "14px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    }
+  ]
+}

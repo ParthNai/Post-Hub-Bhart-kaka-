@@ -1,0 +1,32 @@
+{
+  "name": "post-hub",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "test": "node --experimental-strip-types tests/auth.test.mjs && node --experimental-strip-types tests/dashboard.test.mjs && node --experimental-strip-types tests/screens.test.mjs && node --experimental-strip-types tests/configuration.test.mjs && node --experimental-strip-types tests/design-system.test.mjs && node --experimental-strip-types tests/colors.test.mjs && node --experimental-strip-types tests/spacing.test.mjs",
+    "test:api": "node tests/api.test.mjs"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "jose": "^6.2.13",
+    "lucide-react": "^1.63.0",
+    "next": "16.4.3",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "^4",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.3",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

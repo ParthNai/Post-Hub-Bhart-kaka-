@@ -1,0 +1,47 @@
+[
+  {
+    "id": "usr_admin_001",
+    "email": "admin@yourdomain.com",
+    "passwordHash": "$2b$10$OtQoGHR.2EqPAYexgMCqdeTeRSPSp6S6kk5ev3X.mszjBM2AfWVZ.",
+    "name": "Post Hub Lead Administrator",
+    "role": "admin",
+    "status": "active",
+    "failedAttempts": 0,
+    "createdAt": "2026-10-28T07:51:10.286Z",
+    "lockedUntil": null,
+    "lastLoginAt": "2026-10-29T08:49:21.478Z",
+    "resetToken": "eefb2b887060bf064a257ba4c8e92ca8b1176ea6e49c641f57066a83cec9878f",
+    "resetTokenExpiry": 1793178041092
+  },
+  {
+    "id": "usr_admin_002",
+    "email": "admin@posthub.io",
+    "passwordHash": "$2b$10$OtQoGHR.2EqPAYexgMCqdeTeRSPSp6S6kk5ev3X.mszjBM2AfWVZ.",
+    "name": "Security Administrator",
+    "role": "superadmin",
+    "status": "active",
+    "failedAttempts": 0,
+    "createdAt": "2026-10-28T07:51:10.388Z",
+    "lockedUntil": null
+  },
+  {
+    "id": "usr_disabled_003",
+    "email": "disabled@yourdomain.com",
+    "passwordHash": "$2b$10$OtQoGHR.2EqPAYexgMCqdeTeRSPSp6S6kk5ev3X.mszjBM2AfWVZ.",
+    "name": "Deactivated Manager",
+    "role": "admin",
+    "status": "disabled",
+    "failedAttempts": 0,
+    "createdAt": "2026-10-28T07:51:10.487Z"
+  },
+  {
+    "id": "usr_member_004",
+    "email": "member@yourdomain.com",
+    "passwordHash": "$2b$10$OtQoGHR.2EqPAYexgMCqdeoSIJYYBNcedhVI5xsavzjBNEZ6/Qv72",
+    "name": "Public Platform Member",
+    "role": "member",
+    "status": "active",
+    "failedAttempts": 0,
+    "createdAt": "2026-10-28T07:51:10.586Z"
+  }
+]
