@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const segments = useSegments();
   const router = useRouter();
 
-  const login = (email: string, role = 'creator', name = 'Post Hub Creator') => {
+  const login = (email: string, role = 'creator', name = 'Parth Patel') => {
     setUser({ email, role, name });
     router.replace('/(tabs)');
   };

@@ -1,4 +1,5 @@
 import React from 'react';
+import { View, StyleSheet, Platform } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
@@ -11,80 +12,100 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: theme.tint,
-        tabBarInactiveTintColor: theme.tabIconDefault,
+        headerShown: false,
+        tabBarActiveTintColor: '#7956C9',
+        tabBarInactiveTintColor: '#9A93A8',
         tabBarStyle: {
-          backgroundColor: theme.card,
-          borderTopColor: theme.border,
-          height: 60,
-          paddingBottom: 8,
+          backgroundColor: '#FFFFFF',
+          borderTopColor: '#EEEEF2',
+          borderTopWidth: 1,
+          height: Platform.OS === 'ios' ? 84 : 64,
+          paddingBottom: Platform.OS === 'ios' ? 24 : 10,
           paddingTop: 8,
+          elevation: 8,
+          shadowColor: '#000000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 8,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: '600',
         },
-        headerStyle: {
-          backgroundColor: theme.card,
-        },
-        headerTitleStyle: {
-          fontWeight: '700',
-          color: theme.text,
-          fontSize: 18,
-        },
-        headerShadowVisible: false,
-      }}>
+      }}
+    >
+      {/* 1. Home */}
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          headerTitle: 'Post Hub',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'home' : 'home-outline'} size={24} color={color} />
+            <Ionicons name={focused ? 'home' : 'home-outline'} size={22} color={color} />
           ),
         }}
       />
+
+      {/* 2. Templates */}
       <Tabs.Screen
         name="templates"
         options={{
           title: 'Templates',
-          headerTitle: 'Poster Templates',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'grid' : 'grid-outline'} size={24} color={color} />
+            <Ionicons name={focused ? 'grid' : 'grid-outline'} size={21} color={color} />
           ),
+        }}
+      />
+
+      {/* 3. Center (+) Creation Button */}
+      <Tabs.Screen
+        name="create"
+        options={{
+          title: '',
+          tabBarIcon: () => (
+            <View style={styles.centerButtonWrapper}>
+              <View style={styles.centerButton}>
+                <Ionicons name="add" size={26} color="#FFFFFF" />
+              </View>
+            </View>
+          ),
+        }}
+      />
+
+      {/* 4. My Designs */}
+      <Tabs.Screen
+        name="my-designs"
+        options={{
+          title: 'My Designs',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'layers' : 'layers-outline'} size={22} color={color} />
+          ),
+        }}
+      />
+
+      {/* 5. Profile */}
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'person' : 'person-outline'} size={22} color={color} />
+          ),
+        }}
+      />
+
+      {/* Hidden legacy tab routes */}
+      <Tabs.Screen
+        name="festivals"
+        options={{
+          href: null,
         }}
       />
       <Tabs.Screen
         name="ai-generator"
         options={{
-          title: 'AI Studio',
-          headerTitle: 'AI Poster Creator',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'sparkles' : 'sparkles-outline'} size={24} color={color} />
-          ),
+          href: null,
         }}
       />
-      <Tabs.Screen
-        name="festivals"
-        options={{
-          title: 'Festivals',
-          headerTitle: 'Upcoming Festivals',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={24} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          headerTitle: 'My Creations & Profile',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'person' : 'person-outline'} size={24} color={color} />
-          ),
-        }}
-      />
-      {/* Hide legacy two.tsx if it exists */}
       <Tabs.Screen
         name="two"
         options={{
@@ -94,3 +115,24 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  centerButtonWrapper: {
+    top: -12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  centerButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#7956C9',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#7956C9',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+});
