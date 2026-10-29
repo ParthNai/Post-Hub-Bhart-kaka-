@@ -43,22 +43,36 @@ export default function LoginScreen() {
   const [remoteConfig, setRemoteConfig] = useState<ScreenConfig | null>(null);
   const [remoteDescription, setRemoteDescription] = useState<string>('');
 
+  // Dynamic API base URL (adapts to current hostname on web or localhost on simulator)
+  const getApiBaseUrl = () => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      const host = window.location.hostname || 'localhost';
+      return `http://${host}:3000`;
+    }
+    return 'http://localhost:3000';
+  };
+
   // Live polling of admin configuration (every 2.5s) so admin changes reflect in real-time
   const fetchAdminConfig = () => {
-    fetch(`http://localhost:3000/api/app/config?t=${Date.now()}`, { cache: 'no-store' })
+    const baseUrl = getApiBaseUrl();
+    fetch(`${baseUrl}/api/app/config?t=${Date.now()}`, { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.navigation) {
-          const screen = data.navigation.find((s: any) => s.key === 'login');
-          if (screen?.layoutConfig) {
-            setRemoteConfig(screen.layoutConfig);
-          }
-          if (screen?.description) {
-            setRemoteDescription(screen.description);
+          const screen = data.navigation.find((s: any) => s.key === 'login' || s.id === 'scr_login_007');
+          if (screen) {
+            if (screen.layoutConfig) {
+              setRemoteConfig(screen.layoutConfig);
+            }
+            if (screen.description !== undefined) {
+              setRemoteDescription(screen.description);
+            }
           }
         }
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.warn('Config sync error:', err);
+      });
   };
 
   useEffect(() => {
@@ -78,9 +92,9 @@ export default function LoginScreen() {
   const rawRadius = remoteConfig?.cardRadius ? parseInt(remoteConfig.cardRadius, 10) : 16;
   const borderRadius = isNaN(rawRadius) ? 16 : rawRadius;
   const headerTitle = remoteConfig?.headerTitle || 'Welcome back';
-  const subtitle = remoteDescription && remoteDescription !== '.'
+  const subtitle = remoteDescription && remoteDescription.trim() !== ''
     ? remoteDescription
-    : 'Sign in to access your creative posters & AI studio.';
+    : 'Sign in to access poster templates and creative tools.';
 
   const showBrandHeader = isSectionEnabled('brand_header', true);
   const showWelcomeText = isSectionEnabled('welcome_text', true);
@@ -105,7 +119,8 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/login', {
+      const baseUrl = getApiBaseUrl();
+      const response = await fetch(`${baseUrl}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: loginEmail, password: loginPassword, rememberMe }),
@@ -193,7 +208,7 @@ export default function LoginScreen() {
               <View style={styles.form}>
                 {/* Email Field */}
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: theme.text }]}>Email address</Text>
+                  <Text style={[styles.inputLabel, { color: theme.text }]}>Email Address</Text>
                   <View
                     style={[
                       styles.inputField,
@@ -206,7 +221,7 @@ export default function LoginScreen() {
                   >
                     <Ionicons name="mail-outline" size={18} color={theme.tabIconDefault} style={styles.inputIcon} />
                     <TextInput
-                      placeholder="admin@yourdomain.com"
+                      placeholder="creator@posthub.io"
                       placeholderTextColor="#9A93A8"
                       value={email}
                       onChangeText={(t) => {
@@ -335,7 +350,7 @@ export default function LoginScreen() {
               <View style={styles.footerRow}>
                 <Text style={[styles.footerText, { color: theme.tabIconDefault }]}>Don't have an account? </Text>
                 <TouchableOpacity activeOpacity={0.7}>
-                  <Text style={[styles.signupText, { color: primaryAccent }]}>Create account</Text>
+                  <Text style={[styles.signupText, { color: primaryAccent }]}>Sign Up</Text>
                 </TouchableOpacity>
               </View>
             )}

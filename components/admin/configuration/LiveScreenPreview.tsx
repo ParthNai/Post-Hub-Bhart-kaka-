@@ -227,7 +227,27 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
                   </div>
                 </div>
 
-                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "2px 0 2px 0" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <div
+                      style={{
+                        width: "14px",
+                        height: "14px",
+                        borderRadius: "3px",
+                        backgroundColor: primaryAccent,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#FFFFFF",
+                        fontSize: "9px",
+                        fontWeight: 700,
+                      }}
+                    >
+                      ✓
+                    </div>
+                    <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>Remember me</span>
+                  </div>
+
                   <span style={{ fontSize: "11px", fontWeight: 600, color: primaryAccent, cursor: "pointer" }}>
                     Forgot password?
                   </span>
@@ -260,23 +280,30 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
 
             {/* Social SSO */}
             {isSectionEnabled("social_login", true) && (
-              <div
-                style={{
-                  height: "36px",
-                  borderRadius: cardRadius,
-                  backgroundColor: "#FFFFFF",
-                  border: "1px solid #EAE4EE",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  color: "var(--text)",
-                }}
-              >
-                <span style={{ fontWeight: 700, color: "#EA4335" }}>G</span>
-                <span>Continue with Google</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "4px 0" }}>
+                  <div style={{ flex: 1, height: "1px", backgroundColor: "#EAE4EE" }} />
+                  <span style={{ fontSize: "10px", fontWeight: 600, color: "var(--text-light)" }}>OR</span>
+                  <div style={{ flex: 1, height: "1px", backgroundColor: "#EAE4EE" }} />
+                </div>
+                <div
+                  style={{
+                    height: "38px",
+                    borderRadius: cardRadius,
+                    backgroundColor: "#FFFFFF",
+                    border: "1px solid #EAE4EE",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: "var(--text)",
+                  }}
+                >
+                  <span style={{ fontWeight: 700, color: "#EA4335" }}>G</span>
+                  <span>Continue with Google</span>
+                </div>
               </div>
             )}
 
