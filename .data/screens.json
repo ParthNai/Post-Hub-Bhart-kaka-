@@ -61,10 +61,34 @@
     },
     "version": 3,
     "lastUpdated": "Oct 29, 2026",
-    "lastSavedAt": "Today at 4:21 PM",
+    "lastSavedAt": "Today at 4:42 PM",
     "history": [
       {
         "version": 3,
+        "savedAt": "Oct 29, 2026 at 4:42 PM",
+        "author": "Admin Workspace",
+        "changesSummary": "Draft updated: Home"
+      },
+      {
+        "version": 3,
+        "savedAt": "Oct 29, 2026 at 4:42 PM",
+        "author": "Admin Workspace",
+        "changesSummary": "Draft updated: Home"
+      },
+      {
+        "version": 3,
+        "savedAt": "Oct 29, 2026 at 4:23 PM",
+        "author": "Admin Workspace",
+        "changesSummary": "Draft updated: Home"
+      },
+      {
+        "version": 3,
+        "savedAt": "Oct 29, 2026 at 4:23 PM",
+        "author": "Admin Workspace",
+        "changesSummary": "Draft updated: Home"
+      },
+      {
+        "version": 3,
         "savedAt": "Oct 29, 2026 at 4:21 PM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
@@ -96,36 +120,12 @@
       {
         "version": 3,
         "savedAt": "Oct 29, 2026 at 3:53 PM",
-        "author": "Admin Workspace",
-        "changesSummary": "Draft updated: Home"
-      },
-      {
-        "version": 3,
-        "savedAt": "Oct 29, 2026 at 3:52 PM",
-        "author": "Admin Workspace",
-        "changesSummary": "Draft updated: Home"
-      },
-      {
-        "version": 3,
-        "savedAt": "Oct 29, 2026 at 3:52 PM",
-        "author": "Admin Workspace",
-        "changesSummary": "Draft updated: Home"
-      },
-      {
-        "version": 3,
-        "savedAt": "Oct 29, 2026 at 3:36 PM",
-        "author": "Admin Workspace",
-        "changesSummary": "Draft updated: Home"
-      },
-      {
-        "version": 3,
-        "savedAt": "Oct 29, 2026 at 3:36 PM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
       }
     ],
     "createdAt": "2025-10-01T00:00:00.000Z",
-    "updatedAt": "2026-10-29T10:51:54.966Z",
+    "updatedAt": "2026-10-29T11:12:23.103Z",
     "isSample": true,
     "draftConfigData": {
       "bannerVisible": true,

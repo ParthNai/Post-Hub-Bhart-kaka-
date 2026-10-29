@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   StyleSheet,
   View,
@@ -9,6 +9,7 @@ import {
   Platform,
   ActivityIndicator,
   ScrollView,
+  SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
@@ -24,7 +25,9 @@ interface ConfigSection {
 
 interface ScreenConfig {
   headerTitle?: string;
+  activeTheme?: string;
   primaryAccent?: string;
+  backgroundColor?: string;
   cardRadius?: string;
   sections?: ConfigSection[];
 }
@@ -42,6 +45,7 @@ export default function LoginScreen() {
   const [errorMessage, setErrorMessage] = useState('');
   const [remoteConfig, setRemoteConfig] = useState<ScreenConfig | null>(null);
   const [remoteDescription, setRemoteDescription] = useState<string>('');
+  const [remoteDesignSystem, setRemoteDesignSystem] = useState<any>(null);
 
   // Dynamic API base URL (adapts to current hostname on web or localhost on simulator)
   const getApiBaseUrl = () => {
@@ -58,6 +62,9 @@ export default function LoginScreen() {
     fetch(`${baseUrl}/api/app/config?t=${Date.now()}`, { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
+        if (data?.designSystem) {
+          setRemoteDesignSystem(data.designSystem);
+        }
         if (data?.navigation) {
           const screen = data.navigation.find((s: any) => s.key === 'login' || s.id === 'scr_login_007');
           if (screen) {
@@ -88,9 +95,71 @@ export default function LoginScreen() {
     return s ? s.enabled : fallback;
   };
 
-  const primaryAccent = remoteConfig?.primaryAccent || theme.primary;
-  const rawRadius = remoteConfig?.cardRadius ? parseInt(remoteConfig.cardRadius, 10) : 16;
-  const borderRadius = isNaN(rawRadius) ? 16 : rawRadius;
+  // Dynamic Theme & Color Resolution
+  const activeThemePreset = remoteConfig?.activeTheme || 'default';
+  const customAccent = remoteConfig?.primaryAccent || remoteDesignSystem?.colorTokens?.primaryViolet || '#7956C9';
+  const customBg = remoteConfig?.backgroundColor;
+
+  const currentTheme = useMemo(() => {
+    if (activeThemePreset === 'dark_studio') {
+      return {
+        isDark: true,
+        bg: customBg || '#13111C',
+        surface: '#1C1929',
+        text: '#FFFFFF',
+        textMuted: '#9E98B3',
+        border: '#2E2B40',
+        inputBg: '#242135',
+        inputBorder: '#35314C',
+        primary: customAccent || '#906CE8',
+        divider: '#2A273C',
+      };
+    }
+    if (activeThemePreset === 'warm_creative') {
+      return {
+        isDark: false,
+        bg: customBg || '#FFFDF9',
+        surface: '#FFFFFF',
+        text: '#2C1E14',
+        textMuted: '#8A7668',
+        border: '#EEDFD2',
+        inputBg: '#FAF5EE',
+        inputBorder: '#E6D5C5',
+        primary: customAccent || '#E65100',
+        divider: '#EEDFD2',
+      };
+    }
+    if (activeThemePreset === 'lavender_minimal') {
+      return {
+        isDark: false,
+        bg: customBg || '#F8F7FF',
+        surface: '#FFFFFF',
+        text: '#1E1B4B',
+        textMuted: '#6B7280',
+        border: '#E0E3F5',
+        inputBg: '#F0EFFF',
+        inputBorder: '#D8DAF0',
+        primary: customAccent || '#6366F1',
+        divider: '#E0E3F5',
+      };
+    }
+    // Default Clean Theme (White Background, Royal Purple Accent)
+    return {
+      isDark: false,
+      bg: customBg || '#FFFFFF',
+      surface: '#FFFFFF',
+      text: remoteDesignSystem?.colorTokens?.mainText || '#1F2937',
+      textMuted: remoteDesignSystem?.colorTokens?.secondaryText || '#6B7280',
+      border: remoteDesignSystem?.colorTokens?.border || '#E5E7EB',
+      inputBg: '#FAF9FC',
+      inputBorder: '#E5E7EB',
+      primary: customAccent || '#7956C9',
+      divider: '#ECE7F0',
+    };
+  }, [activeThemePreset, customAccent, customBg, remoteDesignSystem]);
+
+  const rawRadius = remoteConfig?.cardRadius ? parseInt(remoteConfig.cardRadius, 10) : 12;
+  const borderRadius = isNaN(rawRadius) ? 12 : rawRadius;
   const headerTitle = remoteConfig?.headerTitle || 'Welcome back';
   const subtitle = remoteDescription && remoteDescription.trim() !== ''
     ? remoteDescription
@@ -144,27 +213,17 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={[styles.viewport, { backgroundColor: theme.background }]}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollWrapper}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.bg }]}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={[styles.viewport, { backgroundColor: currentTheme.bg }]}
       >
-        <View style={styles.cardContainer}>
-          {/* Main White Card with Elevation */}
-          <View
-            style={[
-              styles.card,
-              {
-                backgroundColor: theme.card,
-                borderColor: theme.border,
-                borderRadius: borderRadius,
-              },
-            ]}
-          >
+        <ScrollView
+          contentContainerStyle={styles.scrollWrapper}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.contentContainer}>
             {/* 1. Brand Logo & Name */}
             {showBrandHeader && (
               <View style={styles.brandRow}>
@@ -172,30 +231,30 @@ export default function LoginScreen() {
                   style={[
                     styles.logoBadge,
                     {
-                      backgroundColor: primaryAccent,
-                      borderRadius: Math.max(8, borderRadius - 6),
-                      shadowColor: primaryAccent,
+                      backgroundColor: currentTheme.primary,
+                      borderRadius: Math.max(8, borderRadius - 2),
+                      shadowColor: currentTheme.primary,
                     },
                   ]}
                 >
                   <Text style={styles.logoBadgeText}>P</Text>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-                  <Text style={[styles.brandTextPrimary, { color: theme.text }]}>Post</Text>
-                  <Text style={[styles.brandTextAccent, { color: primaryAccent }]}>Hub</Text>
+                  <Text style={[styles.brandTextPrimary, { color: currentTheme.text }]}>Post</Text>
+                  <Text style={[styles.brandTextAccent, { color: currentTheme.primary }]}>Hub</Text>
                 </View>
               </View>
             )}
 
-            {/* 2. Welcome Headline & Subtitle (Live editable from Admin) */}
+            {/* 2. Welcome Headline & Subtitle */}
             {showWelcomeText && (
               <View style={styles.headerBlock}>
-                <Text style={[styles.title, { color: theme.text }]}>{headerTitle}</Text>
-                <Text style={[styles.subtitle, { color: theme.tabIconDefault }]}>{subtitle}</Text>
+                <Text style={[styles.title, { color: currentTheme.text }]}>{headerTitle}</Text>
+                <Text style={[styles.subtitle, { color: currentTheme.textMuted }]}>{subtitle}</Text>
               </View>
             )}
 
-            {/* Error Message */}
+            {/* Error Message Box */}
             {errorMessage ? (
               <View style={styles.errorBox}>
                 <Ionicons name="alert-circle" size={16} color="#D9383A" style={{ marginRight: 6 }} />
@@ -208,21 +267,21 @@ export default function LoginScreen() {
               <View style={styles.form}>
                 {/* Email Field */}
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: theme.text }]}>Email Address</Text>
+                  <Text style={[styles.inputLabel, { color: currentTheme.text }]}>Email Address</Text>
                   <View
                     style={[
                       styles.inputField,
                       {
-                        backgroundColor: '#FAF9FC',
-                        borderColor: '#E6E0EB',
-                        borderRadius: Math.max(8, borderRadius - 4),
+                        backgroundColor: currentTheme.inputBg,
+                        borderColor: currentTheme.inputBorder,
+                        borderRadius: Math.max(8, borderRadius - 2),
                       },
                     ]}
                   >
-                    <Ionicons name="mail-outline" size={18} color={theme.tabIconDefault} style={styles.inputIcon} />
+                    <Ionicons name="mail-outline" size={18} color={currentTheme.textMuted} style={styles.inputIcon} />
                     <TextInput
                       placeholder="creator@posthub.io"
-                      placeholderTextColor="#9A93A8"
+                      placeholderTextColor={currentTheme.textMuted}
                       value={email}
                       onChangeText={(t) => {
                         setEmail(t);
@@ -230,35 +289,35 @@ export default function LoginScreen() {
                       }}
                       autoCapitalize="none"
                       keyboardType="email-address"
-                      style={[styles.textInput, { color: theme.text }]}
+                      style={[styles.textInput, { color: currentTheme.text }]}
                     />
                   </View>
                 </View>
 
                 {/* Password Field */}
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: theme.text }]}>Password</Text>
+                  <Text style={[styles.inputLabel, { color: currentTheme.text }]}>Password</Text>
                   <View
                     style={[
                       styles.inputField,
                       {
-                        backgroundColor: '#FAF9FC',
-                        borderColor: '#E6E0EB',
-                        borderRadius: Math.max(8, borderRadius - 4),
+                        backgroundColor: currentTheme.inputBg,
+                        borderColor: currentTheme.inputBorder,
+                        borderRadius: Math.max(8, borderRadius - 2),
                       },
                     ]}
                   >
-                    <Ionicons name="lock-closed-outline" size={18} color={theme.tabIconDefault} style={styles.inputIcon} />
+                    <Ionicons name="lock-closed-outline" size={18} color={currentTheme.textMuted} style={styles.inputIcon} />
                     <TextInput
                       placeholder="••••••••••••"
-                      placeholderTextColor="#9A93A8"
+                      placeholderTextColor={currentTheme.textMuted}
                       value={password}
                       onChangeText={(t) => {
                         setPassword(t);
                         setErrorMessage('');
                       }}
                       secureTextEntry={!showPassword}
-                      style={[styles.textInput, { color: theme.text }]}
+                      style={[styles.textInput, { color: currentTheme.text }]}
                     />
                     <TouchableOpacity
                       onPress={() => setShowPassword(!showPassword)}
@@ -267,13 +326,13 @@ export default function LoginScreen() {
                       <Ionicons
                         name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                         size={18}
-                        color={theme.tabIconDefault}
+                        color={currentTheme.textMuted}
                       />
                     </TouchableOpacity>
                   </View>
                 </View>
 
-                {/* Remember Me & Forgot Password Row */}
+                {/* Remember Me & Forgot Password */}
                 <View style={styles.metaRow}>
                   <TouchableOpacity
                     style={styles.rememberMeContainer}
@@ -283,13 +342,13 @@ export default function LoginScreen() {
                     <Ionicons
                       name={rememberMe ? 'checkbox' : 'square-outline'}
                       size={17}
-                      color={rememberMe ? primaryAccent : theme.tabIconDefault}
+                      color={rememberMe ? currentTheme.primary : currentTheme.textMuted}
                     />
-                    <Text style={[styles.rememberMeText, { color: theme.tabIconDefault }]}>Remember me</Text>
+                    <Text style={[styles.rememberMeText, { color: currentTheme.textMuted }]}>Remember me</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity activeOpacity={0.7}>
-                    <Text style={[styles.forgotText, { color: primaryAccent }]}>Forgot password?</Text>
+                    <Text style={[styles.forgotText, { color: currentTheme.primary }]}>Forgot password?</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -298,9 +357,9 @@ export default function LoginScreen() {
                   style={[
                     styles.submitButton,
                     {
-                      backgroundColor: primaryAccent,
-                      borderRadius: Math.max(8, borderRadius - 4),
-                      shadowColor: primaryAccent,
+                      backgroundColor: currentTheme.primary,
+                      borderRadius: Math.max(8, borderRadius - 2),
+                      shadowColor: currentTheme.primary,
                     },
                   ]}
                   activeOpacity={0.88}
@@ -320,18 +379,18 @@ export default function LoginScreen() {
             {showSocialLogin && (
               <View style={styles.socialWrapper}>
                 <View style={styles.divider}>
-                  <View style={[styles.dividerLine, { backgroundColor: '#ECE7F0' }]} />
-                  <Text style={[styles.dividerText, { color: '#9A93A8' }]}>OR</Text>
-                  <View style={[styles.dividerLine, { backgroundColor: '#ECE7F0' }]} />
+                  <View style={[styles.dividerLine, { backgroundColor: currentTheme.divider }]} />
+                  <Text style={[styles.dividerText, { color: currentTheme.textMuted }]}>OR</Text>
+                  <View style={[styles.dividerLine, { backgroundColor: currentTheme.divider }]} />
                 </View>
 
                 <TouchableOpacity
                   style={[
                     styles.socialButton,
                     {
-                      backgroundColor: '#FFFFFF',
-                      borderColor: '#E6E0EB',
-                      borderRadius: Math.max(8, borderRadius - 4),
+                      backgroundColor: currentTheme.surface,
+                      borderColor: currentTheme.border,
+                      borderRadius: Math.max(8, borderRadius - 2),
                     },
                   ]}
                   activeOpacity={0.82}
@@ -340,7 +399,7 @@ export default function LoginScreen() {
                   <View style={styles.googleIconCircle}>
                     <Text style={styles.googleLetter}>G</Text>
                   </View>
-                  <Text style={[styles.socialButtonText, { color: theme.text }]}>Continue with Google</Text>
+                  <Text style={[styles.socialButtonText, { color: currentTheme.text }]}>Continue with Google</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -348,20 +407,25 @@ export default function LoginScreen() {
             {/* 5. Footer Sign Up Link */}
             {showSignupLink && (
               <View style={styles.footerRow}>
-                <Text style={[styles.footerText, { color: theme.tabIconDefault }]}>Don't have an account? </Text>
+                <Text style={[styles.footerText, { color: currentTheme.textMuted }]}>Don't have an account? </Text>
                 <TouchableOpacity activeOpacity={0.7}>
-                  <Text style={[styles.signupText, { color: primaryAccent }]}>Sign Up</Text>
+                  <Text style={[styles.signupText, { color: currentTheme.primary }]}>Sign Up</Text>
                 </TouchableOpacity>
               </View>
             )}
           </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    height: '100%',
+    width: '100%',
+  },
   viewport: {
     flex: 1,
     height: '100%',
@@ -371,118 +435,108 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 24,
+    paddingHorizontal: 24,
+    paddingTop: Platform.OS === 'ios' ? 40 : 28,
+    paddingBottom: 36,
   },
-  cardContainer: {
+  contentContainer: {
     width: '100%',
     maxWidth: 420,
-    alignItems: 'center',
-  },
-  card: {
-    width: '100%',
-    borderWidth: 1,
-    paddingHorizontal: 28,
-    paddingVertical: 32,
-    shadowColor: '#24213A',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.06,
-    shadowRadius: 18,
-    elevation: 3,
+    alignSelf: 'center',
   },
   brandRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 24,
     gap: 8,
-    marginBottom: 20,
   },
   logoBadge: {
-    width: 32,
-    height: 32,
+    width: 38,
+    height: 38,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 6,
+    elevation: 2,
   },
   logoBadgeText: {
     color: '#FFFFFF',
-    fontWeight: '800',
-    fontSize: 17,
-    lineHeight: 19,
+    fontSize: 22,
+    fontWeight: '900',
   },
   brandTextPrimary: {
-    fontSize: 19,
-    fontWeight: '700',
-    letterSpacing: -0.4,
-  },
-  brandTextAccent: {
-    fontSize: 19,
-    fontWeight: '800',
-    letterSpacing: -0.4,
-  },
-  headerBlock: {
-    marginBottom: 22,
-  },
-  title: {
     fontSize: 24,
     fontWeight: '800',
     letterSpacing: -0.5,
+  },
+  brandTextAccent: {
+    fontSize: 24,
+    fontWeight: '900',
+    letterSpacing: -0.5,
+  },
+  headerBlock: {
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '800',
+    letterSpacing: -0.6,
     marginBottom: 6,
   },
   subtitle: {
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 14,
+    lineHeight: 20,
   },
   errorBox: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(217, 56, 58, 0.08)',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    marginBottom: 14,
     borderWidth: 1,
-    borderColor: 'rgba(217, 56, 58, 0.18)',
+    borderColor: 'rgba(217, 56, 58, 0.25)',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginBottom: 16,
   },
   errorText: {
     color: '#D9383A',
-    fontSize: 12.5,
+    fontSize: 13,
     fontWeight: '500',
     flex: 1,
   },
   form: {
-    gap: 14,
+    width: '100%',
   },
   inputGroup: {
-    gap: 5,
+    marginBottom: 16,
   },
   inputLabel: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
-    letterSpacing: -0.1,
+    marginBottom: 6,
   },
   inputField: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     paddingHorizontal: 12,
-    height: 46,
+    height: 48,
   },
   inputIcon: {
-    marginRight: 8,
+    marginRight: 10,
   },
   textInput: {
     flex: 1,
-    fontSize: 13.5,
-    paddingVertical: 0,
+    fontSize: 14,
+    height: '100%',
   },
   metaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 2,
+    marginBottom: 20,
   },
   rememberMeContainer: {
     flexDirection: 'row',
@@ -490,87 +544,79 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   rememberMeText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '500',
   },
   forgotText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
   },
   submitButton: {
-    height: 46,
+    height: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 6,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.28,
     shadowRadius: 8,
-    elevation: 4,
+    elevation: 3,
   },
   submitButtonText: {
     color: '#FFFFFF',
-    fontSize: 14.5,
+    fontSize: 15,
     fontWeight: '700',
-    letterSpacing: 0.2,
   },
   socialWrapper: {
-    marginTop: 18,
-    gap: 12,
+    marginTop: 20,
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    marginBottom: 18,
   },
   dividerLine: {
     flex: 1,
     height: 1,
   },
   dividerText: {
+    paddingHorizontal: 12,
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '700',
     letterSpacing: 0.5,
   },
   socialButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 44,
+    height: 48,
     borderWidth: 1,
-    gap: 8,
-    shadowColor: '#24213A',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-    elevation: 1,
+    gap: 10,
   },
   googleIconCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 22,
+    height: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
   googleLetter: {
+    fontSize: 16,
+    fontWeight: '900',
     color: '#EA4335',
-    fontWeight: '800',
-    fontSize: 14,
   },
   socialButtonText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
   },
   footerRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 22,
+    marginTop: 26,
   },
   footerText: {
-    fontSize: 12.5,
+    fontSize: 13,
   },
   signupText: {
-    fontSize: 12.5,
+    fontSize: 13,
     fontWeight: '700',
   },
 });

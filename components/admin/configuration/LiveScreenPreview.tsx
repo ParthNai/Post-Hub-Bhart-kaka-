@@ -27,7 +27,24 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
     return s ? s.enabled : fallback;
   };
 
-  const primaryAccent = configData.primaryAccent || "var(--primary)";
+  const isDarkTheme = configData.activeTheme === "dark_studio";
+  const previewBg =
+    configData.backgroundColor ||
+    (isDarkTheme
+      ? "#13111C"
+      : configData.activeTheme === "warm_creative"
+      ? "#FFFDF9"
+      : configData.activeTheme === "lavender_minimal"
+      ? "#F8F7FF"
+      : isLoginScreen
+      ? "#FFFFFF"
+      : "#FAF7F2");
+
+  const previewTextColor = isDarkTheme ? "#F5F3FF" : "var(--text)";
+  const previewMutedColor = isDarkTheme ? "#9E98B3" : "var(--text-muted)";
+  const previewInputBg = isDarkTheme ? "#242135" : "#FAF9FC";
+  const previewInputBorder = isDarkTheme ? "#35314C" : "#EAE4EE";
+  const primaryAccent = configData.primaryAccent || (isDarkTheme ? "#906CE8" : "var(--primary)");
   const cardRadius = configData.cardRadius || "14px";
   const headerTitle = configData.headerTitle || "Welcome back";
 
@@ -85,7 +102,7 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
         style={{
           border: "1px solid #ECE7F0",
           borderRadius: "16px",
-          backgroundColor: "#FAF7F2",
+          backgroundColor: previewBg,
           padding: isLoginScreen ? "22px 18px" : "16px 14px 18px 14px",
           boxShadow: "0 4px 16px rgba(36, 33, 58, 0.04)",
           display: "flex",
@@ -128,7 +145,7 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
                   P
                 </div>
                 <div style={{ display: "inline-flex", alignItems: "baseline" }}>
-                  <span style={{ color: "var(--text)", fontSize: "18px", fontWeight: 700, marginRight: "2px" }}>
+                  <span style={{ color: previewTextColor, fontSize: "18px", fontWeight: 700, marginRight: "2px" }}>
                     Post
                   </span>
                   <span style={{ color: primaryAccent, fontSize: "18px", fontWeight: 800 }}>Hub</span>
@@ -143,7 +160,7 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
                   style={{
                     fontSize: "20px",
                     fontWeight: 800,
-                    color: "var(--text)",
+                    color: previewTextColor,
                     margin: "0 0 4px 0",
                     letterSpacing: "-0.02em",
                   }}
@@ -153,7 +170,7 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
                 <p
                   style={{
                     fontSize: "12px",
-                    color: "var(--text-muted)",
+                    color: previewMutedColor,
                     margin: 0,
                     lineHeight: 1.45,
                   }}
@@ -172,7 +189,7 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
                       display: "block",
                       fontSize: "11px",
                       fontWeight: 600,
-                      color: "var(--text)",
+                      color: previewTextColor,
                       marginBottom: "4px",
                     }}
                   >
@@ -183,15 +200,15 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
                       display: "flex",
                       alignItems: "center",
                       gap: "8px",
-                      backgroundColor: "#FFFFFF",
-                      border: "1px solid #EAE4EE",
+                      backgroundColor: previewInputBg,
+                      border: `1px solid ${previewInputBorder}`,
                       borderRadius: cardRadius,
                       height: "38px",
                       padding: "0 10px",
                     }}
                   >
                     <Mail size={14} color="var(--text-light)" />
-                    <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>creator@posthub.io</span>
+                    <span style={{ fontSize: "12px", color: previewMutedColor }}>creator@posthub.io</span>
                   </div>
                 </div>
 
@@ -201,7 +218,7 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
                       display: "block",
                       fontSize: "11px",
                       fontWeight: 600,
-                      color: "var(--text)",
+                      color: previewTextColor,
                       marginBottom: "4px",
                     }}
                   >
@@ -212,8 +229,8 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      backgroundColor: "#FFFFFF",
-                      border: "1px solid #EAE4EE",
+                      backgroundColor: previewInputBg,
+                      border: `1px solid ${previewInputBorder}`,
                       borderRadius: cardRadius,
                       height: "38px",
                       padding: "0 10px",
@@ -221,7 +238,7 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                       <Lock size={14} color="var(--text-light)" />
-                      <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>••••••••••••</span>
+                      <span style={{ fontSize: "12px", color: previewMutedColor }}>••••••••••••</span>
                     </div>
                     <Eye size={14} color="var(--text-light)" />
                   </div>
@@ -245,7 +262,7 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
                     >
                       ✓
                     </div>
-                    <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>Remember me</span>
+                    <span style={{ fontSize: "11px", color: previewMutedColor }}>Remember me</span>
                   </div>
 
                   <span style={{ fontSize: "11px", fontWeight: 600, color: primaryAccent, cursor: "pointer" }}>
@@ -290,15 +307,15 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
                   style={{
                     height: "38px",
                     borderRadius: cardRadius,
-                    backgroundColor: "#FFFFFF",
-                    border: "1px solid #EAE4EE",
+                    backgroundColor: previewInputBg,
+                    border: `1px solid ${previewInputBorder}`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "8px",
                     fontSize: "12px",
                     fontWeight: 600,
-                    color: "var(--text)",
+                    color: previewTextColor,
                   }}
                 >
                   <span style={{ fontWeight: 700, color: "#EA4335" }}>G</span>
@@ -309,7 +326,7 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
 
             {/* Sign Up Link */}
             {isSectionEnabled("signup_link", true) && (
-              <div style={{ textAlign: "center", fontSize: "11.5px", color: "var(--text-muted)", marginTop: "4px" }}>
+              <div style={{ textAlign: "center", fontSize: "11.5px", color: previewMutedColor, marginTop: "4px" }}>
                 <span>Don&apos;t have an account? </span>
                 <span style={{ color: primaryAccent, fontWeight: 700, cursor: "pointer" }}>Sign Up</span>
               </div>

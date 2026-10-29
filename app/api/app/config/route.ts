@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAllScreens } from "@/lib/screens";
+import { getDesignSystemConfig } from "@/lib/design-system";
 
 export const dynamic = "force-dynamic";
 
@@ -11,12 +12,19 @@ const CORS_HEADERS = {
 
 export async function GET() {
   const screens = getAllScreens().filter((s) => s.status !== "archived");
+  const designSystem = getDesignSystemConfig();
 
   // Client mobile app schema contract
   const publishedConfig = {
     platform: "Post Hub Mobile Client",
     schemaVersion: "2.1.0",
     publishedAt: new Date().toISOString(),
+    designSystem: {
+      theme: designSystem.guidelines?.theme || "Light",
+      colorTokens: designSystem.colorTokens,
+      guidelines: designSystem.guidelines,
+      components: designSystem.components,
+    },
     navigation: screens.map((screen) => ({
       id: screen.id,
       key: screen.key,
