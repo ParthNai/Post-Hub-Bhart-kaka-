@@ -61,10 +61,22 @@
     },
     "version": 3,
     "lastUpdated": "Oct 29, 2026",
-    "lastSavedAt": "Today at 3:32 PM",
+    "lastSavedAt": "Today at 3:36 PM",
     "history": [
       {
         "version": 3,
+        "savedAt": "Oct 29, 2026 at 3:36 PM",
+        "author": "Admin Workspace",
+        "changesSummary": "Draft updated: Home"
+      },
+      {
+        "version": 3,
+        "savedAt": "Oct 29, 2026 at 3:36 PM",
+        "author": "Admin Workspace",
+        "changesSummary": "Draft updated: Home"
+      },
+      {
+        "version": 3,
         "savedAt": "Oct 29, 2026 at 3:32 PM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
@@ -108,24 +120,12 @@
       {
         "version": 3,
         "savedAt": "Oct 29, 2026 at 3:19 PM",
-        "author": "Admin Workspace",
-        "changesSummary": "Draft updated: Home"
-      },
-      {
-        "version": 3,
-        "savedAt": "Oct 29, 2026 at 3:17 PM",
-        "author": "Admin Workspace",
-        "changesSummary": "Draft updated: Home"
-      },
-      {
-        "version": 3,
-        "savedAt": "Oct 29, 2026 at 3:17 PM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
       }
     ],
     "createdAt": "2025-10-01T00:00:00.000Z",
-    "updatedAt": "2026-10-29T10:02:11.789Z",
+    "updatedAt": "2026-10-29T10:06:07.122Z",
     "isSample": true,
     "draftConfigData": {
       "bannerVisible": true,
@@ -329,7 +329,7 @@
     "id": "scr_login_007",
     "key": "login",
     "name": "Login & Authentication",
-    "description": "Sign in to access creative templates, AI Studio, and festival posters.",
+    "description": "AI Studio, and festival posters.",
     "category": "Account",
     "route": "/login",
     "iconName": "User",
@@ -389,9 +389,68 @@
     },
     "version": 1,
     "lastUpdated": "Oct 29, 2026",
-    "lastSavedAt": "Just now",
+    "lastSavedAt": "Today at 3:34 PM",
     "createdAt": "2026-10-29T10:00:00.000Z",
-    "updatedAt": "2026-10-29T10:00:36.599Z",
-    "isSample": false
+    "updatedAt": "2026-10-29T10:04:30.939Z",
+    "isSample": false,
+    "draftConfigData": {
+      "bannerVisible": true,
+      "headerTitle": "Welcome back",
+      "defaultLayout": "form_sections",
+      "activeTheme": "default",
+      "primaryAccent": "#7956C9",
+      "cardRadius": "14px",
+      "showInBottomNav": false,
+      "deepLinkRoute": "posthub://login",
+      "quickActionsEnabled": true,
+      "tagsFilterEnabled": false,
+      "sections": [
+        {
+          "id": "brand_header",
+          "title": "Brand Logo & Title",
+          "enabled": true,
+          "order": 1
+        },
+        {
+          "id": "welcome_text",
+          "title": "Welcome Headline & Subtitle",
+          "enabled": true,
+          "order": 2
+        },
+        {
+          "id": "credentials_form",
+          "title": "Email & Password Input Form",
+          "enabled": true,
+          "order": 3
+        },
+        {
+          "id": "social_login",
+          "title": "Social SSO (Continue with Google)",
+          "enabled": true,
+          "order": 4
+        },
+        {
+          "id": "signup_link",
+          "title": "Sign Up / Create Account Link",
+          "enabled": true,
+          "order": 5
+        }
+      ]
+    },
+    "hasUnpublishedChanges": true,
+    "history": [
+      {
+        "version": 1,
+        "savedAt": "Oct 29, 2026 at 3:34 PM",
+        "author": "Admin Workspace",
+        "changesSummary": "Draft updated: Login & Authentication"
+      },
+      {
+        "version": 1,
+        "savedAt": "Oct 29, 2026 at 3:33 PM",
+        "author": "Admin Workspace",
+        "changesSummary": "Draft updated: Login & Authentication"
+      }
+    ]
   }
 ]
