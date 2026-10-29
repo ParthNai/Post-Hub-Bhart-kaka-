@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
@@ -42,9 +43,9 @@ export default function LoginScreen() {
   const [remoteConfig, setRemoteConfig] = useState<ScreenConfig | null>(null);
   const [remoteDescription, setRemoteDescription] = useState<string>('');
 
-  // Fetch dynamic configuration from the Admin backend
-  useEffect(() => {
-    fetch('http://localhost:3000/api/app/config')
+  // Live polling of admin configuration (every 2.5s) so admin changes reflect in real-time
+  const fetchAdminConfig = () => {
+    fetch(`http://localhost:3000/api/app/config?t=${Date.now()}`, { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.navigation) {
@@ -58,6 +59,12 @@ export default function LoginScreen() {
         }
       })
       .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchAdminConfig();
+    const timer = setInterval(fetchAdminConfig, 2500);
+    return () => clearInterval(timer);
   }, []);
 
   // Section visibility check
@@ -68,10 +75,12 @@ export default function LoginScreen() {
   };
 
   const primaryAccent = remoteConfig?.primaryAccent || theme.primary;
-  const rawRadius = remoteConfig?.cardRadius ? parseInt(remoteConfig.cardRadius, 10) : 14;
-  const borderRadius = isNaN(rawRadius) ? 14 : rawRadius;
+  const rawRadius = remoteConfig?.cardRadius ? parseInt(remoteConfig.cardRadius, 10) : 16;
+  const borderRadius = isNaN(rawRadius) ? 16 : rawRadius;
   const headerTitle = remoteConfig?.headerTitle || 'Welcome back';
-  const subtitle = remoteDescription || 'Sign in to access your creative posters & AI studio.';
+  const subtitle = remoteDescription && remoteDescription !== '.'
+    ? remoteDescription
+    : 'Sign in to access your creative posters & AI studio.';
 
   const showBrandHeader = isSectionEnabled('brand_header', true);
   const showWelcomeText = isSectionEnabled('welcome_text', true);
@@ -106,7 +115,6 @@ export default function LoginScreen() {
         const data = await response.json();
         login(data.user.email, data.user.role, data.user.name);
       } else {
-        // Successful login fallback with member role
         login(loginEmail, 'member', loginEmail.split('@')[0]);
       }
     } catch {
@@ -123,214 +131,249 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={[styles.container, { backgroundColor: theme.background }]}
+      style={[styles.viewport, { backgroundColor: theme.background }]}
     >
-      <View style={styles.innerWrapper}>
-        <View style={styles.card}>
-          {/* 1. Brand Logo & Title */}
-          {showBrandHeader && (
-            <View style={styles.brandRow}>
-              <View style={[styles.logoBadge, { backgroundColor: primaryAccent, borderRadius: borderRadius - 2 }]}>
-                <Text style={styles.logoBadgeText}>P</Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-                <Text style={[styles.brandTextPrimary, { color: theme.text }]}>Post</Text>
-                <Text style={[styles.brandTextAccent, { color: primaryAccent }]}>Hub</Text>
-              </View>
-            </View>
-          )}
-
-          {/* 2. Welcome Headline & Subtitle */}
-          {showWelcomeText && (
-            <View style={styles.headerBlock}>
-              <Text style={[styles.title, { color: theme.text }]}>{headerTitle}</Text>
-              <Text style={[styles.subtitle, { color: theme.tabIconDefault }]}>{subtitle}</Text>
-            </View>
-          )}
-
-          {/* Error Message */}
-          {errorMessage ? (
-            <View style={styles.errorBox}>
-              <Ionicons name="alert-circle" size={16} color="#D9383A" style={{ marginRight: 6 }} />
-              <Text style={styles.errorText}>{errorMessage}</Text>
-            </View>
-          ) : null}
-
-          {/* 3. Credentials Form */}
-          {showCredentials && (
-            <View style={styles.form}>
-              {/* Email */}
-              <View style={styles.inputGroup}>
-                <Text style={[styles.inputLabel, { color: theme.text }]}>Email Address</Text>
+      <ScrollView
+        contentContainerStyle={styles.scrollWrapper}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.cardContainer}>
+          {/* Main White Card with Elevation */}
+          <View
+            style={[
+              styles.card,
+              {
+                backgroundColor: theme.card,
+                borderColor: theme.border,
+                borderRadius: borderRadius,
+              },
+            ]}
+          >
+            {/* 1. Brand Logo & Name */}
+            {showBrandHeader && (
+              <View style={styles.brandRow}>
                 <View
                   style={[
-                    styles.inputField,
+                    styles.logoBadge,
                     {
-                      backgroundColor: theme.card,
-                      borderColor: theme.border,
-                      borderRadius: borderRadius,
+                      backgroundColor: primaryAccent,
+                      borderRadius: Math.max(8, borderRadius - 6),
+                      shadowColor: primaryAccent,
                     },
                   ]}
                 >
-                  <Ionicons name="mail-outline" size={18} color={theme.tabIconDefault} style={styles.inputIcon} />
-                  <TextInput
-                    placeholder="name@example.com"
-                    placeholderTextColor={theme.tabIconDefault}
-                    value={email}
-                    onChangeText={(t) => {
-                      setEmail(t);
-                      setErrorMessage('');
-                    }}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    style={[styles.textInput, { color: theme.text }]}
-                  />
+                  <Text style={styles.logoBadgeText}>P</Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+                  <Text style={[styles.brandTextPrimary, { color: theme.text }]}>Post</Text>
+                  <Text style={[styles.brandTextAccent, { color: primaryAccent }]}>Hub</Text>
                 </View>
               </View>
+            )}
 
-              {/* Password */}
-              <View style={styles.inputGroup}>
-                <Text style={[styles.inputLabel, { color: theme.text }]}>Password</Text>
-                <View
-                  style={[
-                    styles.inputField,
-                    {
-                      backgroundColor: theme.card,
-                      borderColor: theme.border,
-                      borderRadius: borderRadius,
-                    },
-                  ]}
-                >
-                  <Ionicons name="lock-closed-outline" size={18} color={theme.tabIconDefault} style={styles.inputIcon} />
-                  <TextInput
-                    placeholder="••••••••••••"
-                    placeholderTextColor={theme.tabIconDefault}
-                    value={password}
-                    onChangeText={(t) => {
-                      setPassword(t);
-                      setErrorMessage('');
-                    }}
-                    secureTextEntry={!showPassword}
-                    style={[styles.textInput, { color: theme.text }]}
-                  />
+            {/* 2. Welcome Headline & Subtitle (Live editable from Admin) */}
+            {showWelcomeText && (
+              <View style={styles.headerBlock}>
+                <Text style={[styles.title, { color: theme.text }]}>{headerTitle}</Text>
+                <Text style={[styles.subtitle, { color: theme.tabIconDefault }]}>{subtitle}</Text>
+              </View>
+            )}
+
+            {/* Error Message */}
+            {errorMessage ? (
+              <View style={styles.errorBox}>
+                <Ionicons name="alert-circle" size={16} color="#D9383A" style={{ marginRight: 6 }} />
+                <Text style={styles.errorText}>{errorMessage}</Text>
+              </View>
+            ) : null}
+
+            {/* 3. Credentials Input Form */}
+            {showCredentials && (
+              <View style={styles.form}>
+                {/* Email Field */}
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.inputLabel, { color: theme.text }]}>Email address</Text>
+                  <View
+                    style={[
+                      styles.inputField,
+                      {
+                        backgroundColor: '#FAF9FC',
+                        borderColor: '#E6E0EB',
+                        borderRadius: Math.max(8, borderRadius - 4),
+                      },
+                    ]}
+                  >
+                    <Ionicons name="mail-outline" size={18} color={theme.tabIconDefault} style={styles.inputIcon} />
+                    <TextInput
+                      placeholder="admin@yourdomain.com"
+                      placeholderTextColor="#9A93A8"
+                      value={email}
+                      onChangeText={(t) => {
+                        setEmail(t);
+                        setErrorMessage('');
+                      }}
+                      autoCapitalize="none"
+                      keyboardType="email-address"
+                      style={[styles.textInput, { color: theme.text }]}
+                    />
+                  </View>
+                </View>
+
+                {/* Password Field */}
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.inputLabel, { color: theme.text }]}>Password</Text>
+                  <View
+                    style={[
+                      styles.inputField,
+                      {
+                        backgroundColor: '#FAF9FC',
+                        borderColor: '#E6E0EB',
+                        borderRadius: Math.max(8, borderRadius - 4),
+                      },
+                    ]}
+                  >
+                    <Ionicons name="lock-closed-outline" size={18} color={theme.tabIconDefault} style={styles.inputIcon} />
+                    <TextInput
+                      placeholder="••••••••••••"
+                      placeholderTextColor="#9A93A8"
+                      value={password}
+                      onChangeText={(t) => {
+                        setPassword(t);
+                        setErrorMessage('');
+                      }}
+                      secureTextEntry={!showPassword}
+                      style={[styles.textInput, { color: theme.text }]}
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowPassword(!showPassword)}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      <Ionicons
+                        name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                        size={18}
+                        color={theme.tabIconDefault}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* Remember Me & Forgot Password Row */}
+                <View style={styles.metaRow}>
                   <TouchableOpacity
-                    onPress={() => setShowPassword(!showPassword)}
-                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    style={styles.rememberMeContainer}
+                    activeOpacity={0.7}
+                    onPress={() => setRememberMe(!rememberMe)}
                   >
                     <Ionicons
-                      name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                      size={18}
-                      color={theme.tabIconDefault}
+                      name={rememberMe ? 'checkbox' : 'square-outline'}
+                      size={17}
+                      color={rememberMe ? primaryAccent : theme.tabIconDefault}
                     />
+                    <Text style={[styles.rememberMeText, { color: theme.tabIconDefault }]}>Remember me</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity activeOpacity={0.7}>
+                    <Text style={[styles.forgotText, { color: primaryAccent }]}>Forgot password?</Text>
                   </TouchableOpacity>
                 </View>
-              </View>
 
-              {/* Remember Me & Forgot Password Row */}
-              <View style={styles.metaRow}>
+                {/* Sign In CTA Button */}
                 <TouchableOpacity
-                  style={styles.rememberMeContainer}
-                  activeOpacity={0.7}
-                  onPress={() => setRememberMe(!rememberMe)}
+                  style={[
+                    styles.submitButton,
+                    {
+                      backgroundColor: primaryAccent,
+                      borderRadius: Math.max(8, borderRadius - 4),
+                      shadowColor: primaryAccent,
+                    },
+                  ]}
+                  activeOpacity={0.88}
+                  onPress={handleLogin}
+                  disabled={loading}
                 >
-                  <Ionicons
-                    name={rememberMe ? 'checkbox' : 'square-outline'}
-                    size={18}
-                    color={rememberMe ? primaryAccent : theme.tabIconDefault}
-                  />
-                  <Text style={[styles.rememberMeText, { color: theme.tabIconDefault }]}>Remember me</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity activeOpacity={0.7}>
-                  <Text style={[styles.forgotText, { color: primaryAccent }]}>Forgot password?</Text>
+                  {loading ? (
+                    <ActivityIndicator color="#FFFFFF" size="small" />
+                  ) : (
+                    <Text style={styles.submitButtonText}>Sign In</Text>
+                  )}
                 </TouchableOpacity>
               </View>
+            )}
 
-              {/* Sign In CTA */}
-              <TouchableOpacity
-                style={[
-                  styles.submitButton,
-                  {
-                    backgroundColor: primaryAccent,
-                    borderRadius: borderRadius,
-                    shadowColor: primaryAccent,
-                  },
-                ]}
-                activeOpacity={0.88}
-                onPress={handleLogin}
-                disabled={loading}
-              >
-                {loading ? (
-                  <ActivityIndicator color="#FFFFFF" size="small" />
-                ) : (
-                  <Text style={styles.submitButtonText}>Sign In</Text>
-                )}
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {/* 4. Social Login */}
-          {showSocialLogin && (
-            <View style={styles.socialWrapper}>
-              <View style={styles.divider}>
-                <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
-                <Text style={[styles.dividerText, { color: theme.tabIconDefault }]}>or</Text>
-                <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
-              </View>
-
-              <TouchableOpacity
-                style={[
-                  styles.socialButton,
-                  {
-                    backgroundColor: theme.card,
-                    borderColor: theme.border,
-                    borderRadius: borderRadius,
-                  },
-                ]}
-                activeOpacity={0.8}
-                onPress={handleSocialLogin}
-              >
-                <View style={styles.googleIconCircle}>
-                  <Text style={styles.googleLetter}>G</Text>
+            {/* 4. Social Login (Google SSO) */}
+            {showSocialLogin && (
+              <View style={styles.socialWrapper}>
+                <View style={styles.divider}>
+                  <View style={[styles.dividerLine, { backgroundColor: '#ECE7F0' }]} />
+                  <Text style={[styles.dividerText, { color: '#9A93A8' }]}>OR</Text>
+                  <View style={[styles.dividerLine, { backgroundColor: '#ECE7F0' }]} />
                 </View>
-                <Text style={[styles.socialButtonText, { color: theme.text }]}>Continue with Google</Text>
-              </TouchableOpacity>
-            </View>
-          )}
 
-          {/* 5. Sign Up Link */}
-          {showSignupLink && (
-            <View style={styles.footerRow}>
-              <Text style={[styles.footerText, { color: theme.tabIconDefault }]}>Don't have an account? </Text>
-              <TouchableOpacity activeOpacity={0.7}>
-                <Text style={[styles.signupText, { color: primaryAccent }]}>Create account</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+                <TouchableOpacity
+                  style={[
+                    styles.socialButton,
+                    {
+                      backgroundColor: '#FFFFFF',
+                      borderColor: '#E6E0EB',
+                      borderRadius: Math.max(8, borderRadius - 4),
+                    },
+                  ]}
+                  activeOpacity={0.82}
+                  onPress={handleSocialLogin}
+                >
+                  <View style={styles.googleIconCircle}>
+                    <Text style={styles.googleLetter}>G</Text>
+                  </View>
+                  <Text style={[styles.socialButtonText, { color: theme.text }]}>Continue with Google</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* 5. Footer Sign Up Link */}
+            {showSignupLink && (
+              <View style={styles.footerRow}>
+                <Text style={[styles.footerText, { color: theme.tabIconDefault }]}>Don't have an account? </Text>
+                <TouchableOpacity activeOpacity={0.7}>
+                  <Text style={[styles.signupText, { color: primaryAccent }]}>Create account</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  viewport: {
     flex: 1,
     height: '100%',
     width: '100%',
+  },
+  scrollWrapper: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 24,
   },
-  innerWrapper: {
+  cardContainer: {
     width: '100%',
-    maxWidth: 440,
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 16,
+    maxWidth: 420,
+    alignItems: 'center',
   },
   card: {
     width: '100%',
+    borderWidth: 1,
+    paddingHorizontal: 28,
+    paddingVertical: 32,
+    shadowColor: '#24213A',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.06,
+    shadowRadius: 18,
+    elevation: 3,
   },
   brandRow: {
     flexDirection: 'row',
@@ -339,8 +382,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   logoBadge: {
-    width: 34,
-    height: 34,
+    width: 32,
+    height: 32,
     alignItems: 'center',
     justifyContent: 'center',
     shadowOffset: { width: 0, height: 2 },
@@ -351,31 +394,31 @@ const styles = StyleSheet.create({
   logoBadgeText: {
     color: '#FFFFFF',
     fontWeight: '800',
-    fontSize: 18,
-    lineHeight: 20,
+    fontSize: 17,
+    lineHeight: 19,
   },
   brandTextPrimary: {
-    fontSize: 20,
+    fontSize: 19,
     fontWeight: '700',
     letterSpacing: -0.4,
   },
   brandTextAccent: {
-    fontSize: 20,
+    fontSize: 19,
     fontWeight: '800',
     letterSpacing: -0.4,
   },
   headerBlock: {
-    marginBottom: 20,
+    marginBottom: 22,
   },
   title: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '800',
     letterSpacing: -0.5,
     marginBottom: 6,
   },
   subtitle: {
-    fontSize: 13.5,
-    lineHeight: 19,
+    fontSize: 13,
+    lineHeight: 18,
   },
   errorBox: {
     flexDirection: 'row',
@@ -401,8 +444,9 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   inputLabel: {
-    fontSize: 12.5,
+    fontSize: 12,
     fontWeight: '600',
+    letterSpacing: -0.1,
   },
   inputField: {
     flexDirection: 'row',
@@ -416,7 +460,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 13.5,
     paddingVertical: 0,
   },
   metaRow: {
@@ -431,30 +475,31 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   rememberMeText: {
-    fontSize: 12.5,
+    fontSize: 12,
     fontWeight: '500',
   },
   forgotText: {
-    fontSize: 12.5,
+    fontSize: 12,
     fontWeight: '600',
   },
   submitButton: {
-    height: 48,
+    height: 46,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 6,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.28,
+    shadowOpacity: 0.25,
     shadowRadius: 8,
     elevation: 4,
   },
   submitButtonText: {
     color: '#FFFFFF',
-    fontSize: 15,
+    fontSize: 14.5,
     fontWeight: '700',
+    letterSpacing: 0.2,
   },
   socialWrapper: {
-    marginTop: 16,
+    marginTop: 18,
     gap: 12,
   },
   divider: {
@@ -467,9 +512,9 @@ const styles = StyleSheet.create({
     height: 1,
   },
   dividerText: {
-    fontSize: 12,
-    fontWeight: '500',
-    textTransform: 'uppercase',
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 0.5,
   },
   socialButton: {
     flexDirection: 'row',
@@ -478,6 +523,11 @@ const styles = StyleSheet.create({
     height: 44,
     borderWidth: 1,
     gap: 8,
+    shadowColor: '#24213A',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
   googleIconCircle: {
     width: 20,
@@ -499,7 +549,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 22,
   },
   footerText: {
     fontSize: 12.5,

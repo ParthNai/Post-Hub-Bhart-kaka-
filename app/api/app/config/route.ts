@@ -12,15 +12,22 @@ export async function GET() {
     schemaVersion: "2.1.0",
     publishedAt: new Date().toISOString(),
     navigation: screens.map((screen) => ({
+      id: screen.id,
       key: screen.key,
       name: screen.name,
+      description: screen.description,
       route: screen.route,
       icon: screen.iconName,
       category: screen.category,
       status: screen.status,
       version: screen.version,
+      visibilityEnabled: screen.visibilityEnabled ?? true,
+      minAppVersion: screen.minAppVersion || "1.0.0",
       capabilities: screen.supportedCapabilities,
-      layoutConfig: screen.configData,
+      layoutConfig: {
+        ...screen.configData,
+        ...(screen.draftConfigData || {}),
+      },
     })),
   };
 
