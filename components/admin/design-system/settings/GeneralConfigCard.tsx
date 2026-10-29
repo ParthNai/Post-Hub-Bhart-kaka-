@@ -169,3 +169,4 @@ export const GeneralConfigCard: React.FC<GeneralConfigCardProps> = ({ general, o
     </div>
   );
 };
+

@@ -51,7 +51,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     href: "/admin/templates",
     iconName: "FileText",
     description: "Browse, create, and publish editable poster, flyer, and social media templates.",
-    implemented: false,
+    implemented: true,
   },
   {
     id: "ai-generation",

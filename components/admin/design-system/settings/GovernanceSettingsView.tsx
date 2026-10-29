@@ -235,3 +235,4 @@ export const GovernanceSettingsView: React.FC<GovernanceSettingsViewProps> = ({
     </div>
   );
 };
+

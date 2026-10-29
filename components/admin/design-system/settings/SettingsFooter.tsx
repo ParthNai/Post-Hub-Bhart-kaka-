@@ -127,3 +127,4 @@ export const SettingsFooter: React.FC<SettingsFooterProps> = ({
     </div>
   );
 };
+

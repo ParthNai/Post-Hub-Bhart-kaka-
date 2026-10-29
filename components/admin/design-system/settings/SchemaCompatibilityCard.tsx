@@ -84,3 +84,4 @@ export const SchemaCompatibilityCard: React.FC<SchemaCompatibilityCardProps> = (
     </div>
   );
 };
+

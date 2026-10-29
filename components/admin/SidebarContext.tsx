@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useSyncExternalStore } from "react";
 
 interface SidebarContextType {
   isCollapsed: boolean;
@@ -20,43 +20,51 @@ const SidebarContext = createContext<SidebarContextType>({
 
 export const useSidebar = () => useContext(SidebarContext);
 
-export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
-  const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false);
-  const [mounted, setMounted] = useState<boolean>(false);
+function getSidebarSnapshot(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return localStorage.getItem("posthub_sidebar_collapsed") === "true";
+  } catch {
+    return false;
+  }
+}
 
-  useEffect(() => {
-    setMounted(true);
-    try {
-      const stored = localStorage.getItem("posthub_sidebar_collapsed");
-      if (stored !== null) {
-        setIsCollapsed(stored === "true");
-      }
-    } catch {
-      // Ignore localStorage errors
-    }
-  }, []);
+function getSidebarServerSnapshot(): boolean {
+  return false;
+}
+
+function subscribeToSidebar(callback: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener("storage", callback);
+  return () => window.removeEventListener("storage", callback);
+}
+
+export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const isCollapsed = useSyncExternalStore(
+    subscribeToSidebar,
+    getSidebarSnapshot,
+    getSidebarServerSnapshot
+  );
+  const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false);
 
   const toggleSidebar = () => {
     if (typeof window !== "undefined" && window.innerWidth <= 1024) {
       setIsMobileOpen((prev) => !prev);
     } else {
-      setIsCollapsed((prev) => {
-        const next = !prev;
-        try {
-          localStorage.setItem("posthub_sidebar_collapsed", String(next));
-        } catch {
-          // Ignore
-        }
-        return next;
-      });
+      try {
+        const next = !getSidebarSnapshot();
+        localStorage.setItem("posthub_sidebar_collapsed", String(next));
+        window.dispatchEvent(new Event("storage"));
+      } catch {
+        // Ignore
+      }
     }
   };
 
   const handleSetCollapsed = (collapsed: boolean) => {
-    setIsCollapsed(collapsed);
     try {
       localStorage.setItem("posthub_sidebar_collapsed", String(collapsed));
+      window.dispatchEvent(new Event("storage"));
     } catch {
       // Ignore
     }
@@ -65,7 +73,7 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
   return (
     <SidebarContext.Provider
       value={{
-        isCollapsed: mounted ? isCollapsed : false,
+        isCollapsed,
         isMobileOpen,
         toggleSidebar,
         setCollapsed: handleSetCollapsed,
@@ -76,4 +84,3 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
     </SidebarContext.Provider>
   );
 };
-

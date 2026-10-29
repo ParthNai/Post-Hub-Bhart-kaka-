@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types tests/auth.test.mjs && node --experimental-strip-types tests/dashboard.test.mjs && node --experimental-strip-types tests/screens.test.mjs && node --experimental-strip-types tests/configuration.test.mjs && node --experimental-strip-types tests/design-system.test.mjs && node --experimental-strip-types tests/colors.test.mjs && node --experimental-strip-types tests/spacing.test.mjs && node --experimental-strip-types tests/token-usage.test.mjs && node --experimental-strip-types tests/version-history.test.mjs && node --experimental-strip-types tests/export-import.test.mjs && node --experimental-strip-types tests/governance-settings.test.mjs",
+    "test": "node --experimental-strip-types tests/auth.test.mjs && node --experimental-strip-types tests/dashboard.test.mjs && node --experimental-strip-types tests/screens.test.mjs && node --experimental-strip-types tests/configuration.test.mjs && node --experimental-strip-types tests/design-system.test.mjs && node --experimental-strip-types tests/colors.test.mjs && node --experimental-strip-types tests/spacing.test.mjs && node --experimental-strip-types tests/token-usage.test.mjs && node --experimental-strip-types tests/version-history.test.mjs && node --experimental-strip-types tests/export-import.test.mjs && node --experimental-strip-types tests/governance-settings.test.mjs && node --experimental-strip-types tests/templates.test.mjs",
     "test:api": "node tests/api.test.mjs"
   },
   "dependencies": {

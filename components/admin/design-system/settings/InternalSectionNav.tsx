@@ -71,3 +71,4 @@ export const InternalSectionNav: React.FC<InternalSectionNavProps> = ({
     </div>
   );
 };
+

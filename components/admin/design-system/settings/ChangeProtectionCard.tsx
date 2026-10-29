@@ -148,3 +148,4 @@ export const ChangeProtectionCard: React.FC<ChangeProtectionCardProps> = ({
     </div>
   );
 };
+

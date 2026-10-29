@@ -196,3 +196,4 @@ export const ValidationRulesCard: React.FC<ValidationRulesCardProps> = ({ rules,
     </div>
   );
 };
+

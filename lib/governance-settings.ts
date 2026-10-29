@@ -190,3 +190,4 @@ export function validateGovernanceSettings(settings: Partial<GovernanceSettingsC
     errors,
   };
 }
+

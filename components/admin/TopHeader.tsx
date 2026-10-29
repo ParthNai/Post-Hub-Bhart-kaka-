@@ -9,7 +9,6 @@ import {
   Home,
   User,
   ChevronDown,
-  Menu,
   CheckCircle2,
   ExternalLink,
   LogOut,

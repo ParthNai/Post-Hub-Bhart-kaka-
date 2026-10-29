@@ -17,3 +17,4 @@ export default async function AdminGovernanceSettingsPage() {
 
   return <GovernanceSettingsView initialSettings={settings} />;
 }
+
