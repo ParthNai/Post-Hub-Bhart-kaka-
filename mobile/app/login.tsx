@@ -153,17 +153,17 @@ export default function LoginScreen() {
       border: remoteDesignSystem?.colorTokens?.border || '#E5E7EB',
       inputBg: '#FAF9FC',
       inputBorder: '#E5E7EB',
-      primary: customAccent || '#7956C9',
+      primary: customAccent || '#8B3DFF',
       divider: '#ECE7F0',
     };
   }, [activeThemePreset, customAccent, customBg, remoteDesignSystem]);
 
-  const rawRadius = remoteConfig?.cardRadius ? parseInt(remoteConfig.cardRadius, 10) : 12;
-  const borderRadius = isNaN(rawRadius) ? 12 : rawRadius;
-  const headerTitle = remoteConfig?.headerTitle || 'Welcome back';
+  const rawRadius = remoteConfig?.cardRadius ? parseInt(remoteConfig.cardRadius, 10) : 24;
+  const borderRadius = isNaN(rawRadius) ? 24 : rawRadius;
+  const headerTitle = remoteConfig?.headerTitle || 'Log in or sign up in seconds';
   const subtitle = remoteDescription && remoteDescription.trim() !== ''
     ? remoteDescription
-    : 'Sign in to access poster templates and creative tools.';
+    : 'Use your email or another service to continue with PostHub.';
 
   const showBrandHeader = isSectionEnabled('brand_header', true);
   const showWelcomeText = isSectionEnabled('welcome_text', true);
@@ -262,12 +262,41 @@ export default function LoginScreen() {
               </View>
             ) : null}
 
+            {/* 4. Social Login (Google SSO) */}
+            {showSocialLogin && (
+              <View style={styles.socialWrapper}>
+                <TouchableOpacity
+                  style={[
+                    styles.socialButton,
+                    {
+                      backgroundColor: currentTheme.surface,
+                      borderColor: currentTheme.border,
+                      borderRadius: Math.max(8, borderRadius - 2),
+                    },
+                  ]}
+                  activeOpacity={0.82}
+                  onPress={handleSocialLogin}
+                >
+                  <View style={styles.googleIconCircle}>
+                    <Text style={styles.googleLetter}>G</Text>
+                  </View>
+                  <Text style={[styles.socialButtonText, { color: currentTheme.text }]}>Continue with Google</Text>
+                </TouchableOpacity>
+
+                <View style={styles.divider}>
+                  <View style={[styles.dividerLine, { backgroundColor: currentTheme.divider }]} />
+                  <Text style={[styles.dividerText, { color: currentTheme.textMuted }]}>or continue with email</Text>
+                  <View style={[styles.dividerLine, { backgroundColor: currentTheme.divider }]} />
+                </View>
+              </View>
+            )}
+
             {/* 3. Credentials Input Form */}
             {showCredentials && (
               <View style={styles.form}>
                 {/* Email Field */}
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: currentTheme.text }]}>Email Address</Text>
+                  <Text style={[styles.inputLabel, { color: currentTheme.text }]}>Email</Text>
                   <View
                     style={[
                       styles.inputField,
@@ -369,37 +398,8 @@ export default function LoginScreen() {
                   {loading ? (
                     <ActivityIndicator color="#FFFFFF" size="small" />
                   ) : (
-                    <Text style={styles.submitButtonText}>Sign In</Text>
+                    <Text style={styles.submitButtonText}>Log in</Text>
                   )}
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {/* 4. Social Login (Google SSO) */}
-            {showSocialLogin && (
-              <View style={styles.socialWrapper}>
-                <View style={styles.divider}>
-                  <View style={[styles.dividerLine, { backgroundColor: currentTheme.divider }]} />
-                  <Text style={[styles.dividerText, { color: currentTheme.textMuted }]}>OR</Text>
-                  <View style={[styles.dividerLine, { backgroundColor: currentTheme.divider }]} />
-                </View>
-
-                <TouchableOpacity
-                  style={[
-                    styles.socialButton,
-                    {
-                      backgroundColor: currentTheme.surface,
-                      borderColor: currentTheme.border,
-                      borderRadius: Math.max(8, borderRadius - 2),
-                    },
-                  ]}
-                  activeOpacity={0.82}
-                  onPress={handleSocialLogin}
-                >
-                  <View style={styles.googleIconCircle}>
-                    <Text style={styles.googleLetter}>G</Text>
-                  </View>
-                  <Text style={[styles.socialButtonText, { color: currentTheme.text }]}>Continue with Google</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -447,6 +447,7 @@ const styles = StyleSheet.create({
   brandRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 24,
     gap: 8,
   },
@@ -477,16 +478,19 @@ const styles = StyleSheet.create({
   },
   headerBlock: {
     marginBottom: 24,
+    alignItems: 'center',
   },
   title: {
     fontSize: 28,
     fontWeight: '800',
     letterSpacing: -0.6,
     marginBottom: 6,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 14,
     lineHeight: 20,
+    textAlign: 'center',
   },
   errorBox: {
     flexDirection: 'row',
@@ -566,11 +570,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   socialWrapper: {
-    marginTop: 20,
+    marginBottom: 24,
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 20,
     marginBottom: 18,
   },
   dividerLine: {
