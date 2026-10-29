@@ -18,7 +18,7 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
   const isLoginScreen =
     generalData.route === "/login" ||
     generalData.name.toLowerCase().includes("login") ||
-    (generalData as any).key === "login";
+    (generalData as unknown as { key?: string }).key === "login";
 
   // Section helper
   const isSectionEnabled = (sectionId: string, fallback = true) => {
@@ -310,7 +310,7 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
             {/* Sign Up Link */}
             {isSectionEnabled("signup_link", true) && (
               <div style={{ textAlign: "center", fontSize: "11.5px", color: "var(--text-muted)", marginTop: "4px" }}>
-                <span>Don't have an account? </span>
+                <span>Don&apos;t have an account? </span>
                 <span style={{ color: primaryAccent, fontWeight: 700, cursor: "pointer" }}>Sign Up</span>
               </div>
             )}

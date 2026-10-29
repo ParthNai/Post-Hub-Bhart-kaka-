@@ -507,6 +507,31 @@ export const DesignSystemView: React.FC<DesignSystemViewProps> = ({
                     <Grid size={14} /> Token Usage & Dependencies
                   </button>
 
+                  <button
+                    type="button"
+                    onClick={() => {
+                      router.push("/admin/design-system/settings");
+                      setMoreMenuOpen(false);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      padding: "8px 12px",
+                      fontSize: "12.5px",
+                      color: "var(--text)",
+                      background: "none",
+                      border: "none",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      width: "100%",
+                    }}
+                    className="menu-dropdown-item"
+                  >
+                    <Bookmark size={14} /> Settings & Governance
+                  </button>
+
                   {isDirty && (
                     <button
                       type="button"
