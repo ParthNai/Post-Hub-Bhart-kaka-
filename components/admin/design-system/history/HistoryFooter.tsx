@@ -37,3 +37,4 @@ export const HistoryFooter: React.FC<HistoryFooterProps> = ({ summary }) => {
     </footer>
   );
 };
+

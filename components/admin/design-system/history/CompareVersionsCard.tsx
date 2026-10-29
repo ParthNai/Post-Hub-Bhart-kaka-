@@ -308,3 +308,4 @@ export const CompareVersionsCard: React.FC<CompareVersionsCardProps> = ({
     </div>
   );
 };
+

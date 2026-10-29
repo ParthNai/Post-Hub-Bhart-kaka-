@@ -435,7 +435,7 @@ export const DesignSystemView: React.FC<DesignSystemViewProps> = ({
                   <button
                     type="button"
                     onClick={() => {
-                      setExportOpen(true);
+                      router.push("/admin/design-system/export-import");
                       setMoreMenuOpen(false);
                     }}
                     style={{
@@ -454,7 +454,7 @@ export const DesignSystemView: React.FC<DesignSystemViewProps> = ({
                     }}
                     className="menu-dropdown-item"
                   >
-                    <FileCode size={14} /> Export Tokens (JSON)
+                    <FileCode size={14} /> Export & Import Tokens
                   </button>
 
                   <button

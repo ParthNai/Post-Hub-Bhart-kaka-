@@ -216,3 +216,4 @@ export const HistoryHeader: React.FC<HistoryHeaderProps> = ({
     </header>
   );
 };
+

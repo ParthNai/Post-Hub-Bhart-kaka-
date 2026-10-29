@@ -17,3 +17,4 @@ export default async function AdminChangeHistoryPage() {
 
   return <HistoryView initialRecords={records} initialSummary={summary} />;
 }
+

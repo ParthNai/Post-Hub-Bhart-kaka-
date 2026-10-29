@@ -105,3 +105,4 @@ export const HistoryMetricsRow: React.FC<HistoryMetricsRowProps> = ({ summary })
     </div>
   );
 };
+

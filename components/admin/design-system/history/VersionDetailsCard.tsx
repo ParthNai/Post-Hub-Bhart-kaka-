@@ -174,3 +174,4 @@ export const VersionDetailsCard: React.FC<VersionDetailsCardProps> = ({ selected
     </div>
   );
 };
+

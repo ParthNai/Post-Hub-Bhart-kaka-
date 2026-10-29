@@ -267,3 +267,4 @@ export const ChangeHistoryTableCard: React.FC<ChangeHistoryTableCardProps> = ({
     </div>
   );
 };
+
