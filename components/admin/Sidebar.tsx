@@ -21,7 +21,9 @@ import {
   Settings,
   X,
   ChevronDown,
+  PanelLeftClose,
 } from "lucide-react";
+import { useSidebar } from "./SidebarContext";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -44,20 +46,24 @@ const ICON_MAP = {
   Settings,
 };
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const pathname = usePathname();
+  const { isCollapsed, isMobileOpen, toggleSidebar, setMobileOpen } = useSidebar();
+
+  const isActuallyMobileOpen = isOpen !== undefined ? isOpen : isMobileOpen;
+  const handleClose = onClose || (() => setMobileOpen(false));
 
   return (
     <>
       {/* Mobile Backdrop */}
-      {isOpen && (
+      {isActuallyMobileOpen && (
         <div
           role="button"
           tabIndex={0}
           aria-label="Close sidebar backdrop"
-          onClick={onClose}
+          onClick={handleClose}
           onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === "Escape") onClose?.();
+            if (e.key === "Enter" || e.key === "Escape") handleClose();
           }}
           style={{
             position: "fixed",
@@ -66,10 +72,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => 
             zIndex: 40,
             backdropFilter: "blur(2px)",
           }}
+          className="mobile-sidebar-backdrop"
         />
       )}
 
-      {/* Main Sidebar */}
+      {/* Main Slidable Floating Sidebar */}
       <aside
         style={{
           width: "250px",
@@ -79,12 +86,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => 
           borderRight: "1px solid var(--border)",
           display: "flex",
           flexDirection: "column",
-          position: "sticky",
+          position: "fixed",
+          left: 0,
           top: 0,
+          bottom: 0,
           zIndex: 45,
-          transition: "transform 0.25s ease-in-out",
+          transform: isCollapsed ? "translateX(-100%)" : "translateX(0)",
+          transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          boxShadow: isCollapsed ? "none" : "2px 0 16px rgba(36, 33, 58, 0.04)",
         }}
-        className={`admin-sidebar ${isOpen ? "open" : ""}`}
+        className={`admin-sidebar ${isCollapsed ? "collapsed" : "expanded"} ${isActuallyMobileOpen ? "open" : ""}`}
       >
         {/* Brand Header */}
         <div
@@ -93,19 +104,44 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => 
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "0 22px",
-            borderBottom: "1px solid transparent",
+            padding: "0 18px",
+            borderBottom: "1px solid var(--border)",
           }}
         >
-          <Link href="/admin/dashboard" style={{ display: "inline-flex", alignItems: "center" }}>
-            <BrandLogo size="sm" />
-          </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <Link href="/admin/dashboard" style={{ display: "inline-flex", alignItems: "center" }}>
+              <BrandLogo size="sm" />
+            </Link>
+          </div>
 
-          {/* Close button visible on small mobile screens */}
-          {onClose && (
+          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            {/* Slide Collapse Button (Desktop & Tablet) */}
             <button
               type="button"
-              onClick={onClose}
+              onClick={toggleSidebar}
+              className="sidebar-collapse-btn"
+              title="Slide navigation closed"
+              aria-label="Collapse sidebar navigation"
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: "6px",
+                borderRadius: "6px",
+                color: "var(--text-muted)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "all 0.15s ease",
+              }}
+            >
+              <PanelLeftClose size={18} />
+            </button>
+
+            {/* Mobile Close Button */}
+            <button
+              type="button"
+              onClick={handleClose}
               className="mobile-close-btn"
               aria-label="Close sidebar"
               style={{
@@ -119,7 +155,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => 
             >
               <X size={20} />
             </button>
-          )}
+          </div>
         </div>
 
         {/* Navigation list */}
@@ -263,17 +299,29 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => 
           background-color: var(--primary-light) !important;
           color: var(--text) !important;
         }
+        .sidebar-collapse-btn:hover {
+          background-color: var(--primary-light) !important;
+          color: var(--primary) !important;
+        }
+        @media (min-width: 1025px) {
+          .mobile-sidebar-backdrop {
+            display: none !important;
+          }
+        }
         @media (max-width: 1024px) {
+          .sidebar-collapse-btn {
+            display: none !important;
+          }
           .admin-sidebar {
             position: fixed !important;
             left: 0;
             top: 0;
             bottom: 0;
-            transform: translateX(-100%);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            transform: translateX(-100%) !important;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
           }
           .admin-sidebar.open {
-            transform: translateX(0);
+            transform: translateX(0) !important;
           }
           .mobile-close-btn {
             display: flex !important;

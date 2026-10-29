@@ -14,7 +14,10 @@ import {
   ExternalLink,
   LogOut,
   X,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
+import { useSidebar } from "./SidebarContext";
 
 interface TopHeaderProps {
   title?: string;
@@ -41,6 +44,9 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   adminEmail = "admin@posthub.io",
 }) => {
   const router = useRouter();
+  const { isCollapsed, toggleSidebar } = useSidebar();
+  const handleToggle = onMenuToggle || toggleSidebar;
+
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [notifications, setNotifications] = useState([
@@ -99,41 +105,53 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   return (
     <header
       style={{
-        padding: "24px 36px 12px 36px",
+        position: "sticky",
+        top: 0,
+        zIndex: 35,
+        backgroundColor: "rgba(250, 247, 242, 0.94)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        borderBottom: "1px solid rgba(234, 228, 238, 0.9)",
+        boxShadow: "0 2px 14px rgba(36, 33, 58, 0.04)",
+        padding: "16px 36px",
         display: "flex",
-        alignItems: "flex-start",
+        alignItems: "center",
         justifyContent: "space-between",
         gap: "24px",
         flexWrap: "wrap",
+        transition: "box-shadow 0.2s ease, background-color 0.2s ease",
       }}
       className="admin-top-header"
     >
       {/* Left Column: Titles & Breadcrumb */}
       <div>
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "4px" }}>
-          {onMenuToggle && (
-            <button
-              type="button"
-              onClick={onMenuToggle}
-              aria-label="Toggle navigation menu"
-              className="mobile-menu-toggle"
-              style={{
-                display: "none",
-                background: "var(--surface)",
-                border: "1px solid var(--border)",
-                padding: "8px",
-                borderRadius: "8px",
-                cursor: "pointer",
-                color: "var(--text)",
-              }}
-            >
-              <Menu size={18} />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={handleToggle}
+            aria-label={isCollapsed ? "Expand sidebar navigation" : "Collapse sidebar navigation"}
+            title={isCollapsed ? "Expand navigation (Slide in)" : "Collapse navigation (Slide out)"}
+            className="admin-sidebar-toggle-btn"
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              padding: "7px 9px",
+              borderRadius: "8px",
+              cursor: "pointer",
+              color: "var(--text)",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.15s ease",
+              boxShadow: "0 1px 3px rgba(36, 33, 58, 0.04)",
+            }}
+          >
+            {isCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+          </button>
 
           <h1
             style={{
-              fontSize: "24px",
+              fontSize: "22px",
               fontWeight: 700,
               color: "var(--text)",
               letterSpacing: "-0.02em",

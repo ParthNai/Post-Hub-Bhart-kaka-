@@ -601,6 +601,11 @@ export const ScreenConfigEditorView: React.FC<ScreenConfigEditorViewProps> = ({
                 flexDirection: "column",
                 gap: "4px",
                 flexShrink: 0,
+                position: "sticky",
+                top: "80px",
+                alignSelf: "flex-start",
+                maxHeight: "calc(100vh - 100px)",
+                overflowY: "auto",
               }}
             >
               {[

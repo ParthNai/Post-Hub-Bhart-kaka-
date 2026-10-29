@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
+import { SidebarProvider, useSidebar } from "./SidebarContext";
 import { Sidebar } from "./Sidebar";
 
 interface AdminLayoutClientProps {
   children: React.ReactNode;
 }
 
-export const AdminLayoutClient: React.FC<AdminLayoutClientProps> = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+const AdminLayoutContent: React.FC<AdminLayoutClientProps> = ({ children }) => {
+  const { isCollapsed, toggleSidebar } = useSidebar();
 
   return (
     <div
@@ -20,10 +21,10 @@ export const AdminLayoutClient: React.FC<AdminLayoutClientProps> = ({ children }
         position: "relative",
       }}
     >
-      {/* Sidebar */}
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      {/* Slidable Floating Sidebar Navigation */}
+      <Sidebar />
 
-      {/* Main Content Area */}
+      {/* Main Content Area with smooth transition matching sliding sidebar */}
       <div
         style={{
           flex: 1,
@@ -31,19 +32,40 @@ export const AdminLayoutClient: React.FC<AdminLayoutClientProps> = ({ children }
           display: "flex",
           flexDirection: "column",
           backgroundColor: "var(--bg)",
+          marginLeft: isCollapsed ? 0 : "250px",
+          transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          width: isCollapsed ? "100%" : "calc(100% - 250px)",
         }}
         id="admin-main-container"
+        className={`admin-main-wrapper ${isCollapsed ? "sidebar-collapsed" : ""}`}
       >
         {React.Children.map(children, (child) => {
           if (React.isValidElement(child)) {
             // Pass down onMenuToggle if child accepts it
             return React.cloneElement(child as React.ReactElement<{ onMenuToggle?: () => void }>, {
-              onMenuToggle: () => setSidebarOpen(true),
+              onMenuToggle: toggleSidebar,
             });
           }
           return child;
         })}
       </div>
+
+      <style jsx global>{`
+        @media (max-width: 1024px) {
+          #admin-main-container {
+            margin-left: 0 !important;
+            width: 100% !important;
+          }
+        }
+      `}</style>
     </div>
+  );
+};
+
+export const AdminLayoutClient: React.FC<AdminLayoutClientProps> = ({ children }) => {
+  return (
+    <SidebarProvider>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
+    </SidebarProvider>
   );
 };
