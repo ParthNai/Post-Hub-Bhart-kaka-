@@ -52,3 +52,4 @@ export const TokenUsageFooter: React.FC<TokenUsageFooterProps> = ({ summary }) =
     </footer>
   );
 };
+

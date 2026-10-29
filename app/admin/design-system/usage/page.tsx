@@ -17,3 +17,4 @@ export default async function AdminTokenUsagePage() {
 
   return <TokenUsageView initialTokens={tokens} initialSummary={summary} />;
 }
+
