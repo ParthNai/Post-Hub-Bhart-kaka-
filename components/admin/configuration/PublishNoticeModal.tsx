@@ -1,18 +1,22 @@
 "use client";
 
 import React from "react";
-import { Lock, X, Info } from "lucide-react";
+import { Send, X, Info, CheckCircle2 } from "lucide-react";
 
 interface PublishNoticeModalProps {
   isOpen: boolean;
   onClose: () => void;
   screenName: string;
+  onPublish?: () => Promise<void> | void;
+  isPublishing?: boolean;
 }
 
 export const PublishNoticeModal: React.FC<PublishNoticeModalProps> = ({
   isOpen,
   onClose,
   screenName,
+  onPublish,
+  isPublishing = false,
 }) => {
   if (!isOpen) return null;
 
@@ -41,7 +45,7 @@ export const PublishNoticeModal: React.FC<PublishNoticeModalProps> = ({
           left: "50%",
           top: "50%",
           transform: "translate(-50%, -50%)",
-          width: "460px",
+          width: "480px",
           maxWidth: "92vw",
           backgroundColor: "var(--surface)",
           borderRadius: "16px",
@@ -65,15 +69,15 @@ export const PublishNoticeModal: React.FC<PublishNoticeModalProps> = ({
               flexShrink: 0,
             }}
           >
-            <Lock size={20} />
+            <Send size={20} />
           </div>
 
           <div style={{ flex: 1 }}>
             <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--text)", margin: "0 0 4px 0" }}>
-              Publishing Service Integration
+              Publish Screen Configuration
             </h3>
             <p style={{ fontSize: "13px", color: "var(--text-muted)", margin: 0, lineHeight: 1.5 }}>
-              Live publication of &quot;{screenName}&quot; requires active mobile client integration.
+              Ready to publish &quot;{screenName}&quot; live to connected mobile app clients?
             </p>
           </div>
 
@@ -105,33 +109,75 @@ export const PublishNoticeModal: React.FC<PublishNoticeModalProps> = ({
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
             <Info size={15} style={{ color: "var(--primary)" }} />
             <span style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--text)" }}>
-              Publishing Pipeline Policy
+              Live Mobile Deployment
             </span>
           </div>
           <p style={{ fontSize: "12px", color: "var(--text-muted)", margin: 0, lineHeight: 1.5 }}>
-            To prevent breaking changes on live client devices, drafts are safely saved and versioned
-            in the database without altering existing production app builds until the publishing release
-            cycle is initiated.
+            Publishing promotes your current working draft to the active production configuration.
+            The Expo mobile app client will fetch and render this configuration in real time, and
+            the status indicator will update to <strong>Published</strong>.
           </p>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
           <button
             type="button"
             onClick={onClose}
             style={{
-              padding: "8px 18px",
+              padding: "8px 16px",
               borderRadius: "8px",
-              border: "none",
-              backgroundColor: "var(--primary)",
-              color: "#FFFFFF",
+              border: "1px solid var(--border)",
+              backgroundColor: "var(--surface)",
+              color: "var(--text)",
               fontSize: "13px",
-              fontWeight: 600,
+              fontWeight: 500,
               cursor: "pointer",
             }}
           >
-            Understood
+            Cancel
           </button>
+
+          {onPublish ? (
+            <button
+              type="button"
+              onClick={onPublish}
+              disabled={isPublishing}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "8px 20px",
+                borderRadius: "8px",
+                border: "none",
+                backgroundColor: "var(--primary)",
+                color: "#FFFFFF",
+                fontSize: "13px",
+                fontWeight: 600,
+                cursor: isPublishing ? "wait" : "pointer",
+                boxShadow: "0 2px 8px rgba(121, 86, 201, 0.25)",
+              }}
+            >
+              <CheckCircle2 size={15} />
+              <span>{isPublishing ? "Publishing to clients..." : "Publish to App Now"}</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                padding: "8px 18px",
+                borderRadius: "8px",
+                border: "none",
+                backgroundColor: "var(--primary)",
+                color: "#FFFFFF",
+                fontSize: "13px",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Understood
+            </button>
+          )}
         </div>
       </div>
     </>

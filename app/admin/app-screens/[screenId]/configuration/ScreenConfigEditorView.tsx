@@ -13,6 +13,8 @@ import {
   Clock,
   Lock,
   Code2,
+  Send,
+  Check,
 } from "lucide-react";
 import { TopHeader } from "@/components/admin/TopHeader";
 import { AppScreen } from "@/lib/screens";
@@ -71,6 +73,7 @@ export const ScreenConfigEditorView: React.FC<ScreenConfigEditorViewProps> = ({
 
   // UI state
   const [isSaving, setIsSaving] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [lastSavedTime, setLastSavedTime] = useState<string>(initialScreen.lastSavedAt || "Not saved yet");
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof GeneralFormData, string>>>({});
@@ -167,6 +170,56 @@ export const ScreenConfigEditorView: React.FC<ScreenConfigEditorViewProps> = ({
       setToastMessage("Network error while saving draft.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Publish operation (commits draft into production and notifies app clients)
+  const handlePublish = async () => {
+    const errors: Partial<Record<keyof GeneralFormData, string>> = {};
+    if (!generalData.name.trim()) errors.name = "Screen name is required.";
+    if (!generalData.description.trim()) errors.description = "Screen description is required.";
+    if (!generalData.route.trim().startsWith("/")) errors.route = "Route must begin with / (e.g. /home).";
+    if (!/^\d+(\.\d+)*$/.test(generalData.minAppVersion.trim())) {
+      errors.minAppVersion = "Version must be in format 1.0.0.";
+    }
+
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
+    setIsPublishing(true);
+    try {
+      const res = await fetch(`/api/admin/screens/${screen.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "publish",
+          name: generalData.name,
+          description: generalData.description,
+          category: generalData.category,
+          route: generalData.route,
+          visibilityEnabled: generalData.visibilityEnabled,
+          minAppVersion: generalData.minAppVersion,
+          configData,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.screen) {
+        setScreen(data.screen);
+        setBaselineGeneral({ ...generalData });
+        setBaselineConfig({ ...configData });
+        const timeStr = new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+        setLastSavedTime(`Published today at ${timeStr}`);
+        setShowPublishModal(false);
+        setToastMessage(`✓ "${data.screen.name}" published successfully to mobile app (v${data.screen.version}.0)!`);
+        setTimeout(() => setToastMessage(null), 4000);
+      } else {
+        setToastMessage(`Error: ${data.error || "Failed to publish screen."}`);
+      }
+    } catch {
+      setToastMessage("Network error while publishing screen.");
+    } finally {
+      setIsPublishing(false);
     }
   };
 
@@ -281,7 +334,7 @@ export const ScreenConfigEditorView: React.FC<ScreenConfigEditorViewProps> = ({
 
           {/* Top-Right Action Toolbar */}
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            {/* Draft status pill */}
+            {/* Status pill: Unsaved Draft vs Draft vs Published */}
             <span
               style={{
                 display: "inline-flex",
@@ -289,8 +342,16 @@ export const ScreenConfigEditorView: React.FC<ScreenConfigEditorViewProps> = ({
                 gap: "6px",
                 padding: "6px 14px",
                 borderRadius: "20px",
-                backgroundColor: "var(--primary-light)",
-                color: "var(--primary)",
+                backgroundColor: hasUnsavedChanges
+                  ? "#FEF6EE"
+                  : screen.hasUnpublishedChanges
+                  ? "var(--primary-light)"
+                  : "#EDF7F2",
+                color: hasUnsavedChanges
+                  ? "#D97706"
+                  : screen.hasUnpublishedChanges
+                  ? "var(--primary)"
+                  : "#12805C",
                 fontSize: "12.5px",
                 fontWeight: 600,
               }}
@@ -300,10 +361,20 @@ export const ScreenConfigEditorView: React.FC<ScreenConfigEditorViewProps> = ({
                   width: "6px",
                   height: "6px",
                   borderRadius: "50%",
-                  backgroundColor: "var(--primary)",
+                  backgroundColor: hasUnsavedChanges
+                    ? "#D97706"
+                    : screen.hasUnpublishedChanges
+                    ? "var(--primary)"
+                    : "#12805C",
                 }}
               />
-              <span>{hasUnsavedChanges ? "Unsaved Draft" : "Draft"}</span>
+              <span>
+                {hasUnsavedChanges
+                  ? "Unsaved Draft"
+                  : screen.hasUnpublishedChanges
+                  ? "Draft"
+                  : `Published v${screen.version}.0`}
+              </span>
             </span>
 
             {/* Preview Button */}
@@ -341,19 +412,54 @@ export const ScreenConfigEditorView: React.FC<ScreenConfigEditorViewProps> = ({
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "6px",
-                padding: "8px 18px",
+                padding: "8px 16px",
                 borderRadius: "8px",
-                border: "none",
-                backgroundColor: "var(--primary)",
-                color: "#FFFFFF",
+                border: "1px solid var(--border)",
+                backgroundColor: "var(--surface)",
+                color: "var(--text)",
                 fontSize: "13px",
                 fontWeight: 600,
                 cursor: isSaving ? "wait" : "pointer",
-                boxShadow: "0 2px 8px rgba(121, 86, 201, 0.2)",
               }}
               className="save-draft-btn"
             >
               {isSaving ? "Saving..." : "Save Draft"}
+            </button>
+
+            {/* Top Publish Button */}
+            <button
+              type="button"
+              onClick={() => setShowPublishModal(true)}
+              disabled={isPublishing}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "8px 18px",
+                borderRadius: "8px",
+                border: "none",
+                backgroundColor: !screen.hasUnpublishedChanges && !hasUnsavedChanges ? "#12805C" : "var(--primary)",
+                color: "#FFFFFF",
+                fontSize: "13px",
+                fontWeight: 600,
+                cursor: isPublishing ? "wait" : "pointer",
+                boxShadow: !screen.hasUnpublishedChanges && !hasUnsavedChanges
+                  ? "0 2px 8px rgba(18, 128, 92, 0.2)"
+                  : "0 2px 8px rgba(121, 86, 201, 0.2)",
+              }}
+              className="top-publish-btn"
+            >
+              {!screen.hasUnpublishedChanges && !hasUnsavedChanges ? (
+                <>
+                  <Check size={14} />
+                  <span>Published</span>
+                </>
+              ) : (
+                <>
+                  <Send size={13} />
+                  <span>{isPublishing ? "Publishing..." : "Publish"}</span>
+                </>
+              )}
             </button>
 
             {/* Overflow Options Button */}
@@ -652,13 +758,13 @@ export const ScreenConfigEditorView: React.FC<ScreenConfigEditorViewProps> = ({
                 style={{
                   padding: "3px 10px",
                   borderRadius: "12px",
-                  backgroundColor: "var(--primary-light)",
-                  color: "var(--primary)",
+                  backgroundColor: screen.hasUnpublishedChanges ? "var(--primary-light)" : "#EDF7F2",
+                  color: screen.hasUnpublishedChanges ? "var(--primary)" : "#12805C",
                   fontSize: "11.5px",
                   fontWeight: 600,
                 }}
               >
-                Current draft
+                {screen.hasUnpublishedChanges ? "Current draft" : `Published v${screen.version}.0`}
               </span>
 
               <span
@@ -727,40 +833,50 @@ export const ScreenConfigEditorView: React.FC<ScreenConfigEditorViewProps> = ({
               style={{
                 padding: "8px 20px",
                 borderRadius: "8px",
-                border: "none",
-                backgroundColor: "var(--primary)",
-                color: "#FFFFFF",
+                border: "1px solid var(--border)",
+                backgroundColor: "var(--surface)",
+                color: "var(--text)",
                 fontSize: "13px",
                 fontWeight: 600,
                 cursor: isSaving ? "wait" : "pointer",
-                boxShadow: "0 2px 8px rgba(121, 86, 201, 0.2)",
               }}
               className="save-draft-btn"
             >
               {isSaving ? "Saving..." : "Save Draft"}
             </button>
 
-            {/* Publish Button (with Lock Icon) */}
+            {/* Publish Button */}
             <button
               type="button"
               onClick={() => setShowPublishModal(true)}
+              disabled={isPublishing}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "6px",
-                padding: "8px 16px",
+                padding: "8px 20px",
                 borderRadius: "8px",
-                border: "1px solid #EAE4EE",
-                backgroundColor: "#FAF9FC",
-                color: "var(--text-light)",
+                border: "none",
+                backgroundColor: !screen.hasUnpublishedChanges && !hasUnsavedChanges ? "#12805C" : "var(--primary)",
+                color: "#FFFFFF",
                 fontSize: "13px",
-                fontWeight: 500,
-                cursor: "pointer",
+                fontWeight: 600,
+                cursor: isPublishing ? "wait" : "pointer",
+                boxShadow: "0 2px 8px rgba(121, 86, 201, 0.25)",
               }}
-              title="Publishing requires connected mobile client integration"
+              title="Publish configuration changes directly to mobile app clients"
             >
-              <Lock size={13} />
-              <span>Publish</span>
+              {!screen.hasUnpublishedChanges && !hasUnsavedChanges ? (
+                <>
+                  <Check size={14} />
+                  <span>Published (v{screen.version}.0)</span>
+                </>
+              ) : (
+                <>
+                  <Send size={13} />
+                  <span>{isPublishing ? "Publishing..." : "Publish to App"}</span>
+                </>
+              )}
             </button>
           </div>
         </section>
@@ -778,6 +894,8 @@ export const ScreenConfigEditorView: React.FC<ScreenConfigEditorViewProps> = ({
         isOpen={showPublishModal}
         onClose={() => setShowPublishModal(false)}
         screenName={generalData.name}
+        onPublish={handlePublish}
+        isPublishing={isPublishing}
       />
 
       <JsonConfigModal

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { findScreenByIdOrKey, saveScreenDraft, updateScreen, archiveScreen, deleteScreen } from "@/lib/screens";
+import { findScreenByIdOrKey, saveScreenDraft, publishScreen, updateScreen, archiveScreen, deleteScreen } from "@/lib/screens";
 import { getSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -40,6 +40,14 @@ export async function PATCH(
 
   try {
     const body = await req.json();
+
+    if (body.action === "publish" || body.isPublish) {
+      const result = publishScreen(target.id, body);
+      if (result.error) {
+        return NextResponse.json({ error: result.error }, { status: 400 });
+      }
+      return NextResponse.json({ success: true, screen: result.screen, message: "Screen published successfully to mobile clients." });
+    }
 
     if (body.action === "save_draft" || body.isDraft) {
       const result = saveScreenDraft(target.id, body);

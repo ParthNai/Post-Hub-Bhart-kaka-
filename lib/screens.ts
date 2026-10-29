@@ -460,6 +460,92 @@ export function saveScreenDraft(
   return { screen: updated };
 }
 
+export function publishScreen(
+  idOrKey: string,
+  payload?: {
+    name?: string;
+    description?: string;
+    category?: ScreenCategory;
+    route?: string;
+    visibilityEnabled?: boolean;
+    minAppVersion?: string;
+    configData?: Partial<AppScreen["configData"]>;
+  }
+): { screen?: AppScreen; error?: string } {
+  const screens = getAllScreens();
+  const query = idOrKey.toLowerCase().trim();
+  const index = screens.findIndex((s) => s.id === idOrKey || s.key.toLowerCase() === query);
+
+  if (index === -1) {
+    return { error: "Screen record not found." };
+  }
+
+  if (payload?.name !== undefined && !payload.name.trim()) {
+    return { error: "Screen display name is required." };
+  }
+  if (payload?.description !== undefined && !payload.description.trim()) {
+    return { error: "Screen description is required." };
+  }
+  if (payload?.route !== undefined) {
+    const r = payload.route.trim();
+    if (!r.startsWith("/")) {
+      return { error: "Route must begin with a forward slash (e.g. /home)." };
+    }
+  }
+
+  const dateNow = new Date();
+  const formattedTime = dateNow.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+  const formattedDate = dateNow.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const current = screens[index];
+  const mergedConfig = {
+    ...current.configData,
+    ...(current.draftConfigData || {}),
+    ...(payload?.configData || {}),
+  };
+
+  const newVersion = (current.version || 1) + 1;
+  const history = current.history ? [...current.history] : [];
+  history.unshift({
+    version: newVersion,
+    savedAt: `${formattedDate} at ${formattedTime}`,
+    author: "Admin Workspace",
+    changesSummary: `Published configuration v${newVersion}.0 to mobile app`,
+  });
+
+  const updated: AppScreen = {
+    ...current,
+    name: payload?.name !== undefined ? payload.name.trim() : current.name,
+    description: payload?.description !== undefined ? payload.description.trim() : current.description,
+    category: payload?.category || current.category,
+    route: payload?.route !== undefined ? payload.route.trim() : current.route,
+    visibilityEnabled: payload?.visibilityEnabled !== undefined ? payload.visibilityEnabled : (current.visibilityEnabled ?? true),
+    minAppVersion: payload?.minAppVersion !== undefined ? payload.minAppVersion.trim() : (current.minAppVersion || "1.0.0"),
+    status: "configured",
+    statusMessage: "Configured and published to mobile app clients",
+    configData: mergedConfig,
+    draftConfigData: undefined,
+    hasUnpublishedChanges: false,
+    version: newVersion,
+    lastSavedAt: `Published today at ${formattedTime}`,
+    lastUpdated: formattedDate,
+    updatedAt: dateNow.toISOString(),
+    history: history.slice(0, 10),
+  };
+
+  screens[index] = updated;
+  saveScreens(screens);
+  return { screen: updated };
+}
+
 export function createScreen(payload: {
   name: string;
   key: string;
@@ -557,6 +643,10 @@ export function updateScreen(
     ...current,
     ...updates,
     version: updates.configData ? current.version + 1 : current.version,
+    hasUnpublishedChanges: updates.hasUnpublishedChanges !== undefined
+      ? updates.hasUnpublishedChanges
+      : (updates.status === "configured" ? false : current.hasUnpublishedChanges),
+    draftConfigData: updates.status === "configured" ? undefined : (updates.draftConfigData ?? current.draftConfigData),
     lastUpdated: formattedDate,
     updatedAt: dateNow.toISOString(),
   };
