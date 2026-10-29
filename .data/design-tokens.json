@@ -1,7 +1,7 @@
 {
-  "version": 7,
+  "version": 9,
   "status": "draft",
-  "lastSavedAt": "2026-10-29T08:47:41.368Z",
+  "lastSavedAt": "2026-10-29T09:24:08.421Z",
   "lastSavedBy": "Unit Test Runner",
   "brandAssets": [
     {
@@ -156,6 +156,66 @@
     }
   },
   "history": [
+    {
+      "version": 8,
+      "savedAt": "2026-10-29T09:24:08.421Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v9)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "24px",
+          "headlineWeight": "700",
+          "bodySize": "14px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    },
+    {
+      "version": 7,
+      "savedAt": "2026-10-29T09:24:08.417Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v8)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "24px",
+          "headlineWeight": "700",
+          "bodySize": "14px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    },
     {
       "version": 6,
       "savedAt": "2026-10-29T08:47:41.368Z",

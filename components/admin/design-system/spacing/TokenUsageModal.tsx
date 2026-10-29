@@ -2,7 +2,7 @@
 
 import React from "react";
 import { SPACING_TOKEN_USAGE_REGISTRY } from "@/lib/spacing-tokens";
-import { X, Layers, ExternalLink } from "lucide-react";
+import { X, Layers } from "lucide-react";
 
 interface TokenUsageModalProps {
   isOpen: boolean;
