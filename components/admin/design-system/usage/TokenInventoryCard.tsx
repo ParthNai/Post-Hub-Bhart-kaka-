@@ -349,3 +349,4 @@ export const TokenInventoryCard: React.FC<TokenInventoryCardProps> = ({
     </div>
   );
 };
+

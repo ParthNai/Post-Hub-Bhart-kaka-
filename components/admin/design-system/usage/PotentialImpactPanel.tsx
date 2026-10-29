@@ -264,3 +264,4 @@ export const PotentialImpactPanel: React.FC<PotentialImpactPanelProps> = ({ sele
     </div>
   );
 };
+

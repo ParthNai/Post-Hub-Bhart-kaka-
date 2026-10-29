@@ -460,7 +460,7 @@ export const DesignSystemView: React.FC<DesignSystemViewProps> = ({
                   <button
                     type="button"
                     onClick={() => {
-                      setHistoryOpen(true);
+                      router.push("/admin/design-system/history");
                       setMoreMenuOpen(false);
                     }}
                     style={{
@@ -479,7 +479,7 @@ export const DesignSystemView: React.FC<DesignSystemViewProps> = ({
                     }}
                     className="menu-dropdown-item"
                   >
-                    <History size={14} /> View Token History
+                    <History size={14} /> Change History & Comparison
                   </button>
 
                   <button

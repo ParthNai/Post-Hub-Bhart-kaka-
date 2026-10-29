@@ -198,3 +198,4 @@ export const TokenDetailsPanel: React.FC<TokenDetailsPanelProps> = ({ selectedTo
     </div>
   );
 };
+

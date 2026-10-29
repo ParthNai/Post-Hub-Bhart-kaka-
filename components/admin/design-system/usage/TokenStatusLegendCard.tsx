@@ -96,3 +96,4 @@ export const TokenStatusLegendCard: React.FC = () => {
     </div>
   );
 };
+
