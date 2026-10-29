@@ -9,9 +9,9 @@
     "failedAttempts": 0,
     "createdAt": "2026-10-28T07:51:10.286Z",
     "lockedUntil": null,
-    "lastLoginAt": "2026-10-29T08:49:21.478Z",
-    "resetToken": "eefb2b887060bf064a257ba4c8e92ca8b1176ea6e49c641f57066a83cec9878f",
-    "resetTokenExpiry": 1793178041092
+    "lastLoginAt": "2026-10-29T09:23:34.253Z",
+    "resetToken": "58022aec0a0b9da6ceb6458ce93fbb48ca3a7bbb034232ed4096c3c4031b617a",
+    "resetTokenExpiry": 1793269414688
   },
   {
     "id": "usr_admin_002",
@@ -22,7 +22,8 @@
     "status": "active",
     "failedAttempts": 0,
     "createdAt": "2026-10-28T07:51:10.388Z",
-    "lockedUntil": null
+    "lockedUntil": null,
+    "lastLoginAt": "2026-10-29T09:22:14.477Z"
   },
   {
     "id": "usr_disabled_003",
