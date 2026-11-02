@@ -1,0 +1,10 @@
+{
+  "basePromptInstructions": "Create a professional, high-quality poster with clean design, modern typography and attractive visuals.",
+  "designStyleInstructions": "Use a clean and premium design style.",
+  "typographyGuidance": "Use clear and bold fonts, modern and readable.",
+  "colorGuidance": "Use brand colors: purple, white and elegant tones.",
+  "layoutGuidance": "Ensure clear visual hierarchy, balanced negative space, and mobile-friendly focus points.",
+  "negativePrompts": "blurry, low quality, distorted text, ugly faces, extra limbs, watermark, artifacts, pixelated",
+  "updatedAt": "Oct 28, 2026 04:32 PM",
+  "updatedBy": "Parth Patel"
+}

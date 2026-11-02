@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { RefreshCw, Settings, BookOpen, Bell } from "lucide-react";
+import { RefreshCw, Settings, BookOpen, Bell, Sparkles } from "lucide-react";
 
 interface AiGenerationHeaderProps {
   onRefresh: () => void;
@@ -177,6 +177,30 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
 
         {/* Action Buttons */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          {/* Prompt Rules & Presets button */}
+          <Link
+            href="/admin/ai-generation/presets"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "7px",
+              padding: "8px 14px",
+              borderRadius: "8px",
+              fontSize: "13px",
+              fontWeight: 600,
+              backgroundColor: "var(--surface)",
+              color: "var(--primary)",
+              border: "1px solid var(--border)",
+              cursor: "pointer",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+              transition: "all 0.15s ease",
+              textDecoration: "none",
+            }}
+          >
+            <Sparkles size={14} />
+            <span>Prompt Rules & Presets</span>
+          </Link>
+
           {/* Refresh button */}
           <button
             type="button"
