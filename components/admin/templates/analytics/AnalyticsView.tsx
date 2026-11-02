@@ -165,3 +165,4 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ initialData }) => 
     </div>
   );
 };
+

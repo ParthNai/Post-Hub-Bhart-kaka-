@@ -260,3 +260,4 @@ export const PublicationSettingsCard: React.FC<PublicationSettingsCardProps> = (
     </div>
   );
 };
+

@@ -235,3 +235,4 @@ export const PublishingView: React.FC<PublishingViewProps> = ({
     </div>
   );
 };
+

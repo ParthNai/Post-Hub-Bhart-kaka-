@@ -120,3 +120,4 @@ export const AnalyticsKpiCards: React.FC<AnalyticsKpiCardsProps> = ({ kpis }) =>
     </div>
   );
 };
+

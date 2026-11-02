@@ -71,7 +71,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     href: "/admin/ai-generation",
     iconName: "Sparkles",
     description: "Manage generative AI models, prompt styles, aspect ratios, and generation queues.",
-    implemented: false,
+    implemented: true,
   },
   {
     id: "festivals",

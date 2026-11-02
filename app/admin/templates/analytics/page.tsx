@@ -21,3 +21,4 @@ export default async function TemplateAnalyticsPage() {
 
   return <AnalyticsView initialData={initialData} />;
 }
+

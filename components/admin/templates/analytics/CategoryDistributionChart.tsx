@@ -90,3 +90,4 @@ export const CategoryDistributionChart: React.FC<CategoryDistributionChartProps>
     </div>
   );
 };
+

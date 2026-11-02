@@ -284,3 +284,4 @@ export const ValidationChecklistCard: React.FC<ValidationChecklistCardProps> = (
     </div>
   );
 };
+
