@@ -1,3 +1,9 @@
+export interface SubNavItem {
+  id: string;
+  label: string;
+  href: string;
+}
+
 export interface NavItem {
   id: string;
   label: string;
@@ -18,6 +24,7 @@ export interface NavItem {
     | "Settings";
   description: string;
   implemented: boolean;
+  subItems?: SubNavItem[];
 }
 
 export const ADMIN_NAV_ITEMS: NavItem[] = [
@@ -52,6 +59,10 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     iconName: "FileText",
     description: "Browse, create, and publish editable poster, flyer, and social media templates.",
     implemented: true,
+    subItems: [
+      { id: "categories", label: "Categories", href: "/admin/templates/categories" },
+      { id: "all-templates", label: "All Templates", href: "/admin/templates" },
+    ],
   },
   {
     id: "ai-generation",

@@ -27,7 +27,7 @@ test("Screen 13 — Templates Management Dashboard Test Suite", async (t) => {
     const expected = [
       { id: "TPL-001", name: "Business Promotion Poster", category: "Business", format: "3:4", status: "Published" },
       { id: "TPL-002", name: "Diwali Festival Greeting", category: "Festival", format: "4:5", status: "Draft" },
-      { id: "TPL-003", name: "Education Admission Poster", category: "Education", format: "9:16", status: "Published" },
+      { id: "TPL-003", name: "Education Admission Poster", category: "Education", format: "3:4", status: "Draft" },
       { id: "TPL-004", name: "Product Promotion Poster", category: "Promotion", format: "3:4", status: "Archived" },
       { id: "TPL-005", name: "Summer Sale Poster", category: "Promotion", format: "4:5", status: "Draft" },
       { id: "TPL-006", name: "Real Estate Poster", category: "Business", format: "3:4", status: "Published" },
@@ -52,8 +52,8 @@ test("Screen 13 — Templates Management Dashboard Test Suite", async (t) => {
   await t.test("2. Metrics calculation accurately counts template distributions", () => {
     const metrics = calculateTemplateMetrics(CANONICAL_TEMPLATES);
     assert.equal(metrics.total, 8, "Total count must be 8");
-    assert.equal(metrics.published, 4, "Published count must be 4");
-    assert.equal(metrics.drafts, 3, "Drafts count must be 3");
+    assert.equal(metrics.published, 3, "Published count must be 3");
+    assert.equal(metrics.drafts, 4, "Drafts count must be 4");
     assert.equal(metrics.archived, 1, "Archived count must be 1");
   });
 
@@ -90,10 +90,10 @@ test("Screen 13 — Templates Management Dashboard Test Suite", async (t) => {
 
   await t.test("5. Status filter isolates Published, Draft, and Archived templates", () => {
     const published = filterAndSortTemplates(CANONICAL_TEMPLATES, { status: "Published" });
-    assert.equal(published.length, 4);
+    assert.equal(published.length, 3);
 
     const drafts = filterAndSortTemplates(CANONICAL_TEMPLATES, { status: "Draft" });
-    assert.equal(drafts.length, 3);
+    assert.equal(drafts.length, 4);
 
     const archived = filterAndSortTemplates(CANONICAL_TEMPLATES, { status: "Archived" });
     assert.equal(archived.length, 1);
@@ -102,13 +102,13 @@ test("Screen 13 — Templates Management Dashboard Test Suite", async (t) => {
 
   await t.test("6. Format filter partitions by 3:4, 4:5, and 9:16 aspect ratios", () => {
     const f34 = filterAndSortTemplates(CANONICAL_TEMPLATES, { format: "3:4" });
-    assert.equal(f34.length, 3);
+    assert.equal(f34.length, 4);
 
     const f45 = filterAndSortTemplates(CANONICAL_TEMPLATES, { format: "4:5" });
     assert.equal(f45.length, 3);
 
     const f916 = filterAndSortTemplates(CANONICAL_TEMPLATES, { format: "9:16" });
-    assert.equal(f916.length, 2);
+    assert.equal(f916.length, 1);
   });
 
   await t.test("7. Sorting operates on alphabetical and chronological criteria", () => {

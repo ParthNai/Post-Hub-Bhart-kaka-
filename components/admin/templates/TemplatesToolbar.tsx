@@ -262,3 +262,4 @@ export const TemplatesToolbar: React.FC<TemplatesToolbarProps> = ({
     </div>
   );
 };
+

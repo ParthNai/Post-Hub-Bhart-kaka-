@@ -6,7 +6,7 @@ import { Home, Plus, LayoutGrid } from "lucide-react";
 
 interface TemplatesHeaderProps {
   onCreateTemplate: () => void;
-  onOpenCategories: () => void;
+  onOpenCategories?: () => void;
 }
 
 export const TemplatesHeader: React.FC<TemplatesHeaderProps> = ({
@@ -108,8 +108,8 @@ export const TemplatesHeader: React.FC<TemplatesHeaderProps> = ({
           <span>Create Template</span>
         </button>
 
-        <button
-          type="button"
+        <Link
+          href="/admin/templates/categories"
           onClick={onOpenCategories}
           style={{
             display: "inline-flex",
@@ -124,6 +124,7 @@ export const TemplatesHeader: React.FC<TemplatesHeaderProps> = ({
             fontWeight: 500,
             cursor: "pointer",
             transition: "all 0.15s ease",
+            textDecoration: "none",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = "var(--secondary, #F5F2F9)";
@@ -136,8 +137,9 @@ export const TemplatesHeader: React.FC<TemplatesHeaderProps> = ({
         >
           <LayoutGrid size={15} style={{ color: "var(--text-muted, #777184)" }} />
           <span>Categories</span>
-        </button>
+        </Link>
       </div>
     </div>
   );
 };
+

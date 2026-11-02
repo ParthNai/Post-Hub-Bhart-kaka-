@@ -35,6 +35,7 @@ export interface AppScreen {
     quickActionsEnabled?: boolean;
     activeTheme?: string;
     primaryAccent?: string;
+    backgroundColor?: string;
     cardRadius?: string;
     showInBottomNav?: boolean;
     deepLinkRoute?: string;

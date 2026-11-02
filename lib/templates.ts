@@ -1,6 +1,7 @@
 export type TemplateStatus = "Published" | "Draft" | "Archived";
 export type TemplateCategory = "Business" | "Festival" | "Education" | "Promotion" | "Custom";
 export type TemplateFormat = "3:4" | "4:5" | "9:16" | "1:1";
+export type TextAlignment = "Left" | "Center" | "Right";
 
 export interface PosterTemplate {
   id: string;
@@ -19,6 +20,19 @@ export interface PosterTemplate {
   accentColor?: string;
   tags?: string[];
   aspectRatio: string;
+  // Extended Screen 14 editor properties
+  assetFileName?: string;
+  assetDimensions?: string;
+  assetUrl?: string;
+  editableTextFields?: string[];
+  textColours?: string[];
+  fontSelection?: string;
+  imageSlots?: string[];
+  alignment?: TextAlignment;
+  bulletPoints?: string[];
+  slogan?: string;
+  logoText?: string;
+  tagline?: string;
 }
 
 export interface TemplateCategoryInfo {
@@ -60,6 +74,13 @@ export const TEMPLATE_CATEGORIES: TemplateCategoryInfo[] = [
   },
 ];
 
+export const FORMAT_DIMENSIONS_MAP: Record<TemplateFormat, string> = {
+  "3:4": "1024 × 1365 px",
+  "4:5": "1080 × 1350 px",
+  "9:16": "1080 × 1920 px",
+  "1:1": "1080 × 1080 px",
+};
+
 export const CANONICAL_TEMPLATES: PosterTemplate[] = [
   {
     id: "TPL-001",
@@ -78,6 +99,14 @@ export const CANONICAL_TEMPLATES: PosterTemplate[] = [
     accentColor: "#3B82F6",
     aspectRatio: "3:4",
     tags: ["Corporate", "Marketing", "Agency", "Growth"],
+    assetFileName: "business-promotion-poster.jpg",
+    assetDimensions: "1024 × 1365 px",
+    editableTextFields: ["Title", "Subtitle", "CTA Button"],
+    textColours: ["#1E3A8A", "#2563EB", "#60A5FA", "#FFFFFF"],
+    fontSelection: "Inter",
+    imageSlots: ["Main Image", "Logo"],
+    alignment: "Left",
+    slogan: "Top Rated Enterprise Solutions 2025",
   },
   {
     id: "TPL-002",
@@ -96,24 +125,42 @@ export const CANONICAL_TEMPLATES: PosterTemplate[] = [
     accentColor: "#F59E0B",
     aspectRatio: "4:5",
     tags: ["Festival", "Diwali", "Celebration", "Holiday"],
+    assetFileName: "diwali-greeting-poster.jpg",
+    assetDimensions: "1080 × 1350 px",
+    editableTextFields: ["Headline", "Subheadline", "Greeting Text"],
+    textColours: ["#FBBF24", "#F59E0B", "#FDE68A", "#FFFFFF"],
+    fontSelection: "Playfair Display",
+    imageSlots: ["Background Artwork", "Logo"],
+    alignment: "Center",
   },
   {
     id: "TPL-003",
     name: "Education Admission Poster",
     category: "Education",
-    format: "9:16",
-    status: "Published",
+    format: "3:4",
+    status: "Draft",
     updatedAt: "Apr 08, 2025",
-    fileSize: "290 KB",
-    description: "High-conversion educational campaign poster for university admissions, coaching institutes, and career programs.",
+    fileSize: "245 KB",
+    description: "Modern and professional education admission poster template for schools, colleges and coaching institutes.",
     theme: "education-blue",
     headline: "ADMISSION OPEN",
     subheadline: "Build Your Future",
-    ctaText: "Apply Now",
+    ctaText: "Enroll Now",
     primaryColor: "#0284C7",
-    accentColor: "#38BDF8",
-    aspectRatio: "9:16",
+    accentColor: "#F59E0B",
+    aspectRatio: "3:4",
     tags: ["Admission", "College", "Learning", "Courses"],
+    assetFileName: "education-admission-poster.jpg",
+    assetDimensions: "1024 × 1365 px",
+    editableTextFields: ["Title", "Subtitle", "Feature List"],
+    textColours: ["#1E3A8A", "#0284C7", "#F59E0B", "#F1F5F9"],
+    fontSelection: "Poppins",
+    imageSlots: ["Main Image", "Logo"],
+    alignment: "Center",
+    bulletPoints: ["Quality Education", "Expert Faculty", "Modern Campus"],
+    slogan: "For a Brighter Tomorrow",
+    logoText: "YOUR LOGO",
+    tagline: "Better Education Brighter Future",
   },
   {
     id: "TPL-004",
@@ -132,6 +179,13 @@ export const CANONICAL_TEMPLATES: PosterTemplate[] = [
     accentColor: "#A1A1AA",
     aspectRatio: "3:4",
     tags: ["Hardware", "Gadgets", "Audio", "Promotion"],
+    assetFileName: "product-headphones-poster.jpg",
+    assetDimensions: "1024 × 1365 px",
+    editableTextFields: ["Product Title", "Tagline", "Feature Bullets"],
+    textColours: ["#0F172A", "#64748B", "#334155", "#FFFFFF"],
+    fontSelection: "Inter",
+    imageSlots: ["Product Showcase", "Brand Badge"],
+    alignment: "Center",
   },
   {
     id: "TPL-005",
@@ -150,6 +204,13 @@ export const CANONICAL_TEMPLATES: PosterTemplate[] = [
     accentColor: "#F97316",
     aspectRatio: "4:5",
     tags: ["Summer", "Sale", "Discount", "Shopping"],
+    assetFileName: "summer-sale-poster.jpg",
+    assetDimensions: "1080 × 1350 px",
+    editableTextFields: ["Sale Heading", "Discount Badge", "CTA"],
+    textColours: ["#C2410C", "#EA580C", "#7C2D12", "#FFFFFF"],
+    fontSelection: "Montserrat",
+    imageSlots: ["Background Photo", "Sale Icon"],
+    alignment: "Center",
   },
   {
     id: "TPL-006",
@@ -168,6 +229,13 @@ export const CANONICAL_TEMPLATES: PosterTemplate[] = [
     accentColor: "#10B981",
     aspectRatio: "3:4",
     tags: ["Real Estate", "Luxury", "Architecture", "Property"],
+    assetFileName: "real-estate-poster.jpg",
+    assetDimensions: "1024 × 1365 px",
+    editableTextFields: ["Property Title", "Subheadline", "Address & Price"],
+    textColours: ["#0F172A", "#065F46", "#10B981", "#FFFFFF"],
+    fontSelection: "Poppins",
+    imageSlots: ["Property Photo", "Agent Photo"],
+    alignment: "Left",
   },
   {
     id: "TPL-007",
@@ -186,6 +254,13 @@ export const CANONICAL_TEMPLATES: PosterTemplate[] = [
     accentColor: "#60A5FA",
     aspectRatio: "9:16",
     tags: ["Conference", "Tech", "Keynote", "Innovation"],
+    assetFileName: "tech-conference-poster.jpg",
+    assetDimensions: "1080 × 1920 px",
+    editableTextFields: ["Event Name", "Keynote Title", "Dates"],
+    textColours: ["#818CF8", "#C7D2FE", "#6366F1", "#FFFFFF"],
+    fontSelection: "Inter",
+    imageSlots: ["Cyber Banner", "Speaker Headshots"],
+    alignment: "Left",
   },
   {
     id: "TPL-008",
@@ -204,6 +279,13 @@ export const CANONICAL_TEMPLATES: PosterTemplate[] = [
     accentColor: "#D97706",
     aspectRatio: "4:5",
     tags: ["Interior", "Living", "Furniture", "Home"],
+    assetFileName: "home-decor-poster.jpg",
+    assetDimensions: "1080 × 1350 px",
+    editableTextFields: ["Brand Header", "Collection Name", "Collection Season"],
+    textColours: ["#451A03", "#B45309", "#D97706", "#FFFFFF"],
+    fontSelection: "Playfair Display",
+    imageSlots: ["Interior Showcase", "Catalog Badge"],
+    alignment: "Center",
   },
 ];
 
@@ -256,7 +338,6 @@ export function filterAndSortTemplates(
   // Sort
   const sort = filters.sort || "Recently Updated";
   if (sort === "Recently Updated") {
-    // Sort by id descending (TPL-001 ... TPL-008 or date string)
     result.sort((a, b) => {
       const dateA = new Date(a.updatedAt).getTime() || 0;
       const dateB = new Date(b.updatedAt).getTime() || 0;
@@ -298,6 +379,12 @@ export function validateTemplateInput(input: Partial<PosterTemplate>): {
     errors.push("Template name is required.");
   } else if (input.name.trim().length < 3) {
     errors.push("Template name must be at least 3 characters long.");
+  } else if (input.name.trim().length > 100) {
+    errors.push("Template name cannot exceed 100 characters.");
+  }
+
+  if (input.description && input.description.length > 500) {
+    errors.push("Description cannot exceed 500 characters.");
   }
 
   const validCategories: TemplateCategory[] = ["Business", "Festival", "Education", "Promotion", "Custom"];

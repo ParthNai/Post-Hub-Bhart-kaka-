@@ -1,7 +1,7 @@
 {
-  "version": 28,
+  "version": 36,
   "status": "draft",
-  "lastSavedAt": "2026-10-29T11:12:23.661Z",
+  "lastSavedAt": "2026-11-02T05:46:18.129Z",
   "lastSavedBy": "Unit Test Runner",
   "brandAssets": [
     {
@@ -156,6 +156,246 @@
     }
   },
   "history": [
+    {
+      "version": 35,
+      "savedAt": "2026-11-02T05:46:18.129Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v36)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "32px",
+          "headlineWeight": "700",
+          "bodySize": "16px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    },
+    {
+      "version": 34,
+      "savedAt": "2026-11-02T05:46:18.124Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v35)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "32px",
+          "headlineWeight": "700",
+          "bodySize": "16px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    },
+    {
+      "version": 33,
+      "savedAt": "2026-11-02T05:30:45.580Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v34)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "32px",
+          "headlineWeight": "700",
+          "bodySize": "16px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    },
+    {
+      "version": 32,
+      "savedAt": "2026-11-02T05:30:45.575Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v33)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "32px",
+          "headlineWeight": "700",
+          "bodySize": "16px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    },
+    {
+      "version": 31,
+      "savedAt": "2026-10-29T11:53:20.056Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v32)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "32px",
+          "headlineWeight": "700",
+          "bodySize": "16px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    },
+    {
+      "version": 30,
+      "savedAt": "2026-10-29T11:53:20.052Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v31)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "32px",
+          "headlineWeight": "700",
+          "bodySize": "16px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    },
+    {
+      "version": 29,
+      "savedAt": "2026-10-29T11:50:36.753Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v30)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "32px",
+          "headlineWeight": "700",
+          "bodySize": "16px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    },
+    {
+      "version": 28,
+      "savedAt": "2026-10-29T11:50:36.749Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v29)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "32px",
+          "headlineWeight": "700",
+          "bodySize": "16px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    },
     {
       "version": 27,
       "savedAt": "2026-10-29T11:12:23.661Z",
@@ -511,246 +751,6 @@
           "headlineSize": "32px",
           "headlineWeight": "700",
           "bodySize": "16px",
-          "bodyLineHeight": "1.5",
-          "metadataSize": "11px"
-        }
-      }
-    },
-    {
-      "version": 15,
-      "savedAt": "2026-10-29T09:49:01.551Z",
-      "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v16)",
-      "tokens": {
-        "colors": {
-          "primaryViolet": "#7956C9",
-          "softLavender": "#E8DFF5",
-          "warmIvory": "#FAF7F2",
-          "mainText": "#24213A",
-          "secondaryText": "#777184",
-          "border": "#EAE4EE"
-        },
-        "guidelines": {
-          "brandTone": "Professional",
-          "visualStyle": "Clean and editorial",
-          "theme": "Light",
-          "accentColor": "Violet"
-        },
-        "typography": {
-          "fontFamily": "Inter, -apple-system, sans-serif",
-          "headlineSize": "32px",
-          "headlineWeight": "700",
-          "bodySize": "16px",
-          "bodyLineHeight": "1.5",
-          "metadataSize": "11px"
-        }
-      }
-    },
-    {
-      "version": 14,
-      "savedAt": "2026-10-29T09:49:01.546Z",
-      "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v15)",
-      "tokens": {
-        "colors": {
-          "primaryViolet": "#7956C9",
-          "softLavender": "#E8DFF5",
-          "warmIvory": "#FAF7F2",
-          "mainText": "#24213A",
-          "secondaryText": "#777184",
-          "border": "#EAE4EE"
-        },
-        "guidelines": {
-          "brandTone": "Professional",
-          "visualStyle": "Clean and editorial",
-          "theme": "Light",
-          "accentColor": "Violet"
-        },
-        "typography": {
-          "fontFamily": "Inter, -apple-system, sans-serif",
-          "headlineSize": "32px",
-          "headlineWeight": "700",
-          "bodySize": "16px",
-          "bodyLineHeight": "1.5",
-          "metadataSize": "11px"
-        }
-      }
-    },
-    {
-      "version": 13,
-      "savedAt": "2026-10-29T09:47:52.834Z",
-      "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v14)",
-      "tokens": {
-        "colors": {
-          "primaryViolet": "#7956C9",
-          "softLavender": "#E8DFF5",
-          "warmIvory": "#FAF7F2",
-          "mainText": "#24213A",
-          "secondaryText": "#777184",
-          "border": "#EAE4EE"
-        },
-        "guidelines": {
-          "brandTone": "Professional",
-          "visualStyle": "Clean and editorial",
-          "theme": "Light",
-          "accentColor": "Violet"
-        },
-        "typography": {
-          "fontFamily": "Inter, -apple-system, sans-serif",
-          "headlineSize": "32px",
-          "headlineWeight": "700",
-          "bodySize": "16px",
-          "bodyLineHeight": "1.5",
-          "metadataSize": "11px"
-        }
-      }
-    },
-    {
-      "version": 12,
-      "savedAt": "2026-10-29T09:47:52.830Z",
-      "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v13)",
-      "tokens": {
-        "colors": {
-          "primaryViolet": "#7956C9",
-          "softLavender": "#E8DFF5",
-          "warmIvory": "#FAF7F2",
-          "mainText": "#24213A",
-          "secondaryText": "#777184",
-          "border": "#EAE4EE"
-        },
-        "guidelines": {
-          "brandTone": "Professional",
-          "visualStyle": "Clean and editorial",
-          "theme": "Light",
-          "accentColor": "Violet"
-        },
-        "typography": {
-          "fontFamily": "Inter, -apple-system, sans-serif",
-          "headlineSize": "32px",
-          "headlineWeight": "700",
-          "bodySize": "16px",
-          "bodyLineHeight": "1.5",
-          "metadataSize": "11px"
-        }
-      }
-    },
-    {
-      "version": 11,
-      "savedAt": "2026-10-29T09:46:20.133Z",
-      "savedBy": "Unit Test Admin",
-      "summary": "Updated design tokens and brand guidelines (v12)",
-      "tokens": {
-        "colors": {
-          "primaryViolet": "#7956C9",
-          "softLavender": "#E8DFF5",
-          "warmIvory": "#FAF7F2",
-          "mainText": "#24213A",
-          "secondaryText": "#777184",
-          "border": "#EAE4EE"
-        },
-        "guidelines": {
-          "brandTone": "Professional",
-          "visualStyle": "Clean and editorial",
-          "theme": "Light",
-          "accentColor": "Violet"
-        },
-        "typography": {
-          "fontFamily": "Inter, -apple-system, sans-serif",
-          "headlineSize": "24px",
-          "headlineWeight": "700",
-          "bodySize": "14px",
-          "bodyLineHeight": "1.5",
-          "metadataSize": "11px"
-        }
-      }
-    },
-    {
-      "version": 10,
-      "savedAt": "2026-10-29T09:30:57.474Z",
-      "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v11)",
-      "tokens": {
-        "colors": {
-          "primaryViolet": "#7956C9",
-          "softLavender": "#E8DFF5",
-          "warmIvory": "#FAF7F2",
-          "mainText": "#24213A",
-          "secondaryText": "#777184",
-          "border": "#EAE4EE"
-        },
-        "guidelines": {
-          "brandTone": "Professional",
-          "visualStyle": "Clean and editorial",
-          "theme": "Light",
-          "accentColor": "Violet"
-        },
-        "typography": {
-          "fontFamily": "Inter, -apple-system, sans-serif",
-          "headlineSize": "24px",
-          "headlineWeight": "700",
-          "bodySize": "14px",
-          "bodyLineHeight": "1.5",
-          "metadataSize": "11px"
-        }
-      }
-    },
-    {
-      "version": 9,
-      "savedAt": "2026-10-29T09:30:57.471Z",
-      "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v10)",
-      "tokens": {
-        "colors": {
-          "primaryViolet": "#7956C9",
-          "softLavender": "#E8DFF5",
-          "warmIvory": "#FAF7F2",
-          "mainText": "#24213A",
-          "secondaryText": "#777184",
-          "border": "#EAE4EE"
-        },
-        "guidelines": {
-          "brandTone": "Professional",
-          "visualStyle": "Clean and editorial",
-          "theme": "Light",
-          "accentColor": "Violet"
-        },
-        "typography": {
-          "fontFamily": "Inter, -apple-system, sans-serif",
-          "headlineSize": "24px",
-          "headlineWeight": "700",
-          "bodySize": "14px",
-          "bodyLineHeight": "1.5",
-          "metadataSize": "11px"
-        }
-      }
-    },
-    {
-      "version": 8,
-      "savedAt": "2026-10-29T09:24:08.421Z",
-      "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v9)",
-      "tokens": {
-        "colors": {
-          "primaryViolet": "#7956C9",
-          "softLavender": "#E8DFF5",
-          "warmIvory": "#FAF7F2",
-          "mainText": "#24213A",
-          "secondaryText": "#777184",
-          "border": "#EAE4EE"
-        },
-        "guidelines": {
-          "brandTone": "Professional",
-          "visualStyle": "Clean and editorial",
-          "theme": "Light",
-          "accentColor": "Violet"
-        },
-        "typography": {
-          "fontFamily": "Inter, -apple-system, sans-serif",
-          "headlineSize": "24px",
-          "headlineWeight": "700",
-          "bodySize": "14px",
           "bodyLineHeight": "1.5",
           "metadataSize": "11px"
         }

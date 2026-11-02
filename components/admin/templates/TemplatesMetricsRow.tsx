@@ -180,3 +180,4 @@ export const TemplatesMetricsRow: React.FC<TemplatesMetricsRowProps> = ({ metric
     </div>
   );
 };
+
