@@ -61,10 +61,22 @@
     },
     "version": 3,
     "lastUpdated": "Nov 2, 2026",
-    "lastSavedAt": "Today at 12:19 PM",
+    "lastSavedAt": "Today at 12:35 PM",
     "history": [
       {
         "version": 3,
+        "savedAt": "Nov 2, 2026 at 12:35 PM",
+        "author": "Admin Workspace",
+        "changesSummary": "Draft updated: Home"
+      },
+      {
+        "version": 3,
+        "savedAt": "Nov 2, 2026 at 12:35 PM",
+        "author": "Admin Workspace",
+        "changesSummary": "Draft updated: Home"
+      },
+      {
+        "version": 3,
         "savedAt": "Nov 2, 2026 at 12:19 PM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
@@ -108,24 +120,12 @@
       {
         "version": 3,
         "savedAt": "Nov 2, 2026 at 11:47 AM",
-        "author": "Admin Workspace",
-        "changesSummary": "Draft updated: Home"
-      },
-      {
-        "version": 3,
-        "savedAt": "Nov 2, 2026 at 11:34 AM",
-        "author": "Admin Workspace",
-        "changesSummary": "Draft updated: Home"
-      },
-      {
-        "version": 3,
-        "savedAt": "Nov 2, 2026 at 11:34 AM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
       }
     ],
     "createdAt": "2025-10-01T00:00:00.000Z",
-    "updatedAt": "2026-11-02T06:49:25.665Z",
+    "updatedAt": "2026-11-02T07:05:13.833Z",
     "isSample": true,
     "draftConfigData": {
       "bannerVisible": true,

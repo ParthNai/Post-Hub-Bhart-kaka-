@@ -1,0 +1,8 @@
+{
+  "maxConcurrentJobs": 5,
+  "workerTimeoutSec": 60,
+  "autoRetryFailed": false,
+  "maxRetryAttempts": 2,
+  "pollingIntervalSec": 10,
+  "maintenanceMode": false
+}
