@@ -306,3 +306,4 @@ export const CategoriesToolbar: React.FC<CategoriesToolbarProps> = ({
     </div>
   );
 };
+

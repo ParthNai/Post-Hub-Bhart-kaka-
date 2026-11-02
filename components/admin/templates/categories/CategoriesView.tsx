@@ -342,3 +342,4 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
     </div>
   );
 };
+

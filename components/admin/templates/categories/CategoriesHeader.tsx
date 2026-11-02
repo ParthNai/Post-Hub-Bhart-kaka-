@@ -222,3 +222,4 @@ export const CategoriesHeader: React.FC<CategoriesHeaderProps> = ({
     </div>
   );
 };
+

@@ -42,3 +42,4 @@ export const CategoryIcon: React.FC<CategoryIconProps> = ({
       return <Folder size={size} style={style} />;
   }
 };
+

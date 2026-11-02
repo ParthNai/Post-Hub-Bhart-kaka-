@@ -209,3 +209,4 @@ export const CategoriesMetricsRow: React.FC<CategoriesMetricsRowProps> = ({
     </div>
   );
 };
+

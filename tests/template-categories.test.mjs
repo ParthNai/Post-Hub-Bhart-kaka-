@@ -180,3 +180,4 @@ test("Screen 15 — Template Categories Management Test Suite", async (t) => {
     assert.equal(categories[4].status, "Archived");
   });
 });
+

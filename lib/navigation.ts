@@ -62,6 +62,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     subItems: [
       { id: "categories", label: "Categories", href: "/admin/templates/categories" },
       { id: "all-templates", label: "All Templates", href: "/admin/templates" },
+      { id: "analytics", label: "Analytics", href: "/admin/templates/analytics" },
     ],
   },
   {

@@ -579,3 +579,4 @@ export const CategoriesTable: React.FC<CategoriesTableProps> = ({
     </div>
   );
 };
+
