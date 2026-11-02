@@ -94,3 +94,4 @@ export function ProcessingOverviewStrip({ overview }: ProcessingOverviewStripPro
     </div>
   );
 }
+

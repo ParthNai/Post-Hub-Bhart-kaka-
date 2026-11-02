@@ -115,3 +115,4 @@ export function ProcessingDetailsCard({ selectedItem }: ProcessingDetailsCardPro
     </div>
   );
 }
+

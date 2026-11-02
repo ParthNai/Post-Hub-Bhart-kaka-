@@ -90,3 +90,4 @@ export function QueueKpiCards({ metrics, onFilterClick }: QueueKpiCardsProps) {
     </div>
   );
 }
+

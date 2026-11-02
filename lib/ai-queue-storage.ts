@@ -578,8 +578,9 @@ export function getQueueItemById(id: string): AiQueueItem | undefined {
  */
 export function retryQueueRequest(
   id: string,
-  _adminName: string = "Parth Patel"
+  adminName: string = "Parth Patel"
 ): { success: boolean; item?: AiQueueItem; error?: string } {
+  void adminName;
   const all = getAllQueueItems();
   const index = all.findIndex((r) => r.id === id);
   if (index === -1) {
