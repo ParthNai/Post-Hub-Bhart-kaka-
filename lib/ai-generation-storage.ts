@@ -4,6 +4,8 @@ import type {
   AiGenerationRequest,
   AiGenerationMetrics,
   AiProviderConfig,
+  AiProviderFullConfig,
+  AiConfigHistoryItem,
   AiGenerationSettings,
   AiRequestFilterOptions,
   AiRequestsPaginationResponse,
@@ -15,6 +17,8 @@ const DATA_DIR = path.join(process.cwd(), ".data");
 const REQUESTS_FILE = path.join(DATA_DIR, "ai-generation-requests.json");
 const PROVIDER_CONFIG_FILE = path.join(DATA_DIR, "ai-provider-config.json");
 const SETTINGS_FILE = path.join(DATA_DIR, "ai-generation-settings.json");
+const FULL_CONFIG_FILE = path.join(DATA_DIR, "ai-provider-full-config.json");
+const CONFIG_HISTORY_FILE = path.join(DATA_DIR, "ai-config-history.json");
 
 function ensureDataDir() {
   if (!fs.existsSync(DATA_DIR)) {
@@ -668,4 +672,275 @@ export function resetAiRequests(): AiGenerationRequest[] {
   const seeded = generateFullHistoricalRequests();
   fs.writeFileSync(REQUESTS_FILE, JSON.stringify(seeded, null, 2), "utf8");
   return seeded;
+}
+
+// Canonical full configuration matching Screen 19 reference photo exactly
+const CANONICAL_FULL_CONFIG: AiProviderFullConfig = {
+  providerId: "openai",
+  providerName: "OpenAI",
+  apiEndpoint: "https://api.openai.com/v1",
+  apiKeyMasked: "••••••••••••••••",
+  hasApiKey: true,
+  credentialsVerified: true,
+  lastVerifiedAt: "Oct 28, 2026 • 04:32 PM",
+  enabled: true,
+  selectedModel: "dall-e-3",
+  defaultAspectRatio: "1:1 (Square)",
+  defaultOutputFormat: "PNG",
+  defaultDimensions: "1024 x 1024",
+  imageQuality: "High Quality",
+  generationCountLimit: 1,
+  promptInputLimit: 500,
+  perUserRequestLimit: 50,
+  globalRequestLimit: 10000,
+  concurrentGenerationLimit: 3,
+  rateLimit: 10,
+  rateLimitUnit: "requests/min",
+  maxRetryAttempts: 2,
+  lastSavedAt: "Oct 28, 2026 04:35 PM",
+  status: "Configured",
+};
+
+const CANONICAL_HISTORY: AiConfigHistoryItem[] = [
+  {
+    id: "CFG-REV-003",
+    version: "v1.2.0",
+    timestamp: "Oct 28, 2026 04:35 PM",
+    author: "Parth Patel (Administrator)",
+    changesSummary: "Updated default dimensions to 1024 x 1024 and enabled DALL·E 3.",
+    configSnapshot: {
+      selectedModel: "dall-e-3",
+      defaultDimensions: "1024 x 1024",
+      defaultAspectRatio: "1:1 (Square)",
+      concurrentGenerationLimit: 3,
+    },
+  },
+  {
+    id: "CFG-REV-002",
+    version: "v1.1.0",
+    timestamp: "Oct 25, 2026 11:20 AM",
+    author: "Parth Patel (Administrator)",
+    changesSummary: "Increased concurrent limit to 3 workers and tuned prompt length to 500.",
+    configSnapshot: {
+      concurrentGenerationLimit: 3,
+      promptInputLimit: 500,
+    },
+  },
+  {
+    id: "CFG-REV-001",
+    version: "v1.0.0",
+    timestamp: "Oct 20, 2026 09:00 AM",
+    author: "System Administrator",
+    changesSummary: "Initial OpenAI provider registration and credential verification.",
+    configSnapshot: {
+      providerId: "openai",
+      providerName: "OpenAI",
+      apiEndpoint: "https://api.openai.com/v1",
+      enabled: true,
+    },
+  },
+];
+
+/**
+ * Get AI Provider Full Configuration (Screen 19)
+ */
+export function getAiProviderFullConfig(): AiProviderFullConfig {
+  ensureDataDir();
+  if (!fs.existsSync(FULL_CONFIG_FILE)) {
+    fs.writeFileSync(FULL_CONFIG_FILE, JSON.stringify(CANONICAL_FULL_CONFIG, null, 2), "utf8");
+    return CANONICAL_FULL_CONFIG;
+  }
+
+  try {
+    const raw = fs.readFileSync(FULL_CONFIG_FILE, "utf8");
+    const parsed = JSON.parse(raw);
+    return { ...CANONICAL_FULL_CONFIG, ...parsed };
+  } catch {
+    return CANONICAL_FULL_CONFIG;
+  }
+}
+
+/**
+ * Get AI Configuration History
+ */
+export function getAiConfigHistory(): AiConfigHistoryItem[] {
+  ensureDataDir();
+  if (!fs.existsSync(CONFIG_HISTORY_FILE)) {
+    fs.writeFileSync(CONFIG_HISTORY_FILE, JSON.stringify(CANONICAL_HISTORY, null, 2), "utf8");
+    return CANONICAL_HISTORY;
+  }
+
+  try {
+    const raw = fs.readFileSync(CONFIG_HISTORY_FILE, "utf8");
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : CANONICAL_HISTORY;
+  } catch {
+    return CANONICAL_HISTORY;
+  }
+}
+
+/**
+ * Save AI Provider Full Configuration
+ */
+export function saveAiProviderFullConfig(
+  updates: Partial<AiProviderFullConfig>,
+  rawApiKey?: string,
+  adminName: string = "Parth Patel (Administrator)"
+): { success: boolean; config: AiProviderFullConfig; history: AiConfigHistoryItem[] } {
+  ensureDataDir();
+  const current = getAiProviderFullConfig();
+
+  const nowFormatted = new Date().toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }) + " " + new Date().toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  const updated: AiProviderFullConfig = {
+    ...current,
+    ...updates,
+    lastSavedAt: nowFormatted,
+    status: updates.enabled === false ? "Disabled" : "Configured",
+  };
+
+  if (rawApiKey !== undefined && rawApiKey.trim().length > 0) {
+    internalApiKey = rawApiKey.trim();
+    updated.hasApiKey = true;
+    updated.apiKeyMasked = maskApiKey(internalApiKey);
+    updated.credentialsVerified = true;
+    updated.lastVerifiedAt = nowFormatted.replace(" ", " • ");
+  }
+
+  fs.writeFileSync(FULL_CONFIG_FILE, JSON.stringify(updated, null, 2), "utf8");
+
+  // Keep simplified config in sync
+  saveAiProviderConfig({
+    providerId: updated.providerId,
+    name: updated.providerName,
+    model: updated.selectedModel,
+    defaultResolution: updated.defaultDimensions,
+    status: updated.enabled ? "connected" : "not_configured",
+    lastVerifiedAt: updated.lastVerifiedAt,
+  });
+
+  // Append history record
+  const history = getAiConfigHistory();
+  const revNum = history.length + 1;
+  const newHistoryItem: AiConfigHistoryItem = {
+    id: `CFG-REV-00${revNum}`,
+    version: `v1.${revNum}.0`,
+    timestamp: nowFormatted,
+    author: adminName,
+    changesSummary: `Updated provider configuration and generation parameters (${Object.keys(updates).join(", ")}).`,
+    configSnapshot: updates,
+  };
+  const updatedHistory = [newHistoryItem, ...history];
+  fs.writeFileSync(CONFIG_HISTORY_FILE, JSON.stringify(updatedHistory, null, 2), "utf8");
+
+  return { success: true, config: updated, history: updatedHistory };
+}
+
+/**
+ * Toggle AI Provider Enabled / Disabled
+ */
+export function toggleAiProviderEnabled(
+  enabled: boolean,
+  adminName: string = "Parth Patel (Administrator)"
+): { success: boolean; config: AiProviderFullConfig } {
+  return saveAiProviderFullConfig({ enabled }, undefined, adminName);
+}
+
+/**
+ * Restore an earlier configuration revision
+ */
+export function restoreAiConfigHistory(
+  historyId: string,
+  adminName: string = "Parth Patel (Administrator)"
+): { success: boolean; config?: AiProviderFullConfig; error?: string } {
+  const history = getAiConfigHistory();
+  const target = history.find((h) => h.id === historyId);
+  if (!target) {
+    return { success: false, error: `History record ${historyId} not found.` };
+  }
+
+  const result = saveAiProviderFullConfig(
+    target.configSnapshot,
+    undefined,
+    `Restored by ${adminName} from ${target.version}`
+  );
+  return { success: true, config: result.config };
+}
+
+/**
+ * Test AI Provider Full Connection (Screen 19)
+ */
+export async function testAiProviderFullConnection(
+  providerId: string,
+  endpoint?: string,
+  testKey?: string
+): Promise<{
+  success: boolean;
+  latencyMs: number;
+  message: string;
+  verifiedAt: string;
+  status: "connected" | "connection_failed" | "not_configured";
+}> {
+  const current = getAiProviderFullConfig();
+  const keyToUse = testKey !== undefined && testKey.trim().length > 0
+    ? testKey.trim()
+    : (current.hasApiKey ? "configured_secret" : "");
+
+  const start = Date.now();
+  await new Promise((resolve) => setTimeout(resolve, 150));
+  const latency = Date.now() - start;
+
+  const nowFormatted = new Date().toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }) + " • " + new Date().toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  if (!keyToUse || keyToUse.length === 0) {
+    return {
+      success: false,
+      latencyMs: 0,
+      message: "API credentials are required to verify provider connectivity.",
+      verifiedAt: nowFormatted,
+      status: "not_configured",
+    };
+  }
+
+  if (keyToUse.includes("invalid") || (testKey && testKey.length < 8)) {
+    return {
+      success: false,
+      latencyMs: latency,
+      message: `Failed to connect to ${endpoint || "API endpoint"}: Invalid API credentials.`,
+      verifiedAt: nowFormatted,
+      status: "connection_failed",
+    };
+  }
+
+  return {
+    success: true,
+    latencyMs: latency,
+    message: "Your provider is working correctly.",
+    verifiedAt: nowFormatted,
+    status: "connected",
+  };
+}
+
+/**
+ * Reset AI Provider Full Configuration
+ */
+export function resetAiProviderFullConfig(): AiProviderFullConfig {
+  ensureDataDir();
+  fs.writeFileSync(FULL_CONFIG_FILE, JSON.stringify(CANONICAL_FULL_CONFIG, null, 2), "utf8");
+  fs.writeFileSync(CONFIG_HISTORY_FILE, JSON.stringify(CANONICAL_HISTORY, null, 2), "utf8");
+  return CANONICAL_FULL_CONFIG;
 }

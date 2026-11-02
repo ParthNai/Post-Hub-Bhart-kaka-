@@ -1,12 +1,12 @@
 {
   "providerId": "openai",
-  "name": "OpenAI (DALL-E 3)",
+  "name": "OpenAI",
   "model": "dall-e-3",
   "status": "connected",
   "hasApiKey": true,
   "apiKeyMasked": "sk-...****6655",
-  "lastVerifiedAt": "2026-11-02T06:24:34.104Z",
-  "defaultResolution": "1080 × 1350 px",
+  "lastVerifiedAt": "Oct 28, 2026 • 04:32 PM",
+  "defaultResolution": "1024 x 1024",
   "quality": "standard",
   "supportedCapabilities": [
     "High-resolution 4K raster generation",

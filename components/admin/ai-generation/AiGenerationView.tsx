@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import type {
   AiGenerationRequest,
   AiGenerationMetrics,
@@ -36,6 +37,7 @@ export const AiGenerationView: React.FC<AiGenerationViewProps> = ({
   },
   adminName = "Parth Patel",
 }) => {
+  const router = useRouter();
   // Main data state
   const [requests, setRequests] = useState<AiGenerationRequest[]>(initialData.requests);
   const [selectedRequest, setSelectedRequest] = useState<AiGenerationRequest | null>(
@@ -379,7 +381,7 @@ export const AiGenerationView: React.FC<AiGenerationViewProps> = ({
       {/* AI Provider Integration Banner */}
       <AiProviderBanner
         config={providerConfig}
-        onConfigure={() => setIsConfigureOpen(true)}
+        onConfigure={() => router.push("/admin/ai-generation/configuration")}
       />
 
       {/* Search and Filters Toolbar */}

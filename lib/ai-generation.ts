@@ -19,6 +19,90 @@ export type AiStyle =
 
 export type AiAspectRatio = "3:4" | "4:5" | "9:16" | "1:1";
 
+export interface AiModelSpec {
+  id: string;
+  label: string;
+  providerId: AiProviderId;
+  capability: string;
+  supportedRatios: string;
+  maxDimensions: string;
+  outputFormats: string;
+}
+
+export const SUPPORTED_AI_MODELS: AiModelSpec[] = [
+  {
+    id: "dall-e-3",
+    label: "DALL·E 3",
+    providerId: "openai",
+    capability: "High-quality image generation",
+    supportedRatios: "1:1, 3:4, 4:3, 16:9",
+    maxDimensions: "1024 x 1024",
+    outputFormats: "PNG, JPEG, WEBP",
+  },
+  {
+    id: "dall-e-2",
+    label: "DALL·E 2",
+    providerId: "openai",
+    capability: "Fast generation and lightweight editing",
+    supportedRatios: "1:1",
+    maxDimensions: "1024 x 1024",
+    outputFormats: "PNG, JPEG",
+  },
+  {
+    id: "imagen-3.0",
+    label: "Google Imagen 3.0",
+    providerId: "google",
+    capability: "Photorealistic graphic design",
+    supportedRatios: "1:1, 3:4, 4:5, 16:9",
+    maxDimensions: "1536 x 1536",
+    outputFormats: "PNG, JPEG, WEBP",
+  },
+  {
+    id: "sd3-medium",
+    label: "Stable Diffusion 3 Medium",
+    providerId: "stability",
+    capability: "Multi-subject text-to-image",
+    supportedRatios: "1:1, 4:5, 16:9",
+    maxDimensions: "1024 x 1024",
+    outputFormats: "PNG, WEBP",
+  },
+];
+
+export interface AiProviderFullConfig {
+  providerId: AiProviderId;
+  providerName: string;
+  apiEndpoint: string;
+  apiKeyMasked: string;
+  hasApiKey: boolean;
+  credentialsVerified: boolean;
+  lastVerifiedAt: string;
+  enabled: boolean;
+  selectedModel: string;
+  defaultAspectRatio: string;
+  defaultOutputFormat: string;
+  defaultDimensions: string;
+  imageQuality: string;
+  generationCountLimit: number;
+  promptInputLimit: number;
+  perUserRequestLimit: number;
+  globalRequestLimit: number;
+  concurrentGenerationLimit: number;
+  rateLimit: number;
+  rateLimitUnit: string;
+  maxRetryAttempts: number;
+  lastSavedAt: string;
+  status: "Configured" | "Disabled" | "Not Configured";
+}
+
+export interface AiConfigHistoryItem {
+  id: string;
+  version: string;
+  timestamp: string;
+  author: string;
+  changesSummary: string;
+  configSnapshot: Partial<AiProviderFullConfig>;
+}
+
 export interface AiProviderConfig {
   providerId: AiProviderId;
   name: string;
