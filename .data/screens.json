@@ -61,10 +61,22 @@
     },
     "version": 3,
     "lastUpdated": "Nov 19, 2026",
-    "lastSavedAt": "Today at 11:58 AM",
+    "lastSavedAt": "Today at 2:30 PM",
     "history": [
       {
         "version": 3,
+        "savedAt": "Nov 19, 2026 at 2:30 PM",
+        "author": "Admin Workspace",
+        "changesSummary": "Draft updated: Home"
+      },
+      {
+        "version": 3,
+        "savedAt": "Nov 19, 2026 at 2:30 PM",
+        "author": "Admin Workspace",
+        "changesSummary": "Draft updated: Home"
+      },
+      {
+        "version": 3,
         "savedAt": "Nov 19, 2026 at 11:58 AM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
@@ -108,24 +120,12 @@
       {
         "version": 3,
         "savedAt": "Nov 19, 2026 at 11:23 AM",
-        "author": "Admin Workspace",
-        "changesSummary": "Draft updated: Home"
-      },
-      {
-        "version": 3,
-        "savedAt": "Nov 19, 2026 at 11:02 AM",
-        "author": "Admin Workspace",
-        "changesSummary": "Draft updated: Home"
-      },
-      {
-        "version": 3,
-        "savedAt": "Nov 19, 2026 at 11:02 AM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
       }
     ],
     "createdAt": "2025-10-01T00:00:00.000Z",
-    "updatedAt": "2026-11-19T06:28:18.421Z",
+    "updatedAt": "2026-11-19T09:00:02.242Z",
     "isSample": true,
     "draftConfigData": {
       "bannerVisible": true,
@@ -170,7 +170,14 @@
         }
       ]
     },
-    "hasUnpublishedChanges": true
+    "hasUnpublishedChanges": true,
+    "draftData": {
+      "name": "Home",
+      "description": "Discover templates, create AI images, and explore festival designs.",
+      "route": "/home",
+      "visibilityEnabled": true,
+      "minAppVersion": "1.0.0"
+    }
   },
   {
     "id": "scr_templates_002",
@@ -349,11 +356,24 @@
       "defaultLayout": "form_sections",
       "activeTheme": "default",
       "primaryAccent": "#7956C9",
+      "backgroundColor": "#FFF9FF",
       "cardRadius": "14px",
       "showInBottomNav": false,
       "deepLinkRoute": "posthub://login",
       "quickActionsEnabled": true,
       "tagsFilterEnabled": false,
+      "loginExperience": {
+        "brandName": "Post Hub",
+        "brandTagline": "Design  ·  Create  ·  Inspire",
+        "welcomeTitle": "Welcome Back!",
+        "welcomeSubtitle": "Sign in to continue creating amazing designs with Post Hub 💜",
+        "footerTagline": "Turn Your Ideas Into Stunning Designs ✨",
+        "heroImageUrl": "",
+        "googleEnabled": true,
+        "emailEnabled": true,
+        "mobileEnabled": true,
+        "signupEnabled": true
+      },
       "sections": [
         {
           "id": "brand_header",
