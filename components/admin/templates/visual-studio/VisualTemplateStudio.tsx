@@ -1503,9 +1503,6 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
               );
             })}
 
-              return null;
-            })}
-
             {/* Live Snipping Box Overlay during mouse drag */}
             {isDrawing && currentBox && (
               <div
