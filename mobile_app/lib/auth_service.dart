@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
+import 'creator_data.dart';
+
 const _sessionTokenKey = 'posthub_app_session_token';
 
 String defaultApiBaseUrl() {
@@ -440,6 +442,20 @@ class AppAuthService {
       throw const AppAuthException(
         'The server returned an invalid app configuration.',
       );
+    }
+    // Automatically populate live admin templates into OccasionCatalog
+    if (body['templates'] is List) {
+      try {
+        final adminTpls = (body['templates'] as List)
+            .whereType<Map<String, dynamic>>()
+            .map(OccasionTemplate.fromAdminJson)
+            .toList();
+        if (adminTpls.isNotEmpty) {
+          OccasionCatalog.setAdminTemplates(adminTpls);
+        }
+      } catch (_) {
+        // Fallback gracefully
+      }
     }
     return body;
   }

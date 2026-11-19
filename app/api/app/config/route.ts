@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { initScreensDb } from "@/lib/screens";
-import { getDesignSystemConfig } from "@/lib/design-system";
+import { initScreensDb } from "@/lib/screens.ts";
+import { getDesignSystemConfig } from "@/lib/design-system.ts";
+import { getTemplates } from "@/lib/templates-storage.ts";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,7 @@ const CORS_HEADERS = {
 export async function GET() {
   const screens = initScreensDb().filter((s) => s.status !== "archived");
   const designSystem = getDesignSystemConfig();
+  const templates = getTemplates().filter((t) => t.status !== "Archived");
 
   // Client mobile app schema contract
   const publishedConfig = {
@@ -40,6 +42,23 @@ export async function GET() {
       minAppVersion: screen.minAppVersion || "1.0.0",
       capabilities: screen.supportedCapabilities,
       layoutConfig: screen.configData,
+    })),
+    templates: templates.map((tpl) => ({
+      id: tpl.id,
+      name: tpl.name,
+      category: tpl.category,
+      format: tpl.format,
+      status: tpl.status,
+      headline: tpl.headline || tpl.name,
+      subheadline: tpl.subheadline || tpl.description || "",
+      ctaText: tpl.ctaText || "Edit Template",
+      primaryColor: tpl.primaryColor || "#7956C9",
+      accentColor: tpl.accentColor || "#FF5722",
+      aspectRatio: tpl.aspectRatio || tpl.format || "3:4",
+      theme: tpl.theme,
+      tags: tpl.tags || [],
+      assetFileName: tpl.assetFileName || "",
+      description: tpl.description || "",
     })),
   };
 

@@ -31,10 +31,78 @@ class OccasionTemplate {
 
   bool availableIn(String region) =>
       regions.contains('All') || regions.contains(region);
+
+  static int _parseHexColor(dynamic hex, {int fallback = 0xFF7956C9}) {
+    if (hex is! String || hex.isEmpty) return fallback;
+    final clean = hex.replaceAll('#', '').trim();
+    if (clean.length == 6) {
+      return int.tryParse('FF$clean', radix: 16) ?? fallback;
+    } else if (clean.length == 8) {
+      return int.tryParse(clean, radix: 16) ?? fallback;
+    }
+    return fallback;
+  }
+
+  static String _categoryIcon(String? category) {
+    switch (category?.toLowerCase()) {
+      case 'festival':
+        return 'festival';
+      case 'business':
+        return 'business';
+      case 'promotion':
+        return 'sale';
+      case 'education':
+        return 'education';
+      default:
+        return 'sparkles';
+    }
+  }
+
+  factory OccasionTemplate.fromAdminJson(Map<String, dynamic> json) {
+    final cat = (json['category'] as String?) ?? 'Business';
+    final name = (json['name'] as String?) ?? 'Poster Template';
+    final headline = (json['headline'] as String?) ?? name;
+    final subtitle =
+        (json['subheadline'] as String?) ??
+        (json['description'] as String?) ??
+        '';
+    final primary = _parseHexColor(json['primaryColor'], fallback: 0xFF1E3A8A);
+    final accent = _parseHexColor(json['accentColor'], fallback: 0xFF3B82F6);
+    final id =
+        (json['id'] as String?) ?? 'tpl-${DateTime.now().millisecondsSinceEpoch}';
+
+    List<String> regions = ['All'];
+    if (cat.toLowerCase() == 'festival' &&
+        name.toLowerCase().contains('diwali')) {
+      regions = ['India'];
+    }
+
+    return OccasionTemplate(
+      id: id,
+      title: name,
+      occasion: name,
+      category: cat,
+      regions: regions,
+      month: 10,
+      headline: headline,
+      subtitle: subtitle,
+      background: primary,
+      foreground: accent,
+      icon: _categoryIcon(cat),
+    );
+  }
 }
 
 class OccasionCatalog {
-  static const templates = <OccasionTemplate>[
+  static List<OccasionTemplate> _adminTemplates = [];
+
+  static void setAdminTemplates(List<OccasionTemplate> items) {
+    _adminTemplates = items;
+  }
+
+  static List<OccasionTemplate> get adminTemplates => _adminTemplates;
+
+  static const sampleTemplates = <OccasionTemplate>[
     OccasionTemplate(
       id: 'diwali-greetings',
       title: 'Diwali Greetings',
@@ -269,6 +337,11 @@ class OccasionCatalog {
       foreground: 0xFF176B50,
       icon: 'sale',
     ),
+  ];
+
+  static List<OccasionTemplate> get templates => [
+    ..._adminTemplates,
+    ...sampleTemplates,
   ];
 
   static List<OccasionTemplate> forRegion(String region) =>

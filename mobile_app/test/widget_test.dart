@@ -220,6 +220,37 @@ void main() {
     expect(unitedStates.any((item) => item.occasion == 'Diwali'), isFalse);
   });
 
+  test('loads and shows templates from admin backend dynamically', () {
+    final adminTemplate = OccasionTemplate.fromAdminJson({
+      'id': 'TPL-001',
+      'name': 'Business Promotion Poster',
+      'category': 'Business',
+      'format': '3:4',
+      'headline': 'Grow Your Business',
+      'subheadline': 'with Smart Solutions',
+      'primaryColor': '#1E3A8A',
+      'accentColor': '#3B82F6',
+    });
+
+    expect(adminTemplate.id, 'TPL-001');
+    expect(adminTemplate.title, 'Business Promotion Poster');
+    expect(adminTemplate.category, 'Business');
+    expect(adminTemplate.headline, 'Grow Your Business');
+    expect(adminTemplate.subtitle, 'with Smart Solutions');
+    expect(adminTemplate.background, 0xFF1E3A8A);
+    expect(adminTemplate.foreground, 0xFF3B82F6);
+
+    OccasionCatalog.setAdminTemplates([adminTemplate]);
+    expect(OccasionCatalog.adminTemplates.length, 1);
+    expect(
+      OccasionCatalog.forRegion('India').any((t) => t.id == 'TPL-001'),
+      isTrue,
+    );
+
+    // Clean up
+    OccasionCatalog.setAdminTemplates([]);
+  });
+
   testWidgets('personalizes and saves an occasion design on device', (
     WidgetTester tester,
   ) async {
