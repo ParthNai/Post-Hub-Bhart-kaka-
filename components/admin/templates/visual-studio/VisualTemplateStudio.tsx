@@ -536,10 +536,34 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
     tempImg.src = backgroundUrl;
   };
 
-  // Import ChatGPT code from text
+  // Import ChatGPT code, JSON coordinates, or raw SVG code from text
   const handleApplyImportedCode = () => {
-    if (!importCodeText.trim()) return;
-    const parsed = parsePostHubSpec(importCodeText);
+    const raw = importCodeText.trim();
+    if (!raw) return;
+
+    // 0. If user pasted raw SVG markup code (<svg ...>...</svg>)
+    if (raw.includes("<svg")) {
+      const parsedSvg = parseSvgTemplate(raw);
+      if (parsedSvg.backgroundUrl) {
+        setBackgroundUrl(parsedSvg.backgroundUrl);
+      }
+      if (parsedSvg.canvasWidth && parsedSvg.canvasHeight) {
+        setArtworkAspectRatio(parsedSvg.canvasWidth / parsedSvg.canvasHeight);
+      }
+      if (parsedSvg.zones.length > 0) {
+        setZones(parsedSvg.zones);
+        setSelectedZoneId(parsedSvg.zones[0].id);
+        setShowImportModal(false);
+        setImportCodeText("");
+        setAiDetectedNotification(
+          `✨ Loaded background artwork & ${parsedSvg.zones.length} slots from pasted SVG code!`
+        );
+        return;
+      }
+    }
+
+    // 1. Otherwise parse coordinate tags, JSON elements, or key-values
+    const parsed = parsePostHubSpec(raw);
     if (parsed.length > 0) {
       setZones(parsed);
       setSelectedZoneId(parsed[0].id);
@@ -2775,14 +2799,14 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
             </div>
 
             <p style={{ fontSize: "12px", color: "#6E687A", margin: "0 0 12px 0", lineHeight: 1.4 }}>
-              Paste the code, prompt, or response from ChatGPT. Post Hub will automatically extract the photo cutout area and text banners!
+              Paste raw SVG code, JSON elements, or coordinate tags. Post Hub will automatically extract the artwork, photo cutout area, and text banners!
             </p>
 
             <textarea
               value={importCodeText}
               onChange={(e) => setImportCodeText(e.target.value)}
-              placeholder={"e.g.\n[POSTHUB: PHOTO(6, 6, 48, 62, cutout) NAME(12, 88, 76, 8)]\n\nor\nPHOTO: x=6, y=6, w=48, h=62 | NAME: x=12, y=88, w=76, h=8\n\nor JSON from ChatGPT"}
-              rows={5}
+              placeholder={"Paste any of the following:\n1. Raw SVG Code: <svg ...>...</svg>\n2. JSON elements list: [ { id: 'person_phone', x: 265, y: 1425, ... } ]\n3. Coordinate tags: [POSTHUB: PHOTO(6, 6, 48, 62, cutout) NAME(12, 88, 76, 8)]\n4. Key-values: PHOTO: x=6, y=6, w=48, h=62 | NAME: x=12, y=88, w=76, h=8"}
+              rows={6}
               style={{
                 width: "100%",
                 borderRadius: "8px",

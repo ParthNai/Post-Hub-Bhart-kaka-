@@ -92,6 +92,12 @@ export function parsePostHubSpec(rawText: string): TemplateSlotZone[] {
 
   const clean = rawText.trim();
 
+  // 0. If input is raw SVG code, extract zones from it directly
+  if (clean.includes("<svg")) {
+    const svgRes = parseSvgTemplate(clean);
+    if (svgRes.zones.length > 0) return svgRes.zones;
+  }
+
   // 1. Try parsing JSON elements list or object (like ChatGPT element output)
   try {
     // Check if clean string contains an elements array or list of objects

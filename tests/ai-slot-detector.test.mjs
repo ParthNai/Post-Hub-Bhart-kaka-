@@ -203,3 +203,27 @@ test("AI Slot Detector: parsePostHubSpec with ChatGPT elements snippet", () => {
   assert.equal(phone.width, 17.6);
   assert.equal(phone.color, "#102B65");
 });
+
+test("AI Slot Detector: parsePostHubSpec with raw SVG string", () => {
+  const rawSvg = `<svg width="1024" height="1536" viewBox="0 0 1024 1536">
+    <g id="editable_slots">
+      <rect id="person_photo" ph:type="image" x="292" y="267" width="732" height="925" />
+      <rect id="person_name" ph:type="text" x="230" y="1190" width="750" height="145" />
+    </g>
+  </svg>`;
+
+  const zones = parsePostHubSpec(rawSvg);
+  assert.equal(zones.length, 2);
+
+  const photo = zones.find((z) => z.type === "photo");
+  assert.ok(photo);
+  assert.equal(photo.photoShape, "cutout");
+  assert.equal(photo.x, 28.5);
+  assert.equal(photo.y, 17.4);
+
+  const name = zones.find((z) => z.type === "text");
+  assert.ok(name);
+  assert.equal(name.textBinding, "name");
+  assert.equal(name.x, 22.5);
+  assert.equal(name.y, 77.5);
+});
