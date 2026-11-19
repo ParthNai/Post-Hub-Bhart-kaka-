@@ -1,0 +1,10 @@
+{
+  "configuredBudget": 500,
+  "consumed": 142.5,
+  "remaining": 357.5,
+  "consumedPercentage": 29,
+  "status": "Within Limit",
+  "currency": "USD",
+  "billingPeriod": "Oct 01 – Oct 31, 2026",
+  "alertThreshold": 80
+}

@@ -1,1 +1,2 @@
-export { GET, POST, dynamic } from "../policies/route";
+export const dynamic = "force-dynamic";
+export { GET, POST } from "../policies/route";
