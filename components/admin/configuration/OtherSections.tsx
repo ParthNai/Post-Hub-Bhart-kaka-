@@ -105,10 +105,10 @@ export const LayoutSection: React.FC<SectionProps> = ({ config, onChange }) => {
         <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
           <div>
             <div style={{ fontSize: "13px", fontWeight: 600, color: "var(--text)" }}>
-              Show Hero Banner / Carousel
+              Show Hero Banner / Magic Studio
             </div>
             <div style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>
-              Renders the top marketing banner on client startup
+              Renders the top Canva Magic Studio marketing banner on client startup
             </div>
           </div>
           <input
@@ -118,6 +118,77 @@ export const LayoutSection: React.FC<SectionProps> = ({ config, onChange }) => {
             style={{ width: "18px", height: "18px", accentColor: "var(--primary)" }}
           />
         </label>
+
+        {Boolean(config.bannerVisible) && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "12px", paddingLeft: "4px" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "var(--text)", marginBottom: "4px" }}>
+                Banner Headline
+              </label>
+              <input
+                type="text"
+                value={config.bannerHeadline || "What will you design today?"}
+                onChange={(e) => onChange({ bannerHeadline: e.target.value })}
+                placeholder="What will you design today?"
+                style={{
+                  width: "100%",
+                  height: "36px",
+                  borderRadius: "8px",
+                  border: "1px solid var(--border)",
+                  padding: "0 12px",
+                  fontSize: "13px",
+                  color: "var(--text)",
+                  backgroundColor: "var(--surface)",
+                }}
+                className="form-control-input"
+              />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "var(--text)", marginBottom: "4px" }}>
+                Banner Subtitle
+              </label>
+              <input
+                type="text"
+                value={config.bannerSubtitle || "Choose a format below or start from templates."}
+                onChange={(e) => onChange({ bannerSubtitle: e.target.value })}
+                placeholder="Choose a format below or start from templates."
+                style={{
+                  width: "100%",
+                  height: "36px",
+                  borderRadius: "8px",
+                  border: "1px solid var(--border)",
+                  padding: "0 12px",
+                  fontSize: "13px",
+                  color: "var(--text)",
+                  backgroundColor: "var(--surface)",
+                }}
+                className="form-control-input"
+              />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "var(--text)", marginBottom: "4px" }}>
+                Banner Badge Pill
+              </label>
+              <input
+                type="text"
+                value={config.bannerBadge || "✨ MAGIC STUDIO"}
+                onChange={(e) => onChange({ bannerBadge: e.target.value })}
+                placeholder="✨ MAGIC STUDIO"
+                style={{
+                  width: "100%",
+                  height: "36px",
+                  borderRadius: "8px",
+                  border: "1px solid var(--border)",
+                  padding: "0 12px",
+                  fontSize: "13px",
+                  color: "var(--text)",
+                  backgroundColor: "var(--surface)",
+                }}
+                className="form-control-input"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

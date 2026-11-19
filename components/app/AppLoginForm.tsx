@@ -868,6 +868,36 @@ export const AppLoginForm: React.FC<AppLoginFormProps> = ({
         </button>
       </div>
 
+      {/* Admin Management Console Link (Matching Image 1 & 2) */}
+      <div
+        style={{
+          textAlign: "center",
+          marginTop: "12px",
+          paddingTop: "10px",
+          borderTop: "1px dashed #ECE7F0",
+          fontSize: "12px",
+          color: "#777184",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "5px",
+          flexWrap: "wrap",
+        }}
+      >
+        <span>Admin looking for management console?</span>
+        <Link
+          href="/admin/dashboard"
+          style={{
+            color: "#1845A8",
+            fontWeight: 700,
+            textDecoration: "underline",
+            cursor: "pointer",
+          }}
+        >
+          Admin Dashboard
+        </Link>
+      </div>
+
       {/* Forgot Password Inline Modal */}
       {isForgotModalOpen && (
         <div

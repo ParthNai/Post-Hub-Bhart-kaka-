@@ -14,8 +14,9 @@ export default function MobileAppRootPage() {
   const [currentScreen, setCurrentScreen] = useState<"login" | "home">("login");
   const [activeUser, setActiveUser] = useState<AppUser | null>(null);
   const [templates, setTemplates] = useState<PosterTemplate[]>([]);
+  const [homeConfig, setHomeConfig] = useState<Record<string, any>>({});
 
-  // Fetch templates for the studio workspace
+  // Fetch templates and published screen configuration for the studio workspace
   useEffect(() => {
     let isMounted = true;
     fetch("/api/admin/templates")
@@ -23,6 +24,17 @@ export default function MobileAppRootPage() {
       .then((data) => {
         if (isMounted && data && data.templates) {
           setTemplates(data.templates);
+        }
+      })
+      .catch(() => {
+        // Fallback handled gracefully
+      });
+
+    fetch("/api/app/config")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (isMounted && data && data.screens && data.screens.home) {
+          setHomeConfig(data.screens.home.layoutConfig || {});
         }
       })
       .catch(() => {
@@ -68,6 +80,7 @@ export default function MobileAppRootPage() {
         <MobileAppHomeScreen
           user={activeUser || PRESET_DEMO_USERS.creator}
           templates={templates}
+          config={homeConfig}
           onSignOut={handleSignOut}
         />
       </main>
@@ -114,7 +127,7 @@ export default function MobileAppRootPage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          padding: "24px 44px 18px 44px",
+          padding: "20px 36px 16px 36px",
           boxSizing: "border-box",
           overflowY: "auto",
           position: "relative",
@@ -127,7 +140,7 @@ export default function MobileAppRootPage() {
             justifyContent: "space-between",
             alignItems: "center",
             width: "100%",
-            marginBottom: "12px",
+            marginBottom: "10px",
           }}
         >
           <div className="mobile-brand-header" style={{ display: "none", alignItems: "center", gap: "8px" }}>
@@ -177,7 +190,7 @@ export default function MobileAppRootPage() {
         {/* Center Main Login Form */}
         <div
           style={{
-            flex: 1,
+            margin: "auto 0",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Smartphone, Search, Menu, Image as ImageIcon, ArrowRight, Mail, Sparkles, WandSparkles } from "lucide-react";
+import { Smartphone, Search, Menu, Image as ImageIcon, ArrowRight, Mail, Sparkles, WandSparkles, Bell } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
 import { AppScreen } from "@/lib/screens";
 import { GeneralFormData } from "./GeneralSection";
@@ -20,11 +20,24 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
     generalData.name.toLowerCase().includes("login") ||
     (generalData as unknown as { key?: string }).key === "login";
 
-  // Section helper
+  const isHomeScreen =
+    generalData.route === "/home" ||
+    generalData.name.toLowerCase().includes("home") ||
+    (generalData as unknown as { key?: string }).key === "home";
+
+  // Section helpers
+  const getSection = (sectionId: string) => {
+    return configData.sections?.find((item) => item.id === sectionId);
+  };
+
   const isSectionEnabled = (sectionId: string, fallback = true) => {
-    if (!configData.sections) return fallback;
-    const s = configData.sections.find((item) => item.id === sectionId);
+    const s = getSection(sectionId);
     return s ? s.enabled : fallback;
+  };
+
+  const getSectionTitle = (sectionId: string, fallback: string) => {
+    const s = getSection(sectionId);
+    return s?.title || fallback;
   };
 
   const isDarkTheme = configData.activeTheme === "dark_studio";
@@ -391,6 +404,494 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
                 }}
               >
                 {loginExperience.footerTagline}
+              </div>
+            )}
+          </div>
+        ) : isHomeScreen ? (
+          /* EXACT CANVA STUDIO HOME SCREEN PREVIEW */
+          <div style={{ display: "flex", flexDirection: "column", gap: "14px", width: "100%" }}>
+            {/* 1. Canva Mobile Top Bar */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                paddingBottom: "8px",
+                borderBottom: "1px solid #ECE7F0",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div
+                  style={{
+                    width: "28px",
+                    height: "28px",
+                    borderRadius: "8px",
+                    background: `linear-gradient(135deg, ${primaryAccent} 0%, #00C4CC 100%)`,
+                    color: "#FFFFFF",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 800,
+                    fontSize: "14px",
+                    boxShadow: "0 2px 6px rgba(121, 86, 201, 0.25)",
+                  }}
+                >
+                  P
+                </div>
+                <div>
+                  <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--foreground, #24213A)", lineHeight: 1.1 }}>
+                    Parth Patel
+                  </div>
+                  <div style={{ fontSize: "9.5px", color: primaryAccent, fontWeight: 700, letterSpacing: "0.02em" }}>
+                    PRO Member · Studio
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <span
+                  style={{
+                    fontSize: "9.5px",
+                    fontWeight: 700,
+                    color: primaryAccent,
+                    backgroundColor: "rgba(121, 86, 201, 0.08)",
+                    border: `1px solid rgba(121, 86, 201, 0.2)`,
+                    padding: "2px 6px",
+                    borderRadius: "6px",
+                  }}
+                >
+                  Admin ↗
+                </span>
+                <div
+                  style={{
+                    width: "24px",
+                    height: "24px",
+                    borderRadius: "50%",
+                    backgroundColor: "#FAF9FC",
+                    border: "1px solid #EAE4EE",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#6B7280",
+                    position: "relative",
+                  }}
+                >
+                  <Bell size={12} />
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "2px",
+                      right: "2px",
+                      width: "5px",
+                      height: "5px",
+                      borderRadius: "50%",
+                      backgroundColor: "#10B981",
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Hero Banner: Canva Magic Studio Card */}
+            {isSectionEnabled("hero", true) && configData.bannerVisible !== false && (
+              <div
+                style={{
+                  borderRadius: cardRadius || "14px",
+                  background: isDarkTheme
+                    ? "linear-gradient(135deg, #19122E 0%, #2B184C 50%, #140F24 100%)"
+                    : `linear-gradient(135deg, #19122E 0%, #281846 50%, #120E22 100%)`,
+                  color: "#FFFFFF",
+                  padding: "14px 14px",
+                  boxShadow: "0 6px 16px rgba(25, 18, 46, 0.25)",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+                {/* Glow accent */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "-20px",
+                    right: "-20px",
+                    width: "80px",
+                    height: "80px",
+                    borderRadius: "50%",
+                    background: `radial-gradient(circle, ${primaryAccent}88 0%, transparent 70%)`,
+                    filter: "blur(12px)",
+                    pointerEvents: "none",
+                  }}
+                />
+
+                <span
+                  style={{
+                    fontSize: "9px",
+                    fontWeight: 800,
+                    letterSpacing: "0.06em",
+                    backgroundColor: "rgba(255, 255, 255, 0.15)",
+                    color: "#00E5FF",
+                    padding: "2px 7px",
+                    borderRadius: "999px",
+                    display: "inline-block",
+                    marginBottom: "5px",
+                  }}
+                >
+                  {configData.bannerBadge || "✨ MAGIC STUDIO"}
+                </span>
+
+                <div style={{ fontSize: "14px", fontWeight: 800, lineHeight: 1.25, marginBottom: "3px" }}>
+                  {configData.bannerHeadline || "What will you design today?"}
+                </div>
+                <div style={{ fontSize: "10.5px", color: "rgba(255,255,255,0.75)", marginBottom: "10px", lineHeight: 1.3 }}>
+                  {configData.bannerSubtitle || "Choose a format below or start from templates."}
+                </div>
+
+                {/* White Search Input Pill */}
+                <div
+                  style={{
+                    width: "100%",
+                    height: "32px",
+                    borderRadius: "20px",
+                    backgroundColor: "#FFFFFF",
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "0 10px",
+                    gap: "6px",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                  }}
+                >
+                  <Search size={13} style={{ color: primaryAccent }} />
+                  <span style={{ fontSize: "10.5px", color: "#9CA3AF" }}>
+                    ✨ Describe what to create or search...
+                  </span>
+                </div>
+
+                {/* Quick Inspiration Format Pills */}
+                <div style={{ display: "flex", gap: "5px", overflowX: "auto", marginTop: "10px", paddingBottom: "2px" }}>
+                  {[
+                    { label: "📸 Post", sub: "1:1" },
+                    { label: "📜 Poster", sub: "3:4" },
+                    { label: "📱 Story", sub: "9:16" },
+                    { label: "✨ AI", sub: "Magic" },
+                  ].map((f) => (
+                    <div
+                      key={f.label}
+                      style={{
+                        backgroundColor: "rgba(255, 255, 255, 0.12)",
+                        borderRadius: "6px",
+                        padding: "3px 8px",
+                        fontSize: "9.5px",
+                        fontWeight: 700,
+                        color: "#FFFFFF",
+                        whiteSpace: "nowrap",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {f.label} <span style={{ opacity: 0.65, fontSize: "8.5px" }}>({f.sub})</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 3. Quick Create Format Rail */}
+            {isSectionEnabled("categories", true) && configData.tagsFilterEnabled !== false && (
+              <div>
+                <div style={{ fontSize: "12px", fontWeight: 700, color: previewTextColor, marginBottom: "8px" }}>
+                  {getSectionTitle("categories", "Quick Create")}
+                </div>
+                {/* 5 Canva format squircles */}
+                <div style={{ display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "4px" }}>
+                  {[
+                    { label: "Square", icon: "📸", ratio: "1:1" },
+                    { label: "Story", icon: "📱", ratio: "9:16" },
+                    { label: "Poster", icon: "📜", ratio: "3:4" },
+                    { label: "Video", icon: "🎬", ratio: "16:9" },
+                    { label: "Custom", icon: "🎨", ratio: "px" },
+                  ].map((item, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "4px",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "42px",
+                          height: "42px",
+                          borderRadius: "12px",
+                          backgroundColor: idx === 0 ? "rgba(121, 86, 201, 0.12)" : "#FFFFFF",
+                          border: idx === 0 ? `1.5px solid ${primaryAccent}` : "1px solid #ECE7F0",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "16px",
+                        }}
+                      >
+                        {item.icon}
+                      </div>
+                      <span style={{ fontSize: "9.5px", fontWeight: 600, color: previewTextColor }}>
+                        {item.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Category Pills */}
+                <div style={{ display: "flex", gap: "5px", overflowX: "auto", marginTop: "6px" }}>
+                  {["All", "Business", "Festival", "Promotion", "Education"].map((cat, i) => (
+                    <span
+                      key={cat}
+                      style={{
+                        padding: "3px 9px",
+                        borderRadius: "12px",
+                        backgroundColor: i === 0 ? primaryAccent : "#FFFFFF",
+                        color: i === 0 ? "#FFFFFF" : previewMutedColor,
+                        border: i === 0 ? "none" : "1px solid #ECE7F0",
+                        fontSize: "10px",
+                        fontWeight: i === 0 ? 700 : 500,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {cat}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 4. Featured Templates Section with Live Admin Templates */}
+            {isSectionEnabled("featured_templates", true) && (
+              <div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginBottom: "8px",
+                  }}
+                >
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: previewTextColor }}>
+                    {getSectionTitle("featured_templates", "Featured Templates")}
+                  </span>
+                  <span style={{ fontSize: "10.5px", fontWeight: 700, color: primaryAccent }}>
+                    View all
+                  </span>
+                </div>
+
+                {/* Grid matching configData.gridColumns */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: `repeat(${configData.gridColumns || 3}, minmax(0, 1fr))`,
+                    gap: "8px",
+                  }}
+                >
+                  {[
+                    {
+                      id: "TPL-001",
+                      title: "Grow Your Business",
+                      cat: "Business",
+                      bg: "linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%)",
+                      sub: "Smart Solutions",
+                    },
+                    {
+                      id: "TPL-002",
+                      title: "Happy Diwali",
+                      cat: "Festival",
+                      bg: "linear-gradient(135deg, #78350F 0%, #F59E0B 100%)",
+                      sub: "Festival of Lights",
+                    },
+                    {
+                      id: "TPL-006",
+                      title: "Dream Home",
+                      cat: "Real Estate",
+                      bg: "linear-gradient(135deg, #065F46 0%, #10B981 100%)",
+                      sub: "Modern Living",
+                    },
+                    {
+                      id: "TPL-005",
+                      title: "Summer Sale",
+                      cat: "Promotion",
+                      bg: "linear-gradient(135deg, #EA580C 0%, #F97316 100%)",
+                      sub: "50% Off",
+                    },
+                  ]
+                    .slice(0, (configData.gridColumns || 3) * (configData.gridColumns === 2 ? 2 : 1))
+                    .map((item) => (
+                      <div
+                        key={item.id}
+                        style={{
+                          backgroundColor: "#FFFFFF",
+                          border: "1px solid #ECE7F0",
+                          borderRadius: cardRadius || "10px",
+                          overflow: "hidden",
+                          display: "flex",
+                          flexDirection: "column",
+                          boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            height: configData.gridColumns === 2 ? "76px" : "62px",
+                            background: item.bg,
+                            padding: "8px 6px",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "space-between",
+                            color: "#FFFFFF",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: "7.5px",
+                              fontWeight: 800,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.04em",
+                              backgroundColor: "rgba(0,0,0,0.25)",
+                              padding: "2px 5px",
+                              borderRadius: "4px",
+                              alignSelf: "flex-start",
+                            }}
+                          >
+                            {item.cat}
+                          </span>
+                          <div>
+                            <div style={{ fontSize: "9.5px", fontWeight: 800, lineHeight: 1.1 }}>
+                              {item.title}
+                            </div>
+                            <div style={{ fontSize: "7.5px", opacity: 0.85 }}>
+                              {item.sub}
+                            </div>
+                          </div>
+                        </div>
+                        <div style={{ padding: "5px 6px" }}>
+                          <div
+                            style={{
+                              fontSize: "9.5px",
+                              fontWeight: 700,
+                              color: previewTextColor,
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {item.title}
+                          </div>
+                          <div style={{ fontSize: "8px", color: previewMutedColor }}>
+                            {item.cat} · 3:4
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {/* 5. Recent Designs Section */}
+            {isSectionEnabled("action_banner", true) && configData.quickActionsEnabled !== false && (
+              <div
+                style={{
+                  backgroundColor: "#FFFFFF",
+                  border: "1px solid #ECE7F0",
+                  borderRadius: cardRadius || "10px",
+                  padding: "10px 12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: 700, color: previewTextColor }}>
+                    {getSectionTitle("action_banner", "Recent Designs")}
+                  </div>
+                  <div style={{ fontSize: "9.5px", color: previewMutedColor }}>
+                    Pick up where you left off
+                  </div>
+                </div>
+                <span
+                  style={{
+                    fontSize: "10px",
+                    fontWeight: 700,
+                    color: primaryAccent,
+                    backgroundColor: "rgba(121, 86, 201, 0.08)",
+                    padding: "4px 8px",
+                    borderRadius: "6px",
+                  }}
+                >
+                  Open Studio →
+                </span>
+              </div>
+            )}
+
+            {/* 6. Canva 5-element Bottom Navigation Bar */}
+            {configData.showInBottomNav !== false && (
+              <div
+                style={{
+                  marginTop: "6px",
+                  borderTop: "1px solid #ECE7F0",
+                  paddingTop: "6px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-around",
+                  backgroundColor: "#FFFFFF",
+                  borderRadius: "8px",
+                  paddingBottom: "2px",
+                }}
+              >
+                {[
+                  { label: "Home", icon: "🏠", active: true },
+                  { label: "Projects", icon: "📁", active: false },
+                  { label: "create", icon: "+", isFab: true },
+                  { label: "Templates", icon: "🎨", active: false },
+                  { label: "Profile", icon: "👤", active: false },
+                ].map((tab, idx) =>
+                  tab.isFab ? (
+                    <div
+                      key={idx}
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        borderRadius: "50%",
+                        background: `linear-gradient(135deg, ${primaryAccent} 0%, #00C4CC 100%)`,
+                        color: "#FFFFFF",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "18px",
+                        fontWeight: 300,
+                        boxShadow: "0 2px 8px rgba(121, 86, 201, 0.35)",
+                        marginTop: "-10px",
+                      }}
+                    >
+                      +
+                    </div>
+                  ) : (
+                    <div
+                      key={idx}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "2px",
+                      }}
+                    >
+                      <span style={{ fontSize: "13px" }}>{tab.icon}</span>
+                      <span
+                        style={{
+                          fontSize: "8.5px",
+                          fontWeight: tab.active ? 700 : 500,
+                          color: tab.active ? primaryAccent : "#9CA3AF",
+                        }}
+                      >
+                        {tab.label}
+                      </span>
+                    </div>
+                  )
+                )}
               </div>
             )}
           </div>

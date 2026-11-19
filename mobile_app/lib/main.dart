@@ -1837,6 +1837,9 @@ class _HomePageState extends State<HomePage> {
               child: _HomeHero(
                 accent: _accent,
                 userName: widget.user.name,
+                headline: _experience.bannerHeadline,
+                subtitle: _experience.bannerSubtitle,
+                badge: _experience.bannerBadge,
                 onGenerate: () {
                   if (_promptController.text.trim().isEmpty) {
                     _showComingSoon('AI design');
@@ -2126,12 +2129,18 @@ class _HomeHero extends StatelessWidget {
   const _HomeHero({
     required this.accent,
     required this.userName,
+    this.headline = 'What will you design today?',
+    this.subtitle = 'Describe any festival flyer, social post, or brand banner.',
+    this.badge = 'MAGIC STUDIO',
     required this.promptController,
     required this.onGenerate,
   });
 
   final Color accent;
   final String userName;
+  final String headline;
+  final String subtitle;
+  final String badge;
   final TextEditingController promptController;
   final VoidCallback onGenerate;
 
@@ -2147,6 +2156,8 @@ class _HomeHero extends StatelessWidget {
     final displayName = userName.trim().isEmpty
         ? 'Creator'
         : userName.trim().split(' ').first;
+
+    final badgeClean = badge.replaceAll('✨', '').trim();
 
     return Container(
       key: const ValueKey('home-hero'),
@@ -2208,14 +2219,14 @@ class _HomeHero extends StatelessWidget {
                         ),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.auto_awesome, color: Colors.white, size: 11),
-                          SizedBox(width: 4),
+                          const Icon(Icons.auto_awesome, color: Colors.white, size: 11),
+                          const SizedBox(width: 4),
                           Text(
-                            'MAGIC STUDIO',
-                            style: TextStyle(
+                            badgeClean.isEmpty ? 'MAGIC STUDIO' : badgeClean,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 9,
                               fontWeight: FontWeight.w900,
@@ -2245,9 +2256,9 @@ class _HomeHero extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
-                const Text(
-                  'What will you design today?',
-                  style: TextStyle(
+                Text(
+                  headline,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 22,
                     height: 1.15,

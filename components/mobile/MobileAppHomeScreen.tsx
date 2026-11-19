@@ -18,16 +18,25 @@ import { PosterArtwork } from "@/components/admin/templates/PosterArtwork";
 interface MobileAppHomeScreenProps {
   user: AppUser;
   templates: PosterTemplate[];
+  config?: Record<string, any>;
   onSignOut: () => void;
 }
 
 export const MobileAppHomeScreen: React.FC<MobileAppHomeScreenProps> = ({
   user,
   templates,
+  config,
   onSignOut,
 }) => {
   const [activeTab, setActiveTab] = useState<"home" | "templates" | "ai" | "profile">("home");
   const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const bannerVisible = config?.bannerVisible ?? true;
+  const bannerHeadline = config?.bannerHeadline || "What will you design today?";
+  const bannerSubtitle = config?.bannerSubtitle || "Choose a format below or start from 50,000+ templates.";
+  const bannerBadge = config?.bannerBadge || "POST HUB CANVAS STUDIO";
+  const primaryAccent = config?.primaryAccent || "#7956C9";
+  const gridColumns = config?.gridColumns || 2;
 
   const categories = ["All", "Festival", "Business", "Promotion"];
 
@@ -156,63 +165,65 @@ export const MobileAppHomeScreen: React.FC<MobileAppHomeScreenProps> = ({
         {/* Scrollable Mobile Body */}
         <div style={{ flex: 1, padding: "16px 18px 80px 18px", overflowY: "auto" }}>
           {/* Banner: What will you design? */}
-          <div
-            style={{
-              borderRadius: "16px",
-              background: "linear-gradient(135deg, #7956C9 0%, #9B51E0 50%, #00C4CC 100%)",
-              color: "#FFFFFF",
-              padding: "18px 20px",
-              marginBottom: "18px",
-              boxShadow: "0 8px 20px rgba(121, 86, 201, 0.2)",
-            }}
-          >
-            <span
+          {bannerVisible && (
+            <div
               style={{
-                fontSize: "10px",
-                fontWeight: 800,
-                letterSpacing: "0.06em",
-                backgroundColor: "rgba(255,255,255,0.2)",
-                padding: "3px 8px",
-                borderRadius: "999px",
-                display: "inline-block",
-                marginBottom: "6px",
+                borderRadius: "16px",
+                background: `linear-gradient(135deg, ${primaryAccent} 0%, #9B51E0 50%, #00C4CC 100%)`,
+                color: "#FFFFFF",
+                padding: "18px 20px",
+                marginBottom: "18px",
+                boxShadow: `0 8px 20px ${primaryAccent}33`,
               }}
             >
-              POST HUB CANVAS STUDIO
-            </span>
-            <div style={{ fontSize: "20px", fontWeight: 800, lineHeight: 1.2, marginBottom: "4px" }}>
-              What will you design today?
-            </div>
-            <p style={{ fontSize: "12px", opacity: 0.9, margin: 0 }}>
-              Choose a format below or start from 50,000+ templates.
-            </p>
+              <span
+                style={{
+                  fontSize: "10px",
+                  fontWeight: 800,
+                  letterSpacing: "0.06em",
+                  backgroundColor: "rgba(255,255,255,0.2)",
+                  padding: "3px 8px",
+                  borderRadius: "999px",
+                  display: "inline-block",
+                  marginBottom: "6px",
+                }}
+              >
+                {bannerBadge}
+              </span>
+              <div style={{ fontSize: "20px", fontWeight: 800, lineHeight: 1.2, marginBottom: "4px" }}>
+                {bannerHeadline}
+              </div>
+              <p style={{ fontSize: "12px", opacity: 0.9, margin: 0 }}>
+                {bannerSubtitle}
+              </p>
 
-            {/* Quick Format Pills */}
-            <div style={{ display: "flex", gap: "8px", overflowX: "auto", marginTop: "14px", paddingBottom: "2px" }}>
-              {[
-                { label: "📸 Square", sub: "1:1" },
-                { label: "📜 Poster", sub: "3:4" },
-                { label: "🎆 Festival", sub: "Promo" },
-                { label: "✨ AI Studio", sub: "Magic" },
-              ].map((f) => (
-                <div
-                  key={f.label}
-                  style={{
-                    backgroundColor: "rgba(255,255,255,0.18)",
-                    borderRadius: "8px",
-                    padding: "6px 12px",
-                    fontSize: "11.5px",
-                    fontWeight: 700,
-                    whiteSpace: "nowrap",
-                    flexShrink: 0,
-                    cursor: "pointer",
-                  }}
-                >
-                  {f.label} <span style={{ opacity: 0.75, fontSize: "10px" }}>({f.sub})</span>
-                </div>
-              ))}
+              {/* Quick Format Pills */}
+              <div style={{ display: "flex", gap: "8px", overflowX: "auto", marginTop: "14px", paddingBottom: "2px" }}>
+                {[
+                  { label: "📸 Square", sub: "1:1" },
+                  { label: "📜 Poster", sub: "3:4" },
+                  { label: "🎆 Festival", sub: "Promo" },
+                  { label: "✨ AI Studio", sub: "Magic" },
+                ].map((f) => (
+                  <div
+                    key={f.label}
+                    style={{
+                      backgroundColor: "rgba(255,255,255,0.18)",
+                      borderRadius: "8px",
+                      padding: "6px 12px",
+                      fontSize: "11.5px",
+                      fontWeight: 700,
+                      whiteSpace: "nowrap",
+                      flexShrink: 0,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {f.label} <span style={{ opacity: 0.75, fontSize: "10px" }}>({f.sub})</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Categories Rail */}
           <div style={{ display: "flex", gap: "6px", marginBottom: "16px", overflowX: "auto" }}>

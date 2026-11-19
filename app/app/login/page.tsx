@@ -50,7 +50,7 @@ export default function AppLoginPage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          padding: "24px 44px 18px 44px",
+          padding: "20px 36px 16px 36px",
           boxSizing: "border-box",
           overflowY: "auto",
           position: "relative",
@@ -63,7 +63,7 @@ export default function AppLoginPage() {
             justifyContent: "space-between",
             alignItems: "center",
             width: "100%",
-            marginBottom: "12px",
+            marginBottom: "10px",
           }}
         >
           <div className="mobile-brand-header" style={{ display: "none", alignItems: "center", gap: "8px" }}>
@@ -113,7 +113,7 @@ export default function AppLoginPage() {
         {/* Center Main Login Form */}
         <div
           style={{
-            flex: 1,
+            margin: "auto 0",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",

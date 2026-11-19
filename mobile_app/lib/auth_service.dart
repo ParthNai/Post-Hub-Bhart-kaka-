@@ -238,6 +238,9 @@ class AppHomeExperience {
     required this.accentColor,
     required this.backgroundColor,
     required this.bannerVisible,
+    this.bannerHeadline = 'What will you design today?',
+    this.bannerSubtitle = 'Choose a format below or start from templates.',
+    this.bannerBadge = '✨ MAGIC STUDIO',
     required this.itemsPerPage,
     required this.gridColumns,
     required this.tagsFilterEnabled,
@@ -251,6 +254,9 @@ class AppHomeExperience {
     accentColor: '#7956C9',
     backgroundColor: '#FAF7F2',
     bannerVisible: true,
+    bannerHeadline: 'What will you design today?',
+    bannerSubtitle: 'Choose a format below or start from templates.',
+    bannerBadge: '✨ MAGIC STUDIO',
     itemsPerPage: 12,
     gridColumns: 2,
     tagsFilterEnabled: true,
@@ -283,6 +289,9 @@ class AppHomeExperience {
   final String accentColor;
   final String backgroundColor;
   final bool bannerVisible;
+  final String bannerHeadline;
+  final String bannerSubtitle;
+  final String bannerBadge;
   final int itemsPerPage;
   final int gridColumns;
   final bool tagsFilterEnabled;
@@ -339,6 +348,15 @@ class AppHomeExperience {
       bannerVisible: layout['bannerVisible'] is bool
           ? layout['bannerVisible'] as bool
           : true,
+      bannerHeadline: layout['bannerHeadline'] is String
+          ? layout['bannerHeadline'] as String
+          : AppHomeExperience.defaults.bannerHeadline,
+      bannerSubtitle: layout['bannerSubtitle'] is String
+          ? layout['bannerSubtitle'] as String
+          : AppHomeExperience.defaults.bannerSubtitle,
+      bannerBadge: layout['bannerBadge'] is String
+          ? layout['bannerBadge'] as String
+          : AppHomeExperience.defaults.bannerBadge,
       itemsPerPage: layout['itemsPerPage'] is int
           ? (layout['itemsPerPage'] as int).clamp(1, 60)
           : AppHomeExperience.defaults.itemsPerPage,
