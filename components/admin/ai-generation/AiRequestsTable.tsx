@@ -173,17 +173,67 @@ export const AiRequestsTable: React.FC<AiRequestsTableProps> = ({
           justifyContent: "space-between",
         }}
       >
-        <h2
-          style={{
-            fontSize: "16px",
-            fontWeight: 700,
-            color: "var(--foreground)",
-            margin: 0,
-            letterSpacing: "-0.01em",
-          }}
-        >
-          Generation Requests
-        </h2>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <h2
+            style={{
+              fontSize: "16px",
+              fontWeight: 700,
+              color: "var(--foreground)",
+              margin: 0,
+              letterSpacing: "-0.01em",
+            }}
+          >
+            Generation Requests
+          </h2>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "5px",
+              fontSize: "11px",
+              fontWeight: 600,
+              color: "#137333",
+              backgroundColor: "rgba(19, 115, 51, 0.08)",
+              padding: "2px 8px",
+              borderRadius: "12px",
+            }}
+          >
+            <span
+              style={{
+                width: "6px",
+                height: "6px",
+                borderRadius: "50%",
+                backgroundColor: "#137333",
+                boxShadow: "0 0 0 2px rgba(19, 115, 51, 0.2)",
+              }}
+            />
+            Live
+          </span>
+        </div>
+      </div>
+
+      {/* Subtle non-blocking progress bar that glides smoothly across top during refresh without blinking */}
+      <div
+        style={{
+          height: "2px",
+          width: "100%",
+          backgroundColor: isLoading ? "rgba(121, 86, 201, 0.12)" : "transparent",
+          overflow: "hidden",
+          position: "relative",
+          transition: "background-color 0.2s ease",
+        }}
+      >
+        {isLoading && (
+          <div
+            style={{
+              height: "100%",
+              width: "35%",
+              background: "linear-gradient(90deg, #7956C9, #9065ED, #00C4CC)",
+              borderRadius: "2px",
+              animation: "progressSlide 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite",
+            }}
+          />
+        )}
       </div>
 
       {/* Table container */}
@@ -194,6 +244,7 @@ export const AiRequestsTable: React.FC<AiRequestsTableProps> = ({
             borderCollapse: "collapse",
             textAlign: "left",
             fontSize: "13px",
+            transition: "opacity 0.15s ease",
           }}
         >
           <thead>
@@ -217,7 +268,7 @@ export const AiRequestsTable: React.FC<AiRequestsTableProps> = ({
             </tr>
           </thead>
           <tbody>
-            {isLoading ? (
+            {isLoading && requests.length === 0 ? (
               <tr>
                 <td colSpan={8} style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
                   <Loader2 size={24} style={{ animation: "spin 1s linear infinite", margin: "0 auto 8px auto" }} />
@@ -654,6 +705,20 @@ export const AiRequestsTable: React.FC<AiRequestsTableProps> = ({
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes progressSlide {
+          0% {
+            transform: translateX(-100%);
+          }
+          50% {
+            transform: translateX(120%);
+          }
+          100% {
+            transform: translateX(350%);
+          }
+        }
+      `}</style>
     </div>
   );
 };

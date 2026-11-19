@@ -90,9 +90,13 @@ export const AiGenerationView: React.FC<AiGenerationViewProps> = ({
         provider?: string;
         timeRange?: string;
         format?: string;
+        silent?: boolean;
       } = {}
     ) => {
-      setIsLoading(true);
+      // Only set full loading indicator if silent is false and there are no existing requests
+      if (!overrideParams.silent) {
+        setIsLoading(true);
+      }
       try {
         const queryParams = new URLSearchParams();
         const q = overrideParams.q !== undefined ? overrideParams.q : searchQuery;
@@ -122,35 +126,55 @@ export const AiGenerationView: React.FC<AiGenerationViewProps> = ({
         setMetrics(data.metrics);
         setProviderConfig(data.providerConfig);
 
-        // Keep selected request in sync if updated
-        if (selectedRequest) {
-          const freshSelected = data.requests.find((r) => r.id === selectedRequest.id);
-          if (freshSelected) {
-            setSelectedRequest(freshSelected);
-          } else if (data.requests.length > 0 && overrideParams.page !== undefined) {
-            setSelectedRequest(data.requests[0]);
+        // Keep selected request in sync if updated without triggering dependency re-render loops
+        setSelectedRequest((prev) => {
+          if (prev) {
+            const freshSelected = data.requests.find((r) => r.id === prev.id);
+            if (freshSelected) return freshSelected;
+            if (overrideParams.page !== undefined && data.requests.length > 0) {
+              return data.requests[0];
+            }
+            return prev;
           }
-        } else if (data.requests.length > 0) {
-          setSelectedRequest(data.requests[0]);
-        }
+          return data.requests[0] || null;
+        });
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Failed to fetch data.";
-        showToast(message, "error");
+        if (!overrideParams.silent) {
+          const message = err instanceof Error ? err.message : "Failed to fetch data.";
+          showToast(message, "error");
+        }
       } finally {
         setIsLoading(false);
         setIsRefreshing(false);
       }
     },
-    [searchQuery, statusFilter, providerFilter, timeRange, formatFilter, currentPage, pageSize, selectedRequest]
+    [searchQuery, statusFilter, providerFilter, timeRange, formatFilter, currentPage, pageSize]
   );
 
-  // Search input debounced
+  // Stable ref to fetchData for timers and debounces
+  const fetchDataRef = React.useRef(fetchData);
+  fetchDataRef.current = fetchData;
+
+  // Search input debounced - only executes when searchQuery changes
+  const isFirstSearchRender = React.useRef(true);
   useEffect(() => {
+    if (isFirstSearchRender.current) {
+      isFirstSearchRender.current = false;
+      return;
+    }
     const timer = setTimeout(() => {
-      fetchData({ page: 1, q: searchQuery });
+      fetchDataRef.current({ page: 1, q: searchQuery });
     }, 280);
     return () => clearTimeout(timer);
-  }, [searchQuery, fetchData]);
+  }, [searchQuery]);
+
+  // Live Auto-Refresh: smoothly updates requests every 3 seconds without blinking or unmounting the table
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchDataRef.current({ silent: true });
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Handle refresh action
   const handleRefresh = async () => {
