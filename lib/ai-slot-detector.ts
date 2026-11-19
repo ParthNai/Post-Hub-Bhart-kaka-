@@ -12,9 +12,16 @@ function convertRawElement(el: any, canvasW = 1024, canvasH = 1536): TemplateSlo
   const height = isPixels ? Math.round((el.height / canvasH) * 1000) / 10 : Math.round(el.height * 10) / 10;
 
   const id = String(el.id || `zone-${Date.now().toString(36)}`).toLowerCase();
-  const isPhoto = el.type === "image" || id.includes("photo") || id.includes("avatar") || id.includes("portrait");
+  const isPhoto =
+    el.type === "image" ||
+    el.type === "photo" ||
+    el.shape !== undefined ||
+    id.includes("photo") ||
+    id.includes("avatar") ||
+    id.includes("portrait");
 
   if (isPhoto) {
+    const shape = (el.shape || el.photoShape || "cutout") as "cutout" | "circle" | "squircle" | "rectangle";
     return {
       id: el.id || `zone-photo-${Date.now().toString(36)}`,
       type: "photo",
@@ -23,10 +30,10 @@ function convertRawElement(el: any, canvasW = 1024, canvasH = 1536): TemplateSlo
       y: Math.max(0, Math.min(95, y)),
       width: Math.max(5, Math.min(100, width)),
       height: Math.max(5, Math.min(100, height)),
-      photoShape: "cutout",
-      borderWidth: 0,
-      shadow: false,
-      featherBottom: true,
+      photoShape: shape,
+      borderWidth: shape === "cutout" ? 0 : (el.borderWidth ?? 3),
+      shadow: shape !== "cutout",
+      featherBottom: shape === "cutout",
       objectFit: el.fit === "cover" ? "cover" : "contain",
       zIndex: el.zIndex || 4,
     };
@@ -90,7 +97,11 @@ export function parsePostHubSpec(rawText: string): TemplateSlotZone[] {
   const zones: TemplateSlotZone[] = [];
   if (!rawText || typeof rawText !== "string") return zones;
 
-  const clean = rawText.trim();
+  // Clean out markdown code block fences (```json, ```xml, ```svg, ```)
+  const clean = rawText
+    .replace(/```[a-zA-Z0-9_-]*\n?/g, "")
+    .replace(/```/g, "")
+    .trim();
 
   // 0. If input is raw SVG code, extract zones from it directly
   if (clean.includes("<svg")) {
@@ -98,7 +109,43 @@ export function parsePostHubSpec(rawText: string): TemplateSlotZone[] {
     if (svgRes.zones.length > 0) return svgRes.zones;
   }
 
-  // 1. Try parsing JSON elements list or object (like ChatGPT element output)
+  // 1. Robust JSON Object Block Scanner:
+  // Extracts any individual { ... } blocks that define x and y coordinates
+  // Handles full JSON arrays, single objects, and sliced/broken JSON fragments
+  if (clean.includes('"x"') && clean.includes('"y"')) {
+    const objRegex = /\{([^{}]+)\}/g;
+    let m: RegExpExecArray | null;
+    const parsedObjects: any[] = [];
+
+    while ((m = objRegex.exec(clean)) !== null) {
+      try {
+        const candidate = JSON.parse(`{${m[1]}}`);
+        if (candidate.x !== undefined && candidate.y !== undefined) {
+          parsedObjects.push(candidate);
+        }
+      } catch {
+        // Continue scanning next object
+      }
+    }
+
+    if (parsedObjects.length > 0) {
+      let canvasW = 1024;
+      let canvasH = 1536;
+
+      const canvasWRef = clean.match(/"width"\s*:\s*(\d{3,4})[\s,]+"height"\s*:\s*(\d{3,4})/);
+      if (canvasWRef) {
+        canvasW = parseFloat(canvasWRef[1]) || 1024;
+        canvasH = parseFloat(canvasWRef[2]) || 1536;
+      }
+
+      for (const item of parsedObjects) {
+        zones.push(convertRawElement(item, canvasW, canvasH));
+      }
+      if (zones.length > 0) return zones;
+    }
+  }
+
+  // 2. Try parsing standard JSON elements list or object
   try {
     // Check if clean string contains an elements array or list of objects
     const hasElementsArray = clean.match(/\{[\s\S]*\}|\[[\s\S]*\]/);

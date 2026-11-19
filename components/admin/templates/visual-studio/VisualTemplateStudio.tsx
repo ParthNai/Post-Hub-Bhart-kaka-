@@ -1855,8 +1855,7 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
             style={{
               ...aspectRatioStyle,
               position: "relative",
-              borderRadius: "14px",
-              overflow: "hidden",
+              borderRadius: "0px",
               boxShadow: "0 20px 40px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.1)",
               backgroundColor: "#1E1A33",
               background: `url(${backgroundUrl}) center center / 100% 100% no-repeat`,
