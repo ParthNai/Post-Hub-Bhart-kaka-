@@ -4,6 +4,52 @@ import assert from "node:assert/strict";
 const BASE_URL = "http://localhost:3000";
 
 test("API Endpoints & Authentication States Verification", async (t) => {
+  let appAccessToken;
+
+  await t.test("App member login returns a bearer token", async () => {
+    const res = await fetch(`${BASE_URL}/api/app/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: "member@yourdomain.com",
+        password: "MemberPassword123!",
+      }),
+    });
+
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.success, true);
+    assert.equal(data.tokenType, "Bearer");
+    assert.equal(data.user.role, "member");
+    assert.ok(data.token);
+    appAccessToken = data.token;
+  });
+
+  await t.test("App bearer token authenticates only the app user endpoint", async () => {
+    const appRes = await fetch(`${BASE_URL}/api/app/auth/me`, {
+      headers: { Authorization: `Bearer ${appAccessToken}` },
+    });
+    assert.equal(appRes.status, 200);
+    const appData = await appRes.json();
+    assert.equal(appData.authenticated, true);
+    assert.equal(appData.user.role, "member");
+
+    const adminRes = await fetch(`${BASE_URL}/api/auth/me`, {
+      headers: { Authorization: `Bearer ${appAccessToken}` },
+    });
+    assert.equal(adminRes.status, 401);
+  });
+
+  await t.test("App login rejects a non-object request body", async () => {
+    const res = await fetch(`${BASE_URL}/api/app/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(null),
+    });
+
+    assert.equal(res.status, 400);
+  });
+
   await t.test("State 1: Empty-field validation", async () => {
     const res = await fetch(`${BASE_URL}/api/auth/login`, {
       method: "POST",

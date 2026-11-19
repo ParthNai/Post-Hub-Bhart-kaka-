@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAllScreens } from "@/lib/screens";
+import { initScreensDb } from "@/lib/screens";
 import { getDesignSystemConfig } from "@/lib/design-system";
 
 export const dynamic = "force-dynamic";
@@ -8,10 +8,11 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Cache-Control": "no-store, max-age=0",
 };
 
 export async function GET() {
-  const screens = getAllScreens().filter((s) => s.status !== "archived");
+  const screens = initScreensDb().filter((s) => s.status !== "archived");
   const designSystem = getDesignSystemConfig();
 
   // Client mobile app schema contract
@@ -38,10 +39,7 @@ export async function GET() {
       visibilityEnabled: screen.visibilityEnabled ?? true,
       minAppVersion: screen.minAppVersion || "1.0.0",
       capabilities: screen.supportedCapabilities,
-      layoutConfig: {
-        ...screen.configData,
-        ...(screen.draftConfigData || {}),
-      },
+      layoutConfig: screen.configData,
     })),
   };
 

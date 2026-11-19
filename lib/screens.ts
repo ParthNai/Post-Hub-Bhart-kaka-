@@ -1,9 +1,14 @@
 import fs from "fs";
 import path from "path";
+import { DEFAULT_LOGIN_EXPERIENCE } from "./login-experience.ts";
+import type { LoginExperienceConfig } from "./login-experience.ts";
 
 export type ScreenCategory = "Navigation" | "Content" | "Creation" | "Account";
 
 export type ScreenStatus = "configured" | "needs_setup" | "not_linked" | "archived";
+
+export { DEFAULT_LOGIN_EXPERIENCE } from "./login-experience.ts";
+export type { LoginExperienceConfig } from "./login-experience.ts";
 
 export interface ScreenVersionHistory {
   version: number;
@@ -35,12 +40,14 @@ export interface AppScreen {
     quickActionsEnabled?: boolean;
     activeTheme?: string;
     primaryAccent?: string;
+    backgroundColor?: string;
     cardRadius?: string;
     showInBottomNav?: boolean;
     deepLinkRoute?: string;
     cacheTtlSeconds?: number;
     refreshOnFocus?: boolean;
     offlineFallback?: boolean;
+    loginExperience?: LoginExperienceConfig;
     sections?: Array<{
       id: string;
       title: string;
@@ -50,6 +57,14 @@ export interface AppScreen {
     customParams?: Record<string, unknown>;
   };
   draftConfigData?: Record<string, unknown>;
+  draftData?: {
+    name?: string;
+    description?: string;
+    category?: ScreenCategory;
+    route?: string;
+    visibilityEnabled?: boolean;
+    minAppVersion?: string;
+  };
   hasUnpublishedChanges?: boolean;
   version: number;
   lastUpdated: string;
@@ -284,6 +299,53 @@ export const SEED_SCREENS: AppScreen[] = [
     updatedAt: "2025-10-14T08:30:00.000Z",
     isSample: true,
   },
+  {
+    id: "scr_login_007",
+    key: "login",
+    name: "Login & Authentication",
+    description: "Sign in to continue creating and sharing designs.",
+    category: "Account",
+    route: "/login",
+    iconName: "User",
+    status: "configured",
+    visibilityEnabled: true,
+    minAppVersion: "1.0.0",
+    supportedCapabilities: [
+      "email_password_auth",
+      "social_sso_login",
+      "remember_me",
+      "password_recovery",
+      "brand_customization",
+    ],
+    configData: {
+      bannerVisible: true,
+      headerTitle: DEFAULT_LOGIN_EXPERIENCE.welcomeTitle,
+      defaultLayout: "form_sections",
+      activeTheme: "default",
+      primaryAccent: "#7026E8",
+      backgroundColor: "#FFF9FF",
+      cardRadius: "18px",
+      showInBottomNav: false,
+      deepLinkRoute: "posthub://login",
+      quickActionsEnabled: true,
+      tagsFilterEnabled: false,
+      loginExperience: { ...DEFAULT_LOGIN_EXPERIENCE },
+      sections: [
+        { id: "brand_header", title: "Brand Logo & Title", enabled: true, order: 1 },
+        { id: "welcome_text", title: "Welcome Headline & Subtitle", enabled: true, order: 2 },
+        { id: "credentials_form", title: "Email & Password Input Form", enabled: true, order: 3 },
+        { id: "social_login", title: "Social SSO (Continue with Google)", enabled: true, order: 4 },
+        { id: "mobile_login", title: "Continue with Mobile", enabled: true, order: 5 },
+        { id: "signup_link", title: "Sign Up / Create Account Link", enabled: true, order: 6 },
+      ],
+    },
+    version: 1,
+    lastUpdated: "Nov 15, 2026",
+    lastSavedAt: "Not saved yet",
+    createdAt: "2026-11-15T00:00:00.000Z",
+    updatedAt: "2026-11-15T00:00:00.000Z",
+    isSample: true,
+  },
 ];
 
 export function initScreensDb(): AppScreen[] {
@@ -300,6 +362,27 @@ export function initScreensDb(): AppScreen[] {
     if (!existing) {
       modified = true;
       return seed;
+    }
+    if (seed.key === "login") {
+      const loginExperience = {
+        ...DEFAULT_LOGIN_EXPERIENCE,
+        ...(existing.configData.loginExperience || {}),
+      };
+      if (
+        JSON.stringify(existing.configData.loginExperience) !==
+        JSON.stringify(loginExperience)
+      ) {
+        modified = true;
+      }
+      return {
+        ...seed,
+        ...existing,
+        configData: {
+          ...seed.configData,
+          ...existing.configData,
+          loginExperience,
+        },
+      };
     }
     // Enrich with new fields if missing
     if (existing.visibilityEnabled === undefined || !existing.minAppVersion || existing.key === "home") {
@@ -427,8 +510,8 @@ export function saveScreenDraft(
 
   const current = screens[index];
   const newConfigData = draft.configData
-    ? { ...current.configData, ...draft.configData }
-    : current.configData;
+    ? { ...current.configData, ...(current.draftConfigData || {}), ...draft.configData }
+    : current.draftConfigData || current.configData;
 
   const history = current.history ? [...current.history] : [];
   history.unshift({
@@ -440,13 +523,22 @@ export function saveScreenDraft(
 
   const updated: AppScreen = {
     ...current,
-    name: draft.name !== undefined ? draft.name.trim() : current.name,
-    description: draft.description !== undefined ? draft.description.trim() : current.description,
-    category: draft.category || current.category,
-    route: draft.route !== undefined ? draft.route.trim() : current.route,
-    visibilityEnabled: draft.visibilityEnabled !== undefined ? draft.visibilityEnabled : (current.visibilityEnabled ?? true),
-    minAppVersion: draft.minAppVersion !== undefined ? draft.minAppVersion.trim() : (current.minAppVersion || "1.0.0"),
-    configData: newConfigData,
+    name: current.name,
+    description: current.description,
+    category: current.category,
+    route: current.route,
+    visibilityEnabled: current.visibilityEnabled ?? true,
+    minAppVersion: current.minAppVersion || "1.0.0",
+    configData: current.configData,
+    draftData: {
+      ...(current.draftData || {}),
+      ...(draft.name !== undefined ? { name: draft.name.trim() } : {}),
+      ...(draft.description !== undefined ? { description: draft.description.trim() } : {}),
+      ...(draft.category !== undefined ? { category: draft.category } : {}),
+      ...(draft.route !== undefined ? { route: draft.route.trim() } : {}),
+      ...(draft.visibilityEnabled !== undefined ? { visibilityEnabled: draft.visibilityEnabled } : {}),
+      ...(draft.minAppVersion !== undefined ? { minAppVersion: draft.minAppVersion.trim() } : {}),
+    },
     draftConfigData: newConfigData,
     hasUnpublishedChanges: true,
     lastSavedAt: `Today at ${formattedTime}`,
@@ -511,6 +603,10 @@ export function publishScreen(
     ...(current.draftConfigData || {}),
     ...(payload?.configData || {}),
   };
+  const mergedGeneral = {
+    ...(current.draftData || {}),
+    ...payload,
+  };
 
   const newVersion = (current.version || 1) + 1;
   const history = current.history ? [...current.history] : [];
@@ -523,16 +619,17 @@ export function publishScreen(
 
   const updated: AppScreen = {
     ...current,
-    name: payload?.name !== undefined ? payload.name.trim() : current.name,
-    description: payload?.description !== undefined ? payload.description.trim() : current.description,
-    category: payload?.category || current.category,
-    route: payload?.route !== undefined ? payload.route.trim() : current.route,
-    visibilityEnabled: payload?.visibilityEnabled !== undefined ? payload.visibilityEnabled : (current.visibilityEnabled ?? true),
-    minAppVersion: payload?.minAppVersion !== undefined ? payload.minAppVersion.trim() : (current.minAppVersion || "1.0.0"),
+    name: mergedGeneral.name !== undefined ? mergedGeneral.name.trim() : current.name,
+    description: mergedGeneral.description !== undefined ? mergedGeneral.description.trim() : current.description,
+    category: mergedGeneral.category || current.category,
+    route: mergedGeneral.route !== undefined ? mergedGeneral.route.trim() : current.route,
+    visibilityEnabled: mergedGeneral.visibilityEnabled ?? current.visibilityEnabled ?? true,
+    minAppVersion: mergedGeneral.minAppVersion !== undefined ? mergedGeneral.minAppVersion.trim() : (current.minAppVersion || "1.0.0"),
     status: "configured",
     statusMessage: "Configured and published to mobile app clients",
     configData: mergedConfig,
     draftConfigData: undefined,
+    draftData: undefined,
     hasUnpublishedChanges: false,
     version: newVersion,
     lastSavedAt: `Published today at ${formattedTime}`,

@@ -60,72 +60,72 @@
       ]
     },
     "version": 3,
-    "lastUpdated": "Oct 29, 2026",
-    "lastSavedAt": "Today at 4:42 PM",
+    "lastUpdated": "Nov 16, 2026",
+    "lastSavedAt": "Today at 10:09 AM",
     "history": [
       {
         "version": 3,
-        "savedAt": "Oct 29, 2026 at 4:42 PM",
+        "savedAt": "Nov 16, 2026 at 10:09 AM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
       },
       {
         "version": 3,
-        "savedAt": "Oct 29, 2026 at 4:42 PM",
+        "savedAt": "Nov 16, 2026 at 10:09 AM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
       },
       {
         "version": 3,
-        "savedAt": "Oct 29, 2026 at 4:23 PM",
+        "savedAt": "Nov 15, 2026 at 9:23 AM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
       },
       {
         "version": 3,
-        "savedAt": "Oct 29, 2026 at 4:23 PM",
+        "savedAt": "Nov 15, 2026 at 9:23 AM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
       },
       {
         "version": 3,
-        "savedAt": "Oct 29, 2026 at 4:21 PM",
+        "savedAt": "Nov 2, 2026 at 12:14 PM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
       },
       {
         "version": 3,
-        "savedAt": "Oct 29, 2026 at 4:21 PM",
+        "savedAt": "Nov 2, 2026 at 12:14 PM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
       },
       {
         "version": 3,
-        "savedAt": "Oct 29, 2026 at 3:54 PM",
+        "savedAt": "Nov 2, 2026 at 11:58 AM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
       },
       {
         "version": 3,
-        "savedAt": "Oct 29, 2026 at 3:54 PM",
+        "savedAt": "Nov 2, 2026 at 11:58 AM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
       },
       {
         "version": 3,
-        "savedAt": "Oct 29, 2026 at 3:53 PM",
+        "savedAt": "Nov 2, 2026 at 11:43 AM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
       },
       {
         "version": 3,
-        "savedAt": "Oct 29, 2026 at 3:53 PM",
+        "savedAt": "Nov 2, 2026 at 11:43 AM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
       }
     ],
     "createdAt": "2025-10-01T00:00:00.000Z",
-    "updatedAt": "2026-10-29T11:12:23.103Z",
+    "updatedAt": "2026-11-16T04:39:33.543Z",
     "isSample": true,
     "draftConfigData": {
       "bannerVisible": true,
@@ -170,7 +170,14 @@
         }
       ]
     },
-    "hasUnpublishedChanges": true
+    "hasUnpublishedChanges": true,
+    "draftData": {
+      "name": "Home",
+      "description": "Discover templates, create AI images, and explore festival designs.",
+      "route": "/home",
+      "visibilityEnabled": true,
+      "minAppVersion": "1.0.0"
+    }
   },
   {
     "id": "scr_templates_002",
@@ -349,11 +356,24 @@
       "defaultLayout": "form_sections",
       "activeTheme": "default",
       "primaryAccent": "#7956C9",
+      "backgroundColor": "#FFF9FF",
       "cardRadius": "14px",
       "showInBottomNav": false,
       "deepLinkRoute": "posthub://login",
       "quickActionsEnabled": true,
       "tagsFilterEnabled": false,
+      "loginExperience": {
+        "brandName": "Post Hub",
+        "brandTagline": "Design  ·  Create  ·  Inspire",
+        "welcomeTitle": "Welcome Back!",
+        "welcomeSubtitle": "Sign in to continue creating amazing designs",
+        "footerTagline": "Turn Your Ideas Into Stunning Designs ✨",
+        "heroImageUrl": "",
+        "googleEnabled": true,
+        "emailEnabled": true,
+        "mobileEnabled": true,
+        "signupEnabled": true
+      },
       "sections": [
         {
           "id": "brand_header",
@@ -387,14 +407,26 @@
         }
       ]
     },
-    "version": 4,
-    "lastUpdated": "Oct 29, 2026",
-    "lastSavedAt": "Published today at 3:53 PM",
+    "version": 6,
+    "lastUpdated": "Nov 15, 2026",
+    "lastSavedAt": "Published today at 11:33 AM",
     "createdAt": "2026-10-29T10:00:00.000Z",
-    "updatedAt": "2026-10-29T10:23:24.092Z",
+    "updatedAt": "2026-11-15T06:03:12.473Z",
     "isSample": false,
     "hasUnpublishedChanges": false,
     "history": [
+      {
+        "version": 6,
+        "savedAt": "Nov 15, 2026 at 11:33 AM",
+        "author": "Admin Workspace",
+        "changesSummary": "Published configuration v6.0 to mobile app"
+      },
+      {
+        "version": 5,
+        "savedAt": "Nov 15, 2026 at 11:17 AM",
+        "author": "Admin Workspace",
+        "changesSummary": "Published configuration v5.0 to mobile app"
+      },
       {
         "version": 4,
         "savedAt": "Oct 29, 2026 at 3:53 PM",

@@ -1,4 +1,6 @@
 import React from "react";
+import Link from "next/link";
+import { Sparkles, ArrowRight } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
 import { CollageArt } from "@/components/CollageArt";
 import { LoginForm } from "@/components/LoginForm";
@@ -13,12 +15,47 @@ export default function AdminLoginPage() {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        padding: "40px 64px 32px 64px",
+        padding: "28px 64px 32px 64px",
         position: "relative",
         boxSizing: "border-box",
       }}
     >
       <SetupDrawer />
+
+      {/* Top Switcher Banner: Link to Separate Mobile App */}
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "1360px",
+          margin: "0 auto 16px auto",
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+        }}
+      >
+        <Link
+          href="/app"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "8px 16px",
+            borderRadius: "999px",
+            backgroundColor: "#F4F0FB",
+            border: "1px solid #D8C7F5",
+            color: "#543399",
+            fontSize: "13px",
+            fontWeight: 600,
+            textDecoration: "none",
+            transition: "all 0.18s ease",
+            boxShadow: "0 2px 6px rgba(121, 86, 201, 0.08)",
+          }}
+        >
+          <Sparkles size={14} color="#7956C9" />
+          <span>Launch Separate Mobile App (Login First Page)</span>
+          <ArrowRight size={13} />
+        </Link>
+      </div>
 
       {/* Main Two-Column Viewport Wrapper */}
       <div

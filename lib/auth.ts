@@ -1,10 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { findUserByEmail, User } from "./db";
-
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.SESSION_SECRET || "post-hub-secure-admin-secret-key-must-be-at-least-32-chars-long"
-);
+import { SESSION_JWT_SECRET } from "./session-secret.ts";
 
 export const COOKIE_NAME = "posthub_admin_session";
 
@@ -30,14 +27,14 @@ export async function createSessionToken(
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(expiration)
-    .sign(JWT_SECRET);
+    .sign(SESSION_JWT_SECRET);
 
   return token;
 }
 
 export async function verifySessionToken(token: string): Promise<SessionPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, SESSION_JWT_SECRET);
     return payload as unknown as SessionPayload;
   } catch {
     return null;

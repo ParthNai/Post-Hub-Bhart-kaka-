@@ -4,6 +4,9 @@ import {
   initScreensDb,
   findScreenByIdOrKey,
   saveScreenDraft,
+  publishScreen,
+  getAllScreens,
+  saveScreens,
 } from "../lib/screens.ts";
 
 test("Screen 04 — Screen Details & Configuration Editor Test Suite", async (t) => {
@@ -121,5 +124,48 @@ test("Screen 04 — Screen Details & Configuration Editor Test Suite", async (t)
 
     // Draft updates do not silently promote to external production without version review
     assert.ok(home.hasUnpublishedChanges !== undefined);
+  });
+
+  await t.test("8. Login design drafts stay private until publish", () => {
+    const original = findScreenByIdOrKey("login");
+    assert.ok(original, "The login screen must exist");
+    const originalSnapshot = JSON.parse(JSON.stringify(original));
+
+    try {
+      const currentExperience = original.configData.loginExperience;
+      assert.ok(currentExperience, "The login design must be configured");
+
+      const draftResult = saveScreenDraft("login", {
+        configData: {
+          loginExperience: {
+            ...currentExperience,
+            brandName: "Unpublished Studio",
+          },
+        },
+      });
+      assert.ok(draftResult.screen);
+      assert.equal(
+        findScreenByIdOrKey("login").configData.loginExperience.brandName,
+        currentExperience.brandName,
+      );
+      assert.equal(
+        draftResult.screen.draftConfigData.loginExperience.brandName,
+        "Unpublished Studio",
+      );
+
+      const publishResult = publishScreen("login");
+      assert.ok(publishResult.screen);
+      assert.equal(
+        publishResult.screen.configData.loginExperience.brandName,
+        "Unpublished Studio",
+      );
+      assert.equal(publishResult.screen.hasUnpublishedChanges, false);
+    } finally {
+      saveScreens(
+        getAllScreens().map((screen) =>
+          screen.id === originalSnapshot.id ? originalSnapshot : screen,
+        ),
+      );
+    }
   });
 });

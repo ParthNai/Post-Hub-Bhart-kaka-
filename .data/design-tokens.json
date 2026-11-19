@@ -1,7 +1,7 @@
 {
-  "version": 28,
+  "version": 48,
   "status": "draft",
-  "lastSavedAt": "2026-10-29T11:12:23.661Z",
+  "lastSavedAt": "2026-11-16T04:39:35.712Z",
   "lastSavedBy": "Unit Test Runner",
   "brandAssets": [
     {
@@ -157,10 +157,10 @@
   },
   "history": [
     {
-      "version": 27,
-      "savedAt": "2026-10-29T11:12:23.661Z",
+      "version": 47,
+      "savedAt": "2026-11-16T04:39:35.712Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v28)",
+      "summary": "Updated design tokens and brand guidelines (v48)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -187,10 +187,10 @@
       }
     },
     {
-      "version": 26,
-      "savedAt": "2026-10-29T11:12:23.659Z",
+      "version": 46,
+      "savedAt": "2026-11-16T04:39:35.708Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v27)",
+      "summary": "Updated design tokens and brand guidelines (v47)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -217,10 +217,10 @@
       }
     },
     {
-      "version": 25,
-      "savedAt": "2026-10-29T10:53:39.228Z",
+      "version": 45,
+      "savedAt": "2026-11-15T03:53:25.341Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v26)",
+      "summary": "Updated design tokens and brand guidelines (v46)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -247,10 +247,10 @@
       }
     },
     {
-      "version": 24,
-      "savedAt": "2026-10-29T10:53:39.226Z",
+      "version": 44,
+      "savedAt": "2026-11-15T03:53:25.335Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v25)",
+      "summary": "Updated design tokens and brand guidelines (v45)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -277,10 +277,10 @@
       }
     },
     {
-      "version": 23,
-      "savedAt": "2026-10-29T10:51:55.536Z",
+      "version": 43,
+      "savedAt": "2026-11-02T06:44:47.781Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v24)",
+      "summary": "Updated design tokens and brand guidelines (v44)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -307,10 +307,10 @@
       }
     },
     {
-      "version": 22,
-      "savedAt": "2026-10-29T10:51:55.534Z",
+      "version": 42,
+      "savedAt": "2026-11-02T06:44:47.779Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v23)",
+      "summary": "Updated design tokens and brand guidelines (v43)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -337,10 +337,10 @@
       }
     },
     {
-      "version": 21,
-      "savedAt": "2026-10-29T10:02:12.933Z",
+      "version": 41,
+      "savedAt": "2026-11-02T06:28:41.832Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v22)",
+      "summary": "Updated design tokens and brand guidelines (v42)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -367,10 +367,10 @@
       }
     },
     {
-      "version": 20,
-      "savedAt": "2026-10-29T10:02:12.926Z",
+      "version": 40,
+      "savedAt": "2026-11-02T06:28:41.830Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v21)",
+      "summary": "Updated design tokens and brand guidelines (v41)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -397,10 +397,10 @@
       }
     },
     {
-      "version": 19,
-      "savedAt": "2026-10-29T09:57:51.063Z",
+      "version": 39,
+      "savedAt": "2026-11-02T06:13:57.180Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v20)",
+      "summary": "Updated design tokens and brand guidelines (v40)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -427,10 +427,10 @@
       }
     },
     {
-      "version": 18,
-      "savedAt": "2026-10-29T09:57:51.056Z",
+      "version": 38,
+      "savedAt": "2026-11-02T06:13:57.177Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v19)",
+      "summary": "Updated design tokens and brand guidelines (v39)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -457,10 +457,10 @@
       }
     },
     {
-      "version": 17,
-      "savedAt": "2026-10-29T09:51:56.928Z",
+      "version": 37,
+      "savedAt": "2026-11-02T06:10:23.353Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v18)",
+      "summary": "Updated design tokens and brand guidelines (v38)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -487,10 +487,10 @@
       }
     },
     {
-      "version": 16,
-      "savedAt": "2026-10-29T09:51:56.918Z",
+      "version": 36,
+      "savedAt": "2026-11-02T06:10:23.323Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v17)",
+      "summary": "Updated design tokens and brand guidelines (v37)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -517,10 +517,10 @@
       }
     },
     {
-      "version": 15,
-      "savedAt": "2026-10-29T09:49:01.551Z",
+      "version": 35,
+      "savedAt": "2026-11-02T06:04:11.580Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v16)",
+      "summary": "Updated design tokens and brand guidelines (v36)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -547,10 +547,10 @@
       }
     },
     {
-      "version": 14,
-      "savedAt": "2026-10-29T09:49:01.546Z",
+      "version": 34,
+      "savedAt": "2026-11-02T06:04:11.575Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v15)",
+      "summary": "Updated design tokens and brand guidelines (v35)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -577,10 +577,10 @@
       }
     },
     {
-      "version": 13,
-      "savedAt": "2026-10-29T09:47:52.834Z",
+      "version": 33,
+      "savedAt": "2026-11-02T05:52:06.913Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v14)",
+      "summary": "Updated design tokens and brand guidelines (v34)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -607,10 +607,10 @@
       }
     },
     {
-      "version": 12,
-      "savedAt": "2026-10-29T09:47:52.830Z",
+      "version": 32,
+      "savedAt": "2026-11-02T05:52:06.910Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v13)",
+      "summary": "Updated design tokens and brand guidelines (v33)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -637,10 +637,10 @@
       }
     },
     {
-      "version": 11,
-      "savedAt": "2026-10-29T09:46:20.133Z",
-      "savedBy": "Unit Test Admin",
-      "summary": "Updated design tokens and brand guidelines (v12)",
+      "version": 31,
+      "savedAt": "2026-11-02T05:47:43.009Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v32)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -658,19 +658,19 @@
         },
         "typography": {
           "fontFamily": "Inter, -apple-system, sans-serif",
-          "headlineSize": "24px",
+          "headlineSize": "32px",
           "headlineWeight": "700",
-          "bodySize": "14px",
+          "bodySize": "16px",
           "bodyLineHeight": "1.5",
           "metadataSize": "11px"
         }
       }
     },
     {
-      "version": 10,
-      "savedAt": "2026-10-29T09:30:57.474Z",
+      "version": 30,
+      "savedAt": "2026-11-02T05:47:43.006Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v11)",
+      "summary": "Updated design tokens and brand guidelines (v31)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -688,19 +688,19 @@
         },
         "typography": {
           "fontFamily": "Inter, -apple-system, sans-serif",
-          "headlineSize": "24px",
+          "headlineSize": "32px",
           "headlineWeight": "700",
-          "bodySize": "14px",
+          "bodySize": "16px",
           "bodyLineHeight": "1.5",
           "metadataSize": "11px"
         }
       }
     },
     {
-      "version": 9,
-      "savedAt": "2026-10-29T09:30:57.471Z",
+      "version": 29,
+      "savedAt": "2026-11-02T05:41:38.461Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v10)",
+      "summary": "Updated design tokens and brand guidelines (v30)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -718,19 +718,19 @@
         },
         "typography": {
           "fontFamily": "Inter, -apple-system, sans-serif",
-          "headlineSize": "24px",
+          "headlineSize": "32px",
           "headlineWeight": "700",
-          "bodySize": "14px",
+          "bodySize": "16px",
           "bodyLineHeight": "1.5",
           "metadataSize": "11px"
         }
       }
     },
     {
-      "version": 8,
-      "savedAt": "2026-10-29T09:24:08.421Z",
+      "version": 28,
+      "savedAt": "2026-11-02T05:41:38.459Z",
       "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v9)",
+      "summary": "Updated design tokens and brand guidelines (v29)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
@@ -748,9 +748,9 @@
         },
         "typography": {
           "fontFamily": "Inter, -apple-system, sans-serif",
-          "headlineSize": "24px",
+          "headlineSize": "32px",
           "headlineWeight": "700",
-          "bodySize": "14px",
+          "bodySize": "16px",
           "bodyLineHeight": "1.5",
           "metadataSize": "11px"
         }

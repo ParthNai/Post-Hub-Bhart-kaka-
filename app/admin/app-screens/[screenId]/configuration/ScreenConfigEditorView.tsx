@@ -15,6 +15,7 @@ import {
   Code2,
   Send,
   Check,
+  LogIn,
 } from "lucide-react";
 import { TopHeader } from "@/components/admin/TopHeader";
 import { AppScreen } from "@/lib/screens";
@@ -34,6 +35,7 @@ import { PublishNoticeModal } from "@/components/admin/configuration/PublishNoti
 import { EditScreenModal } from "@/components/admin/screens/EditScreenModal";
 import { ConfirmModal } from "@/components/admin/screens/ConfirmModal";
 import { JsonConfigModal } from "@/components/admin/screens/JsonConfigModal";
+import { LoginExperienceSection } from "@/components/admin/configuration/LoginExperienceSection";
 
 interface ScreenConfigEditorViewProps {
   initialScreen: AppScreen;
@@ -42,7 +44,7 @@ interface ScreenConfigEditorViewProps {
   onMenuToggle?: () => void;
 }
 
-type EditorTab = "general" | "layout" | "sections" | "appearance" | "navigation" | "advanced";
+type EditorTab = "general" | "layout" | "sections" | "appearance" | "navigation" | "advanced" | "login";
 
 export const ScreenConfigEditorView: React.FC<ScreenConfigEditorViewProps> = ({
   initialScreen,
@@ -51,20 +53,23 @@ export const ScreenConfigEditorView: React.FC<ScreenConfigEditorViewProps> = ({
   onMenuToggle,
 }) => {
   const [screen, setScreen] = useState<AppScreen>(initialScreen);
-  const [activeTab, setActiveTab] = useState<EditorTab>("general");
+  const [activeTab, setActiveTab] = useState<EditorTab>(
+    initialScreen.key === "login" ? "login" : "general",
+  );
 
   // Baseline state (for discard & dirty tracking)
   const [baselineGeneral, setBaselineGeneral] = useState<GeneralFormData>({
-    name: initialScreen.name,
-    description: initialScreen.description,
-    category: initialScreen.category,
-    route: initialScreen.route,
-    visibilityEnabled: initialScreen.visibilityEnabled ?? true,
-    minAppVersion: initialScreen.minAppVersion || "1.0.0",
+    name: initialScreen.draftData?.name || initialScreen.name,
+    description: initialScreen.draftData?.description || initialScreen.description,
+    category: initialScreen.draftData?.category || initialScreen.category,
+    route: initialScreen.draftData?.route || initialScreen.route,
+    visibilityEnabled: initialScreen.draftData?.visibilityEnabled ?? initialScreen.visibilityEnabled ?? true,
+    minAppVersion: initialScreen.draftData?.minAppVersion || initialScreen.minAppVersion || "1.0.0",
   });
 
   const [baselineConfig, setBaselineConfig] = useState<AppScreen["configData"]>({
     ...initialScreen.configData,
+    ...(initialScreen.draftConfigData || {}),
   });
 
   // Current working form state
@@ -96,16 +101,7 @@ export const ScreenConfigEditorView: React.FC<ScreenConfigEditorViewProps> = ({
     if (generalData.visibilityEnabled !== baselineGeneral.visibilityEnabled) count++;
     if (generalData.minAppVersion !== baselineGeneral.minAppVersion) count++;
 
-    if (configData.defaultLayout !== baselineConfig.defaultLayout) count++;
-    if (configData.itemsPerPage !== baselineConfig.itemsPerPage) count++;
-    if (configData.gridColumns !== baselineConfig.gridColumns) count++;
-    if (configData.bannerVisible !== baselineConfig.bannerVisible) count++;
-    if (configData.activeTheme !== baselineConfig.activeTheme) count++;
-    if (configData.primaryAccent !== baselineConfig.primaryAccent) count++;
-    if (configData.cardRadius !== baselineConfig.cardRadius) count++;
-    if (configData.showInBottomNav !== baselineConfig.showInBottomNav) count++;
-    if (configData.deepLinkRoute !== baselineConfig.deepLinkRoute) count++;
-    if (configData.cacheTtlSeconds !== baselineConfig.cacheTtlSeconds) count++;
+    if (JSON.stringify(configData) !== JSON.stringify(baselineConfig)) count++;
 
     return count;
   }, [generalData, baselineGeneral, configData, baselineConfig]);
@@ -609,6 +605,9 @@ export const ScreenConfigEditorView: React.FC<ScreenConfigEditorViewProps> = ({
               }}
             >
               {[
+                ...(screen.key === "login"
+                  ? [{ id: "login", label: "Login Page", icon: LogIn }]
+                  : []),
                 { id: "general", label: "General", icon: SlidersHorizontal },
                 { id: "layout", label: "Layout", icon: LayoutGrid },
                 { id: "sections", label: "Sections", icon: CheckSquare },
@@ -654,6 +653,15 @@ export const ScreenConfigEditorView: React.FC<ScreenConfigEditorViewProps> = ({
                   data={generalData}
                   onChange={(patch) => setGeneralData((prev) => ({ ...prev, ...patch }))}
                   errors={fieldErrors}
+                />
+              )}
+
+              {activeTab === "login" && screen.key === "login" && (
+                <LoginExperienceSection
+                  value={configData.loginExperience}
+                  onChange={(loginExperience) =>
+                    setConfigData((prev) => ({ ...prev, loginExperience }))
+                  }
                 />
               )}
 

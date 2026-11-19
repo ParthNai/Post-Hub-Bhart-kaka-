@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Smartphone, Search, Menu, Image as ImageIcon, ArrowRight, Mail, Lock, Eye } from "lucide-react";
+import { Smartphone, Search, Menu, Image as ImageIcon, ArrowRight, Mail, Sparkles, WandSparkles } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
 import { AppScreen } from "@/lib/screens";
 import { GeneralFormData } from "./GeneralSection";
@@ -46,7 +46,19 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
   const previewInputBorder = isDarkTheme ? "#35314C" : "#EAE4EE";
   const primaryAccent = configData.primaryAccent || (isDarkTheme ? "#906CE8" : "var(--primary)");
   const cardRadius = configData.cardRadius || "14px";
-  const headerTitle = configData.headerTitle || "Welcome back";
+  const loginExperience = {
+    brandName: "Post Hub",
+    brandTagline: "Design  ·  Create  ·  Inspire",
+    welcomeTitle: "Welcome Back!",
+    welcomeSubtitle: "Sign in to continue creating amazing designs with Post Hub 💜",
+    footerTagline: "Turn Your Ideas Into Stunning Designs ✨",
+    heroImageUrl: "",
+    googleEnabled: true,
+    emailEnabled: true,
+    mobileEnabled: true,
+    signupEnabled: true,
+    ...configData.loginExperience,
+  };
 
   return (
     <div
@@ -103,34 +115,33 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
           border: "1px solid #ECE7F0",
           borderRadius: "16px",
           backgroundColor: previewBg,
-          padding: isLoginScreen ? "22px 18px" : "16px 14px 18px 14px",
+          padding: isLoginScreen ? "14px 14px 16px" : "16px 14px 18px 14px",
           boxShadow: "0 4px 16px rgba(36, 33, 58, 0.04)",
           display: "flex",
           flexDirection: "column",
-          gap: isLoginScreen ? "16px" : "12px",
+          gap: isLoginScreen ? "9px" : "12px",
           overflow: "hidden",
-          minHeight: isLoginScreen ? "440px" : "auto",
-          justifyContent: isLoginScreen ? "center" : "flex-start",
+          minHeight: isLoginScreen ? "500px" : "auto",
+          justifyContent: isLoginScreen ? "flex-start" : "flex-start",
         }}
         className="live-preview-canvas"
       >
         {isLoginScreen ? (
-          /* Live Mobile Login Preview */
           <div
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: "14px",
+              alignItems: "center",
+              gap: "8px",
               width: "100%",
             }}
           >
-            {/* Brand Logo & Wordmark */}
             {isSectionEnabled("brand_header", true) && (
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
                 <div
                   style={{
-                    width: "30px",
-                    height: "30px",
+                    width: "25px",
+                    height: "25px",
                     borderRadius: "8px",
                     backgroundColor: primaryAccent,
                     display: "flex",
@@ -138,197 +149,248 @@ export const LiveScreenPreview: React.FC<LiveScreenPreviewProps> = ({
                     justifyContent: "center",
                     color: "#FFFFFF",
                     fontWeight: 800,
-                    fontSize: "16px",
-                    boxShadow: "0 2px 6px rgba(121, 86, 201, 0.25)",
+                    fontSize: "14px",
                   }}
                 >
-                  P
+                  {loginExperience.brandName.slice(0, 1).toUpperCase()}
                 </div>
-                <div style={{ display: "inline-flex", alignItems: "baseline" }}>
-                  <span style={{ color: previewTextColor, fontSize: "18px", fontWeight: 700, marginRight: "2px" }}>
-                    Post
-                  </span>
-                  <span style={{ color: primaryAccent, fontSize: "18px", fontWeight: 800 }}>Hub</span>
+                <div>
+                  <div style={{ color: previewTextColor, fontSize: "13px", fontWeight: 800 }}>
+                    {loginExperience.brandName}
+                  </div>
+                  <div style={{ color: previewMutedColor, fontSize: "7px" }}>
+                    {loginExperience.brandTagline}
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* Welcome Headline & Subtitle */}
             {isSectionEnabled("welcome_text", true) && (
-              <div>
-                <h4
-                  style={{
-                    fontSize: "20px",
-                    fontWeight: 800,
-                    color: previewTextColor,
-                    margin: "0 0 4px 0",
-                    letterSpacing: "-0.02em",
-                  }}
-                >
-                  {headerTitle}
-                </h4>
-                <p
-                  style={{
-                    fontSize: "12px",
-                    color: previewMutedColor,
-                    margin: 0,
-                    lineHeight: 1.45,
-                  }}
-                >
-                  {generalData.description || "Sign in to access poster templates and creative tools."}
-                </p>
-              </div>
-            )}
-
-            {/* Form Fields */}
-            {isSectionEnabled("credentials_form", true) && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <div>
-                  <label
-                    style={{
-                      display: "block",
-                      fontSize: "11px",
-                      fontWeight: 600,
-                      color: previewTextColor,
-                      marginBottom: "4px",
-                    }}
-                  >
-                    Email Address
-                  </label>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      backgroundColor: previewInputBg,
-                      border: `1px solid ${previewInputBorder}`,
-                      borderRadius: cardRadius,
-                      height: "38px",
-                      padding: "0 10px",
-                    }}
-                  >
-                    <Mail size={14} color="var(--text-light)" />
-                    <span style={{ fontSize: "12px", color: previewMutedColor }}>creator@posthub.io</span>
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    style={{
-                      display: "block",
-                      fontSize: "11px",
-                      fontWeight: 600,
-                      color: previewTextColor,
-                      marginBottom: "4px",
-                    }}
-                  >
-                    Password
-                  </label>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      backgroundColor: previewInputBg,
-                      border: `1px solid ${previewInputBorder}`,
-                      borderRadius: cardRadius,
-                      height: "38px",
-                      padding: "0 10px",
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <Lock size={14} color="var(--text-light)" />
-                      <span style={{ fontSize: "12px", color: previewMutedColor }}>••••••••••••</span>
-                    </div>
-                    <Eye size={14} color="var(--text-light)" />
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "2px 0 2px 0" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <div
-                      style={{
-                        width: "14px",
-                        height: "14px",
-                        borderRadius: "3px",
-                        backgroundColor: primaryAccent,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "#FFFFFF",
-                        fontSize: "9px",
-                        fontWeight: 700,
-                      }}
-                    >
-                      ✓
-                    </div>
-                    <span style={{ fontSize: "11px", color: previewMutedColor }}>Remember me</span>
-                  </div>
-
-                  <span style={{ fontSize: "11px", fontWeight: 600, color: primaryAccent, cursor: "pointer" }}>
-                    Forgot password?
-                  </span>
-                </div>
-
-                {/* Sign In Button */}
-                <button
-                  type="button"
-                  style={{
-                    width: "100%",
-                    height: "40px",
-                    borderRadius: cardRadius,
-                    backgroundColor: primaryAccent,
-                    color: "#FFFFFF",
-                    border: "none",
-                    fontSize: "13px",
-                    fontWeight: 700,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    boxShadow: "0 3px 8px rgba(121, 86, 201, 0.25)",
-                    marginTop: "2px",
-                  }}
-                >
-                  Sign In
-                </button>
-              </div>
-            )}
-
-            {/* Social SSO */}
-            {isSectionEnabled("social_login", true) && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "4px 0" }}>
-                  <div style={{ flex: 1, height: "1px", backgroundColor: "#EAE4EE" }} />
-                  <span style={{ fontSize: "10px", fontWeight: 600, color: "var(--text-light)" }}>OR</span>
-                  <div style={{ flex: 1, height: "1px", backgroundColor: "#EAE4EE" }} />
-                </div>
+              <>
                 <div
                   style={{
-                    height: "38px",
-                    borderRadius: cardRadius,
-                    backgroundColor: previewInputBg,
-                    border: `1px solid ${previewInputBorder}`,
+                    width: "100%",
+                    height: "135px",
+                    position: "relative",
+                    borderRadius: "18px",
+                    overflow: "hidden",
+                    background: `linear-gradient(145deg, ${primaryAccent}1A, #FFF1F8 52%, #E9E1FF)`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: "8px",
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    color: previewTextColor,
                   }}
                 >
-                  <span style={{ fontWeight: 700, color: "#EA4335" }}>G</span>
-                  <span>Continue with Google</span>
+                  {loginExperience.heroImageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={loginExperience.heroImageUrl}
+                      alt=""
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <>
+                      <div
+                        style={{
+                          width: "72px",
+                          height: "100px",
+                          borderRadius: "17px",
+                          padding: "6px",
+                          background: "#211D43",
+                          transform: "rotate(-9deg)",
+                          boxShadow: "0 10px 24px rgba(47, 28, 102, .24)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            borderRadius: "12px",
+                            background: `linear-gradient(155deg, #F9B8C5, ${primaryAccent} 48%, #F8C774)`,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "#FFFFFF",
+                          }}
+                        >
+                          <Sparkles size={28} />
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          position: "absolute",
+                          left: "18%",
+                          top: "38%",
+                          width: "28px",
+                          height: "28px",
+                          borderRadius: "9px",
+                          background: "#FFFFFF",
+                          color: primaryAccent,
+                          display: "grid",
+                          placeItems: "center",
+                          boxShadow: "0 5px 12px rgba(47, 28, 102, .12)",
+                        }}
+                      >
+                        <span style={{ fontWeight: 800 }}>T</span>
+                      </div>
+                      <div
+                        style={{
+                          position: "absolute",
+                          right: "17%",
+                          top: "23%",
+                          color: "#F2A72F",
+                        }}
+                      >
+                        <WandSparkles size={22} />
+                      </div>
+                      <div
+                        style={{
+                          position: "absolute",
+                          right: "17%",
+                          bottom: "18%",
+                          width: "28px",
+                          height: "28px",
+                          borderRadius: "50%",
+                          background: "#FFFFFF",
+                          color: primaryAccent,
+                          display: "grid",
+                          placeItems: "center",
+                        }}
+                      >
+                        <Sparkles size={16} />
+                      </div>
+                    </>
+                  )}
                 </div>
+                <div style={{ textAlign: "center", width: "100%" }}>
+                  <h4
+                    style={{
+                      fontSize: "19px",
+                      fontWeight: 800,
+                      color: previewTextColor,
+                      margin: "0 0 4px",
+                    }}
+                  >
+                    {loginExperience.welcomeTitle}
+                  </h4>
+                  <p
+                    style={{
+                      fontSize: "10px",
+                      color: previewMutedColor,
+                      margin: 0,
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {loginExperience.welcomeSubtitle}
+                  </p>
+                </div>
+              </>
+            )}
+
+            {isSectionEnabled("social_login", true) && loginExperience.googleEnabled && (
+              <div
+                style={{
+                  width: "100%",
+                  height: "36px",
+                  borderRadius: "20px",
+                  background: `linear-gradient(100deg, ${primaryAccent}, #5520C6)`,
+                  color: "#FFFFFF",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  boxShadow: `0 5px 12px ${primaryAccent}35`,
+                }}
+              >
+                <span style={{ fontSize: "16px", fontWeight: 800 }}>G</span>
+                <span>Continue with Google</span>
               </div>
             )}
 
-            {/* Sign Up Link */}
-            {isSectionEnabled("signup_link", true) && (
-              <div style={{ textAlign: "center", fontSize: "11.5px", color: previewMutedColor, marginTop: "4px" }}>
-                <span>Don&apos;t have an account? </span>
-                <span style={{ color: primaryAccent, fontWeight: 700, cursor: "pointer" }}>Sign Up</span>
+            {isSectionEnabled("credentials_form", true) && loginExperience.emailEnabled && (
+              <div
+                style={{
+                  width: "100%",
+                  height: "36px",
+                  borderRadius: "20px",
+                  backgroundColor: previewInputBg,
+                  border: `1px solid ${previewInputBorder}`,
+                  color: previewTextColor,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  fontSize: "10px",
+                  fontWeight: 600,
+                }}
+              >
+                <Mail size={14} />
+                <span>Continue with Email</span>
+              </div>
+            )}
+
+            {isSectionEnabled("mobile_login", true) && loginExperience.mobileEnabled && (
+              <div
+                style={{
+                  width: "100%",
+                  height: "36px",
+                  borderRadius: "20px",
+                  backgroundColor: previewInputBg,
+                  border: `1px solid ${previewInputBorder}`,
+                  color: previewTextColor,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  fontSize: "10px",
+                  fontWeight: 600,
+                }}
+              >
+                <Smartphone size={14} />
+                <span>Continue with Mobile</span>
+              </div>
+            )}
+
+            {isSectionEnabled("signup_link", true) && loginExperience.signupEnabled && (
+              <div
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "9px",
+                  marginTop: "3px",
+                  color: previewMutedColor,
+                }}
+              >
+                <div style={{ flex: 1, height: "1px", backgroundColor: "#EAE4EE" }} />
+                <span style={{ color: primaryAccent, fontWeight: 700, fontSize: "10px" }}>or</span>
+                <div style={{ flex: 1, height: "1px", backgroundColor: "#EAE4EE" }} />
+              </div>
+            )}
+
+            {isSectionEnabled("signup_link", true) && loginExperience.signupEnabled && (
+              <div style={{ textAlign: "center", fontSize: "10px", color: previewMutedColor }}>
+                <span>New here? </span>
+                <span style={{ color: primaryAccent, fontWeight: 700 }}>Create an Account →</span>
+              </div>
+            )}
+
+            {loginExperience.footerTagline && (
+              <div
+                style={{
+                  width: "calc(100% + 28px)",
+                  margin: "6px -14px -16px",
+                  padding: "12px 18px",
+                  textAlign: "center",
+                  color: primaryAccent,
+                  background: `linear-gradient(165deg, ${primaryAccent}1C, #F4E8FF)`,
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  fontStyle: "italic",
+                }}
+              >
+                {loginExperience.footerTagline}
               </div>
             )}
           </div>
