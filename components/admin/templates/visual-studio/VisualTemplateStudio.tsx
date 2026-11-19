@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import {
   parsePostHubSpec,
+  parseSvgTemplate,
   detectSlotsFromImageElement,
   extractMetadataFromBuffer,
   CHATGPT_POSTER_PROMPT_TEMPLATE,
@@ -420,13 +421,36 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedZoneId, zones]);
 
-  // Handle image upload from computer (ChatGPT generated image, etc.)
+  // Handle image upload from computer (ChatGPT generated image, SVG templates, etc.)
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      setErrorMessage("Please select a valid image file (PNG, JPG, WebP).");
+    const isSvg = file.name.toLowerCase().endsWith(".svg") || file.type.includes("svg");
+
+    if (!file.type.startsWith("image/") && !isSvg) {
+      setErrorMessage("Please select a valid image file (PNG, JPG, WebP, SVG).");
+      return;
+    }
+
+    // 0. Handle ChatGPT SVG Template with embedded artwork & metadata slots
+    if (isSvg) {
+      file.text().then((svgText) => {
+        const parsed = parseSvgTemplate(svgText);
+        if (parsed.backgroundUrl) {
+          setBackgroundUrl(parsed.backgroundUrl);
+        }
+        if (parsed.zones.length > 0) {
+          setZones(parsed.zones);
+          setSelectedZoneId(parsed.zones[0].id);
+          setAiDetectedNotification(`✨ Loaded ${parsed.zones.length} slots and background artwork from ChatGPT SVG!`);
+        } else {
+          setAiDetectedNotification("Loaded SVG artwork.");
+        }
+        setErrorMessage(null);
+      }).catch(() => {
+        setErrorMessage("Failed to read SVG template file.");
+      });
       return;
     }
 
@@ -1187,11 +1211,11 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                 Upload ChatGPT / AI Poster
               </span>
               <span style={{ fontSize: "10.5px", color: "#8E8899", marginTop: "2px" }}>
-                PNG, JPG or WebP up to 10MB
+                PNG, JPG, WebP or SVG with slots
               </span>
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,.svg"
                 onChange={handleImageUpload}
                 style={{ display: "none" }}
               />
