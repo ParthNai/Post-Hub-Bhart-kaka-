@@ -26,7 +26,14 @@ import {
   Undo2,
   Plus,
   Maximize2,
+  Code2,
 } from "lucide-react";
+import {
+  parsePostHubSpec,
+  detectSlotsFromImageElement,
+  extractMetadataFromBuffer,
+  CHATGPT_POSTER_PROMPT_TEMPLATE,
+} from "@/lib/ai-slot-detector";
 import {
   PosterTemplate,
   TemplateSlotZone,
@@ -240,6 +247,12 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // AI Spec Code Import Modal & Prompt Copy state
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importCodeText, setImportCodeText] = useState("");
+  const [aiDetectedNotification, setAiDetectedNotification] = useState<string | null>(null);
+  const [promptCopied, setPromptCopied] = useState(false);
+
   // Canvas container ref
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -417,15 +430,91 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
       return;
     }
 
+    // 1. Try reading metadata buffer for embedded code (PNG chunks or JPEG comments)
+    file.arrayBuffer().then((buf) => {
+      const extracted = extractMetadataFromBuffer(buf);
+      if (extracted) {
+        const parsed = parsePostHubSpec(extracted);
+        if (parsed.length > 0) {
+          setZones(parsed);
+          setSelectedZoneId(parsed[0].id);
+          setAiDetectedNotification(`✨ Embedded AI code detected in image! Auto-configured ${parsed.length} slots.`);
+        }
+      }
+    }).catch(() => {});
+
+    // 2. Read as data URL for canvas display
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target?.result as string;
       if (dataUrl) {
         setBackgroundUrl(dataUrl);
         setErrorMessage(null);
+
+        // 3. Auto-detect slots from image pixels via offscreen canvas
+        const tempImg = new Image();
+        tempImg.crossOrigin = "anonymous";
+        tempImg.onload = () => {
+          const detected = detectSlotsFromImageElement(tempImg);
+          if (detected.zones.length > 0) {
+            setZones(detected.zones);
+            setSelectedZoneId(detected.zones[0].id);
+            setAiDetectedNotification(
+              `🪄 Auto-detected ${detected.zones.length} slots from image (${detected.detectedSilhouette ? "Leader Silhouette" : ""}${detected.detectedBanner ? " + Name Banner" : ""}${detected.detectedHeader ? " + Header Badge" : ""})!`
+            );
+          }
+        };
+        tempImg.src = dataUrl;
       }
     };
     reader.readAsDataURL(file);
+  };
+
+  // Re-scan current background image canvas pixels for silhouettes and banners
+  const handleScanCurrentBackground = () => {
+    if (!backgroundUrl) {
+      setErrorMessage("Please upload or select an image first.");
+      return;
+    }
+
+    const tempImg = new Image();
+    tempImg.crossOrigin = "anonymous";
+    tempImg.onload = () => {
+      const detected = detectSlotsFromImageElement(tempImg);
+      if (detected.zones.length > 0) {
+        setZones(detected.zones);
+        setSelectedZoneId(detected.zones[0].id);
+        setAiDetectedNotification(
+          `🪄 Auto-detected ${detected.zones.length} slots from image (${detected.detectedSilhouette ? "Leader Silhouette" : ""}${detected.detectedBanner ? " + Name Banner" : ""}${detected.detectedHeader ? " + Header Badge" : ""})!`
+        );
+      } else {
+        setAiDetectedNotification("Could not find distinct silhouette or banner. You can use the quick preset buttons or paste code.");
+      }
+    };
+    tempImg.src = backgroundUrl;
+  };
+
+  // Import ChatGPT code from text
+  const handleApplyImportedCode = () => {
+    if (!importCodeText.trim()) return;
+    const parsed = parsePostHubSpec(importCodeText);
+    if (parsed.length > 0) {
+      setZones(parsed);
+      setSelectedZoneId(parsed[0].id);
+      setShowImportModal(false);
+      setImportCodeText("");
+      setAiDetectedNotification(`✨ Successfully imported ${parsed.length} slots from ChatGPT code!`);
+    } else {
+      setErrorMessage("Could not parse coordinates from the pasted text. Please check the format.");
+    }
+  };
+
+  // Copy standard ChatGPT instruction prompt to clipboard
+  const handleCopyChatGPTTemplate = () => {
+    navigator.clipboard.writeText(CHATGPT_POSTER_PROMPT_TEMPLATE).then(() => {
+      setPromptCopied(true);
+      setTimeout(() => setPromptCopied(false), 2500);
+    });
   };
 
   // One-click presets for ChatGPT / AI festival posters with silhouette cutouts:
@@ -1108,6 +1197,68 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
               />
             </label>
 
+            {/* AI Auto-Slot Detector & Code Reader Quick Card */}
+            <div
+              style={{
+                marginBottom: "14px",
+                padding: "10px",
+                borderRadius: "8px",
+                backgroundColor: "#F9F6FE",
+                border: "1px solid #E2D8F2",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+                <span style={{ fontSize: "11.5px", fontWeight: 700, color: "#543399", display: "flex", alignItems: "center", gap: "4px" }}>
+                  <Sparkles size={13} color="#7956C9" />
+                  <span>AI Slot Auto-Detector</span>
+                </span>
+                <span style={{ fontSize: "9.5px", color: "#8E8899", backgroundColor: "#EDE5F7", padding: "1px 5px", borderRadius: "3px", fontWeight: 700 }}>
+                  AUTO
+                </span>
+              </div>
+              <p style={{ fontSize: "10.5px", color: "#6E687A", margin: "0 0 8px 0", lineHeight: 1.35 }}>
+                Scans white silhouettes and blank text banners on image upload, or import ChatGPT code.
+              </p>
+              <div style={{ display: "flex", gap: "6px" }}>
+                <button
+                  type="button"
+                  onClick={handleScanCurrentBackground}
+                  style={{
+                    flex: 1,
+                    padding: "6px 4px",
+                    borderRadius: "6px",
+                    border: "1px solid #7956C9",
+                    backgroundColor: "#7956C9",
+                    color: "#FFFFFF",
+                    fontSize: "10.5px",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                  title="Scan current canvas image for white silhouettes & banners"
+                >
+                  🪄 Auto-Scan
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowImportModal(true)}
+                  style={{
+                    flex: 1,
+                    padding: "6px 4px",
+                    borderRadius: "6px",
+                    border: "1px solid #D2C4ED",
+                    backgroundColor: "#FFFFFF",
+                    color: "#543399",
+                    fontSize: "10.5px",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                  title="Paste ChatGPT coordinate code"
+                >
+                  📋 Paste Code
+                </button>
+              </div>
+            </div>
+
             {/* Preset AI Backgrounds */}
             <div>
               <span style={{ fontSize: "11px", fontWeight: 700, color: "#6E687A", textTransform: "uppercase" }}>
@@ -1516,7 +1667,7 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
 
             <button
               type="button"
-              onClick={handleAutoDetectSilhouette}
+              onClick={handleScanCurrentBackground}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -1531,10 +1682,95 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                 cursor: "pointer",
                 boxShadow: "0 1px 4px rgba(121, 40, 202, 0.3)",
               }}
+              title="Automatically scan image pixels for silhouette cutouts and banners"
             >
-              🪄 Auto-Snap Cutout Area
+              🪄 Auto-Scan Image
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowImportModal(true)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+                padding: "5px 10px",
+                borderRadius: "6px",
+                border: "1px solid #7956C9",
+                backgroundColor: "#7956C9",
+                color: "#FFFFFF",
+                fontSize: "11.5px",
+                fontWeight: 700,
+                cursor: "pointer",
+                boxShadow: "0 1px 4px rgba(121, 86, 201, 0.25)",
+              }}
+              title="Paste code or prompt generated by ChatGPT"
+            >
+              <Code2 size={13} />
+              <span>Paste AI Code</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleCopyChatGPTTemplate}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+                padding: "5px 10px",
+                borderRadius: "6px",
+                border: "1px solid #D2C4ED",
+                backgroundColor: "#FFFFFF",
+                color: "#543399",
+                fontSize: "11.5px",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+              title="Copy the prompt template to instruct ChatGPT"
+            >
+              {promptCopied ? "✓ Copied Prompt!" : "💡 Prompt Template"}
             </button>
           </div>
+
+          {/* AI Auto-Detection Notification Banner */}
+          {aiDetectedNotification && (
+            <div
+              style={{
+                marginBottom: "12px",
+                padding: "8px 14px",
+                borderRadius: "8px",
+                backgroundColor: "#F3E8FF",
+                border: "1px solid #D8B4FE",
+                color: "#6B21A8",
+                fontSize: "12px",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                boxShadow: "0 2px 6px rgba(107, 33, 168, 0.08)",
+              }}
+            >
+              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <Sparkles size={15} color="#7956C9" />
+                <span>{aiDetectedNotification}</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setAiDetectedNotification(null)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#6B21A8",
+                  fontSize: "15px",
+                  fontWeight: 700,
+                  padding: "0 4px",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          )}
 
           {/* Canvas Box */}
           <div
@@ -2443,6 +2679,130 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
           )}
         </div>
       </div>
+
+      {/* Import ChatGPT Spec Modal */}
+      {showImportModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(15, 23, 42, 0.65)",
+            backdropFilter: "blur(4px)",
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+          }}
+          onClick={() => setShowImportModal(false)}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "540px",
+              backgroundColor: "#FFFFFF",
+              borderRadius: "14px",
+              padding: "24px",
+              boxShadow: "0 20px 40px rgba(0, 0, 0, 0.3)",
+              boxSizing: "border-box",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Sparkles size={20} color="#7956C9" />
+                <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "#24213A" }}>
+                  Import ChatGPT / AI Coordinates Code
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowImportModal(false)}
+                style={{ background: "none", border: "none", fontSize: "18px", color: "#8E8899", cursor: "pointer" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <p style={{ fontSize: "12px", color: "#6E687A", margin: "0 0 12px 0", lineHeight: 1.4 }}>
+              Paste the code, prompt, or response from ChatGPT. Post Hub will automatically extract the photo cutout area and text banners!
+            </p>
+
+            <textarea
+              value={importCodeText}
+              onChange={(e) => setImportCodeText(e.target.value)}
+              placeholder={"e.g.\n[POSTHUB: PHOTO(6, 6, 48, 62, cutout) NAME(12, 88, 76, 8)]\n\nor\nPHOTO: x=6, y=6, w=48, h=62 | NAME: x=12, y=88, w=76, h=8\n\nor JSON from ChatGPT"}
+              rows={5}
+              style={{
+                width: "100%",
+                borderRadius: "8px",
+                border: "1px solid #D2C4ED",
+                padding: "10px",
+                fontSize: "12px",
+                fontFamily: "monospace",
+                boxSizing: "border-box",
+                marginBottom: "14px",
+                resize: "vertical",
+              }}
+            />
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+              <button
+                type="button"
+                onClick={handleCopyChatGPTTemplate}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid #E2D8F2",
+                  backgroundColor: "#F8F6FC",
+                  color: "#543399",
+                  fontSize: "11.5px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                {promptCopied ? "✓ Copied Prompt!" : "💡 Copy ChatGPT Prompt"}
+              </button>
+
+              <div style={{ display: "flex", gap: "8px" }}>
+                <button
+                  type="button"
+                  onClick={() => setShowImportModal(false)}
+                  style={{
+                    padding: "8px 14px",
+                    borderRadius: "8px",
+                    border: "1px solid #EAE4EE",
+                    backgroundColor: "#FFFFFF",
+                    color: "#6E687A",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleApplyImportedCode}
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: "8px",
+                    border: "none",
+                    backgroundColor: "#7956C9",
+                    color: "#FFFFFF",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    boxShadow: "0 2px 6px rgba(121, 86, 201, 0.3)",
+                  }}
+                >
+                  ✨ Apply Code to Canvas
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
