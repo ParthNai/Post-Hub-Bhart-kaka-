@@ -4,7 +4,7 @@ export type TemplateFormat = "3:4" | "4:5" | "9:16" | "1:1";
 export type TextAlignment = "Left" | "Center" | "Right";
 
 export type SlotZoneType = "photo" | "text" | "shape";
-export type PhotoSlotShape = "circle" | "squircle" | "rectangle";
+export type PhotoSlotShape = "circle" | "squircle" | "rectangle" | "cutout";
 export type TextSlotBinding = "name" | "designation" | "phone" | "business" | "custom";
 export type ShapeSlotType = "bar" | "pill" | "badge" | "rectangle";
 
@@ -25,6 +25,8 @@ export interface TemplateSlotZone {
   borderWidth?: number;
   shadow?: boolean;
   sampleAvatarUrl?: string;
+  featherBottom?: boolean; // Soft gradient fade at bottom to blend into foreground (diyas, waves)
+  objectFit?: "cover" | "contain";
 
   // Text slot properties
   textBinding?: TextSlotBinding;
@@ -35,6 +37,10 @@ export interface TemplateSlotZone {
   fontFamily?: string;
   alignment?: "left" | "center" | "right";
   textShadow?: boolean;
+  autoFitText?: boolean; // Automatically scale down font size when text is long so it fits
+  wrapText?: boolean; // Wrap to next line when text exceeds width
+  minFontSize?: number;
+  maxFontSize?: number;
 
   // Shape slot properties
   shapeType?: ShapeSlotType;

@@ -40,6 +40,14 @@ import {
 // Preset AI Backgrounds (ChatGPT / Midjourney style festival & business posters)
 const AI_PRESET_BACKGROUNDS = [
   {
+    id: "preset-chatgpt-diwali-silhouette",
+    name: "AI Diwali Leader Silhouette (ChatGPT)",
+    category: "Festival" as TemplateCategory,
+    format: "3:4" as TemplateFormat,
+    url: "https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=1080&q=80",
+    gradient: "linear-gradient(135deg, #FF6F00 0%, #D84315 50%, #4E0D3A 100%)",
+  },
+  {
     id: "preset-festival-diwali",
     name: "Diwali Golden Spark",
     category: "Festival" as TemplateCategory,
@@ -418,6 +426,101 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
       }
     };
     reader.readAsDataURL(file);
+  };
+
+  // One-click presets for ChatGPT / AI festival posters with silhouette cutouts:
+  const handleAddLeftLeaderCutout = () => {
+    const newId = `zone-leader-${Date.now().toString(36)}`;
+    const newZone: TemplateSlotZone = {
+      id: newId,
+      type: "photo",
+      label: "Left Leader Cutout",
+      x: 6,
+      y: 6,
+      width: 48,
+      height: 62,
+      photoShape: "cutout",
+      borderWidth: 0,
+      shadow: false,
+      featherBottom: true,
+      objectFit: "contain",
+      zIndex: 4,
+    };
+    setZones((prev) => [...prev, newZone]);
+    setSelectedZoneId(newId);
+    setActiveTool("select");
+  };
+
+  const handleAddBottomDetailsBar = () => {
+    const newId = `zone-footer-${Date.now().toString(36)}`;
+    const newZone: TemplateSlotZone = {
+      id: newId,
+      type: "text",
+      label: "Bottom Name & Contact",
+      x: 10,
+      y: 86,
+      width: 80,
+      height: 10,
+      textBinding: "name",
+      fontSize: 15,
+      color: "#241002",
+      fontWeight: "800",
+      fontFamily: "Poppins",
+      alignment: "center",
+      autoFitText: true,
+      wrapText: true,
+      textShadow: false,
+      zIndex: 6,
+    };
+    setZones((prev) => [...prev, newZone]);
+    setSelectedZoneId(newId);
+    setActiveTool("select");
+  };
+
+  const handleAddTopHeaderBadge = () => {
+    const newId = `zone-header-${Date.now().toString(36)}`;
+    const newZone: TemplateSlotZone = {
+      id: newId,
+      type: "text",
+      label: "Top Greeting / Title",
+      x: 52,
+      y: 15,
+      width: 42,
+      height: 8,
+      textBinding: "custom",
+      customText: "शुभ दीपावली",
+      fontSize: 16,
+      color: "#78350F",
+      fontWeight: "800",
+      fontFamily: "Poppins",
+      alignment: "center",
+      autoFitText: true,
+      wrapText: true,
+      textShadow: false,
+      zIndex: 6,
+    };
+    setZones((prev) => [...prev, newZone]);
+    setSelectedZoneId(newId);
+    setActiveTool("select");
+  };
+
+  const handleAutoDetectSilhouette = () => {
+    const existing = zones.find((z) => z.type === "photo");
+    if (existing) {
+      updateSelectedZone({
+        x: 6,
+        y: 6,
+        width: 48,
+        height: 62,
+        photoShape: "cutout",
+        borderWidth: 0,
+        featherBottom: true,
+        objectFit: "contain",
+      });
+      setSelectedZoneId(existing.id);
+    } else {
+      handleAddLeftLeaderCutout();
+    }
   };
 
   // Convert mouse event to percentage relative to canvas
@@ -1330,6 +1433,109 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
             {activeTool === "select" && <span>✋ Select & Move: Click & drag any zone to move it, drag 8 corner handles to resize, or use arrow keys!</span>}
           </div>
 
+          {/* Quick AI Poster Slots Toolbar */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              flexWrap: "wrap",
+              marginBottom: "12px",
+              padding: "8px 12px",
+              borderRadius: "10px",
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #EAE4EE",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.04)",
+              zIndex: 10,
+            }}
+          >
+            <span style={{ fontSize: "11.5px", fontWeight: 700, color: "#543399", display: "flex", alignItems: "center", gap: "4px" }}>
+              <Sparkles size={14} color="#7956C9" />
+              <span>AI Poster Quick Slots:</span>
+            </span>
+
+            <button
+              type="button"
+              onClick={handleAddLeftLeaderCutout}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+                padding: "5px 10px",
+                borderRadius: "6px",
+                border: "1px solid #D2C4ED",
+                backgroundColor: "#F4F0FB",
+                color: "#543399",
+                fontSize: "11.5px",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              👤 + Left Silhouette Photo
+            </button>
+
+            <button
+              type="button"
+              onClick={handleAddBottomDetailsBar}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+                padding: "5px 10px",
+                borderRadius: "6px",
+                border: "1px solid #D2C4ED",
+                backgroundColor: "#F4F0FB",
+                color: "#543399",
+                fontSize: "11.5px",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              🏷️ + Bottom Banner Text
+            </button>
+
+            <button
+              type="button"
+              onClick={handleAddTopHeaderBadge}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+                padding: "5px 10px",
+                borderRadius: "6px",
+                border: "1px solid #D2C4ED",
+                backgroundColor: "#F4F0FB",
+                color: "#543399",
+                fontSize: "11.5px",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              ✍️ + Top Header Text
+            </button>
+
+            <button
+              type="button"
+              onClick={handleAutoDetectSilhouette}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+                padding: "5px 10px",
+                borderRadius: "6px",
+                border: "1px solid #7956C9",
+                background: "linear-gradient(135deg, #7928CA 0%, #FF0080 100%)",
+                color: "#FFFFFF",
+                fontSize: "11.5px",
+                fontWeight: 700,
+                cursor: "pointer",
+                boxShadow: "0 1px 4px rgba(121, 40, 202, 0.3)",
+              }}
+            >
+              🪄 Auto-Snap Cutout Area
+            </button>
+          </div>
+
           {/* Canvas Box */}
           <div
             ref={canvasRef}
@@ -1394,12 +1600,21 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
 
                   {/* Internal Photo Content */}
                   {zone.type === "photo" && (() => {
+                    const isCutout = zone.photoShape === "cutout";
                     const isCircle = zone.photoShape === "circle";
                     const isSquircle = zone.photoShape === "squircle";
-                    const borderRadius = isCircle ? "50%" : isSquircle ? "24%" : "8px";
+                    const borderRadius = isCutout ? "0" : isCircle ? "50%" : isSquircle ? "24%" : "8px";
+                    const borderWidth = isCutout ? 0 : (zone.borderWidth ?? 3);
                     const avatarSrc = previewWithUserData
                       ? activeTestUser.avatarUrl
                       : zone.sampleAvatarUrl;
+                    const feather = isCutout || zone.featherBottom;
+                    const maskStyle = feather
+                      ? {
+                          WebkitMaskImage: "linear-gradient(to bottom, black 72%, transparent 100%)",
+                          maskImage: "linear-gradient(to bottom, black 72%, transparent 100%)",
+                        }
+                      : {};
 
                     return (
                       <div
@@ -1407,18 +1622,19 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                           width: "100%",
                           height: "100%",
                           borderRadius,
-                          border: `${zone.borderWidth ?? 3}px solid ${zone.borderColor || "#FFFFFF"}`,
-                          boxShadow: isSelected
-                            ? "0 0 0 2px #7956C9, 0 8px 18px rgba(0,0,0,0.4)"
-                            : zone.shadow !== false
-                            ? "0 4px 14px rgba(0,0,0,0.35)"
+                          border: borderWidth > 0 ? `${borderWidth}px solid ${zone.borderColor || "#FFFFFF"}` : (isSelected ? "1.5px dashed #7956C9" : "none"),
+                          boxShadow: !isCutout && zone.shadow !== false
+                            ? (isSelected
+                                ? "0 0 0 2px #7956C9, 0 8px 18px rgba(0,0,0,0.4)"
+                                : "0 4px 14px rgba(0,0,0,0.35)")
                             : "none",
                           overflow: "hidden",
-                          backgroundColor: "#FFFFFF",
+                          backgroundColor: isCutout ? "transparent" : "#FFFFFF",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           boxSizing: "border-box",
+                          ...maskStyle,
                         }}
                       >
                         {avatarSrc ? (
@@ -1426,24 +1642,30 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                           <img
                             src={avatarSrc}
                             alt="User Photo Slot"
-                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: zone.objectFit || (isCutout ? "contain" : "cover"),
+                              objectPosition: "top center",
+                            }}
                           />
                         ) : (
                           <div
                             style={{
                               width: "100%",
                               height: "100%",
-                              backgroundColor: "#F4F0FB",
+                              backgroundColor: isCutout ? "rgba(121, 86, 201, 0.12)" : "#F4F0FB",
                               display: "flex",
                               flexDirection: "column",
                               alignItems: "center",
                               justifyContent: "center",
                               color: "#7956C9",
+                              border: isCutout ? "1.5px dashed #7956C9" : "none",
                             }}
                           >
                             <Camera size={18} />
-                            <span style={{ fontSize: "8.5px", fontWeight: 700, marginTop: "2px" }}>
-                              Photo Slot
+                            <span style={{ fontSize: "9px", fontWeight: 700, marginTop: "2px" }}>
+                              {isCutout ? "Leader Cutout Area" : "Photo Slot"}
                             </span>
                           </div>
                         )}
@@ -1463,6 +1685,20 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                       displayText = `{${zone.textBinding || "text"}}`;
                     }
 
+                    // Auto-fit dynamic font-scaling
+                    const baseFontSize = zone.fontSize || 13;
+                    const minSize = zone.minFontSize || 8.5;
+                    const textLen = (displayText || "").length;
+                    let dynamicFontSize = baseFontSize;
+
+                    if (zone.autoFitText !== false && textLen > 0) {
+                      const approxCapacity = (zone.width * zone.height) / 12;
+                      if (textLen > approxCapacity && approxCapacity > 0) {
+                        const scale = Math.sqrt(approxCapacity / textLen);
+                        dynamicFontSize = Math.max(minSize, Math.min(baseFontSize, baseFontSize * scale));
+                      }
+                    }
+
                     return (
                       <div
                         style={{
@@ -1478,18 +1714,19 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                               : "center",
                           textAlign: zone.alignment || "center",
                           color: zone.color || "#FFFFFF",
-                          fontSize: zone.fontSize ? `${zone.fontSize}px` : "13px",
+                          fontSize: `${Math.round(dynamicFontSize * 10) / 10}px`,
                           fontWeight: zone.fontWeight || 700,
                           fontFamily: zone.fontFamily || "Poppins",
                           textShadow: zone.textShadow !== false ? "0 2px 4px rgba(0,0,0,0.6)" : "none",
                           border: isSelected ? "1.5px dashed #7956C9" : "1px dashed rgba(255,255,255,0.3)",
                           backgroundColor: isSelected ? "rgba(121, 86, 201, 0.15)" : "transparent",
-                          padding: "0 4px",
+                          padding: "2px 6px",
                           boxSizing: "border-box",
-                          lineHeight: 1.15,
+                          lineHeight: 1.25,
                           overflow: "hidden",
-                          whiteSpace: "nowrap",
-                          textOverflow: "ellipsis",
+                          whiteSpace: zone.wrapText !== false ? "normal" : "nowrap",
+                          wordBreak: "break-word",
+                          overflowWrap: "anywhere",
                         }}
                       >
                         {displayText}
@@ -1816,14 +2053,13 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                     <label style={{ display: "block", fontSize: "11.5px", fontWeight: 600, color: "#6E687A", marginBottom: "6px" }}>
                       Photo Avatar Shape
                     </label>
-                    <div style={{ display: "flex", gap: "6px" }}>
-                      {(["circle", "squircle", "rectangle"] as PhotoSlotShape[]).map((sh) => (
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
+                      {(["cutout", "circle", "squircle", "rectangle"] as PhotoSlotShape[]).map((sh) => (
                         <button
                           key={sh}
                           type="button"
-                          onClick={() => updateSelectedZone({ photoShape: sh })}
+                          onClick={() => updateSelectedZone({ photoShape: sh, borderWidth: sh === "cutout" ? 0 : (selectedZone.borderWidth ?? 3) })}
                           style={{
-                            flex: 1,
                             padding: "6px",
                             borderRadius: "6px",
                             border: selectedZone.photoShape === sh ? "1.5px solid #7956C9" : "1px solid #EAE4EE",
@@ -1835,11 +2071,53 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                             textTransform: "capitalize",
                           }}
                         >
-                          {sh === "circle" ? "⚪ Circle" : sh === "squircle" ? "🔲 Squircle" : "▭ Rect"}
+                          {sh === "cutout" ? "👤 Cutout" : sh === "circle" ? "⚪ Circle" : sh === "squircle" ? "🔲 Squircle" : "▭ Rect"}
                         </button>
                       ))}
                     </div>
                   </div>
+
+                  {/* Image Scaling Fit (Contain vs Cover) */}
+                  <div>
+                    <label style={{ display: "block", fontSize: "11px", color: "#8E8899", marginBottom: "4px" }}>
+                      Image Scaling Mode
+                    </label>
+                    <div style={{ display: "flex", gap: "6px" }}>
+                      {(["contain", "cover"] as const).map((fit) => (
+                        <button
+                          key={fit}
+                          type="button"
+                          onClick={() => updateSelectedZone({ objectFit: fit })}
+                          style={{
+                            flex: 1,
+                            padding: "6px",
+                            borderRadius: "6px",
+                            border: (selectedZone.objectFit || (selectedZone.photoShape === "cutout" ? "contain" : "cover")) === fit ? "1.5px solid #7956C9" : "1px solid #EAE4EE",
+                            backgroundColor: (selectedZone.objectFit || (selectedZone.photoShape === "cutout" ? "contain" : "cover")) === fit ? "#F4F0FB" : "#FFFFFF",
+                            color: (selectedZone.objectFit || (selectedZone.photoShape === "cutout" ? "contain" : "cover")) === fit ? "#543399" : "#6E687A",
+                            fontSize: "10.5px",
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          {fit === "contain" ? "Fit Entire (Contain)" : "Fill Box (Cover)"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Soft Bottom Fade Mask Toggle */}
+                  <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedZone.featherBottom !== false}
+                      onChange={(e) => updateSelectedZone({ featherBottom: e.target.checked })}
+                      style={{ accentColor: "#7956C9" }}
+                    />
+                    <span style={{ fontSize: "12px", fontWeight: 600, color: "#24213A" }}>
+                      Soft Bottom Fade (Blend into diyas/artwork)
+                    </span>
+                  </label>
 
                   {/* Border Color & Width */}
                   <div>
@@ -2015,6 +2293,67 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                         </button>
                       ))}
                     </div>
+                  </div>
+
+                  {/* Multi-line & Dynamic Font Shrink / Auto-Fit */}
+                  <div
+                    style={{
+                      padding: "10px",
+                      borderRadius: "8px",
+                      backgroundColor: "#F9F8FC",
+                      border: "1px solid #E4DCF2",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "10px",
+                    }}
+                  >
+                    <span style={{ fontSize: "11px", fontWeight: 700, color: "#543399" }}>
+                      📏 Smart Text Fitting & Multi-line
+                    </span>
+
+                    <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedZone.autoFitText !== false}
+                        onChange={(e) => updateSelectedZone({ autoFitText: e.target.checked })}
+                        style={{ accentColor: "#7956C9" }}
+                      />
+                      <span style={{ fontSize: "11.5px", fontWeight: 600, color: "#24213A" }}>
+                        Auto-shrink font if text is too long
+                      </span>
+                    </label>
+
+                    <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedZone.wrapText !== false}
+                        onChange={(e) => updateSelectedZone({ wrapText: e.target.checked })}
+                        style={{ accentColor: "#7956C9" }}
+                      />
+                      <span style={{ fontSize: "11.5px", fontWeight: 600, color: "#24213A" }}>
+                        Wrap text to next line (Multi-line)
+                      </span>
+                    </label>
+
+                    {selectedZone.autoFitText !== false && (
+                      <div>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}>
+                          <span style={{ fontSize: "10.5px", color: "#8E8899" }}>Minimum Font Size</span>
+                          <span style={{ fontSize: "10.5px", fontWeight: 600, color: "#543399" }}>
+                            {selectedZone.minFontSize || 8.5}px
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="7"
+                          max="16"
+                          step="0.5"
+                          value={selectedZone.minFontSize || 8.5}
+                          onChange={(e) => updateSelectedZone({ minFontSize: parseFloat(e.target.value) })}
+                          style={{ width: "100%", accentColor: "#7956C9" }}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

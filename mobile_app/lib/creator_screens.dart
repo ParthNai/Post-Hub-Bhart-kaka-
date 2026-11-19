@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:cross_file/cross_file.dart';
@@ -125,22 +126,53 @@ class TemplatePoster extends StatelessWidget {
   }
 
   Widget _buildPhotoZone(FlutterSlotZone zone, double w, double h) {
-    final borderColor = _parseHex(zone.borderColor, fallback: Colors.white);
+    final isCutout = zone.photoShape == 'cutout';
     final isCircle = zone.photoShape == 'circle';
     final isSquircle = zone.photoShape == 'squircle';
-    final borderRadius = isCircle
-        ? BorderRadius.circular(999)
-        : (isSquircle ? BorderRadius.circular(16) : BorderRadius.circular(6));
+    final borderRadius = isCutout
+        ? BorderRadius.zero
+        : (isCircle
+            ? BorderRadius.circular(999)
+            : (isSquircle ? BorderRadius.circular(16) : BorderRadius.circular(6)));
 
     final photo = (userAvatarUrl != null && userAvatarUrl!.isNotEmpty)
         ? userAvatarUrl!
         : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80';
 
+    final borderColor = _parseHex(zone.borderColor, fallback: Colors.white);
+    final borderWidth = isCutout ? 0.0 : zone.borderWidth;
+
+    Widget imageWidget = Image.network(
+      photo,
+      fit: isCutout ? BoxFit.contain : BoxFit.cover,
+      alignment: Alignment.topCenter,
+      errorBuilder: (context, error, stackTrace) => Container(
+        color: Colors.white24,
+        child: const Icon(Icons.person, color: Colors.white, size: 24),
+      ),
+    );
+
+    // Soft bottom gradient fade for cutout/silhouette so it blends seamlessly into foreground
+    if (isCutout) {
+      imageWidget = ShaderMask(
+        shaderCallback: (Rect bounds) {
+          return const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.black, Colors.black, Colors.transparent],
+            stops: [0.0, 0.72, 1.0],
+          ).createShader(bounds);
+        },
+        blendMode: BlendMode.dstIn,
+        child: imageWidget,
+      );
+    }
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: borderRadius,
-        border: Border.all(color: borderColor, width: zone.borderWidth),
-        boxShadow: zone.shadow
+        border: borderWidth > 0 ? Border.all(color: borderColor, width: borderWidth) : null,
+        boxShadow: (!isCutout && zone.shadow)
             ? [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.35),
@@ -152,14 +184,7 @@ class TemplatePoster extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: borderRadius,
-        child: Image.network(
-          photo,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => Container(
-            color: Colors.white24,
-            child: const Icon(Icons.person, color: Colors.white, size: 24),
-          ),
-        ),
+        child: imageWidget,
       ),
     );
   }
@@ -188,7 +213,19 @@ class TemplatePoster extends StatelessWidget {
     }
 
     final textColor = _parseHex(zone.textColor, fallback: Colors.white);
-    final scaledFontSize = (h * (zone.fontSize / 380)).clamp(8.0, 32.0);
+    final baseFontSize = (h * (zone.fontSize / 380)).clamp(8.0, 32.0);
+    double scaledFontSize = baseFontSize;
+
+    // Auto-fit dynamic font-size calculation:
+    final textLen = text.length;
+    if (textLen > 18) {
+      final approxCap = (zone.width * zone.height) / 12;
+      if (textLen > approxCap && approxCap > 0) {
+        final scale = math.sqrt(approxCap / textLen);
+        scaledFontSize = (baseFontSize * scale).clamp(8.0, baseFontSize);
+      }
+    }
+
     final textAlign = zone.alignment == 'center'
         ? TextAlign.center
         : (zone.alignment == 'right' ? TextAlign.right : TextAlign.left);
@@ -200,11 +237,13 @@ class TemplatePoster extends StatelessWidget {
       child: Text(
         text,
         textAlign: textAlign,
-        maxLines: 2,
+        softWrap: true,
+        maxLines: 4,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: textColor,
           fontSize: scaledFontSize,
+          height: 1.2,
           fontWeight: zone.fontWeight == '800'
               ? FontWeight.w800
               : (zone.fontWeight == '700' ? FontWeight.w700 : FontWeight.w600),

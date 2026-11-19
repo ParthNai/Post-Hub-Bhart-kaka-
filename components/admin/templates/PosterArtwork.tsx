@@ -66,10 +66,19 @@ export const PosterArtwork: React.FC<PosterArtworkProps> = ({ template, style, u
           }
 
           if (zone.type === "photo") {
+            const isCutout = zone.photoShape === "cutout";
             const isCircle = zone.photoShape === "circle";
             const isSquircle = zone.photoShape === "squircle";
-            const borderRadius = isCircle ? "50%" : isSquircle ? "24%" : "8px";
+            const borderRadius = isCutout ? "0" : isCircle ? "50%" : isSquircle ? "24%" : "8px";
+            const borderWidth = isCutout ? 0 : (zone.borderWidth ?? 3);
             const avatarSrc = userData?.avatarUrl || zone.sampleAvatarUrl || defaultUserAvatar;
+            const feather = isCutout || zone.featherBottom;
+            const maskStyle = feather
+              ? {
+                  WebkitMaskImage: "linear-gradient(to bottom, black 72%, transparent 100%)",
+                  maskImage: "linear-gradient(to bottom, black 72%, transparent 100%)",
+                }
+              : {};
 
             return (
               <div
@@ -81,14 +90,15 @@ export const PosterArtwork: React.FC<PosterArtworkProps> = ({ template, style, u
                   width: `${zone.width}%`,
                   height: `${zone.height}%`,
                   borderRadius,
-                  border: `${zone.borderWidth ?? 3}px solid ${zone.borderColor || "#FFFFFF"}`,
-                  boxShadow: zone.shadow !== false ? "0 4px 14px rgba(0,0,0,0.35)" : "none",
+                  border: borderWidth > 0 ? `${borderWidth}px solid ${zone.borderColor || "#FFFFFF"}` : "none",
+                  boxShadow: !isCutout && zone.shadow !== false ? "0 4px 14px rgba(0,0,0,0.35)" : "none",
                   overflow: "hidden",
                   zIndex: zone.zIndex || 4,
-                  backgroundColor: "#FFFFFF",
+                  backgroundColor: isCutout ? "transparent" : "#FFFFFF",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  ...maskStyle,
                 }}
               >
                 {avatarSrc ? (
@@ -99,7 +109,8 @@ export const PosterArtwork: React.FC<PosterArtworkProps> = ({ template, style, u
                     style={{
                       width: "100%",
                       height: "100%",
-                      objectFit: "cover",
+                      objectFit: zone.objectFit || (isCutout ? "contain" : "cover"),
+                      objectPosition: "top center",
                     }}
                   />
                 ) : (
@@ -121,6 +132,21 @@ export const PosterArtwork: React.FC<PosterArtworkProps> = ({ template, style, u
               displayText = userData?.businessName || "Post Hub Studio";
             }
 
+            // Auto-fit font scaling calculation:
+            // When text is long, scale down font-size proportionally so it wraps and fits inside container
+            const baseFontSize = zone.fontSize || 13;
+            const minSize = zone.minFontSize || 8.5;
+            const textLen = (displayText || "").length;
+            let dynamicFontSize = baseFontSize;
+
+            if (zone.autoFitText !== false && textLen > 0) {
+              const approxCapacity = (zone.width * zone.height) / 12;
+              if (textLen > approxCapacity && approxCapacity > 0) {
+                const scale = Math.sqrt(approxCapacity / textLen);
+                dynamicFontSize = Math.max(minSize, Math.min(baseFontSize, baseFontSize * scale));
+              }
+            }
+
             return (
               <div
                 key={zone.id}
@@ -140,17 +166,18 @@ export const PosterArtwork: React.FC<PosterArtworkProps> = ({ template, style, u
                       : "center",
                   textAlign: zone.alignment || "center",
                   color: zone.color || "#FFFFFF",
-                  fontSize: zone.fontSize ? `${zone.fontSize}px` : "12px",
+                  fontSize: `${Math.round(dynamicFontSize * 10) / 10}px`,
                   fontWeight: zone.fontWeight || 700,
                   fontFamily: zone.fontFamily || "var(--font-family-sans, sans-serif)",
                   textShadow: zone.textShadow !== false ? "0 2px 4px rgba(0,0,0,0.6)" : "none",
                   zIndex: zone.zIndex || 5,
                   padding: "0 4px",
                   boxSizing: "border-box",
-                  lineHeight: 1.15,
+                  lineHeight: 1.2,
                   overflow: "hidden",
-                  whiteSpace: "nowrap",
-                  textOverflow: "ellipsis",
+                  whiteSpace: zone.wrapText !== false ? "normal" : "nowrap",
+                  wordBreak: "break-word",
+                  overflowWrap: "anywhere",
                   pointerEvents: "none",
                 }}
               >
