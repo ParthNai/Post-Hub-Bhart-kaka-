@@ -146,6 +146,21 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
   const [backgroundUrl, setBackgroundUrl] = useState<string>(
     initialTemplate?.backgroundImageUrl || AI_PRESET_BACKGROUNDS[0].url
   );
+  // Auto-adapted artwork aspect ratio (width / height) to prevent any image cropping
+  const [artworkAspectRatio, setArtworkAspectRatio] = useState<number | null>(null);
+
+  // Automatically measure loaded image's natural dimensions
+  useEffect(() => {
+    if (!backgroundUrl) return;
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      if (img.naturalWidth && img.naturalHeight) {
+        setArtworkAspectRatio(img.naturalWidth / img.naturalHeight);
+      }
+    };
+    img.src = backgroundUrl;
+  }, [backgroundUrl]);
 
   // Slot zones list
   const [zones, setZones] = useState<TemplateSlotZone[]>(
@@ -437,6 +452,9 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
     if (isSvg) {
       file.text().then((svgText) => {
         const parsed = parseSvgTemplate(svgText);
+        if (parsed.canvasWidth && parsed.canvasHeight) {
+          setArtworkAspectRatio(parsed.canvasWidth / parsed.canvasHeight);
+        }
         if (parsed.backgroundUrl) {
           setBackgroundUrl(parsed.backgroundUrl);
         }
@@ -927,15 +945,23 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
     }
   };
 
-  // Aspect ratio mapping for canvas container
-  const aspectRatioStyle =
-    format === "3:4"
+  // Aspect ratio mapping for canvas container:
+  // Automatically adapts to artwork's natural aspect ratio so NO part of the poster is ever cropped!
+  const aspectRatioStyle = (() => {
+    if (artworkAspectRatio && artworkAspectRatio > 0) {
+      const maxH = 520;
+      const calcW = Math.round(maxH * artworkAspectRatio);
+      return { width: `${calcW}px`, height: `${maxH}px` };
+    }
+
+    return format === "3:4"
       ? { width: "360px", height: "480px" }
       : format === "4:5"
       ? { width: "360px", height: "450px" }
       : format === "1:1"
       ? { width: "400px", height: "400px" }
       : { width: "300px", height: "533px" }; // 9:16
+  })();
 
   return (
     <div
@@ -1809,7 +1835,7 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
               overflow: "hidden",
               boxShadow: "0 20px 40px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.1)",
               backgroundColor: "#1E1A33",
-              background: `url(${backgroundUrl}) center center / cover no-repeat`,
+              background: `url(${backgroundUrl}) center center / 100% 100% no-repeat`,
               cursor: activeTool !== "select" ? "crosshair" : "default",
               userSelect: "none",
             }}

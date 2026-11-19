@@ -35,7 +35,7 @@ export const PosterArtwork: React.FC<PosterArtworkProps> = ({ template, style, u
           overflow: "hidden",
           backgroundColor: template.primaryColor || "#1E1A33",
           background: backgroundImageUrl
-            ? `url(${backgroundImageUrl}) center center / cover no-repeat`
+            ? `url(${backgroundImageUrl}) center center / 100% 100% no-repeat`
             : `linear-gradient(135deg, ${template.primaryColor || "#7956C9"} 0%, ${template.accentColor || "#1E1A33"} 100%)`,
           boxSizing: "border-box",
           ...style,

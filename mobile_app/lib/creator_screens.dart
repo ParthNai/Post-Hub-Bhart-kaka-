@@ -293,7 +293,7 @@ class TemplatePoster extends StatelessWidget {
                     child: hasBackground
                         ? Image.network(
                             backgroundImageUrl!,
-                            fit: BoxFit.cover,
+                            fit: BoxFit.fill,
                             errorBuilder: (context, error, stackTrace) => Container(
                               color: Color(background),
                             ),
