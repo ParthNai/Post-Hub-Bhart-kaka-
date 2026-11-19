@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Home, Plus, LayoutGrid } from "lucide-react";
+import { Home, Plus, LayoutGrid, Sparkles } from "lucide-react";
 
 interface TemplatesHeaderProps {
   onCreateTemplate: () => void;
@@ -79,6 +79,35 @@ export const TemplatesHeader: React.FC<TemplatesHeaderProps> = ({
 
       {/* Action Buttons */}
       <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+        <Link
+          href="/admin/templates/visual-studio"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+            background: "linear-gradient(135deg, #7928CA 0%, #FF0080 100%)",
+            color: "#ffffff",
+            padding: "9px 18px",
+            borderRadius: "8px",
+            fontSize: "13.5px",
+            fontWeight: 600,
+            textDecoration: "none",
+            boxShadow: "0 2px 8px rgba(121, 40, 202, 0.35)",
+            transition: "all 0.15s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = "0.92";
+            e.currentTarget.style.transform = "translateY(-1px)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = "1";
+            e.currentTarget.style.transform = "translateY(0)";
+          }}
+        >
+          <Sparkles size={16} />
+          <span>✨ Visual Slot Studio</span>
+        </Link>
+
         <button
           type="button"
           onClick={onCreateTemplate}

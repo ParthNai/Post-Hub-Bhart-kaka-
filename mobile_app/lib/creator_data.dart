@@ -2,6 +2,100 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+class FlutterSlotZone {
+  const FlutterSlotZone({
+    required this.id,
+    required this.type,
+    required this.label,
+    required this.x,
+    required this.y,
+    required this.width,
+    required this.height,
+    this.photoShape = 'circle',
+    this.borderColor = '#FFFFFF',
+    this.borderWidth = 2.0,
+    this.shadow = true,
+    this.textBinding = 'name',
+    this.fontSize = 14.0,
+    this.textColor = '#FFFFFF',
+    this.fontWeight = '700',
+    this.alignment = 'left',
+    this.shapeType = 'rectangle',
+    this.backgroundColor = 'rgba(0,0,0,0.5)',
+    this.opacity = 1.0,
+    this.customText,
+  });
+
+  final String id;
+  final String type; // 'photo' | 'text' | 'shape'
+  final String label;
+  final double x;
+  final double y;
+  final double width;
+  final double height;
+  final String photoShape;
+  final String borderColor;
+  final double borderWidth;
+  final bool shadow;
+  final String textBinding;
+  final double fontSize;
+  final String textColor;
+  final String fontWeight;
+  final String alignment;
+  final String shapeType;
+  final String backgroundColor;
+  final double opacity;
+  final String? customText;
+
+  factory FlutterSlotZone.fromJson(Map<String, dynamic> json) {
+    return FlutterSlotZone(
+      id: (json['id'] as String?) ?? 'zone-${DateTime.now().millisecondsSinceEpoch}',
+      type: (json['type'] as String?) ?? 'photo',
+      label: (json['label'] as String?) ?? '',
+      x: ((json['x'] as num?) ?? 10).toDouble(),
+      y: ((json['y'] as num?) ?? 10).toDouble(),
+      width: ((json['width'] as num?) ?? 20).toDouble(),
+      height: ((json['height'] as num?) ?? 20).toDouble(),
+      photoShape: (json['photoShape'] as String?) ?? 'circle',
+      borderColor: (json['borderColor'] as String?) ?? '#FFFFFF',
+      borderWidth: ((json['borderWidth'] as num?) ?? 2).toDouble(),
+      shadow: json['shadow'] != false,
+      textBinding: (json['textBinding'] as String?) ?? 'name',
+      fontSize: ((json['fontSize'] as num?) ?? 14).toDouble(),
+      textColor: (json['color'] as String?) ?? (json['textColor'] as String?) ?? '#FFFFFF',
+      fontWeight: (json['fontWeight'] as String?) ?? '700',
+      alignment: (json['alignment'] as String?) ?? 'left',
+      shapeType: (json['shapeType'] as String?) ?? 'rectangle',
+      backgroundColor: (json['backgroundColor'] as String?) ?? 'rgba(0,0,0,0.5)',
+      opacity: ((json['opacity'] as num?) ?? 1.0).toDouble(),
+      customText: json['customText'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'type': type,
+    'label': label,
+    'x': x,
+    'y': y,
+    'width': width,
+    'height': height,
+    'photoShape': photoShape,
+    'borderColor': borderColor,
+    'borderWidth': borderWidth,
+    'shadow': shadow,
+    'textBinding': textBinding,
+    'fontSize': fontSize,
+    'textColor': textColor,
+    'fontWeight': fontWeight,
+    'alignment': alignment,
+    'shapeType': shapeType,
+    'backgroundColor': backgroundColor,
+    'opacity': opacity,
+    if (customText != null) 'customText': customText,
+  };
+}
+
 class OccasionTemplate {
   const OccasionTemplate({
     required this.id,
@@ -15,6 +109,8 @@ class OccasionTemplate {
     required this.background,
     required this.foreground,
     required this.icon,
+    this.backgroundImageUrl,
+    this.slotZones = const [],
   });
 
   final String id;
@@ -28,6 +124,8 @@ class OccasionTemplate {
   final int background;
   final int foreground;
   final String icon;
+  final String? backgroundImageUrl;
+  final List<FlutterSlotZone> slotZones;
 
   bool availableIn(String region) =>
       regions.contains('All') || regions.contains(region);
@@ -77,6 +175,16 @@ class OccasionTemplate {
       regions = ['India'];
     }
 
+    final bgUrl = (json['backgroundImageUrl'] as String?) ??
+        (json['thumbnailUrl'] as String?);
+    final rawZones = json['slotZones'] as List<dynamic>?;
+    final zones = rawZones != null
+        ? rawZones
+            .whereType<Map<String, dynamic>>()
+            .map((z) => FlutterSlotZone.fromJson(z))
+            .toList()
+        : const <FlutterSlotZone>[];
+
     return OccasionTemplate(
       id: id,
       title: name,
@@ -89,6 +197,8 @@ class OccasionTemplate {
       background: primary,
       foreground: accent,
       icon: _categoryIcon(cat),
+      backgroundImageUrl: bgUrl,
+      slotZones: zones,
     );
   }
 }
@@ -403,6 +513,8 @@ class SavedDesign {
     required this.foreground,
     required this.icon,
     required this.savedAt,
+    this.backgroundImageUrl,
+    this.slotZones = const [],
   });
 
   final String id;
@@ -417,6 +529,8 @@ class SavedDesign {
   final int foreground;
   final String icon;
   final DateTime savedAt;
+  final String? backgroundImageUrl;
+  final List<FlutterSlotZone> slotZones;
 
   factory SavedDesign.fromTemplate(
     OccasionTemplate template, {
@@ -439,6 +553,8 @@ class SavedDesign {
     foreground: foreground ?? template.foreground,
     icon: template.icon,
     savedAt: DateTime.now(),
+    backgroundImageUrl: template.backgroundImageUrl,
+    slotZones: template.slotZones,
   );
 
   Map<String, Object?> toJson() => {
@@ -454,6 +570,8 @@ class SavedDesign {
     'foreground': foreground,
     'icon': icon,
     'savedAt': savedAt.toIso8601String(),
+    if (backgroundImageUrl != null) 'backgroundImageUrl': backgroundImageUrl,
+    'slotZones': slotZones.map((z) => z.toJson()).toList(),
   };
 
   factory SavedDesign.fromJson(Map<String, dynamic> json) => SavedDesign(
@@ -469,6 +587,12 @@ class SavedDesign {
     foreground: json['foreground'] as int,
     icon: json['icon'] as String,
     savedAt: DateTime.parse(json['savedAt'] as String),
+    backgroundImageUrl: json['backgroundImageUrl'] as String?,
+    slotZones: (json['slotZones'] as List<dynamic>?)
+            ?.whereType<Map<String, dynamic>>()
+            .map(FlutterSlotZone.fromJson)
+            .toList() ??
+        const [],
   );
 }
 

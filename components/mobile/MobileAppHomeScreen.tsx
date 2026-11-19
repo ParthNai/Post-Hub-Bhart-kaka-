@@ -268,7 +268,16 @@ export const MobileAppHomeScreen: React.FC<MobileAppHomeScreenProps> = ({
                 }}
               >
                 <div style={{ height: "260px", width: "100%", position: "relative" }}>
-                  <PosterArtwork template={tpl} />
+                  <PosterArtwork
+                    template={tpl}
+                    userData={{
+                      name: user.name || "Parth Patel",
+                      avatarUrl: user.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80",
+                      phone: "+91 98765 43210",
+                      businessName: "Post Hub Studio",
+                      designation: "Founder",
+                    }}
+                  />
                 </div>
                 <div style={{ padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>

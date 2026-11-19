@@ -3,6 +3,46 @@ export type TemplateCategory = "Business" | "Festival" | "Education" | "Promotio
 export type TemplateFormat = "3:4" | "4:5" | "9:16" | "1:1";
 export type TextAlignment = "Left" | "Center" | "Right";
 
+export type SlotZoneType = "photo" | "text" | "shape";
+export type PhotoSlotShape = "circle" | "squircle" | "rectangle";
+export type TextSlotBinding = "name" | "designation" | "phone" | "business" | "custom";
+export type ShapeSlotType = "bar" | "pill" | "badge" | "rectangle";
+
+export interface TemplateSlotZone {
+  id: string;
+  type: SlotZoneType;
+  label?: string;
+  // Coordinates and dimensions as percentages (0% - 100%) for fully responsive client rendering
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  zIndex?: number;
+
+  // Photo slot properties
+  photoShape?: PhotoSlotShape;
+  borderColor?: string;
+  borderWidth?: number;
+  shadow?: boolean;
+  sampleAvatarUrl?: string;
+
+  // Text slot properties
+  textBinding?: TextSlotBinding;
+  customText?: string;
+  fontSize?: number;
+  color?: string;
+  fontWeight?: "normal" | "600" | "700" | "800";
+  fontFamily?: string;
+  alignment?: "left" | "center" | "right";
+  textShadow?: boolean;
+
+  // Shape slot properties
+  shapeType?: ShapeSlotType;
+  backgroundColor?: string;
+  opacity?: number;
+  borderRadius?: number;
+}
+
 export interface PosterTemplate {
   id: string;
   name: string;
@@ -33,6 +73,9 @@ export interface PosterTemplate {
   slogan?: string;
   logoText?: string;
   tagline?: string;
+  // Visual Slot Studio properties (ChatGPT/AI image background + snipped photo & text slots)
+  backgroundImageUrl?: string;
+  slotZones?: TemplateSlotZone[];
 }
 
 export interface TemplateCategoryInfo {

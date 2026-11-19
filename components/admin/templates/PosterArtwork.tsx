@@ -1,16 +1,169 @@
 "use client";
 
 import React from "react";
+import { Camera } from "lucide-react";
 import { PosterTemplate } from "@/lib/templates";
 
 interface PosterArtworkProps {
   template: PosterTemplate;
   className?: string;
   style?: React.CSSProperties;
+  userData?: {
+    name?: string;
+    avatarUrl?: string;
+    phone?: string;
+    designation?: string;
+    businessName?: string;
+  };
 }
 
-export const PosterArtwork: React.FC<PosterArtworkProps> = ({ template, style }) => {
-  const { id, name, category, format, headline, subheadline, ctaText } = template;
+export const PosterArtwork: React.FC<PosterArtworkProps> = ({ template, style, userData }) => {
+  const { id, name, category, format, headline, subheadline, ctaText, slotZones, backgroundImageUrl } = template;
+
+  // Custom visual template with dynamic photo & text slot zones
+  if ((slotZones && slotZones.length > 0) || backgroundImageUrl) {
+    const defaultUserAvatar =
+      userData?.avatarUrl ||
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80";
+
+    return (
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          position: "relative",
+          overflow: "hidden",
+          backgroundColor: template.primaryColor || "#1E1A33",
+          background: backgroundImageUrl
+            ? `url(${backgroundImageUrl}) center center / cover no-repeat`
+            : `linear-gradient(135deg, ${template.primaryColor || "#7956C9"} 0%, ${template.accentColor || "#1E1A33"} 100%)`,
+          boxSizing: "border-box",
+          ...style,
+        }}
+      >
+        {/* Render each dynamic slot zone */}
+        {slotZones?.map((zone) => {
+          if (zone.type === "shape") {
+            const isPill = zone.shapeType === "pill";
+            return (
+              <div
+                key={zone.id}
+                style={{
+                  position: "absolute",
+                  left: `${zone.x}%`,
+                  top: `${zone.y}%`,
+                  width: `${zone.width}%`,
+                  height: `${zone.height}%`,
+                  backgroundColor: zone.backgroundColor || "rgba(0,0,0,0.55)",
+                  backdropFilter: "blur(6px)",
+                  borderRadius: isPill ? "999px" : zone.borderRadius ? `${zone.borderRadius}px` : "8px",
+                  opacity: zone.opacity ?? 1,
+                  zIndex: zone.zIndex || 2,
+                  pointerEvents: "none",
+                }}
+              />
+            );
+          }
+
+          if (zone.type === "photo") {
+            const isCircle = zone.photoShape === "circle";
+            const isSquircle = zone.photoShape === "squircle";
+            const borderRadius = isCircle ? "50%" : isSquircle ? "24%" : "8px";
+            const avatarSrc = userData?.avatarUrl || zone.sampleAvatarUrl || defaultUserAvatar;
+
+            return (
+              <div
+                key={zone.id}
+                style={{
+                  position: "absolute",
+                  left: `${zone.x}%`,
+                  top: `${zone.y}%`,
+                  width: `${zone.width}%`,
+                  height: `${zone.height}%`,
+                  borderRadius,
+                  border: `${zone.borderWidth ?? 3}px solid ${zone.borderColor || "#FFFFFF"}`,
+                  boxShadow: zone.shadow !== false ? "0 4px 14px rgba(0,0,0,0.35)" : "none",
+                  overflow: "hidden",
+                  zIndex: zone.zIndex || 4,
+                  backgroundColor: "#FFFFFF",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {avatarSrc ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={avatarSrc}
+                    alt="User Slot"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <Camera size={18} color="#7956C9" />
+                )}
+              </div>
+            );
+          }
+
+          if (zone.type === "text") {
+            let displayText = zone.customText || "";
+            if (zone.textBinding === "name") {
+              displayText = userData?.name || "Parth Patel";
+            } else if (zone.textBinding === "designation") {
+              displayText = userData?.designation || "Creative Director";
+            } else if (zone.textBinding === "phone") {
+              displayText = userData?.phone || "+91 98765 43210";
+            } else if (zone.textBinding === "business") {
+              displayText = userData?.businessName || "Post Hub Studio";
+            }
+
+            return (
+              <div
+                key={zone.id}
+                style={{
+                  position: "absolute",
+                  left: `${zone.x}%`,
+                  top: `${zone.y}%`,
+                  width: `${zone.width}%`,
+                  height: `${zone.height}%`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent:
+                    zone.alignment === "left"
+                      ? "flex-start"
+                      : zone.alignment === "right"
+                      ? "flex-end"
+                      : "center",
+                  textAlign: zone.alignment || "center",
+                  color: zone.color || "#FFFFFF",
+                  fontSize: zone.fontSize ? `${zone.fontSize}px` : "12px",
+                  fontWeight: zone.fontWeight || 700,
+                  fontFamily: zone.fontFamily || "var(--font-family-sans, sans-serif)",
+                  textShadow: zone.textShadow !== false ? "0 2px 4px rgba(0,0,0,0.6)" : "none",
+                  zIndex: zone.zIndex || 5,
+                  padding: "0 4px",
+                  boxSizing: "border-box",
+                  lineHeight: 1.15,
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                  textOverflow: "ellipsis",
+                  pointerEvents: "none",
+                }}
+              >
+                {displayText}
+              </div>
+            );
+          }
+
+          return null;
+        })}
+      </div>
+    );
+  }
 
   // We render tailored vector artwork matching the reference posters
   switch (id) {

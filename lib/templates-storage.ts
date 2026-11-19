@@ -132,6 +132,8 @@ export function createTemplate(
     fontSelection: data.fontSelection || "Poppins",
     imageSlots: data.imageSlots || ["Main Image", "Logo"],
     alignment: data.alignment || "Center",
+    backgroundImageUrl: data.backgroundImageUrl,
+    slotZones: data.slotZones,
   };
 
   templates.unshift(newTemplate);

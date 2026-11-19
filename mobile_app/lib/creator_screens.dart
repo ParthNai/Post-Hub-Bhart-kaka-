@@ -7,6 +7,38 @@ import 'package:share_plus/share_plus.dart';
 
 import 'creator_data.dart';
 
+Color _parseHex(String? hex, {Color fallback = Colors.white}) {
+  if (hex == null || hex.isEmpty) return fallback;
+  final clean = hex.replaceAll('#', '').trim();
+  if (clean.length == 6) {
+    final val = int.tryParse('FF$clean', radix: 16);
+    if (val != null) return Color(val);
+  } else if (clean.length == 8) {
+    final val = int.tryParse(clean, radix: 16);
+    if (val != null) return Color(val);
+  }
+  return fallback;
+}
+
+Color _parseZoneBackground(String? colorStr, double opacity) {
+  if (colorStr == null || colorStr.isEmpty) {
+    return Colors.black.withValues(alpha: opacity.clamp(0.0, 1.0));
+  }
+  if (colorStr.startsWith('#')) {
+    return _parseHex(colorStr).withValues(alpha: opacity.clamp(0.0, 1.0));
+  }
+  if (colorStr.startsWith('rgba') || colorStr.startsWith('rgb')) {
+    final match = RegExp(r'rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)').firstMatch(colorStr);
+    if (match != null) {
+      final r = int.tryParse(match.group(1)!) ?? 0;
+      final g = int.tryParse(match.group(2)!) ?? 0;
+      final b = int.tryParse(match.group(3)!) ?? 0;
+      return Color.fromRGBO(r, g, b, opacity.clamp(0.0, 1.0));
+    }
+  }
+  return Colors.black.withValues(alpha: opacity.clamp(0.0, 1.0));
+}
+
 class TemplatePoster extends StatelessWidget {
   const TemplatePoster({
     super.key,
@@ -16,6 +48,12 @@ class TemplatePoster extends StatelessWidget {
     required this.background,
     required this.foreground,
     required this.icon,
+    this.backgroundImageUrl,
+    this.slotZones = const [],
+    this.userName,
+    this.userAvatarUrl,
+    this.userPhone,
+    this.userDesignation,
   });
 
   final String headline;
@@ -24,29 +62,178 @@ class TemplatePoster extends StatelessWidget {
   final int background;
   final int foreground;
   final String icon;
+  final String? backgroundImageUrl;
+  final List<FlutterSlotZone> slotZones;
+  final String? userName;
+  final String? userAvatarUrl;
+  final String? userPhone;
+  final String? userDesignation;
 
-  factory TemplatePoster.fromTemplate(OccasionTemplate template) =>
+  factory TemplatePoster.fromTemplate(
+    OccasionTemplate template, {
+    String? userName,
+    String? userAvatarUrl,
+    String? userPhone,
+    String? userDesignation,
+    String? businessName,
+  }) =>
       TemplatePoster(
         headline: template.headline,
         subtitle: template.subtitle,
-        businessName: '',
+        businessName: businessName ?? '',
         background: template.background,
         foreground: template.foreground,
         icon: template.icon,
+        backgroundImageUrl: template.backgroundImageUrl,
+        slotZones: template.slotZones,
+        userName: userName,
+        userAvatarUrl: userAvatarUrl,
+        userPhone: userPhone,
+        userDesignation: userDesignation,
       );
 
-  factory TemplatePoster.fromSavedDesign(SavedDesign design) => TemplatePoster(
+  factory TemplatePoster.fromSavedDesign(
+    SavedDesign design, {
+    String? userName,
+    String? userAvatarUrl,
+    String? userPhone,
+    String? userDesignation,
+  }) => TemplatePoster(
     headline: design.headline,
     subtitle: design.subtitle,
     businessName: design.businessName,
     background: design.background,
     foreground: design.foreground,
     icon: design.icon,
+    backgroundImageUrl: design.backgroundImageUrl,
+    slotZones: design.slotZones,
+    userName: userName,
+    userAvatarUrl: userAvatarUrl,
+    userPhone: userPhone,
+    userDesignation: userDesignation,
   );
+
+  Widget _buildShapeZone(FlutterSlotZone zone, double w, double h) {
+    final isPill = zone.shapeType == 'pill';
+    final bgColor = _parseZoneBackground(zone.backgroundColor, zone.opacity);
+    return Container(
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(isPill ? 999 : 8),
+      ),
+    );
+  }
+
+  Widget _buildPhotoZone(FlutterSlotZone zone, double w, double h) {
+    final borderColor = _parseHex(zone.borderColor, fallback: Colors.white);
+    final isCircle = zone.photoShape == 'circle';
+    final isSquircle = zone.photoShape == 'squircle';
+    final borderRadius = isCircle
+        ? BorderRadius.circular(999)
+        : (isSquircle ? BorderRadius.circular(16) : BorderRadius.circular(6));
+
+    final photo = (userAvatarUrl != null && userAvatarUrl!.isNotEmpty)
+        ? userAvatarUrl!
+        : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80';
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: borderRadius,
+        border: Border.all(color: borderColor, width: zone.borderWidth),
+        boxShadow: zone.shadow
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.35),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ]
+            : null,
+      ),
+      child: ClipRRect(
+        borderRadius: borderRadius,
+        child: Image.network(
+          photo,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Container(
+            color: Colors.white24,
+            child: const Icon(Icons.person, color: Colors.white, size: 24),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextZone(FlutterSlotZone zone, double w, double h) {
+    String text;
+    switch (zone.textBinding) {
+      case 'name':
+        text = (userName != null && userName!.isNotEmpty) ? userName! : 'Parth Patel';
+        break;
+      case 'phone':
+        text = (userPhone != null && userPhone!.isNotEmpty) ? userPhone! : '+91 98765 43210';
+        break;
+      case 'designation':
+        text = (userDesignation != null && userDesignation!.isNotEmpty)
+            ? userDesignation!
+            : 'Founder & Director';
+        break;
+      case 'businessName':
+        text = businessName.isNotEmpty ? businessName : 'Post Hub Studio';
+        break;
+      case 'custom':
+      default:
+        text = zone.customText ?? zone.label;
+        break;
+    }
+
+    final textColor = _parseHex(zone.textColor, fallback: Colors.white);
+    final scaledFontSize = (h * (zone.fontSize / 380)).clamp(8.0, 32.0);
+    final textAlign = zone.alignment == 'center'
+        ? TextAlign.center
+        : (zone.alignment == 'right' ? TextAlign.right : TextAlign.left);
+
+    return Align(
+      alignment: zone.alignment == 'center'
+          ? Alignment.center
+          : (zone.alignment == 'right' ? Alignment.centerRight : Alignment.centerLeft),
+      child: Text(
+        text,
+        textAlign: textAlign,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: textColor,
+          fontSize: scaledFontSize,
+          fontWeight: zone.fontWeight == '800'
+              ? FontWeight.w800
+              : (zone.fontWeight == '700' ? FontWeight.w700 : FontWeight.w600),
+          shadows: const [
+            Shadow(color: Colors.black87, blurRadius: 4, offset: Offset(0, 1)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSlotZoneWidget(FlutterSlotZone zone, double w, double h) {
+    switch (zone.type) {
+      case 'photo':
+        return _buildPhotoZone(zone, w, h);
+      case 'text':
+        return _buildTextZone(zone, w, h);
+      case 'shape':
+      default:
+        return _buildShapeZone(zone, w, h);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final foregroundColor = Color(foreground);
+    final hasBackground = backgroundImageUrl != null && backgroundImageUrl!.trim().isNotEmpty;
+    final hasSlots = slotZones.isNotEmpty;
+
     return Container(
       decoration: BoxDecoration(
         color: Color(background),
@@ -56,6 +243,75 @@ class TemplatePoster extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         child: LayoutBuilder(
           builder: (context, constraints) {
+            final w = constraints.maxWidth;
+            final h = constraints.maxHeight;
+
+            // If template has an AI/custom background image or slot zones, render visual canvas
+            if (hasBackground || hasSlots) {
+              return Stack(
+                children: [
+                  Positioned.fill(
+                    child: hasBackground
+                        ? Image.network(
+                            backgroundImageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: Color(background),
+                            ),
+                          )
+                        : Container(color: Color(background)),
+                  ),
+                  if (hasSlots) ...[
+                    for (final zone in slotZones)
+                      Positioned(
+                        left: w * (zone.x / 100),
+                        top: h * (zone.y / 100),
+                        width: (w * (zone.width / 100)).clamp(10.0, w),
+                        height: (h * (zone.height / 100)).clamp(10.0, h),
+                        child: _buildSlotZoneWidget(zone, w, h),
+                      ),
+                  ] else ...[
+                    Center(
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.55),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              headline,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (subtitle.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                subtitle,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              );
+            }
+
+            // Fallback default vector artwork
             final isCompact =
                 constraints.maxHeight < 140 || constraints.maxWidth < 120;
             final isTiny =

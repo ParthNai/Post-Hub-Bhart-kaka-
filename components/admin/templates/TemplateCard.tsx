@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { MoreVertical, Calendar, Eye, Edit2, Copy, Archive, Trash2, RotateCcw } from "lucide-react";
+import Link from "next/link";
+import { MoreVertical, Calendar, Eye, Edit2, Copy, Archive, Trash2, RotateCcw, Sparkles } from "lucide-react";
 import { PosterTemplate, TemplateStatus } from "@/lib/templates";
 import { PosterArtwork } from "./PosterArtwork";
 
@@ -236,6 +237,36 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
                   }}
                   onClick={(e) => e.stopPropagation()}
                 >
+                  <Link
+                    href={`/admin/templates/visual-studio?templateId=${template.id}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuOpen(false);
+                    }}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      padding: "8px 10px",
+                      fontSize: "12.5px",
+                      color: "#7928CA",
+                      fontWeight: 600,
+                      background: "none",
+                      border: "none",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      textDecoration: "none",
+                      boxSizing: "border-box",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F5E8FF")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                  >
+                    <Sparkles size={13} />
+                    <span>Visual Studio</span>
+                  </Link>
+
                   <button
                     type="button"
                     onClick={() => {

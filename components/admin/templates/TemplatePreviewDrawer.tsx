@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { X, Eye } from "lucide-react";
+import Link from "next/link";
+import { X, Eye, Sparkles } from "lucide-react";
 import { PosterTemplate } from "@/lib/templates";
 import { PosterArtwork } from "./PosterArtwork";
 
@@ -220,37 +221,66 @@ export const TemplatePreviewDrawer: React.FC<TemplatePreviewDrawerProps> = ({
         </div>
       </div>
 
-      {/* Action Button */}
-      <button
-        type="button"
-        onClick={() => onOpenFullPreview(template)}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "8px",
-          backgroundColor: "var(--primary, #7956C9)",
-          color: "#ffffff",
-          padding: "10px 16px",
-          borderRadius: "8px",
-          fontSize: "13.5px",
-          fontWeight: 600,
-          border: "none",
-          cursor: "pointer",
-          marginTop: "4px",
-          boxShadow: "0 2px 6px rgba(121, 86, 201, 0.25)",
-          transition: "all 0.15s ease",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = "var(--primary-hover, #6846B5)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = "var(--primary, #7956C9)";
-        }}
-      >
-        <Eye size={16} />
-        <span>Preview</span>
-      </button>
+      {/* Action Buttons */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
+        <Link
+          href={`/admin/templates/visual-studio?templateId=${template.id}`}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+            background: "linear-gradient(135deg, #7928CA 0%, #FF0080 100%)",
+            color: "#ffffff",
+            padding: "10px 16px",
+            borderRadius: "8px",
+            fontSize: "13.5px",
+            fontWeight: 600,
+            textDecoration: "none",
+            boxShadow: "0 2px 6px rgba(121, 40, 202, 0.3)",
+            transition: "all 0.15s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = "0.92";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = "1";
+          }}
+        >
+          <Sparkles size={16} />
+          <span>Edit in Visual Studio</span>
+        </Link>
+
+        <button
+          type="button"
+          onClick={() => onOpenFullPreview(template)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+            backgroundColor: "var(--primary, #7956C9)",
+            color: "#ffffff",
+            padding: "10px 16px",
+            borderRadius: "8px",
+            fontSize: "13.5px",
+            fontWeight: 600,
+            border: "none",
+            cursor: "pointer",
+            boxShadow: "0 2px 6px rgba(121, 86, 201, 0.25)",
+            transition: "all 0.15s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "var(--primary-hover, #6846B5)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "var(--primary, #7956C9)";
+          }}
+        >
+          <Eye size={16} />
+          <span>Preview</span>
+        </button>
+      </div>
     </div>
   );
 };
