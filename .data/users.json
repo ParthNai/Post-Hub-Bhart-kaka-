@@ -9,9 +9,9 @@
     "failedAttempts": 0,
     "createdAt": "2026-10-28T07:51:10.286Z",
     "lockedUntil": null,
-    "lastLoginAt": "2026-11-19T05:30:56.376Z",
-    "resetToken": "58022aec0a0b9da6ceb6458ce93fbb48ca3a7bbb034232ed4096c3c4031b617a",
-    "resetTokenExpiry": 1793269414688
+    "lastLoginAt": "2026-11-19T10:20:11.566Z",
+    "resetToken": "46b7c6121f0f2d3336d816e27a783bfddb5ee056378a548f79e23c916d1e3bd7",
+    "resetTokenExpiry": 1795087211612
   },
   {
     "id": "usr_admin_002",
@@ -45,6 +45,6 @@
     "failedAttempts": 0,
     "createdAt": "2026-10-28T07:51:10.586Z",
     "lockedUntil": null,
-    "lastLoginAt": "2026-11-16T04:38:13.054Z"
+    "lastLoginAt": "2026-11-19T10:20:10.906Z"
   }
 ]
