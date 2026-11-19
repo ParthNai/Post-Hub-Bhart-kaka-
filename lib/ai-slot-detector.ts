@@ -434,13 +434,13 @@ export function detectSlotsFromImageElement(img: HTMLImageElement): {
     const imageData = ctx.getImageData(0, 0, scanW, scanH);
     const data = imageData.data;
 
-    // 1. Scan for White Silhouette Cutout:
-    // Solid white (R,G,B >= 235 with low color difference) in x: 0..70%, y: 2..75%
+    // 1. Scan for Silhouette Cutout:
+    // Neutral white or gray placeholder (R,G,B >= 140 with low saturation) across x: 2..98%, y: 2..78%
     let silMinX = scanW, silMaxX = 0, silMinY = scanH, silMaxY = 0;
     let silCount = 0;
 
-    const maxYScan = Math.round(scanH * 0.72);
-    const maxXScan = Math.round(scanW * 0.68);
+    const maxYScan = Math.round(scanH * 0.78);
+    const maxXScan = Math.round(scanW * 0.98);
     const minYScan = Math.round(scanH * 0.03);
     const minXScan = Math.round(scanW * 0.02);
 
@@ -450,8 +450,9 @@ export function detectSlotsFromImageElement(img: HTMLImageElement): {
         const r = data[idx];
         const g = data[idx + 1];
         const b = data[idx + 2];
-        const isWhite = r >= 235 && g >= 235 && b >= 235 && Math.abs(r - g) <= 12 && Math.abs(g - b) <= 12;
-        if (isWhite) {
+        const isNeutral = Math.abs(r - g) <= 16 && Math.abs(g - b) <= 16 && Math.abs(r - b) <= 16;
+        const isSilhouette = isNeutral && r >= 140;
+        if (isSilhouette) {
           silCount++;
           if (x < silMinX) silMinX = x;
           if (x > silMaxX) silMaxX = x;
@@ -488,14 +489,14 @@ export function detectSlotsFromImageElement(img: HTMLImageElement): {
     }
 
     // 2. Scan for Bottom Name Banner Box:
-    // In bottom area y: 78%..97%, x: 8%..92%, looking for light cream/white box
+    // In bottom area y: 70%..97%, x: 5%..95%, looking for light cream/white box
     let banMinX = scanW, banMaxX = 0, banMinY = scanH, banMaxY = 0;
     let banCount = 0;
 
-    const banMinYScan = Math.round(scanH * 0.78);
+    const banMinYScan = Math.round(scanH * 0.70);
     const banMaxYScan = Math.round(scanH * 0.98);
-    const banMinXScan = Math.round(scanW * 0.08);
-    const banMaxXScan = Math.round(scanW * 0.92);
+    const banMinXScan = Math.round(scanW * 0.05);
+    const banMaxXScan = Math.round(scanW * 0.95);
 
     for (let y = banMinYScan; y < banMaxYScan; y++) {
       for (let x = banMinXScan; x < banMaxXScan; x++) {
@@ -503,8 +504,8 @@ export function detectSlotsFromImageElement(img: HTMLImageElement): {
         const r = data[idx];
         const g = data[idx + 1];
         const b = data[idx + 2];
-        // High brightness / cream / light banner
-        const isBanner = r >= 205 && g >= 195 && b >= 165;
+        // High brightness / cream / white banner
+        const isBanner = (r >= 200 && g >= 190 && b >= 160) || (r >= 230 && g >= 230 && b >= 230);
         if (isBanner) {
           banCount++;
           if (x < banMinX) banMinX = x;

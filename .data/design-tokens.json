@@ -1,7 +1,7 @@
 {
-  "version": 82,
+  "version": 84,
   "status": "draft",
-  "lastSavedAt": "2026-11-19T11:09:35.377Z",
+  "lastSavedAt": "2026-11-19T11:12:32.361Z",
   "lastSavedBy": "Unit Test Runner",
   "brandAssets": [
     {
@@ -156,6 +156,66 @@
     }
   },
   "history": [
+    {
+      "version": 83,
+      "savedAt": "2026-11-19T11:12:32.361Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v84)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "32px",
+          "headlineWeight": "700",
+          "bodySize": "16px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    },
+    {
+      "version": 82,
+      "savedAt": "2026-11-19T11:12:32.357Z",
+      "savedBy": "Unit Test Runner",
+      "summary": "Updated design tokens and brand guidelines (v83)",
+      "tokens": {
+        "colors": {
+          "primaryViolet": "#7956C9",
+          "softLavender": "#E8DFF5",
+          "warmIvory": "#FAF7F2",
+          "mainText": "#24213A",
+          "secondaryText": "#777184",
+          "border": "#EAE4EE"
+        },
+        "guidelines": {
+          "brandTone": "Professional",
+          "visualStyle": "Clean and editorial",
+          "theme": "Light",
+          "accentColor": "Violet"
+        },
+        "typography": {
+          "fontFamily": "Inter, -apple-system, sans-serif",
+          "headlineSize": "32px",
+          "headlineWeight": "700",
+          "bodySize": "16px",
+          "bodyLineHeight": "1.5",
+          "metadataSize": "11px"
+        }
+      }
+    },
     {
       "version": 81,
       "savedAt": "2026-11-19T11:09:35.377Z",
@@ -671,66 +731,6 @@
       "savedAt": "2026-11-19T06:28:18.964Z",
       "savedBy": "Unit Test Runner",
       "summary": "Updated design tokens and brand guidelines (v65)",
-      "tokens": {
-        "colors": {
-          "primaryViolet": "#7956C9",
-          "softLavender": "#E8DFF5",
-          "warmIvory": "#FAF7F2",
-          "mainText": "#24213A",
-          "secondaryText": "#777184",
-          "border": "#EAE4EE"
-        },
-        "guidelines": {
-          "brandTone": "Professional",
-          "visualStyle": "Clean and editorial",
-          "theme": "Light",
-          "accentColor": "Violet"
-        },
-        "typography": {
-          "fontFamily": "Inter, -apple-system, sans-serif",
-          "headlineSize": "32px",
-          "headlineWeight": "700",
-          "bodySize": "16px",
-          "bodyLineHeight": "1.5",
-          "metadataSize": "11px"
-        }
-      }
-    },
-    {
-      "version": 63,
-      "savedAt": "2026-11-19T06:26:33.950Z",
-      "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v64)",
-      "tokens": {
-        "colors": {
-          "primaryViolet": "#7956C9",
-          "softLavender": "#E8DFF5",
-          "warmIvory": "#FAF7F2",
-          "mainText": "#24213A",
-          "secondaryText": "#777184",
-          "border": "#EAE4EE"
-        },
-        "guidelines": {
-          "brandTone": "Professional",
-          "visualStyle": "Clean and editorial",
-          "theme": "Light",
-          "accentColor": "Violet"
-        },
-        "typography": {
-          "fontFamily": "Inter, -apple-system, sans-serif",
-          "headlineSize": "32px",
-          "headlineWeight": "700",
-          "bodySize": "16px",
-          "bodyLineHeight": "1.5",
-          "metadataSize": "11px"
-        }
-      }
-    },
-    {
-      "version": 62,
-      "savedAt": "2026-11-19T06:26:33.946Z",
-      "savedBy": "Unit Test Runner",
-      "summary": "Updated design tokens and brand guidelines (v63)",
       "tokens": {
         "colors": {
           "primaryViolet": "#7956C9",
