@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -14,6 +14,9 @@ import {
   Eye,
   Save,
   ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+  ArrowDown,
   Sparkles,
   Layers,
   Sliders,
@@ -22,6 +25,7 @@ import {
   HelpCircle,
   Undo2,
   Plus,
+  Maximize2,
 } from "lucide-react";
 import {
   PosterTemplate,
@@ -199,6 +203,16 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
     "zone-photo-1"
   );
 
+  // Active moving & resizing state for a selected zone
+  const [dragState, setDragState] = useState<{
+    type: "move" | "resize";
+    zoneId: string;
+    handle?: "nw" | "n" | "ne" | "w" | "e" | "sw" | "s" | "se";
+    startClientX: number;
+    startClientY: number;
+    initialZone: TemplateSlotZone;
+  } | null>(null);
+
   // Drag selection state (Snipping Tool style)
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawStart, setDrawStart] = useState<{ x: number; y: number } | null>(null);
@@ -223,6 +237,167 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
 
   // Selected zone object
   const selectedZone = zones.find((z) => z.id === selectedZoneId) || null;
+
+  // Handle mousedown on a zone (initiates free drag to move)
+  const handleZoneMouseDown = (e: React.MouseEvent, zone: TemplateSlotZone) => {
+    // If draw tool is active, let canvas mousedown handle drawing
+    if (activeTool !== "select") return;
+
+    e.stopPropagation();
+    setSelectedZoneId(zone.id);
+
+    setDragState({
+      type: "move",
+      zoneId: zone.id,
+      startClientX: e.clientX,
+      startClientY: e.clientY,
+      initialZone: { ...zone },
+    });
+  };
+
+  // Handle mousedown on an 8-point resize handle
+  const handleResizeHandleMouseDown = (
+    e: React.MouseEvent,
+    zone: TemplateSlotZone,
+    handle: "nw" | "n" | "ne" | "w" | "e" | "sw" | "s" | "se"
+  ) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setSelectedZoneId(zone.id);
+
+    setDragState({
+      type: "resize",
+      zoneId: zone.id,
+      handle,
+      startClientX: e.clientX,
+      startClientY: e.clientY,
+      initialZone: { ...zone },
+    });
+  };
+
+  // Global mousemove & mouseup listeners for fluid moving and resizing
+  useEffect(() => {
+    if (!dragState) return;
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!canvasRef.current) return;
+      const rect = canvasRef.current.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+
+      const dxPercent = ((e.clientX - dragState.startClientX) / rect.width) * 100;
+      const dyPercent = ((e.clientY - dragState.startClientY) / rect.height) * 100;
+      const init = dragState.initialZone;
+
+      if (dragState.type === "move") {
+        const maxX = Math.max(0, 100 - init.width);
+        const maxY = Math.max(0, 100 - init.height);
+        const newX = Math.round(Math.max(0, Math.min(maxX, init.x + dxPercent)) * 10) / 10;
+        const newY = Math.round(Math.max(0, Math.min(maxY, init.y + dyPercent)) * 10) / 10;
+
+        setZones((prev) =>
+          prev.map((z) => (z.id === dragState.zoneId ? { ...z, x: newX, y: newY } : z))
+        );
+      } else if (dragState.type === "resize" && dragState.handle) {
+        const h = dragState.handle;
+        let newX = init.x;
+        let newY = init.y;
+        let newW = init.width;
+        let newH = init.height;
+
+        // Horizontal sizing
+        if (h.includes("e")) {
+          newW = Math.max(3, Math.min(100 - init.x, init.width + dxPercent));
+        } else if (h.includes("w")) {
+          const rightEdge = init.x + init.width;
+          newX = Math.max(0, Math.min(rightEdge - 3, init.x + dxPercent));
+          newW = rightEdge - newX;
+        }
+
+        // Vertical sizing
+        if (h.includes("s")) {
+          newH = Math.max(3, Math.min(100 - init.y, init.height + dyPercent));
+        } else if (h.includes("n")) {
+          const bottomEdge = init.y + init.height;
+          newY = Math.max(0, Math.min(bottomEdge - 3, init.y + dyPercent));
+          newH = bottomEdge - newY;
+        }
+
+        newX = Math.round(newX * 10) / 10;
+        newY = Math.round(newY * 10) / 10;
+        newW = Math.round(newW * 10) / 10;
+        newH = Math.round(newH * 10) / 10;
+
+        setZones((prev) =>
+          prev.map((z) =>
+            z.id === dragState.zoneId
+              ? { ...z, x: newX, y: newY, width: newW, height: newH }
+              : z
+          )
+        );
+      }
+    };
+
+    const onMouseUp = () => {
+      setDragState(null);
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+  }, [dragState]);
+
+  // Keyboard navigation for nudge (Arrow Keys) & Delete
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (!selectedZoneId) return;
+      const current = zones.find((z) => z.id === selectedZoneId);
+      if (!current) return;
+
+      const step = e.shiftKey ? 2.0 : 0.5;
+
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        const newX = Math.max(0, Math.round((current.x - step) * 10) / 10);
+        updateSelectedZone({ x: newX });
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        const newX = Math.min(100 - current.width, Math.round((current.x + step) * 10) / 10);
+        updateSelectedZone({ x: newX });
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        const newY = Math.max(0, Math.round((current.y - step) * 10) / 10);
+        updateSelectedZone({ y: newY });
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        const newY = Math.min(100 - current.height, Math.round((current.y + step) * 10) / 10);
+        updateSelectedZone({ y: newY });
+      } else if (e.key === "Delete" || e.key === "Backspace") {
+        e.preventDefault();
+        handleDeleteZone(current.id);
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        setSelectedZoneId(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedZoneId, zones]);
 
   // Handle image upload from computer (ChatGPT generated image, etc.)
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -259,7 +434,11 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
 
   // Start drag selection
   const handleCanvasMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (activeTool === "select") return;
+    if (activeTool === "select") {
+      // Clicking empty canvas area deselects
+      setSelectedZoneId(null);
+      return;
+    }
     const coords = getCanvasCoords(e);
     if (!coords) return;
 
@@ -361,6 +540,80 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
     setIsDrawing(false);
     setDrawStart(null);
     setCurrentBox(null);
+  };
+
+  // Helper to render floating dimensions and 8-point resize handles around selected zone
+  const renderResizeHandles = (zone: TemplateSlotZone) => {
+    const handles: Array<{
+      id: "nw" | "n" | "ne" | "w" | "e" | "sw" | "s" | "se";
+      style: React.CSSProperties;
+      cursor: string;
+    }> = [
+      { id: "nw", style: { top: "-5px", left: "-5px" }, cursor: "nwse-resize" },
+      { id: "n", style: { top: "-5px", left: "calc(50% - 5px)" }, cursor: "ns-resize" },
+      { id: "ne", style: { top: "-5px", right: "-5px" }, cursor: "nesw-resize" },
+      { id: "w", style: { top: "calc(50% - 5px)", left: "-5px" }, cursor: "ew-resize" },
+      { id: "e", style: { top: "calc(50% - 5px)", right: "-5px" }, cursor: "ew-resize" },
+      { id: "sw", style: { bottom: "-5px", left: "-5px" }, cursor: "nesw-resize" },
+      { id: "s", style: { bottom: "-5px", left: "calc(50% - 5px)" }, cursor: "ns-resize" },
+      { id: "se", style: { bottom: "-5px", right: "-5px" }, cursor: "nwse-resize" },
+    ];
+
+    return (
+      <>
+        {/* Floating Info Tooltip */}
+        <div
+          style={{
+            position: "absolute",
+            top: "-28px",
+            left: "0",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "5px",
+            backgroundColor: "#1C1929",
+            color: "#FFFFFF",
+            fontSize: "10.5px",
+            fontWeight: 700,
+            padding: "2px 8px",
+            borderRadius: "4px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.35)",
+            whiteSpace: "nowrap",
+            zIndex: 60,
+            pointerEvents: "none",
+            userSelect: "none",
+            border: "1px solid rgba(121, 86, 201, 0.4)",
+          }}
+        >
+          <Move size={11} color="#A78BFA" />
+          <span>{zone.label || zone.type}</span>
+          <span style={{ color: "#6B7280" }}>•</span>
+          <span style={{ color: "#34D399" }}>
+            X: {zone.x}% Y: {zone.y}% (W: {zone.width}% H: {zone.height}%)
+          </span>
+        </div>
+
+        {/* 8 Resize Handles */}
+        {handles.map((h) => (
+          <div
+            key={h.id}
+            onMouseDown={(e) => handleResizeHandleMouseDown(e, zone, h.id)}
+            style={{
+              position: "absolute",
+              width: "10px",
+              height: "10px",
+              backgroundColor: "#FFFFFF",
+              border: "2px solid #7956C9",
+              borderRadius: "2px",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+              zIndex: 55,
+              cursor: h.cursor,
+              boxSizing: "border-box",
+              ...h.style,
+            }}
+          />
+        ))}
+      </>
+    );
   };
 
   // Update selected zone property
@@ -1074,7 +1327,7 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
             {activeTool === "draw_photo" && <span>📸 Crosshair active: Click & Drag to select User Photo area</span>}
             {activeTool === "draw_text" && <span>✍️ Crosshair active: Click & Drag to create a Dynamic Text box</span>}
             {activeTool === "draw_shape" && <span>🔷 Crosshair active: Click & Drag to place a Shape or Footer strip</span>}
-            {activeTool === "select" && <span>👆 Select Mode: Click on any slot box on canvas to customize its settings</span>}
+            {activeTool === "select" && <span>✋ Select & Move: Click & drag any zone to move it, drag 8 corner handles to resize, or use arrow keys!</span>}
           </div>
 
           {/* Canvas Box */}
@@ -1098,193 +1351,157 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
             {/* Render Configured Slot Zones */}
             {zones.map((zone) => {
               const isSelected = selectedZoneId === zone.id;
+              const isMovingThis = dragState?.type === "move" && dragState?.zoneId === zone.id;
+              const cursorStyle = activeTool === "select" ? (isMovingThis ? "grabbing" : "grab") : "crosshair";
 
-              if (zone.type === "shape") {
-                const isPill = zone.shapeType === "pill";
-                return (
-                  <div
-                    key={zone.id}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedZoneId(zone.id);
-                    }}
-                    style={{
-                      position: "absolute",
-                      left: `${zone.x}%`,
-                      top: `${zone.y}%`,
-                      width: `${zone.width}%`,
-                      height: `${zone.height}%`,
-                      backgroundColor: zone.backgroundColor || "rgba(15, 23, 42, 0.75)",
-                      backdropFilter: "blur(6px)",
-                      borderRadius: isPill ? "999px" : zone.borderRadius ? `${zone.borderRadius}px` : "8px",
-                      opacity: zone.opacity ?? 1,
-                      border: isSelected ? "2px solid #7956C9" : "1px dashed rgba(255,255,255,0.4)",
-                      boxShadow: isSelected ? "0 0 0 2px rgba(121, 86, 201, 0.4)" : "none",
-                      zIndex: zone.zIndex || 2,
-                      cursor: "pointer",
-                      boxSizing: "border-box",
-                    }}
-                  >
-                    {isSelected && (
-                      <span
-                        style={{
-                          position: "absolute",
-                          top: "-18px",
-                          left: "0",
-                          backgroundColor: "#7956C9",
-                          color: "#FFFFFF",
-                          fontSize: "9px",
-                          fontWeight: 700,
-                          padding: "1px 5px",
-                          borderRadius: "3px",
-                        }}
-                      >
-                        Shape
-                      </span>
-                    )}
-                  </div>
-                );
-              }
+              return (
+                <div
+                  key={zone.id}
+                  onMouseDown={(e) => handleZoneMouseDown(e, zone)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedZoneId(zone.id);
+                  }}
+                  style={{
+                    position: "absolute",
+                    left: `${zone.x}%`,
+                    top: `${zone.y}%`,
+                    width: `${zone.width}%`,
+                    height: `${zone.height}%`,
+                    zIndex: isSelected ? 45 : zone.zIndex || (zone.type === "shape" ? 2 : zone.type === "photo" ? 4 : 5),
+                    cursor: cursorStyle,
+                    boxSizing: "border-box",
+                    userSelect: "none",
+                    outline: isSelected ? "2px solid #7956C9" : "none",
+                    outlineOffset: "2px",
+                  }}
+                >
+                  {/* Internal Shape Content */}
+                  {zone.type === "shape" && (
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: zone.backgroundColor || "rgba(15, 23, 42, 0.75)",
+                        backdropFilter: "blur(6px)",
+                        borderRadius: zone.shapeType === "pill" ? "999px" : zone.borderRadius ? `${zone.borderRadius}px` : "8px",
+                        opacity: zone.opacity ?? 1,
+                        border: isSelected ? "1.5px solid #7956C9" : "1px dashed rgba(255,255,255,0.4)",
+                        boxSizing: "border-box",
+                      }}
+                    />
+                  )}
 
-              if (zone.type === "photo") {
-                const isCircle = zone.photoShape === "circle";
-                const isSquircle = zone.photoShape === "squircle";
-                const borderRadius = isCircle ? "50%" : isSquircle ? "24%" : "8px";
-                const avatarSrc = previewWithUserData
-                  ? activeTestUser.avatarUrl
-                  : zone.sampleAvatarUrl;
+                  {/* Internal Photo Content */}
+                  {zone.type === "photo" && (() => {
+                    const isCircle = zone.photoShape === "circle";
+                    const isSquircle = zone.photoShape === "squircle";
+                    const borderRadius = isCircle ? "50%" : isSquircle ? "24%" : "8px";
+                    const avatarSrc = previewWithUserData
+                      ? activeTestUser.avatarUrl
+                      : zone.sampleAvatarUrl;
 
-                return (
-                  <div
-                    key={zone.id}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedZoneId(zone.id);
-                    }}
-                    style={{
-                      position: "absolute",
-                      left: `${zone.x}%`,
-                      top: `${zone.y}%`,
-                      width: `${zone.width}%`,
-                      height: `${zone.height}%`,
-                      borderRadius,
-                      border: `${zone.borderWidth ?? 3}px solid ${zone.borderColor || "#FFFFFF"}`,
-                      boxShadow: isSelected
-                        ? "0 0 0 3px #7956C9, 0 8px 18px rgba(0,0,0,0.4)"
-                        : zone.shadow !== false
-                        ? "0 4px 14px rgba(0,0,0,0.35)"
-                        : "none",
-                      overflow: "hidden",
-                      zIndex: zone.zIndex || 4,
-                      backgroundColor: "#FFFFFF",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      boxSizing: "border-box",
-                    }}
-                  >
-                    {avatarSrc ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={avatarSrc}
-                        alt="User Photo Slot"
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      />
-                    ) : (
+                    return (
                       <div
                         style={{
                           width: "100%",
                           height: "100%",
-                          backgroundColor: "#F4F0FB",
+                          borderRadius,
+                          border: `${zone.borderWidth ?? 3}px solid ${zone.borderColor || "#FFFFFF"}`,
+                          boxShadow: isSelected
+                            ? "0 0 0 2px #7956C9, 0 8px 18px rgba(0,0,0,0.4)"
+                            : zone.shadow !== false
+                            ? "0 4px 14px rgba(0,0,0,0.35)"
+                            : "none",
+                          overflow: "hidden",
+                          backgroundColor: "#FFFFFF",
                           display: "flex",
-                          flexDirection: "column",
                           alignItems: "center",
                           justifyContent: "center",
-                          color: "#7956C9",
+                          boxSizing: "border-box",
                         }}
                       >
-                        <Camera size={18} />
-                        <span style={{ fontSize: "8.5px", fontWeight: 700, marginTop: "2px" }}>
-                          Photo Slot
-                        </span>
+                        {avatarSrc ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={avatarSrc}
+                            alt="User Photo Slot"
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              backgroundColor: "#F4F0FB",
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: "#7956C9",
+                            }}
+                          >
+                            <Camera size={18} />
+                            <span style={{ fontSize: "8.5px", fontWeight: 700, marginTop: "2px" }}>
+                              Photo Slot
+                            </span>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    );
+                  })()}
 
-                    {isSelected && (
-                      <span
+                  {/* Internal Text Content */}
+                  {zone.type === "text" && (() => {
+                    let displayText = zone.customText || "Text Slot";
+                    if (previewWithUserData) {
+                      if (zone.textBinding === "name") displayText = activeTestUser.name;
+                      else if (zone.textBinding === "designation") displayText = activeTestUser.designation;
+                      else if (zone.textBinding === "phone") displayText = activeTestUser.phone;
+                      else if (zone.textBinding === "business") displayText = activeTestUser.businessName;
+                    } else {
+                      displayText = `{${zone.textBinding || "text"}}`;
+                    }
+
+                    return (
+                      <div
                         style={{
-                          position: "absolute",
-                          bottom: "2px",
-                          backgroundColor: "rgba(121, 86, 201, 0.9)",
-                          color: "#FFFFFF",
-                          fontSize: "8.5px",
-                          fontWeight: 700,
-                          padding: "1px 6px",
-                          borderRadius: "4px",
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent:
+                            zone.alignment === "left"
+                              ? "flex-start"
+                              : zone.alignment === "right"
+                              ? "flex-end"
+                              : "center",
+                          textAlign: zone.alignment || "center",
+                          color: zone.color || "#FFFFFF",
+                          fontSize: zone.fontSize ? `${zone.fontSize}px` : "13px",
+                          fontWeight: zone.fontWeight || 700,
+                          fontFamily: zone.fontFamily || "Poppins",
+                          textShadow: zone.textShadow !== false ? "0 2px 4px rgba(0,0,0,0.6)" : "none",
+                          border: isSelected ? "1.5px dashed #7956C9" : "1px dashed rgba(255,255,255,0.3)",
+                          backgroundColor: isSelected ? "rgba(121, 86, 201, 0.15)" : "transparent",
+                          padding: "0 4px",
+                          boxSizing: "border-box",
+                          lineHeight: 1.15,
+                          overflow: "hidden",
+                          whiteSpace: "nowrap",
+                          textOverflow: "ellipsis",
                         }}
                       >
-                        Selected
-                      </span>
-                    )}
-                  </div>
-                );
-              }
+                        {displayText}
+                      </div>
+                    );
+                  })()}
 
-              if (zone.type === "text") {
-                let displayText = zone.customText || "Text Slot";
-                if (previewWithUserData) {
-                  if (zone.textBinding === "name") displayText = activeTestUser.name;
-                  else if (zone.textBinding === "designation") displayText = activeTestUser.designation;
-                  else if (zone.textBinding === "phone") displayText = activeTestUser.phone;
-                  else if (zone.textBinding === "business") displayText = activeTestUser.businessName;
-                } else {
-                  displayText = `{${zone.textBinding || "text"}}`;
-                }
-
-                return (
-                  <div
-                    key={zone.id}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedZoneId(zone.id);
-                    }}
-                    style={{
-                      position: "absolute",
-                      left: `${zone.x}%`,
-                      top: `${zone.y}%`,
-                      width: `${zone.width}%`,
-                      height: `${zone.height}%`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent:
-                        zone.alignment === "left"
-                          ? "flex-start"
-                          : zone.alignment === "right"
-                          ? "flex-end"
-                          : "center",
-                      textAlign: zone.alignment || "center",
-                      color: zone.color || "#FFFFFF",
-                      fontSize: zone.fontSize ? `${zone.fontSize}px` : "13px",
-                      fontWeight: zone.fontWeight || 700,
-                      fontFamily: zone.fontFamily || "Poppins",
-                      textShadow: zone.textShadow !== false ? "0 2px 4px rgba(0,0,0,0.6)" : "none",
-                      border: isSelected ? "1.5px dashed #7956C9" : "1px dashed rgba(255,255,255,0.3)",
-                      backgroundColor: isSelected ? "rgba(121, 86, 201, 0.15)" : "transparent",
-                      zIndex: zone.zIndex || 5,
-                      padding: "0 4px",
-                      boxSizing: "border-box",
-                      lineHeight: 1.15,
-                      overflow: "hidden",
-                      whiteSpace: "nowrap",
-                      textOverflow: "ellipsis",
-                      cursor: "pointer",
-                    }}
-                  >
-                    {displayText}
-                  </div>
-                );
-              }
+                  {/* 8-Point Resize Handles & Floating Coordinates Badge */}
+                  {isSelected && renderResizeHandles(zone)}
+                </div>
+              );
+            })}
 
               return null;
             })}
@@ -1475,8 +1692,9 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                     type="number"
                     min="0"
                     max="100"
+                    step="0.5"
                     value={selectedZone.x}
-                    onChange={(e) => updateSelectedZone({ x: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) => updateSelectedZone({ x: Math.max(0, Math.min(100 - selectedZone.width, parseFloat(e.target.value) || 0)) })}
                     style={{ width: "100%", height: "30px", borderRadius: "5px", border: "1px solid #EAE4EE", padding: "0 6px", fontSize: "12px" }}
                   />
                 </div>
@@ -1486,8 +1704,9 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                     type="number"
                     min="0"
                     max="100"
+                    step="0.5"
                     value={selectedZone.y}
-                    onChange={(e) => updateSelectedZone({ y: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) => updateSelectedZone({ y: Math.max(0, Math.min(100 - selectedZone.height, parseFloat(e.target.value) || 0)) })}
                     style={{ width: "100%", height: "30px", borderRadius: "5px", border: "1px solid #EAE4EE", padding: "0 6px", fontSize: "12px" }}
                   />
                 </div>
@@ -1497,8 +1716,9 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                     type="number"
                     min="1"
                     max="100"
+                    step="0.5"
                     value={selectedZone.width}
-                    onChange={(e) => updateSelectedZone({ width: parseFloat(e.target.value) || 10 })}
+                    onChange={(e) => updateSelectedZone({ width: Math.max(3, Math.min(100 - selectedZone.x, parseFloat(e.target.value) || 10)) })}
                     style={{ width: "100%", height: "30px", borderRadius: "5px", border: "1px solid #EAE4EE", padding: "0 6px", fontSize: "12px" }}
                   />
                 </div>
@@ -1508,10 +1728,87 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                     type="number"
                     min="1"
                     max="100"
+                    step="0.5"
                     value={selectedZone.height}
-                    onChange={(e) => updateSelectedZone({ height: parseFloat(e.target.value) || 10 })}
+                    onChange={(e) => updateSelectedZone({ height: Math.max(3, Math.min(100 - selectedZone.y, parseFloat(e.target.value) || 10)) })}
                     style={{ width: "100%", height: "30px", borderRadius: "5px", border: "1px solid #EAE4EE", padding: "0 6px", fontSize: "12px" }}
                   />
+                </div>
+              </div>
+
+              {/* Quick Nudge & Alignment Toolbar */}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "8px",
+                  padding: "10px",
+                  borderRadius: "8px",
+                  backgroundColor: "#F9F8FC",
+                  border: "1px solid #EAE4EE",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: "#543399" }}>
+                    Nudge & Alignment
+                  </span>
+                  <span style={{ fontSize: "10px", color: "#8E8899" }}>Or drag on canvas</span>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "4px" }}>
+                  <button
+                    type="button"
+                    onClick={() => updateSelectedZone({ x: Math.max(0, Math.round((selectedZone.x - 1) * 10) / 10) })}
+                    style={{ padding: "5px 0", borderRadius: "4px", border: "1px solid #D2C4ED", backgroundColor: "#FFFFFF", cursor: "pointer", fontSize: "11px", fontWeight: 700, color: "#24213A" }}
+                    title="Nudge Left 1%"
+                  >
+                    ◀ Left
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateSelectedZone({ x: Math.min(100 - selectedZone.width, Math.round((selectedZone.x + 1) * 10) / 10) })}
+                    style={{ padding: "5px 0", borderRadius: "4px", border: "1px solid #D2C4ED", backgroundColor: "#FFFFFF", cursor: "pointer", fontSize: "11px", fontWeight: 700, color: "#24213A" }}
+                    title="Nudge Right 1%"
+                  >
+                    ▶ Right
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateSelectedZone({ y: Math.max(0, Math.round((selectedZone.y - 1) * 10) / 10) })}
+                    style={{ padding: "5px 0", borderRadius: "4px", border: "1px solid #D2C4ED", backgroundColor: "#FFFFFF", cursor: "pointer", fontSize: "11px", fontWeight: 700, color: "#24213A" }}
+                    title="Nudge Up 1%"
+                  >
+                    ▲ Up
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateSelectedZone({ y: Math.min(100 - selectedZone.height, Math.round((selectedZone.y + 1) * 10) / 10) })}
+                    style={{ padding: "5px 0", borderRadius: "4px", border: "1px solid #D2C4ED", backgroundColor: "#FFFFFF", cursor: "pointer", fontSize: "11px", fontWeight: 700, color: "#24213A" }}
+                    title="Nudge Down 1%"
+                  >
+                    ▼ Down
+                  </button>
+                </div>
+
+                <div style={{ display: "flex", gap: "6px" }}>
+                  <button
+                    type="button"
+                    onClick={() => updateSelectedZone({ x: Math.round(((100 - selectedZone.width) / 2) * 10) / 10 })}
+                    style={{ flex: 1, padding: "5px 0", borderRadius: "4px", border: "1px solid #E4DCF2", backgroundColor: "#FFFFFF", cursor: "pointer", fontSize: "10.5px", fontWeight: 600, color: "#543399" }}
+                  >
+                    Center Horizontally
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateSelectedZone({ y: Math.round(((100 - selectedZone.height) / 2) * 10) / 10 })}
+                    style={{ flex: 1, padding: "5px 0", borderRadius: "4px", border: "1px solid #E4DCF2", backgroundColor: "#FFFFFF", cursor: "pointer", fontSize: "10.5px", fontWeight: 600, color: "#543399" }}
+                  >
+                    Center Vertically
+                  </button>
+                </div>
+
+                <div style={{ fontSize: "10px", color: "#6E687A", lineHeight: 1.3, marginTop: "2px" }}>
+                  💡 <strong>Tip:</strong> Click & drag any element directly on the canvas to move it freely, drag 8 corner handles to resize, or use keyboard arrow keys.
                 </div>
               </div>
 
