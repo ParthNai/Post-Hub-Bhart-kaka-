@@ -1,0 +1,354 @@
+{
+  "summary": {
+    "totalTransactions": 12480,
+    "successfulTransactions": 11962,
+    "reversedTransactions": 148,
+    "pendingTransactions": 27,
+    "reportingPeriod": "Last 30 Days",
+    "lastUpdated": "19 Nov 2026 • 10:45 AM"
+  },
+  "transactions": [
+    {
+      "id": "TXN-8F21",
+      "userId": "usr_20478",
+      "userName": "Ananya Shah",
+      "userEmail": "ananya.shah@posthub.io",
+      "transactionType": "Credit Purchase",
+      "creditChange": 500,
+      "previousBalance": 120,
+      "resultingBalance": 620,
+      "source": "Razorpay",
+      "date": "19 Nov 10:42",
+      "timestamp": 1795066320000,
+      "fullDateTime": "19 Nov 2026 10:42:15 AM",
+      "status": "Successful",
+      "relatedRequest": "ORD-9418",
+      "administrator": "—",
+      "note": "Successful online purchase of 500 Starter generation credits.",
+      "timeline": [
+        {
+          "id": "tl-21-1",
+          "title": "Transaction Initiated",
+          "timestamp": "19 Nov 10:42:01 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-21-2",
+          "title": "Gateway Payment Confirmed",
+          "timestamp": "19 Nov 10:42:05 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-21-3",
+          "title": "Ledger Entry Recorded",
+          "timestamp": "19 Nov 10:42:10 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-21-4",
+          "title": "Balance Updated",
+          "timestamp": "19 Nov 10:42:12 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-21-5",
+          "title": "Final Status: Successful",
+          "timestamp": "19 Nov 10:42:15 AM",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "id": "TXN-8F20",
+      "userId": "usr_20481",
+      "userName": "Rahul Mehta",
+      "userEmail": "rahul.mehta@example.com",
+      "transactionType": "AI Generation Usage",
+      "creditChange": -25,
+      "previousBalance": 620,
+      "resultingBalance": 595,
+      "source": "Generation",
+      "date": "19 Nov 10:38",
+      "timestamp": 1795066080000,
+      "fullDateTime": "19 Nov 2026 10:38:24 AM",
+      "status": "Successful",
+      "relatedRequest": "GEN-7C91",
+      "administrator": "—",
+      "note": "Credits deducted after successful image generation.",
+      "timeline": [
+        {
+          "id": "tl-20-1",
+          "title": "Transaction Initiated",
+          "timestamp": "19 Nov 10:38:20 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-20-2",
+          "title": "Validation Completed",
+          "timestamp": "19 Nov 10:38:21 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-20-3",
+          "title": "Ledger Entry Recorded",
+          "timestamp": "19 Nov 10:38:22 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-20-4",
+          "title": "Balance Updated",
+          "timestamp": "19 Nov 10:38:23 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-20-5",
+          "title": "Final Status: Successful",
+          "timestamp": "19 Nov 10:38:24 AM",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "id": "TXN-8F19",
+      "userId": "usr_20492",
+      "userName": "Neha Patel",
+      "userEmail": "neha.patel@posthub.io",
+      "transactionType": "Promotional Credit",
+      "creditChange": 100,
+      "previousBalance": 520,
+      "resultingBalance": 620,
+      "source": "Promo",
+      "date": "19 Nov 10:35",
+      "timestamp": 1795065900000,
+      "fullDateTime": "19 Nov 2026 10:35:48 AM",
+      "status": "Successful",
+      "relatedRequest": "CMP-DIWALI",
+      "administrator": "system.campaign",
+      "note": "Promotional festival campaign reward credited automatically.",
+      "timeline": [
+        {
+          "id": "tl-19-1",
+          "title": "Transaction Initiated",
+          "timestamp": "19 Nov 10:35:40 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-19-2",
+          "title": "Eligibility Validated",
+          "timestamp": "19 Nov 10:35:42 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-19-3",
+          "title": "Ledger Entry Recorded",
+          "timestamp": "19 Nov 10:35:44 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-19-4",
+          "title": "Balance Updated",
+          "timestamp": "19 Nov 10:35:46 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-19-5",
+          "title": "Final Status: Successful",
+          "timestamp": "19 Nov 10:35:48 AM",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "id": "TXN-8F18",
+      "userId": "usr_20503",
+      "userName": "Dev Joshi",
+      "userEmail": "dev.joshi@gmail.com",
+      "transactionType": "Admin Credit Grant",
+      "creditChange": 200,
+      "previousBalance": 320,
+      "resultingBalance": 520,
+      "source": "Admin",
+      "date": "19 Nov 10:30",
+      "timestamp": 1795065600000,
+      "fullDateTime": "19 Nov 2026 10:30:12 AM",
+      "status": "Successful",
+      "relatedRequest": "AUD-00381",
+      "administrator": "admin.ops@posthub",
+      "note": "Customer support compensation granted following resolution of ticket #4192.",
+      "timeline": [
+        {
+          "id": "tl-18-1",
+          "title": "Transaction Initiated",
+          "timestamp": "19 Nov 10:30:02 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-18-2",
+          "title": "Admin Authorization Verified",
+          "timestamp": "19 Nov 10:30:05 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-18-3",
+          "title": "Ledger Entry Recorded",
+          "timestamp": "19 Nov 10:30:08 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-18-4",
+          "title": "Balance Updated",
+          "timestamp": "19 Nov 10:30:10 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-18-5",
+          "title": "Final Status: Successful",
+          "timestamp": "19 Nov 10:30:12 AM",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "id": "TXN-8F17",
+      "userId": "usr_20478",
+      "userName": "Ananya Shah",
+      "userEmail": "ananya.shah@posthub.io",
+      "transactionType": "Credit Reversal",
+      "creditChange": 25,
+      "previousBalance": 95,
+      "resultingBalance": 120,
+      "source": "System",
+      "date": "19 Nov 10:28",
+      "timestamp": 1795065480000,
+      "fullDateTime": "19 Nov 2026 10:28:44 AM",
+      "status": "Reversed",
+      "relatedRequest": "GEN-7C88",
+      "administrator": "system.recovery",
+      "note": "Automatic credit reversal for generation request that encountered upstream worker timeout.",
+      "timeline": [
+        {
+          "id": "tl-17-1",
+          "title": "Generation Failure Detected",
+          "timestamp": "19 Nov 10:28:35 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-17-2",
+          "title": "Auto-Reversal Triggered",
+          "timestamp": "19 Nov 10:28:38 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-17-3",
+          "title": "Ledger Entry Recorded",
+          "timestamp": "19 Nov 10:28:40 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-17-4",
+          "title": "Balance Restored",
+          "timestamp": "19 Nov 10:28:42 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-17-5",
+          "title": "Final Status: Reversed",
+          "timestamp": "19 Nov 10:28:44 AM",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "id": "TXN-8F16",
+      "userId": "usr_20481",
+      "userName": "Rahul Mehta",
+      "userEmail": "rahul.mehta@example.com",
+      "transactionType": "Credit Expiry",
+      "creditChange": -10,
+      "previousBalance": 210,
+      "resultingBalance": 200,
+      "source": "System",
+      "date": "19 Nov 10:25",
+      "timestamp": 1795065300000,
+      "fullDateTime": "19 Nov 2026 10:25:02 AM",
+      "status": "Successful",
+      "relatedRequest": "EXP-BATCH-99",
+      "administrator": "system.cron",
+      "note": "Expired 90-day promotional grant credits deducted per platform policy.",
+      "timeline": [
+        {
+          "id": "tl-16-1",
+          "title": "Expiry Evaluation Started",
+          "timestamp": "19 Nov 10:25:00 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-16-2",
+          "title": "Ledger Entry Recorded",
+          "timestamp": "19 Nov 10:25:01 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-16-3",
+          "title": "Balance Updated",
+          "timestamp": "19 Nov 10:25:01 AM",
+          "status": "completed"
+        },
+        {
+          "id": "tl-16-4",
+          "title": "Final Status: Successful",
+          "timestamp": "19 Nov 10:25:02 AM",
+          "status": "completed"
+        }
+      ]
+    }
+  ],
+  "auditEvents": [
+    {
+      "id": "AUD-00381",
+      "administrator": "admin.ops@posthub",
+      "actionPerformed": "Grant Credits",
+      "targetEntity": "usr_20481",
+      "previousValue": 100,
+      "newValue": 200,
+      "reason": "Customer support adjustment",
+      "timestamp": "19 Nov 10:32",
+      "rawTimestamp": 1795065720000,
+      "relatedTransactionId": "TXN-8F18"
+    },
+    {
+      "id": "AUD-00380",
+      "administrator": "security.lead@posthub",
+      "actionPerformed": "Update Expiry Rule",
+      "targetEntity": "rule_promo_expiry",
+      "previousValue": "60 Days",
+      "newValue": "90 Days",
+      "reason": "Policy harmonization for festival season",
+      "timestamp": "18 Nov 16:45",
+      "rawTimestamp": 1794998700000
+    },
+    {
+      "id": "AUD-00379",
+      "administrator": "billing.admin@posthub",
+      "actionPerformed": "Update Plan Price",
+      "targetEntity": "plan-creator",
+      "previousValue": "$29.99",
+      "newValue": "$24.99",
+      "reason": "Promotional discount deployment",
+      "timestamp": "18 Nov 14:10",
+      "rawTimestamp": 1794989400000
+    },
+    {
+      "id": "AUD-00378",
+      "administrator": "admin.ops@posthub",
+      "actionPerformed": "Manual Balance Audit",
+      "targetEntity": "usr_20478",
+      "previousValue": "Unverified",
+      "newValue": "Reconciled",
+      "reason": "Periodic integrity verification",
+      "timestamp": "17 Nov 11:20",
+      "rawTimestamp": 1794892800000
+    }
+  ],
+  "lastUpdated": "Nov 19, 2026 • 11:58 AM"
+}

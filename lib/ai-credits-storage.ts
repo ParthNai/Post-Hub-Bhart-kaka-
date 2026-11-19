@@ -401,7 +401,8 @@ export function queryTransactions(
         t.id.toLowerCase().includes(q) ||
         t.userName.toLowerCase().includes(q) ||
         t.userEmail.toLowerCase().includes(q) ||
-        t.reason.toLowerCase().includes(q)
+        t.reason.toLowerCase().includes(q) ||
+        t.source.toLowerCase().includes(q)
     );
   }
 
