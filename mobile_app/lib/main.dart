@@ -148,6 +148,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         rememberMe: _rememberMe,
       );
       if (!mounted) return;
+      FocusManager.instance.primaryFocus?.unfocus();
       Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
           builder: (_) => HomePage(authService: widget.authService, user: user),
@@ -176,6 +177,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   }
 
   void _startDemoLogin() {
+    FocusManager.instance.primaryFocus?.unfocus();
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
         builder: (_) => HomePage(
@@ -195,6 +197,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: _background,
       body: SafeArea(
         child: LayoutBuilder(
@@ -1720,6 +1723,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: _background,
       body: SafeArea(
         child: Column(
