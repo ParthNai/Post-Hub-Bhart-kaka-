@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { RefreshCw, Settings, Download, ChevronRight, Bell } from "lucide-react";
+import { RefreshCw, Settings, Download, ChevronRight, Bell, Shield } from "lucide-react";
 
 interface ImagesHeaderProps {
   onRefresh: () => void;
@@ -76,6 +76,14 @@ export function ImagesHeader({
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
+          <Link
+            href="/admin/ai-generation/policies"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-[#FAF7F2] text-[#24213A] border border-[#EAE4EE] hover:border-[#7956C9]/40 text-xs font-medium rounded-lg shadow-xs transition-colors"
+          >
+            <Shield className="w-3.5 h-3.5 text-[#777184]" />
+            <span>Moderation Policies</span>
+          </Link>
+
           <button
             type="button"
             onClick={onRefresh}
