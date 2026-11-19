@@ -53,6 +53,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const isActuallyMobileOpen = isOpen !== undefined ? isOpen : isMobileOpen;
   const handleClose = onClose || (() => setMobileOpen(false));
 
+  const [expandedNav, setExpandedNav] = React.useState<Record<string, boolean>>({ templates: true });
+  const toggleSubmenu = (id: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setExpandedNav(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   return (
     <>
       {/* Mobile Backdrop */}
@@ -171,50 +178,130 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         >
           {ADMIN_NAV_ITEMS.map((item: NavItem) => {
             const Icon = ICON_MAP[item.iconName] || LayoutGrid;
+            const hasSub = item.subItems && item.subItems.length > 0;
+            const isSubActive = hasSub && item.subItems!.some((s) => pathname === s.href);
+            const isTemplatesActive = item.id === "templates" && pathname.startsWith("/admin/templates");
             const isActive =
               item.href === "/admin/dashboard"
                 ? pathname === "/admin/dashboard" || pathname === "/admin"
-                : pathname === item.href || pathname.startsWith(item.href + "/");
+                : pathname === item.href || (pathname.startsWith(item.href + "/") && !hasSub);
+
+            const isExpanded = expandedNav[item.id] ?? isTemplatesActive;
 
             return (
-              <Link
-                key={item.id}
-                href={item.href}
-                onClick={onClose}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  padding: "9px 14px",
-                  borderRadius: "8px",
-                  fontSize: "13.5px",
-                  fontWeight: isActive ? 600 : 500,
-                  color: isActive ? "var(--primary)" : "var(--text-muted)",
-                  backgroundColor: isActive ? "var(--secondary)" : "transparent",
-                  transition: "all 0.15s ease",
-                  textDecoration: "none",
-                }}
-                className={`nav-link-item ${isActive ? "active" : ""}`}
-                title={item.label}
-              >
-                <Icon
-                  size={18}
+              <div key={item.id} style={{ display: "flex", flexDirection: "column" }}>
+                <Link
+                  href={item.href}
+                  onClick={onClose}
                   style={{
-                    color: isActive ? "var(--primary)" : "var(--text-muted)",
-                    flexShrink: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "12px",
+                    padding: "9px 14px",
+                    borderRadius: "8px",
+                    fontSize: "13.5px",
+                    fontWeight: (isActive || isSubActive || isTemplatesActive) ? 600 : 500,
+                    color: (isActive || isSubActive || isTemplatesActive) ? "var(--primary)" : "var(--text-muted)",
+                    backgroundColor: (isActive && !hasSub) ? "var(--secondary)" : (hasSub && isSubActive && pathname === "/admin/templates") ? "var(--secondary)" : "transparent",
+                    transition: "all 0.15s ease",
+                    textDecoration: "none",
                   }}
-                  strokeWidth={isActive ? 2.2 : 1.9}
-                />
-                <span
-                  style={{
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
+                  className={`nav-link-item ${isActive ? "active" : ""}`}
+                  title={item.label}
                 >
-                  {item.label}
-                </span>
-              </Link>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
+                    <Icon
+                      size={18}
+                      style={{
+                        color: (isActive || isSubActive || isTemplatesActive) ? "var(--primary)" : "var(--text-muted)",
+                        flexShrink: 0,
+                      }}
+                      strokeWidth={(isActive || isSubActive || isTemplatesActive) ? 2.2 : 1.9}
+                    />
+                    <span
+                      style={{
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {item.label}
+                    </span>
+                  </div>
+                  {hasSub && (
+                    <button
+                      type="button"
+                      onClick={(e) => toggleSubmenu(item.id, e)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        padding: "2px",
+                        cursor: "pointer",
+                        color: (isActive || isSubActive || isTemplatesActive) ? "var(--primary)" : "var(--text-muted)",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <ChevronDown
+                        size={15}
+                        style={{
+                          transform: isExpanded ? "rotate(0deg)" : "rotate(-90deg)",
+                          transition: "transform 0.2s ease",
+                        }}
+                      />
+                    </button>
+                  )}
+                </Link>
+
+                {hasSub && isExpanded && (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "2px",
+                      marginTop: "2px",
+                      marginBottom: "4px",
+                      paddingLeft: "24px",
+                    }}
+                  >
+                    {item.subItems!.map((sub) => {
+                      const isChildActive = pathname === sub.href;
+                      return (
+                        <Link
+                          key={sub.id}
+                          href={sub.href}
+                          onClick={onClose}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            padding: "6px 12px",
+                            borderRadius: "6px",
+                            fontSize: "13px",
+                            fontWeight: isChildActive ? 600 : 400,
+                            color: isChildActive ? "var(--primary)" : "var(--text-muted)",
+                            backgroundColor: isChildActive ? "var(--secondary)" : "transparent",
+                            textDecoration: "none",
+                            transition: "all 0.15s ease",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: "14px",
+                              lineHeight: 1,
+                              color: isChildActive ? "var(--primary)" : "var(--text-muted)",
+                            }}
+                          >
+                            •
+                          </span>
+                          <span>{sub.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>

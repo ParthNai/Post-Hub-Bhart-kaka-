@@ -1,0 +1,6 @@
+{
+  "maxConcurrentGenerations": 5,
+  "defaultAspectRatio": "4:5",
+  "safetyFilter": "standard",
+  "autoRetryFailed": false
+}

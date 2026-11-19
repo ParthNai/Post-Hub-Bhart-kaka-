@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { PosterTemplate, TemplateFilterParams, filterAndSortTemplates, calculateTemplateMetrics } from "@/lib/templates";
 import { TemplatesHeader } from "./TemplatesHeader";
 import { TemplatesMetricsRow } from "./TemplatesMetricsRow";
@@ -9,7 +10,6 @@ import { TemplateCard } from "./TemplateCard";
 import { TemplatePreviewDrawer } from "./TemplatePreviewDrawer";
 import { EmptyStateCard } from "./EmptyStateCard";
 import { CreateTemplateModal } from "./CreateTemplateModal";
-import { EditTemplateModal } from "./EditTemplateModal";
 import { CategoriesModal } from "./CategoriesModal";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { FullPreviewModal } from "./FullPreviewModal";
@@ -17,9 +17,14 @@ import { CheckCircle2, AlertCircle } from "lucide-react";
 
 interface TemplatesViewProps {
   initialTemplates: PosterTemplate[];
+  initialCategory?: string;
 }
 
-export const TemplatesView: React.FC<TemplatesViewProps> = ({ initialTemplates }) => {
+export const TemplatesView: React.FC<TemplatesViewProps> = ({
+  initialTemplates,
+  initialCategory = "All Categories",
+}) => {
+  const router = useRouter();
   const [templates, setTemplates] = useState<PosterTemplate[]>(initialTemplates);
   // Default selected template is TPL-001 matching the approved reference screenshot
   const [selectedTemplate, setSelectedTemplate] = useState<PosterTemplate | null>(
@@ -31,7 +36,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({ initialTemplates }
   // Filters state
   const [filters, setFilters] = useState<TemplateFilterParams>({
     query: "",
-    category: "All Categories",
+    category: initialCategory,
     status: "All Statuses",
     format: "All Formats",
     sort: "Recently Updated",
@@ -39,7 +44,6 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({ initialTemplates }
 
   // Modals state
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isFullPreviewOpen, setIsFullPreviewOpen] = useState(false);
@@ -110,10 +114,9 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({ initialTemplates }
     setIsFullPreviewOpen(true);
   };
 
-  // Modal Triggers
+  // Modal / Navigation Triggers
   const handleOpenEdit = (template: PosterTemplate) => {
-    setActiveTemplate(template);
-    setIsEditOpen(true);
+    router.push(`/admin/templates/${template.id}/edit`);
   };
 
   const handleOpenDelete = (template: PosterTemplate) => {
@@ -148,6 +151,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({ initialTemplates }
     }
   };
 
+  // handleUpdateTemplate is wired for future modal updates
   const handleUpdateTemplate = async (id: string, updates: Partial<PosterTemplate>) => {
     try {
       const res = await fetch("/api/admin/templates", {
@@ -174,6 +178,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({ initialTemplates }
       };
     }
   };
+  void handleUpdateTemplate;
 
   const handleDuplicateTemplate = async (template: PosterTemplate) => {
     try {
@@ -390,14 +395,6 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({ initialTemplates }
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         onCreate={handleCreateTemplate}
-      />
-
-      <EditTemplateModal
-        key={activeTemplate?.id || "empty-modal"}
-        template={activeTemplate}
-        isOpen={isEditOpen}
-        onClose={() => setIsEditOpen(false)}
-        onUpdate={handleUpdateTemplate}
       />
 
       <CategoriesModal

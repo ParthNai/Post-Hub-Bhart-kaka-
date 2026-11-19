@@ -125,6 +125,13 @@ export function createTemplate(
     accentColor: data.accentColor || "#6846B5",
     tags: data.tags || [data.category || "Business", "Poster"],
     aspectRatio: data.format || "3:4",
+    assetFileName: data.assetFileName || `${newId.toLowerCase()}-poster.jpg`,
+    assetDimensions: data.assetDimensions || "1024 × 1365 px",
+    editableTextFields: data.editableTextFields || ["Title", "Subtitle"],
+    textColours: data.textColours || ["#1E3A8A", "#7956C9", "#24213A", "#FFFFFF"],
+    fontSelection: data.fontSelection || "Poppins",
+    imageSlots: data.imageSlots || ["Main Image", "Logo"],
+    alignment: data.alignment || "Center",
   };
 
   templates.unshift(newTemplate);
@@ -158,6 +165,62 @@ export function updateTemplate(
     id: existing.id, // ID cannot be overwritten
     updatedAt: formatCurrentDate(),
     aspectRatio: updates.format || existing.format,
+  };
+
+  templates[index] = updated;
+  saveTemplates(templates);
+
+  return { success: true, template: updated };
+}
+
+/**
+ * Publish template (sets status: "Published")
+ */
+export function publishTemplate(id: string): {
+  success: boolean;
+  template?: PosterTemplate;
+  error?: string;
+} {
+  const templates = getTemplates();
+  const index = templates.findIndex((t) => t.id === id);
+  if (index === -1) {
+    return { success: false, error: `Template with ID "${id}" was not found.` };
+  }
+
+  const existing = templates[index];
+  const updated: PosterTemplate = {
+    ...existing,
+    status: "Published",
+    updatedAt: formatCurrentDate(),
+  };
+
+  templates[index] = updated;
+  saveTemplates(templates);
+
+  return { success: true, template: updated };
+}
+
+/**
+ * Replace template asset
+ */
+export function replaceTemplateAsset(
+  id: string,
+  asset: { fileName: string; dimensions?: string; fileSize?: string; url?: string }
+): { success: boolean; template?: PosterTemplate; error?: string } {
+  const templates = getTemplates();
+  const index = templates.findIndex((t) => t.id === id);
+  if (index === -1) {
+    return { success: false, error: `Template with ID "${id}" was not found.` };
+  }
+
+  const existing = templates[index];
+  const updated: PosterTemplate = {
+    ...existing,
+    assetFileName: asset.fileName,
+    assetDimensions: asset.dimensions || existing.assetDimensions,
+    fileSize: asset.fileSize || existing.fileSize,
+    assetUrl: asset.url || existing.assetUrl,
+    updatedAt: formatCurrentDate(),
   };
 
   templates[index] = updated;

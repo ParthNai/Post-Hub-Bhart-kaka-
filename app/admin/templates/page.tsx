@@ -10,14 +10,25 @@ export const metadata = {
   description: "Browse, filter, create, and manage poster templates, categories, assets and publishing status.",
 };
 
-export default async function AdminTemplatesPage() {
+export default async function AdminTemplatesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ category?: string }>;
+}) {
   const session = await getSession({ allowDevBypass: true });
 
   if (!session || (session.role !== "admin" && session.role !== "superadmin")) {
     redirect("/admin/login");
   }
 
+  const resolvedParams = searchParams ? await searchParams : {};
   const templates = getTemplates();
 
-  return <TemplatesView initialTemplates={templates} />;
+  return (
+    <TemplatesView
+      initialTemplates={templates}
+      initialCategory={resolvedParams.category || "All Categories"}
+    />
+  );
 }
+

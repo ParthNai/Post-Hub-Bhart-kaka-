@@ -12,6 +12,8 @@ import {
   duplicateTemplate,
   toggleArchiveTemplate,
   deleteTemplate,
+  publishTemplate,
+  replaceTemplateAsset,
   resetTemplates,
 } from "@/lib/templates-storage";
 
@@ -136,6 +138,36 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    if (action === "publish") {
+      if (!body.id) {
+        return NextResponse.json({ error: "Template ID is required." }, { status: 400 });
+      }
+      const res = publishTemplate(body.id);
+      if (!res.success) {
+        return NextResponse.json({ error: res.error }, { status: 400 });
+      }
+      return NextResponse.json({
+        success: true,
+        template: res.template,
+        metrics: calculateTemplateMetrics(getTemplates()),
+      });
+    }
+
+    if (action === "replace-asset") {
+      if (!body.id || !body.asset) {
+        return NextResponse.json({ error: "Template ID and asset details are required." }, { status: 400 });
+      }
+      const res = replaceTemplateAsset(body.id, body.asset);
+      if (!res.success) {
+        return NextResponse.json({ error: res.error }, { status: 400 });
+      }
+      return NextResponse.json({
+        success: true,
+        template: res.template,
+        metrics: calculateTemplateMetrics(getTemplates()),
+      });
+    }
+
     if (action === "reset") {
       resetTemplates();
       return NextResponse.json({
@@ -154,3 +186,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+

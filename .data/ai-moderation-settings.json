@@ -1,0 +1,8 @@
+{
+  "autoApproveSafe": false,
+  "strictnessLevel": "standard",
+  "flagNudity": true,
+  "flagHateSpeech": true,
+  "flagViolence": true,
+  "retentionDays": 90
+}

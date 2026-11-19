@@ -9,9 +9,9 @@
     "failedAttempts": 0,
     "createdAt": "2026-10-28T07:51:10.286Z",
     "lockedUntil": null,
-    "lastLoginAt": "2026-11-16T05:25:40.752Z",
-    "resetToken": "a4e5f2bb9830cb214164ebc5351a354820dd5837596b81f283da0ccc2efdeadc",
-    "resetTokenExpiry": 1794807494344
+    "lastLoginAt": "2026-11-19T05:30:56.376Z",
+    "resetToken": "58022aec0a0b9da6ceb6458ce93fbb48ca3a7bbb034232ed4096c3c4031b617a",
+    "resetTokenExpiry": 1793269414688
   },
   {
     "id": "usr_admin_002",

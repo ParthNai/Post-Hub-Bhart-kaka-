@@ -1,0 +1,557 @@
+[
+  {
+    "id": "REV-20251102-001",
+    "version": "v2.1.0",
+    "timestamp": "Nov 2, 2025 • 4:30 PM",
+    "updatedBy": "Parth Patel (Administrator)",
+    "summary": "Updated explicit content trigger and added copyright detection rule.",
+    "globals": {
+      "enableModerationWorkflow": true,
+      "automaticModerationAvailability": true,
+      "manualReviewRequirement": true,
+      "defaultModerationBehavior": "Flag for Review",
+      "unknownResultHandling": "Treat as Suspicious",
+      "policyVersion": "v2.1.0",
+      "lastUpdated": "Nov 2, 2025 • 4:30 PM",
+      "status": "live"
+    },
+    "categories": [
+      {
+        "id": "cat-unsafe",
+        "name": "Unsafe or Harmful Imagery",
+        "description": "Blocks dangerous content.",
+        "iconType": "unsafe",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Reject",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-explicit",
+        "name": "Explicit or Adult Content",
+        "description": "Restricts adult content.",
+        "iconType": "explicit",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Reject",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-hate",
+        "name": "Hate or Harassment",
+        "description": "Prevents hate content.",
+        "iconType": "hate",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Flag",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-violence",
+        "name": "Violent or Disturbing Imagery",
+        "description": "Blocks violent content.",
+        "iconType": "violence",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Reject",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-copyright",
+        "name": "Copyright & Brand Misuse",
+        "description": "Protects IP rights.",
+        "iconType": "copyright",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Flag",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-misleading",
+        "name": "Misleading or Fraudulent Content",
+        "description": "Prevents scams.",
+        "iconType": "misleading",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Flag",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-sensitive",
+        "name": "Sensitive Personal Information",
+        "description": "Protects personal data.",
+        "iconType": "sensitive",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Reject",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-other",
+        "name": "Other Policy Violations",
+        "description": "Covers other issues.",
+        "iconType": "other",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Flag",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      }
+    ],
+    "rules": [
+      {
+        "id": "rule-explicit",
+        "name": "Explicit Content Rule",
+        "triggerCondition": "Adult content detected",
+        "detectionSource": "Vision AI",
+        "severity": "High",
+        "resultingAction": "Reject",
+        "enabled": true,
+        "description": "Instantly rejects content triggering adult/explicit vision detectors.",
+        "order": 1
+      },
+      {
+        "id": "rule-violence",
+        "name": "Violence Detection",
+        "triggerCondition": "Violent imagery found",
+        "detectionSource": "Vision AI",
+        "severity": "High",
+        "resultingAction": "Flag for Review",
+        "enabled": true,
+        "description": "Flags violent or disturbing imagery for secondary human inspection.",
+        "order": 2
+      },
+      {
+        "id": "rule-hate",
+        "name": "Hate Speech",
+        "triggerCondition": "Hate content detected",
+        "detectionSource": "Vision AI + NLP",
+        "severity": "Medium",
+        "resultingAction": "Reject",
+        "enabled": true,
+        "description": "Rejects hate symbols or derogatory textual overlays in posters.",
+        "order": 3
+      },
+      {
+        "id": "rule-copyright",
+        "name": "Copyright Content",
+        "triggerCondition": "Copyright logo detected",
+        "detectionSource": "Vision AI",
+        "severity": "Low",
+        "resultingAction": "Flag for Review",
+        "enabled": true,
+        "description": "Flags trademarked logos or brand marks for compliance verification.",
+        "order": 4
+      }
+    ],
+    "reasons": [
+      {
+        "id": "rej-policy",
+        "category": "Policy Violation",
+        "description": "Violates content policy",
+        "status": "Active",
+        "usageCount": 28
+      },
+      {
+        "id": "rej-copyright",
+        "category": "Copyright Concern",
+        "description": "Infringes copyright",
+        "status": "Active",
+        "usageCount": 14
+      },
+      {
+        "id": "rej-inappropriate",
+        "category": "Inappropriate Content",
+        "description": "Inappropriate content",
+        "status": "Active",
+        "usageCount": 19
+      },
+      {
+        "id": "rej-misleading",
+        "category": "Misleading Content",
+        "description": "False or misleading",
+        "status": "Active",
+        "usageCount": 8
+      },
+      {
+        "id": "rej-quality",
+        "category": "Quality Issue",
+        "description": "Low quality or blurry",
+        "status": "Active",
+        "usageCount": 7
+      },
+      {
+        "id": "rej-other",
+        "category": "Other",
+        "description": "Other reasons",
+        "status": "Active",
+        "usageCount": 3
+      }
+    ],
+    "manualReview": {
+      "reviewRequiredConditions": "On Policy Violation or Uncertain Result",
+      "reviewerRole": "Content Moderator",
+      "reviewPriority": "High for Harmful Content",
+      "escalationRules": "After 24 Hours",
+      "reviewDecisionRequired": true
+    },
+    "errorHandling": {
+      "serviceUnavailable": "Allow with Warning",
+      "timeout": "Flag for Review",
+      "inconclusiveResult": "Flag for Review",
+      "unsupportedFormat": "Reject",
+      "missingResponse": "Flag for Review"
+    }
+  },
+  {
+    "id": "REV-20251015-001",
+    "version": "v2.0.0",
+    "timestamp": "Oct 15, 2025 • 10:15 AM",
+    "updatedBy": "Super Administrator",
+    "summary": "Major policy overhaul introducing Vision AI + NLP hybrid detection.",
+    "globals": {
+      "enableModerationWorkflow": true,
+      "automaticModerationAvailability": true,
+      "manualReviewRequirement": true,
+      "defaultModerationBehavior": "Flag for Review",
+      "unknownResultHandling": "Treat as Suspicious",
+      "policyVersion": "v2.0.0",
+      "lastUpdated": "Oct 15, 2025 • 10:15 AM",
+      "status": "live"
+    },
+    "categories": [
+      {
+        "id": "cat-unsafe",
+        "name": "Unsafe or Harmful Imagery",
+        "description": "Blocks dangerous content.",
+        "iconType": "unsafe",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Reject",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-explicit",
+        "name": "Explicit or Adult Content",
+        "description": "Restricts adult content.",
+        "iconType": "explicit",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Reject",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-hate",
+        "name": "Hate or Harassment",
+        "description": "Prevents hate content.",
+        "iconType": "hate",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Flag",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-violence",
+        "name": "Violent or Disturbing Imagery",
+        "description": "Blocks violent content.",
+        "iconType": "violence",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Reject",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-copyright",
+        "name": "Copyright & Brand Misuse",
+        "description": "Protects IP rights.",
+        "iconType": "copyright",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Flag",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-misleading",
+        "name": "Misleading or Fraudulent Content",
+        "description": "Prevents scams.",
+        "iconType": "misleading",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Flag",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-sensitive",
+        "name": "Sensitive Personal Information",
+        "description": "Protects personal data.",
+        "iconType": "sensitive",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Reject",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-other",
+        "name": "Other Policy Violations",
+        "description": "Covers other issues.",
+        "iconType": "other",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Flag",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      }
+    ],
+    "rules": [
+      {
+        "id": "rule-explicit",
+        "name": "Explicit Content Rule",
+        "triggerCondition": "Adult content detected",
+        "detectionSource": "Vision AI",
+        "severity": "High",
+        "resultingAction": "Reject",
+        "enabled": true,
+        "description": "Instantly rejects content triggering adult/explicit vision detectors.",
+        "order": 1
+      },
+      {
+        "id": "rule-violence",
+        "name": "Violence Detection",
+        "triggerCondition": "Violent imagery found",
+        "detectionSource": "Vision AI",
+        "severity": "High",
+        "resultingAction": "Flag for Review",
+        "enabled": true,
+        "description": "Flags violent or disturbing imagery for secondary human inspection.",
+        "order": 2
+      },
+      {
+        "id": "rule-hate",
+        "name": "Hate Speech",
+        "triggerCondition": "Hate content detected",
+        "detectionSource": "Vision AI + NLP",
+        "severity": "Medium",
+        "resultingAction": "Reject",
+        "enabled": true,
+        "description": "Rejects hate symbols or derogatory textual overlays in posters.",
+        "order": 3
+      }
+    ],
+    "reasons": [
+      {
+        "id": "rej-policy",
+        "category": "Policy Violation",
+        "description": "Violates content policy",
+        "status": "Active",
+        "usageCount": 28
+      },
+      {
+        "id": "rej-copyright",
+        "category": "Copyright Concern",
+        "description": "Infringes copyright",
+        "status": "Active",
+        "usageCount": 14
+      },
+      {
+        "id": "rej-inappropriate",
+        "category": "Inappropriate Content",
+        "description": "Inappropriate content",
+        "status": "Active",
+        "usageCount": 19
+      },
+      {
+        "id": "rej-misleading",
+        "category": "Misleading Content",
+        "description": "False or misleading",
+        "status": "Active",
+        "usageCount": 8
+      },
+      {
+        "id": "rej-quality",
+        "category": "Quality Issue",
+        "description": "Low quality or blurry",
+        "status": "Active",
+        "usageCount": 7
+      }
+    ],
+    "manualReview": {
+      "reviewRequiredConditions": "On Policy Violation or Uncertain Result",
+      "reviewerRole": "Content Moderator",
+      "reviewPriority": "High for Harmful Content",
+      "escalationRules": "After 24 Hours",
+      "reviewDecisionRequired": true
+    },
+    "errorHandling": {
+      "serviceUnavailable": "Allow with Warning",
+      "timeout": "Flag for Review",
+      "inconclusiveResult": "Flag for Review",
+      "unsupportedFormat": "Reject",
+      "missingResponse": "Flag for Review"
+    }
+  },
+  {
+    "id": "REV-20250901-001",
+    "version": "v1.2.0",
+    "timestamp": "Sep 1, 2025 • 02:00 PM",
+    "updatedBy": "Security Lead",
+    "summary": "Initial production moderation policy with manual review queues.",
+    "globals": {
+      "enableModerationWorkflow": true,
+      "automaticModerationAvailability": true,
+      "manualReviewRequirement": true,
+      "defaultModerationBehavior": "Flag for Review",
+      "unknownResultHandling": "Treat as Suspicious",
+      "policyVersion": "v1.2.0",
+      "lastUpdated": "Sep 1, 2025 • 02:00 PM",
+      "status": "live"
+    },
+    "categories": [
+      {
+        "id": "cat-unsafe",
+        "name": "Unsafe or Harmful Imagery",
+        "description": "Blocks dangerous content.",
+        "iconType": "unsafe",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Reject",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-explicit",
+        "name": "Explicit or Adult Content",
+        "description": "Restricts adult content.",
+        "iconType": "explicit",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Reject",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-hate",
+        "name": "Hate or Harassment",
+        "description": "Prevents hate content.",
+        "iconType": "hate",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Flag",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-violence",
+        "name": "Violent or Disturbing Imagery",
+        "description": "Blocks violent content.",
+        "iconType": "violence",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Reject",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-copyright",
+        "name": "Copyright & Brand Misuse",
+        "description": "Protects IP rights.",
+        "iconType": "copyright",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Flag",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-misleading",
+        "name": "Misleading or Fraudulent Content",
+        "description": "Prevents scams.",
+        "iconType": "misleading",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Flag",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-sensitive",
+        "name": "Sensitive Personal Information",
+        "description": "Protects personal data.",
+        "iconType": "sensitive",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Reject",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      },
+      {
+        "id": "cat-other",
+        "name": "Other Policy Violations",
+        "description": "Covers other issues.",
+        "iconType": "other",
+        "enabled": true,
+        "reviewRequired": true,
+        "resultingAction": "Flag",
+        "lastUpdated": "Nov 2, 2025 • 4:30 PM"
+      }
+    ],
+    "rules": [
+      {
+        "id": "rule-explicit",
+        "name": "Explicit Content Rule",
+        "triggerCondition": "Adult content detected",
+        "detectionSource": "Vision AI",
+        "severity": "High",
+        "resultingAction": "Reject",
+        "enabled": true,
+        "description": "Instantly rejects content triggering adult/explicit vision detectors.",
+        "order": 1
+      },
+      {
+        "id": "rule-violence",
+        "name": "Violence Detection",
+        "triggerCondition": "Violent imagery found",
+        "detectionSource": "Vision AI",
+        "severity": "High",
+        "resultingAction": "Flag for Review",
+        "enabled": true,
+        "description": "Flags violent or disturbing imagery for secondary human inspection.",
+        "order": 2
+      }
+    ],
+    "reasons": [
+      {
+        "id": "rej-policy",
+        "category": "Policy Violation",
+        "description": "Violates content policy",
+        "status": "Active",
+        "usageCount": 28
+      },
+      {
+        "id": "rej-copyright",
+        "category": "Copyright Concern",
+        "description": "Infringes copyright",
+        "status": "Active",
+        "usageCount": 14
+      },
+      {
+        "id": "rej-inappropriate",
+        "category": "Inappropriate Content",
+        "description": "Inappropriate content",
+        "status": "Active",
+        "usageCount": 19
+      },
+      {
+        "id": "rej-misleading",
+        "category": "Misleading Content",
+        "description": "False or misleading",
+        "status": "Active",
+        "usageCount": 8
+      }
+    ],
+    "manualReview": {
+      "reviewRequiredConditions": "On Policy Violation or Uncertain Result",
+      "reviewerRole": "Content Moderator",
+      "reviewPriority": "High for Harmful Content",
+      "escalationRules": "After 24 Hours",
+      "reviewDecisionRequired": true
+    },
+    "errorHandling": {
+      "serviceUnavailable": "Allow with Warning",
+      "timeout": "Flag for Review",
+      "inconclusiveResult": "Flag for Review",
+      "unsupportedFormat": "Reject",
+      "missingResponse": "Flag for Review"
+    }
+  }
+]

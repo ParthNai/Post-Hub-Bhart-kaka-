@@ -1,0 +1,220 @@
+{
+  "overview": {
+    "totalImagesGenerated": 48750,
+    "totalImagesChange": "+12.5%",
+    "totalCreditsConsumed": 48750,
+    "totalCreditsChange": "+12.3%",
+    "actualProviderCost": 142.5,
+    "actualProviderCostChange": "+10.8%",
+    "averageCostPerImage": 0.0029,
+    "averageCostChange": "-1.1%"
+  },
+  "usageTrends": [
+    {
+      "date": "Oct 25",
+      "timestamp": 1761350400000,
+      "requests": 4900,
+      "successful": 3400,
+      "failed": 700
+    },
+    {
+      "date": "Oct 26",
+      "timestamp": 1761436800000,
+      "requests": 5200,
+      "successful": 3700,
+      "failed": 800
+    },
+    {
+      "date": "Oct 27",
+      "timestamp": 1761523200000,
+      "requests": 6700,
+      "successful": 5100,
+      "failed": 900
+    },
+    {
+      "date": "Oct 28",
+      "timestamp": 1761609600000,
+      "requests": 6900,
+      "successful": 5200,
+      "failed": 800
+    },
+    {
+      "date": "Oct 29",
+      "timestamp": 1761696000000,
+      "requests": 6000,
+      "successful": 4400,
+      "failed": 700
+    },
+    {
+      "date": "Oct 30",
+      "timestamp": 1761782400000,
+      "requests": 6500,
+      "successful": 4900,
+      "failed": 900
+    },
+    {
+      "date": "Oct 31",
+      "timestamp": 1761868800000,
+      "requests": 7100,
+      "successful": 5600,
+      "failed": 1100
+    }
+  ],
+  "creditConsumption": [
+    {
+      "date": "Oct 25",
+      "timestamp": 1761350400000,
+      "issued": 33000,
+      "consumed": 22500,
+      "refunded": 3800,
+      "remaining": 12200
+    },
+    {
+      "date": "Oct 26",
+      "timestamp": 1761436800000,
+      "issued": 33500,
+      "consumed": 23200,
+      "refunded": 4100,
+      "remaining": 12500
+    },
+    {
+      "date": "Oct 27",
+      "timestamp": 1761523200000,
+      "issued": 34000,
+      "consumed": 24100,
+      "refunded": 4300,
+      "remaining": 13100
+    },
+    {
+      "date": "Oct 28",
+      "timestamp": 1761609600000,
+      "issued": 34500,
+      "consumed": 24800,
+      "refunded": 4200,
+      "remaining": 13600
+    },
+    {
+      "date": "Oct 29",
+      "timestamp": 1761696000000,
+      "issued": 34800,
+      "consumed": 24200,
+      "refunded": 4500,
+      "remaining": 13800
+    },
+    {
+      "date": "Oct 30",
+      "timestamp": 1761782400000,
+      "issued": 35200,
+      "consumed": 25400,
+      "refunded": 4600,
+      "remaining": 14100
+    },
+    {
+      "date": "Oct 31",
+      "timestamp": 1761868800000,
+      "issued": 35500,
+      "consumed": 25800,
+      "refunded": 4700,
+      "remaining": 14500
+    }
+  ],
+  "providerCosts": [
+    {
+      "id": "prov-openai",
+      "provider": "OpenAI",
+      "model": "DALL·E 3",
+      "imagesGenerated": 28500,
+      "usageUnits": 28500,
+      "totalCost": 85.5,
+      "billingPeriod": "Oct 01 – Oct 31",
+      "currency": "USD"
+    },
+    {
+      "id": "prov-google",
+      "provider": "Google",
+      "model": "Imagen 3",
+      "imagesGenerated": 12800,
+      "usageUnits": 12800,
+      "totalCost": 45.2,
+      "billingPeriod": "Oct 01 – Oct 31",
+      "currency": "USD"
+    },
+    {
+      "id": "prov-replicate",
+      "provider": "Replicate",
+      "model": "SDXL Turbo",
+      "imagesGenerated": 7450,
+      "usageUnits": 7450,
+      "totalCost": 11.8,
+      "billingPeriod": "Oct 01 – Oct 31",
+      "currency": "USD"
+    }
+  ],
+  "userUsage": [
+    {
+      "userId": "usr-001",
+      "user": "jayesh.patel",
+      "totalGenerations": 8420,
+      "creditsConsumed": 8420,
+      "successful": 8210,
+      "failed": 210,
+      "lastGeneration": "Oct 31, 11:45 AM"
+    },
+    {
+      "userId": "usr-002",
+      "user": "priya.shah",
+      "totalGenerations": 6780,
+      "creditsConsumed": 6780,
+      "successful": 6621,
+      "failed": 159,
+      "lastGeneration": "Oct 31, 10:20 AM"
+    },
+    {
+      "userId": "usr-003",
+      "user": "rohit.desai",
+      "totalGenerations": 5930,
+      "creditsConsumed": 5930,
+      "successful": 5810,
+      "failed": 120,
+      "lastGeneration": "Oct 31, 09:15 AM"
+    },
+    {
+      "userId": "usr-004",
+      "user": "parth.patel",
+      "totalGenerations": 5120,
+      "creditsConsumed": 5120,
+      "successful": 5040,
+      "failed": 80,
+      "lastGeneration": "Oct 30, 04:32 PM"
+    },
+    {
+      "userId": "usr-005",
+      "user": "neha.patel",
+      "totalGenerations": 4320,
+      "creditsConsumed": 4320,
+      "successful": 4210,
+      "failed": 110,
+      "lastGeneration": "Oct 30, 02:15 PM"
+    }
+  ],
+  "breakdown": {
+    "aspectRatio": {
+      "ratio1_1": 52,
+      "ratio9_16": 34,
+      "ratio16_9": 14
+    },
+    "imageFormat": {
+      "jpg": 68,
+      "png": 32
+    },
+    "categories": {
+      "festival": 40,
+      "business": 35,
+      "other": 25
+    },
+    "presetUsage": {
+      "templates": 60,
+      "aiPrompt": 40
+    }
+  }
+}

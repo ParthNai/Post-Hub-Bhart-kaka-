@@ -1,0 +1,17 @@
+{
+  "providerId": "openai",
+  "name": "OpenAI",
+  "model": "dall-e-3",
+  "status": "connected",
+  "hasApiKey": true,
+  "apiKeyMasked": "sk-...****6655",
+  "lastVerifiedAt": "Oct 28, 2026 • 04:32 PM",
+  "defaultResolution": "1024 x 1024",
+  "quality": "standard",
+  "supportedCapabilities": [
+    "High-resolution 4K raster generation",
+    "Natural language prompt conditioning",
+    "Aspect ratios 1:1, 3:4, 4:5, 9:16",
+    "Visual revision and style variations"
+  ]
+}
