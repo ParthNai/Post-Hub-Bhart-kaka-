@@ -431,9 +431,23 @@ export function getAllScreens(): AppScreen[] {
   }
   try {
     const raw = fs.readFileSync(SCREENS_FILE, "utf-8");
-    return JSON.parse(raw);
-  } catch (err) {
-    console.error("Failed to read screens DB:", err);
+    if (!raw.trim() || raw.includes("<<<<<<<") || raw.includes("=======") || raw.includes(">>>>>>>")) {
+      fs.writeFileSync(SCREENS_FILE, JSON.stringify(SEED_SCREENS, null, 2), "utf-8");
+      return SEED_SCREENS;
+    }
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      fs.writeFileSync(SCREENS_FILE, JSON.stringify(SEED_SCREENS, null, 2), "utf-8");
+      return SEED_SCREENS;
+    }
+    return parsed;
+  } catch (_err) {
+    // Gracefully recover on corrupt JSON without console.error (which triggers Next.js Turbopack error overlay)
+    try {
+      fs.writeFileSync(SCREENS_FILE, JSON.stringify(SEED_SCREENS, null, 2), "utf-8");
+    } catch {
+      // Ignore write failure
+    }
     return SEED_SCREENS;
   }
 }

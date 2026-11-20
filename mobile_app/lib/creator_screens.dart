@@ -1635,18 +1635,19 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0E17),
+      backgroundColor: const Color(0xFFFAF7F2),
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: const Color(0xFFFAF7F2),
+        iconTheme: const IconThemeData(color: Color(0xFF1F1D2B)),
         title: const Text(
           'Customize design',
           style: TextStyle(
-            color: Colors.white,
+            color: Color(0xFF1F1D2B),
             fontWeight: FontWeight.w800,
-            fontSize: 16,
+            fontSize: 17,
           ),
         ),
-        backgroundColor: const Color(0xFF1B182B),
-        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
             key: const ValueKey('export-design'),
@@ -1658,40 +1659,40 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Color(0xFF00C4CC),
+                      color: Color(0xFF7026E8),
                     ),
                   )
-                : const Icon(Icons.ios_share_rounded, color: Color(0xFF00C4CC)),
+                : const Icon(Icons.ios_share_rounded, color: Color(0xFF7026E8)),
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.only(right: 12),
             child: FilledButton(
               key: const ValueKey('save-design'),
               style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF7956C9),
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                backgroundColor: const Color(0xFF7026E8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
               ),
               onPressed: _save,
-              child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w800)),
+              child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w700)),
             ),
           ),
         ],
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
           children: [
             // 1. CANVA HERO CANVAS STAGE
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF171424),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: Colors.white12),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
                 boxShadow: const [
                   BoxShadow(
-                    color: Colors.black45,
-                    blurRadius: 14,
+                    color: Color(0x12000000),
+                    blurRadius: 16,
                     offset: Offset(0, 4),
                   ),
                 ],
@@ -1702,8 +1703,8 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                     child: RepaintBoundary(
                       key: _posterKey,
                       child: SizedBox(
-                        width: 200,
-                        height: 260,
+                        width: 210,
+                        height: 275,
                         child: TemplatePoster(
                           headline: _headline.text.isEmpty
                               ? widget.template.headline
@@ -1744,28 +1745,28 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Icon(
                         Icons.touch_app_rounded,
-                        size: 13,
-                        color: Color(0xFF00C4CC),
+                        size: 14,
+                        color: Color(0xFF7026E8),
                       ),
                       const SizedBox(width: 5),
                       Flexible(
                         child: Text(
                           _selectedZoneId != null
                               ? 'Selected: ${_selectedZoneId!}'
-                              : 'Tap poster elements to customize',
+                              : 'Tap poster elements to customize directly',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: _selectedZoneId != null
-                                ? const Color(0xFF00C4CC)
-                                : const Color(0xFF9E99AF),
-                            fontSize: 10.5,
+                                ? const Color(0xFF7026E8)
+                                : const Color(0xFF7E778E),
+                            fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -1776,14 +1777,171 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
               ),
             ),
 
+            const SizedBox(height: 18),
+
+            // 2. EDIT YOUR DESIGN SECTION (Matching user reference)
+            const Text(
+              'Edit your design',
+              style: TextStyle(
+                color: Color(0xFF1F1D2B),
+                fontSize: 19,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+              ),
+            ),
             const SizedBox(height: 12),
 
-            // 2. CANVA TOOL SELECTOR TABS
+            TextField(
+              key: const ValueKey('design-headline'),
+              controller: _headline,
+              style: const TextStyle(
+                color: Color(0xFF1F1D2B),
+                fontSize: 14.5,
+                fontWeight: FontWeight.w600,
+              ),
+              onChanged: (_) => setState(() {}),
+              maxLength: 44,
+              decoration: InputDecoration(
+                labelText: 'Main message',
+                labelStyle: const TextStyle(color: Color(0xFF6B657D), fontSize: 13),
+                filled: true,
+                fillColor: Colors.white,
+                counterStyle: const TextStyle(color: Color(0xFF8C869A), fontSize: 11),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Color(0xFFD6D1E0)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Color(0xFFD6D1E0)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Color(0xFF7026E8), width: 1.8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              ),
+            ),
+            const SizedBox(height: 4),
+
+            TextField(
+              key: const ValueKey('design-subtitle'),
+              controller: _subtitle,
+              style: const TextStyle(
+                color: Color(0xFF1F1D2B),
+                fontSize: 14.5,
+                fontWeight: FontWeight.w600,
+              ),
+              onChanged: (_) => setState(() {}),
+              maxLength: 72,
+              decoration: InputDecoration(
+                labelText: 'Supporting message',
+                labelStyle: const TextStyle(color: Color(0xFF6B657D), fontSize: 13),
+                filled: true,
+                fillColor: Colors.white,
+                counterStyle: const TextStyle(color: Color(0xFF8C869A), fontSize: 11),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Color(0xFFD6D1E0)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Color(0xFFD6D1E0)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Color(0xFF7026E8), width: 1.8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              ),
+            ),
+            const SizedBox(height: 4),
+
+            TextField(
+              key: const ValueKey('design-business-name'),
+              controller: _businessName,
+              style: const TextStyle(
+                color: Color(0xFF1F1D2B),
+                fontSize: 14.5,
+                fontWeight: FontWeight.w600,
+              ),
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                labelText: 'Business name (optional)',
+                labelStyle: const TextStyle(color: Color(0xFF6B657D), fontSize: 13),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Color(0xFFD6D1E0)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Color(0xFFD6D1E0)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Color(0xFF7026E8), width: 1.8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+            const Text(
+              'Choose a color style',
+              style: TextStyle(
+                color: Color(0xFF6B657D),
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            Wrap(
+              spacing: 12,
+              children: [
+                for (var index = 0; index < _palettes.length; index++)
+                  InkWell(
+                    key: ValueKey('design-palette-$index'),
+                    onTap: () => setState(() {
+                      _background = _palettes[index].$1;
+                      _foreground = _palettes[index].$2;
+                    }),
+                    customBorder: const CircleBorder(),
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Color(_palettes[index].$1),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: _background == _palettes[index].$1
+                              ? const Color(0xFF7026E8)
+                              : const Color(0xFFD6D1E0),
+                          width: _background == _palettes[index].$1 ? 3.5 : 1.5,
+                        ),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x10000000),
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            // 3. CANVA TOOL SELECTOR TABS
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  _buildTabChip('text', '🔤 Text & Details', Icons.text_fields_rounded),
+                  _buildTabChip('text', '🔤 Personal Details', Icons.badge_rounded),
                   const SizedBox(width: 8),
                   _buildTabChip('photo', '📸 Photo & Cutouts', Icons.person_rounded),
                   const SizedBox(width: 8),
@@ -1792,155 +1950,95 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
               ),
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
 
-            // 3. TEXT & DETAILS PANEL (Default Tab)
+            // 4. PERSONAL DETAILS PANEL (Tab 'text')
             if (_activeTab == 'text') ...[
               _buildSectionCard(
-                title: 'Text & Personal Details',
-                icon: Icons.edit_note_rounded,
-                badge: 'Live Stamped',
+                title: 'Leader & Contact Details',
+                icon: Icons.badge_rounded,
+                badge: 'Live Auto-Fit',
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextField(
                       controller: _userName,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Color(0xFF1F1D2B), fontSize: 13.5),
                       onChanged: (_) => setState(() {}),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Your / Candidate Name',
-                        labelStyle: TextStyle(color: Color(0xFF00C4CC)),
-                        prefixIcon: Icon(Icons.person, color: Color(0xFF00C4CC)),
-                        border: OutlineInputBorder(),
+                        labelStyle: const TextStyle(color: Color(0xFF7026E8)),
+                        prefixIcon: const Icon(Icons.person, color: Color(0xFF7026E8), size: 18),
+                        filled: true,
+                        fillColor: const Color(0xFFF9F7FC),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white24),
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(color: Color(0xFFE4DFEC)),
                         ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(color: Color(0xFF7026E8), width: 1.6),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       ),
                     ),
                     const SizedBox(height: 10),
                     TextField(
                       controller: _userPhone,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Color(0xFF1F1D2B), fontSize: 13.5),
                       onChanged: (_) => setState(() {}),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Mobile / WhatsApp Number',
-                        labelStyle: TextStyle(color: Color(0xFFFACC15)),
-                        prefixIcon: Icon(Icons.phone, color: Color(0xFFFACC15)),
-                        border: OutlineInputBorder(),
+                        labelStyle: const TextStyle(color: Color(0xFFB45309)),
+                        prefixIcon: const Icon(Icons.phone, color: Color(0xFFB45309), size: 18),
+                        filled: true,
+                        fillColor: const Color(0xFFFDFBF7),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white24),
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(color: Color(0xFFE4DFEC)),
                         ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(color: Color(0xFFB45309), width: 1.6),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       ),
                     ),
                     const SizedBox(height: 10),
                     TextField(
                       controller: _userDesignation,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Color(0xFF1F1D2B), fontSize: 13.5),
                       onChanged: (_) => setState(() {}),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Designation / Slogan (Optional)',
-                        labelStyle: TextStyle(color: Color(0xFFB4AFD0)),
-                        prefixIcon: Icon(Icons.badge, color: Color(0xFFB4AFD0)),
-                        border: OutlineInputBorder(),
+                        labelStyle: const TextStyle(color: Color(0xFF6B657D)),
+                        prefixIcon: const Icon(Icons.stars_rounded, color: Color(0xFF6B657D), size: 18),
+                        filled: true,
+                        fillColor: const Color(0xFFF9F7FC),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white24),
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(color: Color(0xFFE4DFEC)),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      key: const ValueKey('design-headline'),
-                      controller: _headline,
-                      style: const TextStyle(color: Colors.white),
-                      onChanged: (_) => setState(() {}),
-                      maxLength: 44,
-                      decoration: const InputDecoration(
-                        labelText: 'Main message',
-                        labelStyle: TextStyle(color: Colors.white70),
-                        border: OutlineInputBorder(),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white24),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(color: Color(0xFF7026E8), width: 1.6),
                         ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       ),
-                    ),
-                    TextField(
-                      key: const ValueKey('design-subtitle'),
-                      controller: _subtitle,
-                      style: const TextStyle(color: Colors.white),
-                      onChanged: (_) => setState(() {}),
-                      maxLength: 72,
-                      decoration: const InputDecoration(
-                        labelText: 'Supporting message',
-                        labelStyle: TextStyle(color: Colors.white70),
-                        border: OutlineInputBorder(),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white24),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    TextField(
-                      key: const ValueKey('design-business-name'),
-                      controller: _businessName,
-                      style: const TextStyle(color: Colors.white),
-                      onChanged: (_) => setState(() {}),
-                      decoration: const InputDecoration(
-                        labelText: 'Business name (optional)',
-                        labelStyle: TextStyle(color: Colors.white70),
-                        border: OutlineInputBorder(),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white24),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Choose a color style',
-                      style: TextStyle(
-                        color: Color(0xFFB4AFD0),
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 10,
-                      children: [
-                        for (var index = 0; index < _palettes.length; index++)
-                          InkWell(
-                            key: ValueKey('design-palette-$index'),
-                            onTap: () => setState(() {
-                              _background = _palettes[index].$1;
-                              _foreground = _palettes[index].$2;
-                            }),
-                            customBorder: const CircleBorder(),
-                            child: Container(
-                              width: 34,
-                              height: 34,
-                              decoration: BoxDecoration(
-                                color: Color(_palettes[index].$1),
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: _background == _palettes[index].$1
-                                      ? const Color(0xFF00C4CC)
-                                      : Colors.white24,
-                                  width: _background == _palettes[index].$1 ? 3 : 1.5,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
             ],
 
-            // 4. PHOTO & CUTOUTS PANEL (Visible when 'photo' tab is selected)
+            // 5. PHOTO & CUTOUTS PANEL (Tab 'photo')
             if (_activeTab == 'photo') ...[
               _buildSectionCard(
-                title: 'Photo & Leader Cutouts',
+                title: 'Photo & Cutouts Studio',
                 icon: Icons.person_pin_rounded,
                 badge: '1-Click Replace',
                 child: Column(
@@ -1949,8 +2047,8 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                     const Text(
                       'Select Persona or Leader Cutout:',
                       style: TextStyle(
-                        color: Color(0xFFB4AFD0),
-                        fontSize: 11.5,
+                        color: Color(0xFF4B465C),
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -1971,13 +2069,13 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                                   padding: const EdgeInsets.all(6),
                                   decoration: BoxDecoration(
                                     color: _userAvatarUrl == leader.url
-                                        ? const Color(0xFF7956C9).withValues(alpha: 0.3)
-                                        : const Color(0xFF231F36),
+                                        ? const Color(0xFFEDE8F8)
+                                        : const Color(0xFFF3F0F8),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
                                       color: _userAvatarUrl == leader.url
-                                          ? const Color(0xFF00C4CC)
-                                          : Colors.white12,
+                                          ? const Color(0xFF7026E8)
+                                          : const Color(0xFFE4DFEC),
                                       width: _userAvatarUrl == leader.url ? 2 : 1,
                                     ),
                                   ),
@@ -1997,7 +2095,7 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
-                                          color: Colors.white,
+                                          color: Color(0xFF1F1D2B),
                                           fontSize: 10,
                                           fontWeight: FontWeight.w700,
                                         ),
@@ -2007,7 +2105,7 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
-                                          color: Color(0xFF9E99AF),
+                                          color: Color(0xFF6B657D),
                                           fontSize: 8.5,
                                         ),
                                       ),
@@ -2023,8 +2121,8 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                     const Text(
                       'Photo Shape & Crop:',
                       style: TextStyle(
-                        color: Color(0xFFB4AFD0),
-                        fontSize: 11.5,
+                        color: Color(0xFF4B465C),
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -2044,25 +2142,31 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                         Expanded(
                           child: TextField(
                             controller: _customPhotoUrlController,
-                            style: const TextStyle(color: Colors.white, fontSize: 12),
+                            style: const TextStyle(color: Color(0xFF1F1D2B), fontSize: 12),
                             decoration: InputDecoration(
-                              hintText: 'Paste custom image URL...',
-                              hintStyle: const TextStyle(color: Colors.white38),
+                              hintText: 'Paste custom photo URL...',
+                              hintStyle: const TextStyle(color: Color(0xFF8C869A)),
                               isDense: true,
                               filled: true,
-                              fillColor: const Color(0xFF231F36),
+                              fillColor: const Color(0xFFF9F7FC),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide.none,
+                                borderSide: const BorderSide(color: Color(0xFFE4DFEC)),
                               ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: const BorderSide(color: Color(0xFFE4DFEC)),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                             ),
                           ),
                         ),
                         const SizedBox(width: 8),
                         FilledButton(
                           style: FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFF7956C9),
+                            backgroundColor: const Color(0xFF7026E8),
                             padding: const EdgeInsets.symmetric(horizontal: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           ),
                           onPressed: () {
                             final url = _customPhotoUrlController.text.trim();
@@ -2077,10 +2181,10 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
             ],
 
-            // 5. BOTTOM FRAMES PANEL (Visible when 'frames' tab is selected)
+            // 6. BOTTOM FRAMES PANEL (Tab 'frames')
             if (_activeTab == 'frames') ...[
               _buildSectionCard(
                 title: 'Bottom Frames & Footer Strips',
@@ -2092,8 +2196,8 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                     const Text(
                       'Choose Footer Strip Layout:',
                       style: TextStyle(
-                        color: Color(0xFFB4AFD0),
-                        fontSize: 11.5,
+                        color: Color(0xFF4B465C),
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -2137,23 +2241,24 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
             ],
 
-            // 6. BOTTOM ACTIONS
+            // 7. BOTTOM ACTIONS
             OutlinedButton.icon(
               key: const ValueKey('export-design-bottom'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF00C4CC),
-                side: const BorderSide(color: Color(0xFF00C4CC)),
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                foregroundColor: const Color(0xFF7026E8),
+                side: const BorderSide(color: Color(0xFF7026E8)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(vertical: 13),
               ),
               onPressed: _isSharing ? null : _sharePng,
               icon: _isSharing
                   ? const SizedBox(
                       width: 17,
                       height: 17,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF7026E8)),
                     )
                   : const Icon(Icons.ios_share_rounded),
               label: Text(
@@ -2165,8 +2270,9 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
             FilledButton.icon(
               key: const ValueKey('save-design-bottom'),
               style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF7956C9),
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                backgroundColor: const Color(0xFF7026E8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(vertical: 13),
               ),
               onPressed: _save,
               icon: const Icon(Icons.bookmark_add_rounded),
@@ -2187,31 +2293,36 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
       onTap: () => setState(() => _activeTab = id),
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isActive
-              ? const Color(0xFF7956C9)
-              : const Color(0xFF1E1B2E),
+          color: isActive ? const Color(0xFF7026E8) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isActive ? const Color(0xFF00C4CC) : Colors.white12,
+            color: isActive ? const Color(0xFF7026E8) : const Color(0xFFE4DFEC),
             width: isActive ? 1.5 : 1,
           ),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x08000000),
+              blurRadius: 4,
+              offset: Offset(0, 1),
+            ),
+          ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              size: 13,
-              color: isActive ? Colors.white : const Color(0xFF9E99AF),
+              size: 14,
+              color: isActive ? Colors.white : const Color(0xFF6B657D),
             ),
-            const SizedBox(width: 5),
+            const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
-                color: isActive ? Colors.white : const Color(0xFFB4AFD0),
-                fontSize: 11.5,
+                color: isActive ? Colors.white : const Color(0xFF4B465C),
+                fontSize: 12,
                 fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
               ),
             ),
@@ -2228,20 +2339,20 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
         onTap: () => _applyPhotoShape(shape),
         borderRadius: BorderRadius.circular(8),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 7),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF7956C9) : const Color(0xFF231F36),
+            color: isSelected ? const Color(0xFF7026E8) : const Color(0xFFF3F0F8),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isSelected ? const Color(0xFF00C4CC) : Colors.white12,
+              color: isSelected ? const Color(0xFF7026E8) : const Color(0xFFE4DFEC),
             ),
           ),
           child: Text(
             label,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: isSelected ? Colors.white : const Color(0xFF9E99AF),
-              fontSize: 10.5,
+              color: isSelected ? Colors.white : const Color(0xFF4B465C),
+              fontSize: 11,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -2256,14 +2367,12 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
       onTap: () => _applyFramePreset(id),
       borderRadius: BorderRadius.circular(10),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFF7956C9).withValues(alpha: 0.3)
-              : const Color(0xFF231F36),
+          color: isSelected ? const Color(0xFFEDE8F8) : Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? const Color(0xFF00C4CC) : Colors.white12,
+            color: isSelected ? const Color(0xFF7026E8) : const Color(0xFFE4DFEC),
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -2273,14 +2382,14 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
             Icon(
               icon,
               size: 14,
-              color: isSelected ? const Color(0xFF00C4CC) : const Color(0xFF9E99AF),
+              color: isSelected ? const Color(0xFF7026E8) : const Color(0xFF6B657D),
             ),
             const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFFD1D5DB),
-                fontSize: 11,
+                color: isSelected ? const Color(0xFF7026E8) : const Color(0xFF4B465C),
+                fontSize: 11.5,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
               ),
             ),
@@ -2299,16 +2408,23 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF1B182B),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white10),
+        border: Border.all(color: const Color(0xFFE8E4F0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 16, color: const Color(0xFF00C4CC)),
+              Icon(icon, size: 16, color: const Color(0xFF7026E8)),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -2316,8 +2432,8 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
+                    color: Color(0xFF1F1D2B),
+                    fontSize: 13.5,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -2325,16 +2441,16 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
               if (badge != null) ...[
                 const SizedBox(width: 6),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF7956C9).withValues(alpha: 0.25),
+                    color: const Color(0xFFEDE8F8),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     badge,
                     style: const TextStyle(
-                      color: Color(0xFFD8B4FE),
-                      fontSize: 9.5,
+                      color: Color(0xFF7026E8),
+                      fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
