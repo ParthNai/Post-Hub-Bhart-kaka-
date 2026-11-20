@@ -19,22 +19,47 @@ export default function MobileAppRootPage() {
   // Fetch templates and published screen configuration for the studio workspace
   useEffect(() => {
     let isMounted = true;
-    fetch("/api/admin/templates")
+    
+    // First try public app templates endpoint (works for all users without requiring admin cookie)
+    fetch("/api/app/templates")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (isMounted && data && data.templates) {
+        if (isMounted && data && Array.isArray(data.templates) && data.templates.length > 0) {
           setTemplates(data.templates);
+        } else {
+          // Fallback to admin templates if logged in as admin
+          fetch("/api/admin/templates")
+            .then((res) => (res.ok ? res.json() : null))
+            .then((adminData) => {
+              if (isMounted && adminData && adminData.templates) {
+                setTemplates(adminData.templates);
+              }
+            })
+            .catch(() => {});
         }
       })
       .catch(() => {
-        // Fallback handled gracefully
+        // Fallback to admin templates
+        fetch("/api/admin/templates")
+          .then((res) => (res.ok ? res.json() : null))
+          .then((adminData) => {
+            if (isMounted && adminData && adminData.templates) {
+              setTemplates(adminData.templates);
+            }
+          })
+          .catch(() => {});
       });
 
     fetch("/api/app/config")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (isMounted && data && data.screens && data.screens.home) {
-          setHomeConfig(data.screens.home.layoutConfig || {});
+        if (isMounted && data) {
+          if (data.templates && (!templates || templates.length === 0)) {
+            setTemplates((prev) => (prev.length > 0 ? prev : data.templates));
+          }
+          if (data.screens && data.screens.home) {
+            setHomeConfig(data.screens.home.layoutConfig || {});
+          }
         }
       })
       .catch(() => {

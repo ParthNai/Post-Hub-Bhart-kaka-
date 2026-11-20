@@ -59,6 +59,10 @@ export async function GET() {
       tags: tpl.tags || [],
       assetFileName: tpl.assetFileName || "",
       description: tpl.description || "",
+      backgroundImageUrl: tpl.backgroundImageUrl || (tpl.assetFileName ? `/templates/${tpl.assetFileName}` : undefined),
+      thumbnailUrl: tpl.backgroundImageUrl || (tpl.assetFileName ? `/templates/${tpl.assetFileName}` : undefined),
+      slotZones: tpl.slotZones || (tpl as any).zones || [],
+      zones: tpl.slotZones || (tpl as any).zones || [],
     })),
   };
 

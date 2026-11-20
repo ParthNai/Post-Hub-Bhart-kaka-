@@ -19,9 +19,11 @@ interface PosterArtworkProps {
 
 export const PosterArtwork: React.FC<PosterArtworkProps> = ({ template, style, userData }) => {
   const { id, name, category, format, headline, subheadline, ctaText, slotZones, backgroundImageUrl } = template;
+  const effectiveSlotZones = slotZones || (template as any).zones || [];
+  const effectiveBackgroundUrl = backgroundImageUrl || (template as any).backgroundUrl;
 
   // Custom visual template with dynamic photo & text slot zones
-  if ((slotZones && slotZones.length > 0) || backgroundImageUrl) {
+  if ((effectiveSlotZones && effectiveSlotZones.length > 0) || effectiveBackgroundUrl) {
     const defaultUserAvatar =
       userData?.avatarUrl ||
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80";
@@ -34,15 +36,15 @@ export const PosterArtwork: React.FC<PosterArtworkProps> = ({ template, style, u
           position: "relative",
           overflow: "hidden",
           backgroundColor: template.primaryColor || "#1E1A33",
-          background: backgroundImageUrl
-            ? `url(${backgroundImageUrl}) center center / 100% 100% no-repeat`
+          background: effectiveBackgroundUrl
+            ? `url(${effectiveBackgroundUrl}) center center / 100% 100% no-repeat`
             : `linear-gradient(135deg, ${template.primaryColor || "#7956C9"} 0%, ${template.accentColor || "#1E1A33"} 100%)`,
           boxSizing: "border-box",
           ...style,
         }}
       >
         {/* Render each dynamic slot zone */}
-        {slotZones?.map((zone) => {
+        {effectiveSlotZones?.map((zone) => {
           if (zone.type === "shape") {
             const isCircle = zone.shapeType === "circle";
             const isPill = zone.shapeType === "pill";

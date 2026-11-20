@@ -1,11 +1,61 @@
 [
   {
+    "id": "TPL-009",
+    "name": "Live Festival Template",
+    "category": "Festival",
+    "format": "3:4",
+    "status": "Published",
+    "updatedAt": "Nov 20, 2026",
+    "fileSize": "240 KB",
+    "description": "Custom poster template created in Post Hub Admin.",
+    "theme": "custom-theme",
+    "headline": "Live Festival Template",
+    "subheadline": "Custom Headline",
+    "ctaText": "Learn More",
+    "primaryColor": "#7956C9",
+    "accentColor": "#6846B5",
+    "tags": [
+      "Festival",
+      "Poster"
+    ],
+    "aspectRatio": "3:4",
+    "assetFileName": "tpl-009-poster.jpg",
+    "assetDimensions": "1024 × 1365 px",
+    "editableTextFields": [
+      "Title",
+      "Subtitle"
+    ],
+    "textColours": [
+      "#1E3A8A",
+      "#7956C9",
+      "#24213A",
+      "#FFFFFF"
+    ],
+    "fontSelection": "Poppins",
+    "imageSlots": [
+      "Main Image",
+      "Logo"
+    ],
+    "alignment": "Center",
+    "backgroundImageUrl": "/templates/festival.jpg",
+    "slotZones": [
+      {
+        "id": "zone-1",
+        "type": "photo",
+        "x": 10,
+        "y": 10,
+        "width": 80,
+        "height": 80
+      }
+    ]
+  },
+  {
     "id": "TPL-001",
     "name": "Business Promotion Poster",
     "category": "Business",
     "format": "3:4",
     "status": "Published",
-    "updatedAt": "Nov 20, 2026 08:13 AM",
+    "updatedAt": "Nov 20, 2026 11:12 AM",
     "fileSize": "245 KB",
     "description": "Professional corporate poster template designed for modern business marketing, product showcases and B2B services.",
     "theme": "corporate-blue",

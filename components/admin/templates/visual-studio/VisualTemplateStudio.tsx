@@ -962,7 +962,7 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
   };
 
   // Save template to backend
-  const handleSaveTemplate = async () => {
+  const handleSaveTemplate = async (publishImmediately?: boolean) => {
     if (!templateName.trim()) {
       setErrorMessage("Please enter a template name.");
       return;
@@ -975,11 +975,14 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
     setIsSaving(true);
     setErrorMessage(null);
 
+    const finalStatus = publishImmediately ? "Published" : status;
+    if (publishImmediately) setStatus("Published");
+
     const payload: Partial<PosterTemplate> = {
       name: templateName.trim(),
       category,
       format,
-      status,
+      status: finalStatus,
       backgroundImageUrl: backgroundUrl,
       slotZones: zones,
       aspectRatio: artworkAspectRatio
@@ -1138,20 +1141,26 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
               <option value="9:16" style={{ background: "#1D192E" }}>9:16 (Story)</option>
             </select>
 
-            {/* Status Pill */}
-            <span
+            {/* Status Selector Dropdown */}
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value as "Draft" | "Published")}
               style={{
-                fontSize: "10.5px",
+                fontSize: "11px",
                 fontWeight: 700,
                 padding: "2px 8px",
                 borderRadius: "999px",
-                backgroundColor: status === "Published" ? "rgba(16, 185, 129, 0.2)" : "rgba(245, 158, 11, 0.2)",
+                backgroundColor: status === "Published" ? "rgba(16, 185, 129, 0.25)" : "rgba(245, 158, 11, 0.25)",
                 color: status === "Published" ? "#34D399" : "#FBBF24",
-                border: status === "Published" ? "1px solid rgba(16, 185, 129, 0.4)" : "1px solid rgba(245, 158, 11, 0.4)",
+                border: status === "Published" ? "1px solid rgba(16, 185, 129, 0.5)" : "1px solid rgba(245, 158, 11, 0.5)",
+                cursor: "pointer",
+                outline: "none",
               }}
+              title="Template status: Published templates immediately appear in the mobile/creator app"
             >
-              {status}
-            </span>
+              <option value="Draft" style={{ background: "#201B33", color: "#FBBF24" }}>Draft</option>
+              <option value="Published" style={{ background: "#201B33", color: "#34D399" }}>Published (Live in App)</option>
+            </select>
           </div>
         </div>
 
@@ -1283,10 +1292,34 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
             <span>Paste Code</span>
           </button>
 
-          {/* Save & Publish Button */}
+          {/* Save Draft Button */}
           <button
             type="button"
-            onClick={handleSaveTemplate}
+            onClick={() => handleSaveTemplate(false)}
+            disabled={isSaving}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "7px 14px",
+              borderRadius: "8px",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              backgroundColor: "rgba(255, 255, 255, 0.08)",
+              color: "#E2E8F0",
+              fontSize: "12px",
+              fontWeight: 600,
+              cursor: isSaving ? "not-allowed" : "pointer",
+            }}
+            title="Save as Draft in Admin"
+          >
+            <Save size={14} />
+            <span>Save Draft</span>
+          </button>
+
+          {/* Save & Publish to App Button */}
+          <button
+            type="button"
+            onClick={() => handleSaveTemplate(true)}
             disabled={isSaving}
             style={{
               display: "flex",
@@ -1304,18 +1337,19 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
               cursor: isSaving ? "not-allowed" : "pointer",
               boxShadow: "0 2px 8px rgba(121, 86, 201, 0.4)",
             }}
+            title="Publish template so it immediately shows live in the mobile/creator app"
           >
             {isSaving ? (
-              <span>Saving...</span>
+              <span>Publishing...</span>
             ) : saveSuccess ? (
               <>
                 <Check size={14} />
-                <span>Saved!</span>
+                <span>Live in App!</span>
               </>
             ) : (
               <>
-                <Save size={14} />
-                <span>Save Template</span>
+                <Sparkles size={14} color="#FDE047" />
+                <span>Publish to App</span>
               </>
             )}
           </button>

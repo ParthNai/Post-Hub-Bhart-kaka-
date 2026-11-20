@@ -30,6 +30,8 @@ export const MobileAppHomeScreen: React.FC<MobileAppHomeScreenProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<"home" | "templates" | "ai" | "profile">("home");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [showAllTemplates, setShowAllTemplates] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const bannerVisible = config?.bannerVisible ?? true;
   const bannerHeadline = config?.bannerHeadline || "What will you design today?";
@@ -38,10 +40,19 @@ export const MobileAppHomeScreen: React.FC<MobileAppHomeScreenProps> = ({
   const primaryAccent = config?.primaryAccent || "#7956C9";
   const gridColumns = config?.gridColumns || 2;
 
-  const categories = ["All", "Festival", "Business", "Promotion"];
+  // Extract dynamic categories from active templates
+  const dynamicCategories = Array.from(new Set(templates.map((tpl) => tpl.category).filter(Boolean)));
+  const categories = ["All", ...dynamicCategories];
 
   const filteredTemplates = templates.filter((tpl) => {
     if (selectedCategory !== "All" && tpl.category !== selectedCategory) return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matchName = tpl.name.toLowerCase().includes(q);
+      const matchCat = tpl.category.toLowerCase().includes(q);
+      const matchTag = tpl.tags?.some((t) => t.toLowerCase().includes(q));
+      if (!matchName && !matchCat && !matchTag) return false;
+    }
     return true;
   });
 
@@ -165,7 +176,7 @@ export const MobileAppHomeScreen: React.FC<MobileAppHomeScreenProps> = ({
         {/* Scrollable Mobile Body */}
         <div style={{ flex: 1, padding: "16px 18px 80px 18px", overflowY: "auto" }}>
           {/* Banner: What will you design? */}
-          {bannerVisible && (
+          {bannerVisible && activeTab === "home" && (
             <div
               style={{
                 borderRadius: "16px",
@@ -249,61 +260,145 @@ export const MobileAppHomeScreen: React.FC<MobileAppHomeScreenProps> = ({
             ))}
           </div>
 
-          {/* Templates Feed */}
+          {/* Templates Feed Header */}
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "14px", fontWeight: 700, color: "#24213A" }}>Trending Posters</span>
-              <span style={{ fontSize: "12px", color: "#7956C9", fontWeight: 600 }}>See All ({filteredTemplates.length})</span>
-            </div>
-
-            {filteredTemplates.slice(0, 4).map((tpl) => (
-              <div
-                key={tpl.id}
+              <span style={{ fontSize: "14px", fontWeight: 700, color: "#24213A" }}>
+                {activeTab === "templates" ? "All Poster Templates" : "Trending & New Posters"}
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowAllTemplates(!showAllTemplates)}
                 style={{
-                  backgroundColor: "#FFFFFF",
-                  borderRadius: "14px",
-                  overflow: "hidden",
-                  border: "1px solid #ECE7F0",
-                  boxShadow: "0 2px 8px rgba(36, 33, 58, 0.04)",
+                  background: "none",
+                  border: "none",
+                  fontSize: "12px",
+                  color: "#7956C9",
+                  fontWeight: 700,
+                  cursor: "pointer",
                 }}
               >
-                <div style={{ height: "260px", width: "100%", position: "relative" }}>
-                  <PosterArtwork
-                    template={tpl}
-                    userData={{
-                      name: user.name || "Parth Patel",
-                      avatarUrl: user.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80",
-                      phone: "+91 98765 43210",
-                      businessName: "Post Hub Studio",
-                      designation: "Founder",
-                    }}
-                  />
-                </div>
-                <div style={{ padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <div style={{ fontSize: "13.5px", fontWeight: 700, color: "#24213A" }}>{tpl.name}</div>
-                    <div style={{ fontSize: "11px", color: "#8E8899" }}>
-                      {tpl.category} · {tpl.format}
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    style={{
-                      padding: "6px 14px",
-                      borderRadius: "6px",
-                      backgroundColor: "#F4F0FB",
-                      color: "#7956C9",
-                      border: "none",
-                      fontSize: "12px",
-                      fontWeight: 700,
-                      cursor: "pointer",
-                    }}
-                  >
-                    Edit
-                  </button>
+                {showAllTemplates ? "Show Fewer" : `See All (${filteredTemplates.length})`}
+              </button>
+            </div>
+
+            {/* Quick Search on Templates tab */}
+            {activeTab === "templates" && (
+              <input
+                type="text"
+                placeholder="Search poster by name or occasion..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid #ECE7F0",
+                  backgroundColor: "#FFFFFF",
+                  fontSize: "12px",
+                  boxSizing: "border-box",
+                }}
+              />
+            )}
+
+            {filteredTemplates.length === 0 ? (
+              <div
+                style={{
+                  padding: "30px 16px",
+                  textAlign: "center",
+                  backgroundColor: "#FFFFFF",
+                  borderRadius: "12px",
+                  border: "1px dashed #ECE7F0",
+                  color: "#8E8899",
+                }}
+              >
+                <div style={{ fontSize: "24px", marginBottom: "8px" }}>🎨</div>
+                <div style={{ fontSize: "13px", fontWeight: 700, color: "#24213A" }}>No templates found</div>
+                <div style={{ fontSize: "11px", marginTop: "2px" }}>
+                  Try choosing &quot;All&quot; category or add one from Visual Studio.
                 </div>
               </div>
-            ))}
+            ) : (
+              (showAllTemplates || activeTab === "templates"
+                ? filteredTemplates
+                : filteredTemplates.slice(0, 6)
+              ).map((tpl) => (
+                <div
+                  key={tpl.id}
+                  style={{
+                    backgroundColor: "#FFFFFF",
+                    borderRadius: "14px",
+                    overflow: "hidden",
+                    border: "1px solid #ECE7F0",
+                    boxShadow: "0 2px 8px rgba(36, 33, 58, 0.04)",
+                  }}
+                >
+                  <div style={{ height: "260px", width: "100%", position: "relative" }}>
+                    <PosterArtwork
+                      template={tpl}
+                      userData={{
+                        name: user.name || "Parth Patel",
+                        avatarUrl:
+                          user.avatarUrl ||
+                          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80",
+                        phone: "+91 98765 43210",
+                        businessName: "Post Hub Studio",
+                        designation: "Founder",
+                      }}
+                    />
+                    {tpl.status === "Draft" && (
+                      <span
+                        style={{
+                          position: "absolute",
+                          top: "10px",
+                          left: "10px",
+                          fontSize: "10px",
+                          padding: "2px 7px",
+                          borderRadius: "4px",
+                          backgroundColor: "rgba(245, 158, 11, 0.9)",
+                          color: "#FFFFFF",
+                          fontWeight: 700,
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                        }}
+                      >
+                        Draft / New
+                      </span>
+                    )}
+                  </div>
+                  <div
+                    style={{
+                      padding: "12px 14px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: "13.5px", fontWeight: 700, color: "#24213A" }}>{tpl.name}</div>
+                      <div style={{ fontSize: "11px", color: "#8E8899" }}>
+                        {tpl.category} · {tpl.format}
+                      </div>
+                    </div>
+                    <Link
+                      href={`/admin/templates/visual-studio?id=${tpl.id}`}
+                      style={{
+                        padding: "6px 14px",
+                        borderRadius: "6px",
+                        backgroundColor: "#F4F0FB",
+                        color: "#7956C9",
+                        border: "none",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        textDecoration: "none",
+                        display: "inline-block",
+                      }}
+                    >
+                      Edit
+                    </Link>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
