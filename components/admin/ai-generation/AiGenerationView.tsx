@@ -153,7 +153,9 @@ export const AiGenerationView: React.FC<AiGenerationViewProps> = ({
 
   // Stable ref to fetchData for timers and debounces
   const fetchDataRef = React.useRef(fetchData);
-  fetchDataRef.current = fetchData;
+  useEffect(() => {
+    fetchDataRef.current = fetchData;
+  });
 
   // Search input debounced - only executes when searchQuery changes
   const isFirstSearchRender = React.useRef(true);

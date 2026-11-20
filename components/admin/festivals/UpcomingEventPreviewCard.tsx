@@ -38,10 +38,10 @@ export const UpcomingEventPreviewCard: React.FC<UpcomingEventPreviewCardProps> =
     event.templateThumbnails && event.templateThumbnails.length > 0
       ? event.templateThumbnails
       : [
-          "https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=300&q=80",
-          "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=300&q=80",
-          "https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=300&q=80",
-        ];
+        "https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=300&q=80",
+        "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=300&q=80",
+        "https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=300&q=80",
+      ];
 
   return (
     <div
