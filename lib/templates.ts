@@ -41,12 +41,23 @@ export interface TemplateSlotZone {
   wrapText?: boolean; // Wrap to next line when text exceeds width
   minFontSize?: number;
   maxFontSize?: number;
+  curvedText?: boolean;
+  curveAngle?: number; // -180 to 180 degrees arc curvature
+  textStrokeColor?: string;
+  textStrokeWidth?: number;
+  textGradient?: string;
+  letterSpacing?: number;
 
-  // Shape slot properties
+  // Shape & Element slot properties
   shapeType?: ShapeSlotType;
   backgroundColor?: string;
   opacity?: number;
   borderRadius?: number;
+  iconType?: "phone" | "whatsapp" | "email" | "location" | "website" | "lotus" | "hand" | "diya" | "flag" | "qr" | "party_symbol";
+
+  // Layer governance
+  locked?: boolean;
+  visible?: boolean;
 }
 
 export interface PosterTemplate {
