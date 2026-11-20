@@ -1,0 +1,106 @@
+[
+  {
+    "id": "TPL-009",
+    "name": "Festive Campaign Poster",
+    "category": "Festival",
+    "format": "3:4",
+    "status": "Published",
+    "updatedAt": "Nov 20, 2026",
+    "fileSize": "240 KB",
+    "description": "Custom visual studio template with dynamic slots.",
+    "theme": "Modern Festive",
+    "headline": "Festive Campaign Poster",
+    "subheadline": "Custom Headline",
+    "ctaText": "Learn More",
+    "primaryColor": "#7956C9",
+    "accentColor": "#6846B5",
+    "tags": [
+      "Festival",
+      "Poster"
+    ],
+    "aspectRatio": "3:4",
+    "assetFileName": "tpl-009-poster.jpg",
+    "assetDimensions": "1024 × 1365 px",
+    "editableTextFields": [
+      "Title",
+      "Subtitle"
+    ],
+    "textColours": [
+      "#1E3A8A",
+      "#7956C9",
+      "#24213A",
+      "#FFFFFF"
+    ],
+    "fontSelection": "Poppins",
+    "imageSlots": [
+      "Leader Silhouette"
+    ],
+    "alignment": "Center",
+    "backgroundImageUrl": "https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=1080&q=80",
+    "slotZones": [
+      {
+        "id": "zone-photo-leader",
+        "type": "photo",
+        "label": "Leader Silhouette",
+        "x": 6,
+        "y": 6,
+        "width": 48,
+        "height": 62,
+        "photoShape": "cutout",
+        "borderWidth": 0,
+        "shadow": false,
+        "featherBottom": true,
+        "objectFit": "contain",
+        "zIndex": 4
+      },
+      {
+        "id": "zone-footer-pill",
+        "type": "shape",
+        "label": "Footer Bar",
+        "x": 4,
+        "y": 88,
+        "width": 92,
+        "height": 9,
+        "shapeType": "pill",
+        "backgroundColor": "rgba(16, 43, 101, 0.95)",
+        "borderRadius": 999,
+        "opacity": 0.95,
+        "zIndex": 2
+      },
+      {
+        "id": "zone-text-name",
+        "type": "text",
+        "label": "User Name",
+        "x": 8,
+        "y": 89.5,
+        "width": 40,
+        "height": 6,
+        "textBinding": "name",
+        "fontSize": 15,
+        "color": "#FFFFFF",
+        "fontWeight": "800",
+        "fontFamily": "Poppins",
+        "alignment": "left",
+        "textShadow": true,
+        "zIndex": 5
+      },
+      {
+        "id": "zone-text-contact",
+        "type": "text",
+        "label": "Phone / Web",
+        "x": 52,
+        "y": 89.5,
+        "width": 42,
+        "height": 6,
+        "textBinding": "phone",
+        "fontSize": 12,
+        "color": "#FACC15",
+        "fontWeight": "700",
+        "fontFamily": "Poppins",
+        "alignment": "right",
+        "textShadow": true,
+        "zIndex": 5
+      }
+    ]
+  }
+]
