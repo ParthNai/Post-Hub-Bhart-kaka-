@@ -1,5 +1,7 @@
 "use client";
 
+import { AiSubscreenNav } from "../AiSubscreenNav";
+
 import React, { useState } from "react";
 import { AnalyticsHeader } from "./AnalyticsHeader";
 import { AnalyticsKpiCards } from "./AnalyticsKpiCards";
@@ -239,6 +241,9 @@ export function AnalyticsView({
         onExportBillingSummary={() => setIsBillingModalOpen(true)}
         userName={adminName}
       />
+
+      {/* Sub-screens Navigation Ribbon */}
+      <AiSubscreenNav />
 
       {/* 4 Top KPI Cards */}
       <AnalyticsKpiCards overview={dataset.overview} />

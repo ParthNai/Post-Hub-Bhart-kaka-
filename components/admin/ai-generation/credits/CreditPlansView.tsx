@@ -1,5 +1,7 @@
 "use client";
 
+import { AiSubscreenNav } from "../AiSubscreenNav";
+
 import React, { useState } from "react";
 import { CreditPlansHeader } from "./CreditPlansHeader";
 import { CreditSummaryCards } from "./CreditSummaryCards";
@@ -262,6 +264,9 @@ export function CreditPlansView({
         userName={adminName}
         isExporting={isExporting}
       />
+
+      {/* Sub-screens Navigation Ribbon */}
+      <AiSubscreenNav />
 
       {/* 4 Summary Cards */}
       <CreditSummaryCards summary={dataset.summary} />

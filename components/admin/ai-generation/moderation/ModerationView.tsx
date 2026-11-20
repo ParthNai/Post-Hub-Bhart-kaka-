@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { AiSubscreenNav } from "../AiSubscreenNav";
 import { ModerationHeader } from "./ModerationHeader";
 import { ModerationKpiCards } from "./ModerationKpiCards";
 import { GlobalSettingsCard } from "./GlobalSettingsCard";
@@ -300,17 +301,40 @@ export function ModerationView({
   }, [reasons, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] p-4 sm:p-6 lg:p-8 font-sans">
+    <div
+      style={{
+        padding: "24px 32px 60px",
+        maxWidth: "1600px",
+        margin: "0 auto",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "24px",
+        backgroundColor: "#FAF7F2",
+        fontFamily: "var(--font-sans, system-ui, -apple-system, sans-serif)",
+      }}
+    >
       {/* Toast Feedback */}
       {toast && (
         <div
-          className={`fixed bottom-20 right-6 z-50 px-4 py-2.5 rounded-xl text-white text-xs font-semibold shadow-xl transition-all animate-in slide-in-from-bottom-2 ${
-            toast.type === "success"
-              ? "bg-[#10B981]"
-              : toast.type === "error"
-              ? "bg-[#EF4444]"
-              : "bg-[#7956C9]"
-          }`}
+          style={{
+            position: "fixed",
+            bottom: "80px",
+            right: "24px",
+            zIndex: 9999,
+            padding: "10px 18px",
+            borderRadius: "12px",
+            color: "#FFFFFF",
+            fontSize: "13px",
+            fontWeight: 600,
+            boxShadow: "0 6px 20px rgba(0, 0, 0, 0.15)",
+            backgroundColor:
+              toast.type === "success"
+                ? "#10B981"
+                : toast.type === "error"
+                ? "#EF4444"
+                : "#7956C9",
+          }}
         >
           {toast.message}
         </div>
@@ -328,18 +352,28 @@ export function ModerationView({
         onSearchChange={setSearchQuery}
       />
 
+      {/* Sub-screens Navigation Ribbon */}
+      <AiSubscreenNav />
+
       {/* 4 KPI Cards */}
       <ModerationKpiCards metrics={metrics} />
 
       {/* Row 1: Left Global Moderation Settings + Right Moderation Categories */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
-        <div className="lg:col-span-5">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1.4fr",
+          gap: "24px",
+          alignItems: "start",
+        }}
+      >
+        <div style={{ minWidth: 0 }}>
           <GlobalSettingsCard
             settings={globals}
             onChange={(updates) => setGlobals((prev) => ({ ...prev, ...updates }))}
           />
         </div>
-        <div className="lg:col-span-7">
+        <div style={{ minWidth: 0 }}>
           <ModerationCategoriesGrid
             categories={filteredCategories}
             onToggleCategory={handleToggleCategory}
@@ -349,8 +383,15 @@ export function ModerationView({
       </div>
 
       {/* Row 2: Left Automatic Moderation Rules + Right Manual Review Configuration */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
-        <div className="lg:col-span-8">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1.4fr 1fr",
+          gap: "24px",
+          alignItems: "start",
+        }}
+      >
+        <div style={{ minWidth: 0 }}>
           <AutomaticRulesCard
             rules={filteredRules}
             onToggleRule={handleToggleRule}
@@ -359,7 +400,7 @@ export function ModerationView({
             onAddRule={() => setRuleModal({ isOpen: true, rule: null })}
           />
         </div>
-        <div className="lg:col-span-4">
+        <div style={{ minWidth: 0 }}>
           <ManualReviewCard
             config={manualReview}
             onChange={(updates) => setManualReview((prev) => ({ ...prev, ...updates }))}
@@ -368,8 +409,15 @@ export function ModerationView({
       </div>
 
       {/* Row 3: Left Rejection Reasons + Middle Unknown & Error Handling + Right Policy Preview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 mb-6">
-        <div className="lg:col-span-4">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr",
+          gap: "24px",
+          alignItems: "start",
+        }}
+      >
+        <div style={{ minWidth: 0 }}>
           <RejectionReasonsCard
             reasons={filteredReasons}
             onAddReason={() => setReasonModal({ isOpen: true, reason: null })}
@@ -377,7 +425,7 @@ export function ModerationView({
             onToggleStatus={handleToggleReasonStatus}
           />
         </div>
-        <div className="lg:col-span-4">
+        <div style={{ minWidth: 0 }}>
           <UnknownErrorHandlingCard
             config={errorHandling}
             onChange={(updates) =>
@@ -385,7 +433,7 @@ export function ModerationView({
             }
           />
         </div>
-        <div className="lg:col-span-4 md:col-span-2">
+        <div style={{ minWidth: 0 }}>
           <PolicyPreviewCard
             onOpenSimulator={() => setIsPreviewOpen(true)}
           />

@@ -1,5 +1,7 @@
 "use client";
 
+import { AiSubscreenNav } from "../AiSubscreenNav";
+
 import React, { useState, useCallback } from "react";
 import type {
   AiPromptPreset,
@@ -392,6 +394,9 @@ export function PresetsView({
         userName={adminName}
         userRole={adminRole}
       />
+
+      {/* Sub-screens Navigation Ribbon */}
+      <AiSubscreenNav />
 
       {/* KPI Cards */}
       <PresetKpiCards metrics={metrics} onFilterClick={handleKpiFilter} />

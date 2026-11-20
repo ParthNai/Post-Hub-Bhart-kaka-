@@ -1,5 +1,7 @@
 "use client";
 
+import { AiSubscreenNav } from "../AiSubscreenNav";
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
@@ -211,12 +213,15 @@ export const CredentialsView: React.FC = () => {
   return (
     <div
       style={{
+        padding: "24px 32px 60px",
+        maxWidth: "1600px",
+        margin: "0 auto",
+        width: "100%",
         display: "flex",
-        minHeight: "100vh",
+        flexDirection: "column",
+        gap: "24px",
         backgroundColor: "#FAF7F2",
-        fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-      }}
-    >
+      }}>
       {/* Toast Notification */}
       {toastMessage && (
         <div
@@ -243,236 +248,7 @@ export const CredentialsView: React.FC = () => {
       )}
 
       {/* Left Sidebar */}
-      <aside
-        style={{
-          width: "250px",
-          backgroundColor: "#FFFFFF",
-          borderRight: "1px solid #EAE4EE",
-          display: "flex",
-          flexDirection: "column",
-          flexShrink: 0,
-        }}
-      >
-        {/* Brand Header */}
-        <div
-          style={{
-            height: "70px",
-            padding: "0 22px",
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            borderBottom: "1px solid #EAE4EE",
-          }}
-        >
-          <div
-            style={{
-              width: "38px",
-              height: "38px",
-              borderRadius: "10px",
-              background: "linear-gradient(135deg, #7956C9 0%, #906FE2 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#FFFFFF",
-              fontWeight: 800,
-              fontSize: "18px",
-              boxShadow: "0 2px 6px rgba(121, 86, 201, 0.3)",
-            }}
-          >
-            P
-          </div>
-          <div>
-            <div style={{ fontSize: "16px", fontWeight: 700, color: "#24213A", letterSpacing: "-0.01em" }}>
-              Post Hub
-            </div>
-            <div style={{ fontSize: "11px", color: "#777184" }}>Admin Panel</div>
-          </div>
-        </div>
-
-        {/* Navigation List */}
-        <nav style={{ padding: "16px 12px", display: "flex", flexDirection: "column", gap: "3px", flex: 1 }}>
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = item.active;
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  padding: "10px 14px",
-                  borderRadius: "8px",
-                  fontSize: "13px",
-                  fontWeight: isActive ? 600 : 500,
-                  color: isActive ? "#7956C9" : "#777184",
-                  backgroundColor: isActive ? "#F4EFFC" : "transparent",
-                  textDecoration: "none",
-                  transition: "all 0.15s ease",
-                }}
-              >
-                <Icon size={17} color={isActive ? "#7956C9" : "#777184"} />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Sidebar Footer */}
-        <div
-          style={{
-            padding: "16px 20px",
-            borderTop: "1px solid #EAE4EE",
-            fontSize: "11px",
-            color: "#777184",
-          }}
-        >
-          <div>Post Hub v1.0.0</div>
-          <div style={{ marginTop: "2px" }}>© 2025 KnowledgePark</div>
-        </div>
-      </aside>
-
-      {/* Main Content Area */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, overflowX: "hidden" }}>
-        {/* Top Navbar */}
-        <header
-          style={{
-            height: "70px",
-            backgroundColor: "#FFFFFF",
-            borderBottom: "1px solid #EAE4EE",
-            padding: "0 28px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "20px",
-            flexShrink: 0,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "16px", flex: 1, maxWidth: "480px" }}>
-            <button
-              type="button"
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                color: "#777184",
-                padding: "4px",
-                display: "flex",
-              }}
-            >
-              <Menu size={20} />
-            </button>
-            <div style={{ position: "relative", width: "100%" }}>
-              <Search
-                size={16}
-                style={{
-                  position: "absolute",
-                  left: "14px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "#777184",
-                }}
-              />
-              <input
-                type="text"
-                placeholder="Search anything..."
-                style={{
-                  width: "100%",
-                  height: "40px",
-                  paddingLeft: "40px",
-                  paddingRight: "14px",
-                  borderRadius: "20px",
-                  border: "1px solid #EAE4EE",
-                  backgroundColor: "#FAF7F2",
-                  fontSize: "13px",
-                  color: "#24213A",
-                  outline: "none",
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Right Header items */}
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            {/* Bell */}
-            <div style={{ position: "relative" }}>
-              <button
-                type="button"
-                style={{
-                  width: "38px",
-                  height: "38px",
-                  borderRadius: "50%",
-                  backgroundColor: "#FAF7F2",
-                  border: "1px solid #EAE4EE",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  color: "#777184",
-                }}
-              >
-                <Bell size={18} />
-              </button>
-              <span
-                style={{
-                  position: "absolute",
-                  top: "-2px",
-                  right: "-2px",
-                  backgroundColor: "#EF4444",
-                  color: "#FFFFFF",
-                  fontSize: "10px",
-                  fontWeight: 700,
-                  width: "16px",
-                  height: "16px",
-                  borderRadius: "50%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  border: "2px solid #FFFFFF",
-                }}
-              >
-                3
-              </span>
-            </div>
-
-            {/* Admin Avatar */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                padding: "4px 8px 4px 4px",
-                borderRadius: "20px",
-                backgroundColor: "#FAF7F2",
-                border: "1px solid #EAE4EE",
-                cursor: "pointer",
-              }}
-            >
-              <div
-                style={{
-                  width: "32px",
-                  height: "32px",
-                  borderRadius: "50%",
-                  backgroundColor: "#7956C9",
-                  color: "#FFFFFF",
-                  fontWeight: 700,
-                  fontSize: "13px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                P
-              </div>
-              <span style={{ fontSize: "13px", fontWeight: 600, color: "#24213A" }}>Parth Admin</span>
-              <ChevronDown size={14} color="#777184" />
-            </div>
-          </div>
-        </header>
-
-        {/* Page Container */}
-        <main style={{ padding: "28px", flex: 1 }}>
+      
           {/* Header */}
           <CredentialsHeader
             onAddCredential={() => setIsDrawerOpen(!isDrawerOpen)}
@@ -480,6 +256,9 @@ export const CredentialsView: React.FC = () => {
             onOpenSecuritySettings={() => setSecurityModalOpen(true)}
             isDrawerOpen={isDrawerOpen}
           />
+
+          {/* Sub-screens Navigation Ribbon */}
+          <AiSubscreenNav />
 
           {/* 4 Summary Cards */}
           <CredentialsSummaryCards metrics={dataset.summary} />
@@ -534,8 +313,7 @@ export const CredentialsView: React.FC = () => {
               />
             )}
           </div>
-        </main>
-      </div>
+        
 
       {/* Revoke Confirmation Modal */}
       <RevokeConfirmModal

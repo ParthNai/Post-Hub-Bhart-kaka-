@@ -1,3 +1,5 @@
+@import "./tailwind-custom.css";
+
 :root {
   --bg: #FAF7F2;
   --primary: #7956C9;

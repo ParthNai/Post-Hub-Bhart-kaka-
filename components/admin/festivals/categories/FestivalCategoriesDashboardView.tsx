@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Menu, Search, Bell, ChevronDown } from "lucide-react";
-import { Sidebar } from "@/components/admin/Sidebar";
-import { SidebarProvider } from "@/components/admin/SidebarContext";
 import { FestivalCategoriesHeader } from "./FestivalCategoriesHeader";
 import { CategorySummaryCards } from "./CategorySummaryCards";
 import { CategoryGridSection } from "./CategoryGridSection";
@@ -337,176 +335,19 @@ export const FestivalCategoriesDashboardView: React.FC = () => {
   };
 
   return (
-    <SidebarProvider>
-      <div
-        style={{
-          display: "flex",
-          minHeight: "100vh",
-          backgroundColor: "#FAF7F2",
-          color: "#24213A",
-          fontFamily:
-            '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-        }}
-      >
+    <div
+      style={{
+        padding: "24px 32px 60px",
+        maxWidth: "1600px",
+        margin: "0 auto",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "24px",
+        backgroundColor: "#FAF7F2",
+      }}>
         {/* Main Admin Sidebar */}
-        <Sidebar />
-
-        {/* Content Area */}
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            minWidth: 0,
-            overflowX: "hidden",
-          }}
-        >
-          {/* Top Navbar matching reference image */}
-          <header
-            style={{
-              height: "70px",
-              backgroundColor: "#FFFFFF",
-              borderBottom: "1px solid #EAE4EE",
-              padding: "0 28px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "20px",
-              flexShrink: 0,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "16px", flex: 1, maxWidth: "480px" }}>
-              <button
-                type="button"
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  color: "#777184",
-                  padding: "4px",
-                  display: "flex",
-                }}
-              >
-                <Menu size={20} />
-              </button>
-              <div style={{ position: "relative", width: "100%" }}>
-                <Search
-                  size={16}
-                  style={{
-                    position: "absolute",
-                    left: "14px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    color: "#777184",
-                  }}
-                />
-                <input
-                  type="text"
-                  placeholder="Search anything..."
-                  style={{
-                    width: "100%",
-                    height: "40px",
-                    paddingLeft: "40px",
-                    paddingRight: "14px",
-                    borderRadius: "20px",
-                    border: "1px solid #EAE4EE",
-                    backgroundColor: "#FAF7F2",
-                    fontSize: "13px",
-                    color: "#24213A",
-                    outline: "none",
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Right Header items */}
-            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              {/* Bell with notification badge 3 */}
-              <div style={{ position: "relative" }}>
-                <button
-                  type="button"
-                  style={{
-                    width: "38px",
-                    height: "38px",
-                    borderRadius: "50%",
-                    backgroundColor: "#FAF7F2",
-                    border: "1px solid #EAE4EE",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    color: "#777184",
-                  }}
-                >
-                  <Bell size={18} />
-                </button>
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "-2px",
-                    right: "-2px",
-                    backgroundColor: "#EF4444",
-                    color: "#FFFFFF",
-                    fontSize: "10px",
-                    fontWeight: 700,
-                    width: "16px",
-                    height: "16px",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    border: "2px solid #FFFFFF",
-                  }}
-                >
-                  3
-                </span>
-              </div>
-
-              {/* Admin Profile */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  padding: "4px 8px 4px 4px",
-                  borderRadius: "20px",
-                  backgroundColor: "#FAF7F2",
-                  border: "1px solid #EAE4EE",
-                  cursor: "pointer",
-                }}
-              >
-                <div
-                  style={{
-                    width: "32px",
-                    height: "32px",
-                    borderRadius: "50%",
-                    backgroundColor: "#7956C9",
-                    color: "#FFFFFF",
-                    fontWeight: 700,
-                    fontSize: "13px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  P
-                </div>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "#24213A" }}>Parth Admin</span>
-                <ChevronDown size={14} color="#777184" />
-              </div>
-            </div>
-          </header>
-
-          {/* Main Dashboard Canvas */}
-          <main
-            style={{
-              flex: 1,
-              padding: "24px 32px 48px 32px",
-              maxWidth: "1600px",
-              width: "100%",
-              margin: "0 auto",
-            }}
-          >
+        
             {/* Toast Banner */}
             {toastMessage && (
               <div
@@ -616,8 +457,7 @@ export const FestivalCategoriesDashboardView: React.FC = () => {
                 />
               </div>
             </div>
-          </main>
-        </div>
+          
 
         {/* Right-Side Add / Edit Drawer */}
         <AddEditCategoryDrawer
@@ -667,6 +507,5 @@ export const FestivalCategoriesDashboardView: React.FC = () => {
           onSavePriority={handleSavePriority}
         />
       </div>
-    </SidebarProvider>
-  );
+      );
 };

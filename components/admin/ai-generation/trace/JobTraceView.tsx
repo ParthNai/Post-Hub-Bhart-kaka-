@@ -1,5 +1,7 @@
 "use client";
 
+import { AiSubscreenNav } from "../AiSubscreenNav";
+
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
@@ -191,13 +193,15 @@ export const JobTraceView: React.FC = () => {
   return (
     <div
       style={{
+        padding: "24px 32px 60px",
+        maxWidth: "1600px",
+        margin: "0 auto",
+        width: "100%",
         display: "flex",
-        minHeight: "100vh",
+        flexDirection: "column",
+        gap: "24px",
         backgroundColor: "#FAF7F2",
-        color: "#24213A",
-        fontFamily: "var(--font-sans, system-ui, -apple-system, sans-serif)",
-      }}
-    >
+      }}>
       {/* Toast */}
       {toastMessage && (
         <div
@@ -344,220 +348,16 @@ export const JobTraceView: React.FC = () => {
       )}
 
       {/* Sidebar Navigation */}
-      <aside
-        style={{
-          width: "240px",
-          backgroundColor: "#FFFFFF",
-          borderRight: "1px solid #EAE4EE",
-          display: "flex",
-          flexDirection: "column",
-          flexShrink: 0,
-        }}
-      >
-        {/* Brand */}
-        <div
-          style={{
-            padding: "20px 24px",
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            borderBottom: "1px solid #F1EDF5",
-          }}
-        >
-          <div
-            style={{
-              width: "32px",
-              height: "32px",
-              borderRadius: "8px",
-              backgroundColor: "#7956C9",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#FFFFFF",
-              fontWeight: 800,
-              fontSize: "18px",
-            }}
-          >
-            P
-          </div>
-          <div>
-            <div style={{ fontSize: "16px", fontWeight: 700, color: "#24213A", lineHeight: 1.1 }}>
-              Post Hub
-            </div>
-            <div style={{ fontSize: "11px", color: "#777184" }}>Admin Panel</div>
-          </div>
-        </div>
-
-        {/* Sidebar Nav Items */}
-        <nav
-          style={{
-            padding: "16px 12px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "4px",
-            flex: 1,
-            overflowY: "auto",
-          }}
-        >
-          {[
-            { label: "Dashboard", icon: <LayoutDashboard size={16} />, href: "/admin/dashboard" },
-            { label: "App Screens", icon: <Smartphone size={16} />, href: "/admin/screens" },
-            { label: "Design System", icon: <Palette size={16} />, href: "/admin/design-system" },
-            { label: "Templates", icon: <LayoutTemplate size={16} />, href: "/admin/templates" },
-            {
-              label: "AI Image Generation",
-              icon: <Sparkles size={16} />,
-              href: "/admin/ai-generation",
-              active: true,
-            },
-            { label: "Festivals & Events", icon: <PartyPopper size={16} />, href: "/admin/festivals" },
-            { label: "Users", icon: <Users size={16} />, href: "/admin/users" },
-            { label: "Subscriptions & Payments", icon: <CreditCard size={16} />, href: "/admin/subscriptions" },
-            { label: "Home Content", icon: <Home size={16} />, href: "/admin/home-content" },
-            { label: "Notifications", icon: <Bell size={16} />, href: "/admin/notifications" },
-            { label: "Roles & Permissions", icon: <ShieldCheck size={16} />, href: "/admin/roles" },
-            { label: "System Health", icon: <Activity size={16} />, href: "/admin/system-health" },
-            { label: "Support & Settings", icon: <SettingsIcon size={16} />, href: "/admin/settings" },
-          ].map((nav) => (
-            <Link
-              key={nav.label}
-              href={nav.href}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                padding: "9px 12px",
-                borderRadius: "8px",
-                textDecoration: "none",
-                fontSize: "13px",
-                fontWeight: nav.active ? 600 : 500,
-                color: nav.active ? "#7956C9" : "#544E61",
-                backgroundColor: nav.active ? "#F3EFFC" : "transparent",
-                transition: "all 0.15s ease",
-              }}
-            >
-              <span style={{ color: nav.active ? "#7956C9" : "#777184" }}>{nav.icon}</span>
-              <span>{nav.label}</span>
-            </Link>
-          ))}
-        </nav>
-
-        {/* Footer info */}
-        <div style={{ padding: "16px 20px", borderTop: "1px solid #F1EDF5", fontSize: "11px", color: "#A09BAA" }}>
-          <div>Post Hub v1.0.0</div>
-          <div>© 2025 KnowledgePark</div>
-        </div>
-      </aside>
-
-      {/* Main Content Area */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-        {/* Global Top Header */}
-        <header
-          style={{
-            height: "56px",
-            backgroundColor: "#FFFFFF",
-            borderBottom: "1px solid #EAE4EE",
-            padding: "0 24px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          {/* Search bar */}
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", width: "400px" }}>
-            <Menu size={18} color="#777184" style={{ cursor: "pointer" }} />
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                backgroundColor: "#FAF7F2",
-                border: "1px solid #EAE4EE",
-                borderRadius: "8px",
-                padding: "6px 12px",
-                width: "100%",
-              }}
-            >
-              <Search size={14} color="#777184" />
-              <input
-                type="text"
-                placeholder="Search anything..."
-                style={{
-                  border: "none",
-                  background: "transparent",
-                  outline: "none",
-                  fontSize: "13px",
-                  color: "#24213A",
-                  width: "100%",
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Right: Notifications & Admin avatar */}
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <div style={{ position: "relative", cursor: "pointer" }}>
-              <Bell size={18} color="#544E61" />
-              <span
-                style={{
-                  position: "absolute",
-                  top: "-4px",
-                  right: "-4px",
-                  backgroundColor: "#DC2626",
-                  color: "#FFFFFF",
-                  fontSize: "9px",
-                  fontWeight: 700,
-                  width: "14px",
-                  height: "14px",
-                  borderRadius: "50%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                3
-              </span>
-            </div>
-
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
-              <div
-                style={{
-                  width: "32px",
-                  height: "32px",
-                  borderRadius: "50%",
-                  backgroundColor: "#7956C9",
-                  color: "#FFFFFF",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 700,
-                  fontSize: "13px",
-                }}
-              >
-                P
-              </div>
-              <span style={{ fontSize: "13px", fontWeight: 600, color: "#24213A" }}>
-                Parth Admin
-              </span>
-              <ChevronDown size={14} color="#777184" />
-            </div>
-          </div>
-        </header>
-
-        {/* Scrollable Page Workspace */}
-        <main
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            padding: "24px",
-          }}
-        >
+      
           {/* Page Header with Action Buttons */}
           <JobTraceHeader
             onRefresh={handleRefresh}
             onExportTrace={handleExportTrace}
             isRefreshing={isRefreshing}
           />
+
+          {/* Sub-screens Navigation Ribbon */}
+          <AiSubscreenNav />
 
           {/* Main 2-Column Grid matching 4K Reference Design */}
           <div
@@ -639,8 +439,7 @@ export const JobTraceView: React.FC = () => {
               />
             </div>
           </div>
-        </main>
-      </div>
+        
     </div>
   );
 };

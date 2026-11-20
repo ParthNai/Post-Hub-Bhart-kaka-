@@ -8,6 +8,7 @@ import type {
   AiQueueSettings,
 } from "@/lib/ai-queue";
 import { QueueHeader } from "./QueueHeader";
+import { AiSubscreenNav } from "../AiSubscreenNav";
 import { QueueKpiCards } from "./QueueKpiCards";
 import { ProcessingOverviewStrip } from "./ProcessingOverviewStrip";
 import { RequestQueueTable } from "./RequestQueueTable";
@@ -288,6 +289,9 @@ export function QueueMonitorView({
         userName={adminName}
         userRole={adminRole}
       />
+
+      {/* Sub-screens Navigation Ribbon */}
+      <AiSubscreenNav />
 
       {/* Top 4 KPI Metrics */}
       <QueueKpiCards metrics={metrics} onFilterClick={handleKpiFilter} />

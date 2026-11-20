@@ -2,7 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { RefreshCw, Settings, BookOpen, Bell, Sparkles, ListFilter, Image as ImageIcon, Shield, BarChart3, Coins, History, Zap, GitBranch, Clock, Cpu, Key, Activity } from "lucide-react";
+import { RefreshCw, Settings, BookOpen, Bell } from "lucide-react";
+import { AiSubscreenNav } from "./AiSubscreenNav";
 
 interface AiGenerationHeaderProps {
   onRefresh: () => void;
@@ -26,8 +27,8 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: "16px",
-        marginBottom: "24px",
+        gap: "18px",
+        marginBottom: "20px",
       }}
     >
       {/* Top Meta Bar: Breadcrumbs on Left, Admin User Info on Right */}
@@ -47,20 +48,20 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
             alignItems: "center",
             gap: "8px",
             fontSize: "13px",
-            color: "var(--text-muted)",
+            color: "#777184",
           }}
         >
           <Link
             href="/admin/dashboard"
             style={{
-              color: "var(--text-muted)",
+              color: "#777184",
               textDecoration: "none",
             }}
           >
             Admin
           </Link>
           <span style={{ opacity: 0.5 }}>/</span>
-          <span style={{ color: "var(--primary)", fontWeight: 600 }}>
+          <span style={{ color: "#7956C9", fontWeight: 600 }}>
             AI Image Generation
           </span>
         </div>
@@ -77,7 +78,7 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
               border: "none",
               cursor: "pointer",
               padding: "6px",
-              color: "var(--text-muted)",
+              color: "#777184",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -93,7 +94,7 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
                 height: "7px",
                 backgroundColor: "#EF4444",
                 borderRadius: "50%",
-                border: "2px solid var(--background)",
+                border: "2px solid #FFFFFF",
               }}
             />
           </button>
@@ -105,8 +106,8 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
                 width: "36px",
                 height: "36px",
                 borderRadius: "50%",
-                backgroundColor: "var(--primary-light)",
-                color: "var(--primary)",
+                backgroundColor: "#F4F0FB",
+                color: "#7956C9",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -121,7 +122,7 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
                 style={{
                   fontSize: "13px",
                   fontWeight: 600,
-                  color: "var(--foreground)",
+                  color: "#24213A",
                   lineHeight: "1.2",
                 }}
               >
@@ -130,7 +131,7 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
               <span
                 style={{
                   fontSize: "11px",
-                  color: "var(--text-muted)",
+                  color: "#777184",
                   lineHeight: "1.2",
                 }}
               >
@@ -141,11 +142,11 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
         </div>
       </div>
 
-      {/* Main Title Row & Actions */}
+      {/* Main Title Row & Primary Actions */}
       <div
         style={{
           display: "flex",
-          alignItems: "flex-end",
+          alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
           gap: "16px",
@@ -156,7 +157,7 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
             style={{
               fontSize: "24px",
               fontWeight: 700,
-              color: "var(--foreground)",
+              color: "#24213A",
               letterSpacing: "-0.02em",
               margin: 0,
             }}
@@ -166,7 +167,7 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
           <p
             style={{
               fontSize: "14px",
-              color: "var(--text-muted)",
+              color: "#777184",
               marginTop: "4px",
               marginBottom: 0,
             }}
@@ -175,368 +176,8 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
           </p>
         </div>
 
-        {/* Action Buttons */}
+        {/* Primary Page Action Buttons */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          {/* Moderation Policies button */}
-          <Link
-            href="/admin/ai-generation/policies"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "7px",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--primary)",
-              border: "1px solid var(--border)",
-              cursor: "pointer",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-              transition: "all 0.15s ease",
-              textDecoration: "none",
-            }}
-          >
-            <Shield size={14} />
-            <span>Moderation Policies</span>
-          </Link>
-
-          {/* Generated Images button */}
-          <Link
-            href="/admin/ai-generation/images"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "7px",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--primary)",
-              border: "1px solid var(--border)",
-              cursor: "pointer",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-              transition: "all 0.15s ease",
-              textDecoration: "none",
-            }}
-          >
-            <ImageIcon size={14} />
-            <span>Image Library</span>
-          </Link>
-
-          {/* Queue Monitor button */}
-          <Link
-            href="/admin/ai-generation/queue"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "7px",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--primary)",
-              border: "1px solid var(--border)",
-              cursor: "pointer",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-              transition: "all 0.15s ease",
-              textDecoration: "none",
-            }}
-          >
-            <ListFilter size={14} />
-            <span>Queue Monitor</span>
-          </Link>
-
-          {/* Prompt Rules & Presets button */}
-          <Link
-            href="/admin/ai-generation/presets"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "7px",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--primary)",
-              border: "1px solid var(--border)",
-              cursor: "pointer",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-              transition: "all 0.15s ease",
-              textDecoration: "none",
-            }}
-          >
-            <Sparkles size={14} />
-            <span>Prompt Rules & Presets</span>
-          </Link>
-
-          {/* Usage & Cost Analytics button */}
-          <Link
-            href="/admin/ai-generation/analytics"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "7px",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--primary)",
-              border: "1px solid var(--border)",
-              cursor: "pointer",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-              transition: "all 0.15s ease",
-              textDecoration: "none",
-            }}
-          >
-            <BarChart3 size={14} />
-            <span>Usage & Cost Analytics</span>
-          </Link>
-
-          {/* Credit Plans & User Allocation button */}
-          <Link
-            href="/admin/ai-generation/credits"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "7px",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--primary)",
-              border: "1px solid var(--border)",
-              cursor: "pointer",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-              transition: "all 0.15s ease",
-              textDecoration: "none",
-            }}
-          >
-            <Coins size={14} />
-            <span>Credit Plans & Allocation</span>
-          </Link>
-
-          {/* Credit Transactions & Audit Trail button */}
-          <Link
-            href="/admin/ai-generation/audit"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "7px",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--primary)",
-              border: "1px solid var(--border)",
-              cursor: "pointer",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-              transition: "all 0.15s ease",
-              textDecoration: "none",
-            }}
-          >
-            <History size={14} />
-            <span>Audit Trail & Ledger</span>
-          </Link>
-
-          {/* Provider Health & Performance button */}
-          <Link
-            href="/admin/ai-generation/health"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "7px",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--primary)",
-              border: "1px solid var(--border)",
-              cursor: "pointer",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-              transition: "all 0.15s ease",
-              textDecoration: "none",
-            }}
-          >
-            <Zap size={14} />
-            <span>Provider Health & Performance</span>
-          </Link>
-
-          {/* Provider Failover & Routing button */}
-          <Link
-            href="/admin/ai-generation/routing"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "7px",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--primary)",
-              border: "1px solid var(--border)",
-              cursor: "pointer",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-              transition: "all 0.15s ease",
-              textDecoration: "none",
-            }}
-          >
-            <GitBranch size={14} />
-            <span>Failover & Routing</span>
-          </Link>
-
-          {/* Queue Priority & Scheduling button */}
-          <Link
-            href="/admin/ai-generation/queue-priority"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "7px",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--primary)",
-              border: "1px solid var(--border)",
-              cursor: "pointer",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-              transition: "all 0.15s ease",
-              textDecoration: "none",
-            }}
-          >
-            <Clock size={14} />
-            <span>Priority & Scheduling</span>
-          </Link>
-
-          {/* Queue Workers & Controls button */}
-          <Link
-            href="/admin/ai-generation/workers"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "7px",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--primary)",
-              border: "1px solid var(--border)",
-              cursor: "pointer",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-              transition: "all 0.15s ease",
-              textDecoration: "none",
-            }}
-          >
-            <Cpu size={14} />
-            <span>Workers & Controls</span>
-          </Link>
-
-          {/* Job Details & Trace button */}
-          <Link
-            href="/admin/ai-generation/trace"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "7px",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--primary)",
-              border: "1px solid var(--border)",
-              cursor: "pointer",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-              transition: "all 0.15s ease",
-              textDecoration: "none",
-            }}
-          >
-            <Zap size={14} />
-            <span>Job Trace</span>
-          </Link>
-
-          {/* Request Logs & API Activity Monitor button */}
-          <Link
-            href="/admin/ai-generation/logs"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "7px",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--primary)",
-              border: "1px solid var(--border)",
-              cursor: "pointer",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-              transition: "all 0.15s ease",
-              textDecoration: "none",
-            }}
-          >
-            <Activity size={14} />
-            <span>Request Logs</span>
-          </Link>
-
-          {/* Rate Limits & Throttling Configuration button */}
-          <Link
-            href="/admin/ai-generation/rate-limits"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "7px",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--primary)",
-              border: "1px solid var(--border)",
-              cursor: "pointer",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-              transition: "all 0.15s ease",
-              textDecoration: "none",
-            }}
-          >
-            <Shield size={14} />
-            <span>Rate Limits</span>
-          </Link>
-
-          {/* API Keys & Credentials Management button */}
-          <Link
-            href="/admin/ai-generation/credentials"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "7px",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--primary)",
-              border: "1px solid var(--border)",
-              cursor: "pointer",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-              transition: "all 0.15s ease",
-              textDecoration: "none",
-            }}
-          >
-            <Key size={14} />
-            <span>API Keys & Credentials</span>
-          </Link>
-
           {/* Refresh button */}
           <button
             type="button"
@@ -550,9 +191,9 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
               borderRadius: "8px",
               fontSize: "13px",
               fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--foreground)",
-              border: "1px solid var(--border)",
+              backgroundColor: "#FFFFFF",
+              color: "#24213A",
+              border: "1px solid #EAE4EE",
               cursor: isRefreshing ? "not-allowed" : "pointer",
               boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
               transition: "all 0.15s ease",
@@ -579,9 +220,9 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
               borderRadius: "8px",
               fontSize: "13px",
               fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--foreground)",
-              border: "1px solid var(--border)",
+              backgroundColor: "#FFFFFF",
+              color: "#24213A",
+              border: "1px solid #EAE4EE",
               cursor: "pointer",
               boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
               transition: "all 0.15s ease",
@@ -603,9 +244,9 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
               borderRadius: "8px",
               fontSize: "13px",
               fontWeight: 600,
-              backgroundColor: "var(--surface)",
-              color: "var(--foreground)",
-              border: "1px solid var(--border)",
+              backgroundColor: "#FFFFFF",
+              color: "#24213A",
+              border: "1px solid #EAE4EE",
               cursor: "pointer",
               boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
               transition: "all 0.15s ease",
@@ -616,7 +257,9 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
           </button>
         </div>
       </div>
+
+      {/* AI Module Sub-screens Navigation Ribbon */}
+      <AiSubscreenNav />
     </div>
   );
 };
-

@@ -7,6 +7,7 @@ import {
   MonitoringSettings,
 } from "@/lib/ai-provider-health";
 import { ProviderHealthHeader } from "./ProviderHealthHeader";
+import { AiSubscreenNav } from "../AiSubscreenNav";
 import { ProviderHealthSummaryCards } from "./ProviderHealthSummaryCards";
 import { ProviderStatusOverview } from "./ProviderStatusOverview";
 import { ModelPerformanceTable } from "./ModelPerformanceTable";
@@ -152,6 +153,9 @@ export const ProviderHealthView: React.FC = () => {
         isChecking={isChecking}
         adminName="Parth Admin"
       />
+
+      {/* Sub-screens Navigation Ribbon */}
+      <AiSubscreenNav />
 
       {/* 4 Summary Cards */}
       <ProviderHealthSummaryCards metrics={data.summary} />

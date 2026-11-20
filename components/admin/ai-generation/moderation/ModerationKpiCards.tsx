@@ -9,88 +9,148 @@ interface ModerationKpiCardsProps {
 }
 
 export function ModerationKpiCards({ metrics }: ModerationKpiCardsProps) {
+  const cards = [
+    {
+      label: "Active Policies",
+      value: metrics.activePolicies,
+      change: metrics.activePoliciesChange,
+      changeColor: "#10B981",
+      changeBg: "#ECFDF5",
+      changeBorder: "#A7F3D0",
+      icon: ShieldCheck,
+    },
+    {
+      label: "Enabled Checks",
+      value: metrics.enabledChecks,
+      change: metrics.enabledChecksChange,
+      changeColor: "#10B981",
+      changeBg: "#ECFDF5",
+      changeBorder: "#A7F3D0",
+      icon: Settings2,
+    },
+    {
+      label: "Pending Review Rules",
+      value: metrics.pendingReviewRules,
+      change: metrics.pendingReviewRulesChange,
+      changeColor: "#7956C9",
+      changeBg: "#F4EFFC",
+      changeBorder: "#DDD2F3",
+      icon: Clock,
+    },
+    {
+      label: "Last Policy Update",
+      value: metrics.lastPolicyUpdate,
+      sublabel: metrics.policyStatusBadge,
+      isDate: true,
+      icon: Calendar,
+    },
+  ];
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      {/* Card 1: Active Policies */}
-      <div className="bg-white p-5 rounded-2xl border border-[#EAE4EE] shadow-2xs hover:shadow-xs transition-all flex items-center justify-between">
-        <div>
-          <span className="text-xs font-semibold text-[#777184] uppercase tracking-wider block mb-1">
-            Active Policies
-          </span>
-          <div className="flex items-baseline gap-2.5">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#24213A]">
-              {metrics.activePolicies}
-            </span>
-            <span className="inline-flex items-center text-xs font-bold text-[#10B981] bg-[#ECFDF5] px-2 py-0.5 rounded-full border border-[#A7F3D0]">
-              {metrics.activePoliciesChange}
-            </span>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+        gap: "16px",
+        marginBottom: "20px",
+      }}
+    >
+      {cards.map((c, idx) => {
+        const Icon = c.icon;
+        return (
+          <div
+            key={idx}
+            style={{
+              backgroundColor: "#FFFFFF",
+              borderRadius: "14px",
+              padding: "18px 20px",
+              border: "1px solid #EAE4EE",
+              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "14px",
+            }}
+          >
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span
+                style={{
+                  fontSize: "11.5px",
+                  fontWeight: 600,
+                  color: "#777184",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  display: "block",
+                  marginBottom: "4px",
+                }}
+              >
+                {c.label}
+              </span>
+              <div style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
+                <span
+                  style={{
+                    fontSize: c.isDate ? "15px" : "24px",
+                    fontWeight: 700,
+                    color: "#24213A",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  {c.value}
+                </span>
+                {c.change && (
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      color: c.changeColor,
+                      backgroundColor: c.changeBg,
+                      border: `1px solid ${c.changeBorder}`,
+                      padding: "1px 7px",
+                      borderRadius: "12px",
+                    }}
+                  >
+                    {c.change}
+                  </span>
+                )}
+                {c.sublabel && (
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      color: "#10B981",
+                      backgroundColor: "#ECFDF5",
+                      border: "1px solid #A7F3D0",
+                      padding: "1px 7px",
+                      borderRadius: "12px",
+                    }}
+                  >
+                    {c.sublabel}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div
+              style={{
+                width: "44px",
+                height: "44px",
+                borderRadius: "12px",
+                backgroundColor: "#F4EFFC",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#7956C9",
+                flexShrink: 0,
+              }}
+            >
+              <Icon size={20} />
+            </div>
           </div>
-        </div>
-        <div className="w-12 h-12 rounded-2xl bg-[#E8DFF5]/60 flex items-center justify-center text-[#7956C9] shrink-0">
-          <ShieldCheck className="w-6 h-6 stroke-[2]" />
-        </div>
-      </div>
-
-      {/* Card 2: Enabled Checks */}
-      <div className="bg-white p-5 rounded-2xl border border-[#EAE4EE] shadow-2xs hover:shadow-xs transition-all flex items-center justify-between">
-        <div>
-          <span className="text-xs font-semibold text-[#777184] uppercase tracking-wider block mb-1">
-            Enabled Checks
-          </span>
-          <div className="flex items-baseline gap-2.5">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#24213A]">
-              {metrics.enabledChecks}
-            </span>
-            <span className="inline-flex items-center text-xs font-bold text-[#10B981] bg-[#ECFDF5] px-2 py-0.5 rounded-full border border-[#A7F3D0]">
-              {metrics.enabledChecksChange}
-            </span>
-          </div>
-        </div>
-        <div className="w-12 h-12 rounded-2xl bg-[#E8DFF5]/60 flex items-center justify-center text-[#7956C9] shrink-0">
-          <Settings2 className="w-6 h-6 stroke-[2]" />
-        </div>
-      </div>
-
-      {/* Card 3: Pending Review Rules */}
-      <div className="bg-white p-5 rounded-2xl border border-[#EAE4EE] shadow-2xs hover:shadow-xs transition-all flex items-center justify-between">
-        <div>
-          <span className="text-xs font-semibold text-[#777184] uppercase tracking-wider block mb-1">
-            Pending Review Rules
-          </span>
-          <div className="flex items-baseline gap-2.5">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#24213A]">
-              {metrics.pendingReviewRules}
-            </span>
-            <span className="inline-flex items-center text-xs font-bold text-[#10B981] bg-[#ECFDF5] px-2 py-0.5 rounded-full border border-[#A7F3D0]">
-              {metrics.pendingReviewRulesChange}
-            </span>
-          </div>
-        </div>
-        <div className="w-12 h-12 rounded-2xl bg-[#E8DFF5]/60 flex items-center justify-center text-[#7956C9] shrink-0">
-          <Clock className="w-6 h-6 stroke-[2]" />
-        </div>
-      </div>
-
-      {/* Card 4: Last Policy Update */}
-      <div className="bg-white p-5 rounded-2xl border border-[#EAE4EE] shadow-2xs hover:shadow-xs transition-all flex items-center justify-between">
-        <div>
-          <span className="text-xs font-semibold text-[#777184] uppercase tracking-wider block mb-1">
-            Last Policy Update
-          </span>
-          <div className="space-y-1">
-            <span className="text-sm font-bold text-[#24213A] block leading-tight">
-              {metrics.lastPolicyUpdate}
-            </span>
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#10B981] bg-[#ECFDF5] px-2 py-0.5 rounded-full border border-[#A7F3D0]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
-              {metrics.policyStatusBadge}
-            </span>
-          </div>
-        </div>
-        <div className="w-12 h-12 rounded-2xl bg-[#E8DFF5]/60 flex items-center justify-center text-[#7956C9] shrink-0">
-          <Calendar className="w-6 h-6 stroke-[2]" />
-        </div>
-      </div>
+        );
+      })}
     </div>
   );
 }

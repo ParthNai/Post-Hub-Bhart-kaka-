@@ -1,5 +1,7 @@
 "use client";
 
+import { AiSubscreenNav } from "../AiSubscreenNav";
+
 import React, { useState, useMemo } from "react";
 import { AuditHeader } from "./AuditHeader";
 import { AuditSummaryCards } from "./AuditSummaryCards";
@@ -182,6 +184,9 @@ export function AuditView({
         isExporting={isExporting}
         userName={adminName}
       />
+
+      {/* Sub-screens Navigation Ribbon */}
+      <AiSubscreenNav />
 
       {/* 4 Summary Cards */}
       <AuditSummaryCards summary={dataset.summary} />

@@ -8,6 +8,7 @@ import {
   CANONICAL_ROUTING_SEED,
 } from "@/lib/ai-failover";
 import { RoutingHeader } from "./RoutingHeader";
+import { AiSubscreenNav } from "../AiSubscreenNav";
 import { RoutingSummaryCards } from "./RoutingSummaryCards";
 import { ProviderPriorityTable } from "./ProviderPriorityTable";
 import { FallbackWorkflowCard } from "./FallbackWorkflowCard";
@@ -200,6 +201,9 @@ export const RoutingView: React.FC = () => {
         isSaving={isSaving}
         adminName="Parth Admin"
       />
+
+      {/* Sub-screens Navigation Ribbon */}
+      <AiSubscreenNav />
 
       {/* 4 Summary Cards */}
       <RoutingSummaryCards metrics={data.summary} />

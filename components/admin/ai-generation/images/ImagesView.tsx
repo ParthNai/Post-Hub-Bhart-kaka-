@@ -1,5 +1,7 @@
 "use client";
 
+import { AiSubscreenNav } from "../AiSubscreenNav";
+
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { ImagesHeader } from "./ImagesHeader";
 import { ImageKpiCards } from "./ImageKpiCards";
@@ -466,6 +468,9 @@ export const ImagesView: React.FC<ImagesViewProps> = ({
         onOpenSettings={() => setIsSettingsOpen(true)}
         onExport={handleExportCsv}
       />
+
+      {/* Sub-screens Navigation Ribbon */}
+      <AiSubscreenNav />
 
       {/* Top KPI Cards (1,248 | 1,102 | 67 | 79) */}
       <div style={{ marginTop: "24px", marginBottom: "24px" }}>
