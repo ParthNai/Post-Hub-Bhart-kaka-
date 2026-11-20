@@ -226,61 +226,6 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
   );
   const [artworkAspectRatio, setArtworkAspectRatio] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (!backgroundUrl) return;
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
-      if (img.naturalWidth && img.naturalHeight) {
-        setArtworkAspectRatio(img.naturalWidth / img.naturalHeight);
-      }
-    };
-    img.src = backgroundUrl;
-  }, [backgroundUrl]);
-
-  // Auto-restore draft from browser localStorage if creating a new template
-  useEffect(() => {
-    if (!initialTemplate?.id) {
-      try {
-        const savedDraftRaw = localStorage.getItem("posthub_studio_draft_v1");
-        if (savedDraftRaw) {
-          const draft = JSON.parse(savedDraftRaw);
-          if (draft && draft.name) {
-            setTemplateName(draft.name);
-            if (draft.category) setCategory(draft.category);
-            if (draft.format) setFormat(draft.format);
-            if (draft.backgroundUrl) setBackgroundUrl(draft.backgroundUrl);
-            if (draft.zones && Array.isArray(draft.zones) && draft.zones.length > 0) {
-              setZones(draft.zones);
-            }
-            setToastNotification("📝 Restored unsaved draft from browser storage");
-          }
-        }
-      } catch {}
-    }
-  }, []);
-
-  // Debounced auto-save draft to localStorage for unsaved templates
-  useEffect(() => {
-    if (initialTemplate?.id || currentTemplateId) return;
-    const timer = setTimeout(() => {
-      try {
-        localStorage.setItem(
-          "posthub_studio_draft_v1",
-          JSON.stringify({
-            name: templateName,
-            category,
-            format,
-            backgroundUrl,
-            zones,
-            savedAt: Date.now(),
-          })
-        );
-      } catch {}
-    }, 800);
-    return () => clearTimeout(timer);
-  }, [templateName, category, format, backgroundUrl, zones, initialTemplate?.id, currentTemplateId]);
-
   // Slot zones list
   const [zones, setZones] = useState<TemplateSlotZone[]>(
     initialTemplate?.slotZones || [
@@ -349,6 +294,61 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
       },
     ]
   );
+
+  useEffect(() => {
+    if (!backgroundUrl) return;
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      if (img.naturalWidth && img.naturalHeight) {
+        setArtworkAspectRatio(img.naturalWidth / img.naturalHeight);
+      }
+    };
+    img.src = backgroundUrl;
+  }, [backgroundUrl]);
+
+  // Auto-restore draft from browser localStorage if creating a new template
+  useEffect(() => {
+    if (!initialTemplate?.id) {
+      try {
+        const savedDraftRaw = localStorage.getItem("posthub_studio_draft_v1");
+        if (savedDraftRaw) {
+          const draft = JSON.parse(savedDraftRaw);
+          if (draft && draft.name) {
+            setTemplateName(draft.name);
+            if (draft.category) setCategory(draft.category);
+            if (draft.format) setFormat(draft.format);
+            if (draft.backgroundUrl) setBackgroundUrl(draft.backgroundUrl);
+            if (draft.zones && Array.isArray(draft.zones) && draft.zones.length > 0) {
+              setZones(draft.zones);
+            }
+            setToastNotification("📝 Restored unsaved draft from browser storage");
+          }
+        }
+      } catch {}
+    }
+  }, []);
+
+  // Debounced auto-save draft to localStorage for unsaved templates
+  useEffect(() => {
+    if (initialTemplate?.id || currentTemplateId) return;
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(
+          "posthub_studio_draft_v1",
+          JSON.stringify({
+            name: templateName,
+            category,
+            format,
+            backgroundUrl,
+            zones,
+            savedAt: Date.now(),
+          })
+        );
+      } catch {}
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [templateName, category, format, backgroundUrl, zones, initialTemplate?.id, currentTemplateId]);
 
   // Selected tool & zone
   const [activeTool, setActiveTool] = useState<
