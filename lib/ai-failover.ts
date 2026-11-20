@@ -1,0 +1,268 @@
+/**
+ * Authoritative types and canonical datasets for
+ * Screen 29: AI Generation Provider Failover & Routing Configuration
+ */
+
+export interface RoutingSummaryMetrics {
+  activeRoutingRules: number;
+  configuredProviders: number;
+  fallbackRules: number;
+  lastConfigUpdate: string;
+}
+
+export interface ProviderPriorityItem {
+  id: string;
+  priority: number;
+  providerId: string;
+  providerName: string;
+  model: string;
+  generationType: "Text + Image" | "Image" | "Text";
+  healthStatus: "Healthy" | "Degraded" | "Unavailable";
+  routingEnabled: boolean;
+}
+
+export interface RoutingRule {
+  id: string;
+  ruleName: string;
+  requestType: "Image" | "Text" | "Multimodal";
+  modelRequirement: string;
+  preferredProvider: string;
+  preferredProviderId: string;
+  preferredModel: string;
+  fallbackPolicy: string;
+  fallbackProvider?: string;
+  fallbackModel?: string;
+  healthRequirement: string;
+  maxAttempts: number;
+  priority: number;
+  status: "Active" | "Draft" | "Disabled";
+  lastUpdated: string;
+  enabled: boolean;
+}
+
+export interface RoutingEventHistory {
+  eventId: string;
+  requestId: string;
+  selectedProvider: string;
+  fallback: boolean;
+  finalProvider: string;
+  result: "Success" | "Failed";
+  timestamp: string;
+  fullDateTime?: string;
+  reason?: string;
+}
+
+export interface FailoverConditions {
+  providerUnavailable: boolean;
+  providerTimeout: boolean;
+  rateLimitResponse: boolean;
+  temporaryServerError: boolean;
+  modelUnavailable: boolean;
+  maxAttempts: number;
+  retryIntervalSeconds: number;
+}
+
+export interface RoutingDataset {
+  summary: RoutingSummaryMetrics;
+  providerPriorities: ProviderPriorityItem[];
+  rules: RoutingRule[];
+  recentHistory: RoutingEventHistory[];
+  failoverConditions: FailoverConditions;
+  lastUpdated: string;
+}
+
+export const CANONICAL_ROUTING_SEED: RoutingDataset = {
+  summary: {
+    activeRoutingRules: 6,
+    configuredProviders: 3,
+    fallbackRules: 4,
+    lastConfigUpdate: "Nov 19, 2025 • 10:45 AM",
+  },
+  providerPriorities: [
+    {
+      id: "prio-1",
+      priority: 1,
+      providerId: "openai",
+      providerName: "OpenAI",
+      model: "GPT-4o",
+      generationType: "Text + Image",
+      healthStatus: "Healthy",
+      routingEnabled: true,
+    },
+    {
+      id: "prio-2",
+      priority: 2,
+      providerId: "stability",
+      providerName: "Stability AI",
+      model: "Stable Diffusion XL",
+      generationType: "Image",
+      healthStatus: "Healthy",
+      routingEnabled: true,
+    },
+    {
+      id: "prio-3",
+      priority: 3,
+      providerId: "gemini",
+      providerName: "Gemini",
+      model: "Gemini 1.5 Pro",
+      generationType: "Text + Image",
+      healthStatus: "Healthy",
+      routingEnabled: true,
+    },
+  ],
+  rules: [
+    {
+      id: "rule-1",
+      ruleName: "High Quality Images",
+      requestType: "Image",
+      modelRequirement: "DALL·E 3",
+      preferredProvider: "OpenAI",
+      preferredProviderId: "openai",
+      preferredModel: "GPT-4o",
+      fallbackPolicy: "All Fallbacks",
+      fallbackProvider: "Stability AI",
+      fallbackModel: "Stable Diffusion XL",
+      healthRequirement: "Healthy (>= 90%)",
+      maxAttempts: 3,
+      priority: 1,
+      status: "Active",
+      lastUpdated: "Nov 19, 10:30 AM",
+      enabled: true,
+    },
+    {
+      id: "rule-2",
+      ruleName: "Fast Text Generation",
+      requestType: "Text",
+      modelRequirement: "GPT-4o",
+      preferredProvider: "OpenAI",
+      preferredProviderId: "openai",
+      preferredModel: "GPT-4o",
+      fallbackPolicy: "Stability AI",
+      fallbackProvider: "Stability AI",
+      fallbackModel: "Stable Diffusion XL",
+      healthRequirement: "Healthy (>= 90%)",
+      maxAttempts: 2,
+      priority: 2,
+      status: "Active",
+      lastUpdated: "Nov 19, 09:45 AM",
+      enabled: true,
+    },
+    {
+      id: "rule-3",
+      ruleName: "Creative Images",
+      requestType: "Image",
+      modelRequirement: "Stable Diffusion",
+      preferredProvider: "Stability AI",
+      preferredProviderId: "stability",
+      preferredModel: "Stable Diffusion XL",
+      fallbackPolicy: "Gemini",
+      fallbackProvider: "Gemini",
+      fallbackModel: "Gemini 1.5 Pro",
+      healthRequirement: "Healthy (>= 90%)",
+      maxAttempts: 3,
+      priority: 3,
+      status: "Active",
+      lastUpdated: "Nov 19, 09:20 AM",
+      enabled: true,
+    },
+    {
+      id: "rule-4",
+      ruleName: "Low Latency Quick Preview",
+      requestType: "Image",
+      modelRequirement: "SD Turbo",
+      preferredProvider: "Stability AI",
+      preferredProviderId: "stability",
+      preferredModel: "SD Turbo",
+      fallbackPolicy: "OpenAI",
+      fallbackProvider: "OpenAI",
+      fallbackModel: "DALL·E 2",
+      healthRequirement: "Healthy (>= 90%)",
+      maxAttempts: 2,
+      priority: 4,
+      status: "Active",
+      lastUpdated: "Nov 18, 04:15 PM",
+      enabled: true,
+    },
+    {
+      id: "rule-5",
+      ruleName: "Multimodal Visual Analysis",
+      requestType: "Multimodal",
+      modelRequirement: "Gemini 1.5 Pro",
+      preferredProvider: "Gemini",
+      preferredProviderId: "gemini",
+      preferredModel: "Gemini 1.5 Pro",
+      fallbackPolicy: "OpenAI",
+      fallbackProvider: "OpenAI",
+      fallbackModel: "GPT-4o",
+      healthRequirement: "Healthy (>= 90%)",
+      maxAttempts: 3,
+      priority: 5,
+      status: "Active",
+      lastUpdated: "Nov 18, 02:40 PM",
+      enabled: true,
+    },
+    {
+      id: "rule-6",
+      ruleName: "Batch Festival Posters",
+      requestType: "Image",
+      modelRequirement: "Imagen 3.0",
+      preferredProvider: "Gemini",
+      preferredProviderId: "gemini",
+      preferredModel: "Imagen 3.0",
+      fallbackPolicy: "All Fallbacks",
+      fallbackProvider: "Stability AI",
+      fallbackModel: "Stable Diffusion XL",
+      healthRequirement: "Healthy (>= 90%)",
+      maxAttempts: 3,
+      priority: 6,
+      status: "Active",
+      lastUpdated: "Nov 17, 11:10 AM",
+      enabled: true,
+    },
+  ],
+  recentHistory: [
+    {
+      eventId: "RH-1001",
+      requestId: "REQ-4587",
+      selectedProvider: "OpenAI",
+      fallback: false,
+      finalProvider: "OpenAI",
+      result: "Success",
+      timestamp: "10:48 AM",
+      fullDateTime: "Nov 19, 2025 • 10:48:12 AM",
+      reason: "Primary provider OpenAI responded within 820ms SLA.",
+    },
+    {
+      eventId: "RH-1000",
+      requestId: "REQ-4586",
+      selectedProvider: "OpenAI",
+      fallback: true,
+      finalProvider: "Gemini",
+      result: "Success",
+      timestamp: "10:47 AM",
+      fullDateTime: "Nov 19, 2025 • 10:47:35 AM",
+      reason: "Primary OpenAI gateway timed out (> 5s); failed over to secondary Gemini successfully.",
+    },
+    {
+      eventId: "RH-0999",
+      requestId: "REQ-4585",
+      selectedProvider: "Stability AI",
+      fallback: false,
+      finalProvider: "Stability AI",
+      result: "Success",
+      timestamp: "10:45 AM",
+      fullDateTime: "Nov 19, 2025 • 10:45:04 AM",
+      reason: "Primary provider Stability AI processed request in 1.4s.",
+    },
+  ],
+  failoverConditions: {
+    providerUnavailable: true,
+    providerTimeout: true,
+    rateLimitResponse: true,
+    temporaryServerError: true,
+    modelUnavailable: true,
+    maxAttempts: 3,
+    retryIntervalSeconds: 30,
+  },
+  lastUpdated: "Nov 19, 2025 • 10:45 AM",
+};
