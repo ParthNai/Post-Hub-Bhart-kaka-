@@ -360,7 +360,7 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
 
   // Left dock navigation
   const [leftTab, setLeftTab] = useState<
-    "artworks" | "text" | "photos" | "elements" | "contact" | "layers"
+    "artworks" | "text" | "photos" | "shapes" | "elements" | "contact" | "layers"
   >("artworks");
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
 
@@ -949,16 +949,21 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
 
     try {
       const isEditing = Boolean(initialTemplate?.id);
-      const url = isEditing
-        ? `/api/admin/templates/${initialTemplate!.id}`
-        : `/api/admin/templates`;
-      const method = isEditing ? "PUT" : "POST";
+      let res: Response;
 
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      if (isEditing) {
+        res = await fetch(`/api/admin/templates/${initialTemplate!.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        res = await fetch(`/api/admin/templates`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "create", template: payload }),
+        });
+      }
 
       const data = await res.json();
       if (!res.ok) {
@@ -1296,6 +1301,7 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
               { id: "artworks", label: "Art", icon: <ImageIcon size={18} /> },
               { id: "text", label: "Text", icon: <Type size={18} /> },
               { id: "photos", label: "Photos", icon: <Camera size={18} /> },
+              { id: "shapes", label: "Shapes", icon: <Square size={18} /> },
               { id: "elements", label: "Assets", icon: <Sparkle size={18} /> },
               { id: "contact", label: "Contact", icon: <Phone size={18} /> },
               { id: "layers", label: "Layers", icon: <Layers size={18} /> },
@@ -1788,6 +1794,448 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                 </div>
               )}
 
+              {/* Tab: Shapes, Cards & Banners */}
+              {leftTab === "shapes" && (
+                <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "14px" }}>
+                  <div>
+                    <span style={{ fontSize: "13px", fontWeight: 700, color: "#FFFFFF" }}>Shapes, Cards & Banners</span>
+                    <p style={{ fontSize: "11px", color: "#A099B5", margin: "2px 0 0 0" }}>
+                      Boxes, Circles, Candidate Strips & Dividers.
+                    </p>
+                  </div>
+
+                  {/* 1. Political & Poster Name Banners */}
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                      <span style={{ fontSize: "11px", fontWeight: 700, color: "#FACC15", textTransform: "uppercase" }}>
+                        Political & Slogan Banners
+                      </span>
+                      <span style={{ fontSize: "10px", color: "#8A849C" }}>1-Click Add</span>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      {/* Candidate Name Strip */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newId = `zone-banner-${Date.now().toString(36)}`;
+                          pushHistory([
+                            ...zones,
+                            {
+                              id: newId,
+                              type: "shape",
+                              label: "Candidate Name Strip",
+                              shapeType: "banner",
+                              x: 8,
+                              y: 82,
+                              width: 84,
+                              height: 11,
+                              backgroundColor: "#FFFFFF",
+                              borderColor: "#FF9933",
+                              borderWidth: 2,
+                              borderRadius: 14,
+                              shadow: true,
+                              zIndex: 3,
+                            },
+                          ]);
+                          setSelectedZoneId(newId);
+                          setToastNotification("🏷️ Added Candidate White Name Strip!");
+                        }}
+                        style={{
+                          padding: "9px 10px",
+                          borderRadius: "6px",
+                          backgroundColor: "rgba(255, 153, 51, 0.15)",
+                          border: "1px solid rgba(255, 153, 51, 0.35)",
+                          color: "#FFFFFF",
+                          textAlign: "left",
+                          cursor: "pointer",
+                          fontSize: "11.5px",
+                          fontWeight: 700,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span>🏷️</span>
+                          <div>
+                            <div>Candidate White Name Strip</div>
+                            <div style={{ fontSize: "9.5px", color: "#FDBA74", fontWeight: 400 }}>Orange border + curved corners</div>
+                          </div>
+                        </div>
+                        <Plus size={14} color="#FF9933" />
+                      </button>
+
+                      {/* Tricolor Accent Bar */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newId = `zone-tricolor-${Date.now().toString(36)}`;
+                          pushHistory([
+                            ...zones,
+                            {
+                              id: newId,
+                              type: "shape",
+                              label: "Tricolor Accent Bar",
+                              shapeType: "bar",
+                              x: 0,
+                              y: 95,
+                              width: 100,
+                              height: 3,
+                              backgroundColor: "#FF9933",
+                              borderColor: "#138808",
+                              borderWidth: 1,
+                              borderRadius: 0,
+                              zIndex: 3,
+                            },
+                          ]);
+                          setSelectedZoneId(newId);
+                          setToastNotification("🇮🇳 Added Tricolor Accent Footer Bar!");
+                        }}
+                        style={{
+                          padding: "8px 10px",
+                          borderRadius: "6px",
+                          backgroundColor: "rgba(255, 255, 255, 0.06)",
+                          border: "1px solid rgba(255, 255, 255, 0.12)",
+                          color: "#FFFFFF",
+                          textAlign: "left",
+                          cursor: "pointer",
+                          fontSize: "11.5px",
+                          fontWeight: 700,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span>🇮🇳</span>
+                          <span>Tricolor Footer Accent Strip</span>
+                        </div>
+                        <Plus size={14} color="#7956C9" />
+                      </button>
+
+                      {/* Gold Foil Slogan Bar */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newId = `zone-gold-${Date.now().toString(36)}`;
+                          pushHistory([
+                            ...zones,
+                            {
+                              id: newId,
+                              type: "shape",
+                              label: "Gold Slogan Banner",
+                              shapeType: "bar",
+                              x: 10,
+                              y: 12,
+                              width: 80,
+                              height: 8,
+                              backgroundColor: "#D97706",
+                              borderColor: "#FDE68A",
+                              borderWidth: 1.5,
+                              borderRadius: 8,
+                              shadow: true,
+                              zIndex: 3,
+                            },
+                          ]);
+                          setSelectedZoneId(newId);
+                          setToastNotification("👑 Added Gold Foil Slogan Banner!");
+                        }}
+                        style={{
+                          padding: "8px 10px",
+                          borderRadius: "6px",
+                          backgroundColor: "rgba(217, 119, 6, 0.15)",
+                          border: "1px solid rgba(217, 119, 6, 0.35)",
+                          color: "#FFFFFF",
+                          textAlign: "left",
+                          cursor: "pointer",
+                          fontSize: "11.5px",
+                          fontWeight: 700,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span>👑</span>
+                          <span>Gold Foil Slogan Banner</span>
+                        </div>
+                        <Plus size={14} color="#F59E0B" />
+                      </button>
+
+                      {/* Dark Glass Overlay Tint */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newId = `zone-tint-${Date.now().toString(36)}`;
+                          pushHistory([
+                            ...zones,
+                            {
+                              id: newId,
+                              type: "shape",
+                              label: "Dark Glass Tint Panel",
+                              shapeType: "rectangle",
+                              x: 0,
+                              y: 65,
+                              width: 100,
+                              height: 35,
+                              backgroundColor: "rgba(15, 23, 42, 0.8)",
+                              borderRadius: 0,
+                              zIndex: 2,
+                            },
+                          ]);
+                          setSelectedZoneId(newId);
+                          setToastNotification("⬛ Added Dark Bottom Gradient Tint!");
+                        }}
+                        style={{
+                          padding: "8px 10px",
+                          borderRadius: "6px",
+                          backgroundColor: "rgba(255, 255, 255, 0.06)",
+                          border: "1px solid rgba(255, 255, 255, 0.12)",
+                          color: "#FFFFFF",
+                          textAlign: "left",
+                          cursor: "pointer",
+                          fontSize: "11.5px",
+                          fontWeight: 700,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span>⬛</span>
+                          <span>Dark Glass Tint (Text Backdrop)</span>
+                        </div>
+                        <Plus size={14} color="#7956C9" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 2. Geometric Shapes */}
+                  <div>
+                    <span style={{ fontSize: "11px", fontWeight: 700, color: "#A099B5", textTransform: "uppercase", display: "block", marginBottom: "8px" }}>
+                      Geometric Shapes
+                    </span>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                      {/* Rectangle Box */}
+                      <div
+                        onClick={() => {
+                          const newId = `zone-rect-${Date.now().toString(36)}`;
+                          pushHistory([
+                            ...zones,
+                            {
+                              id: newId,
+                              type: "shape",
+                              label: "Rectangle Box",
+                              shapeType: "rectangle",
+                              x: 15,
+                              y: 30,
+                              width: 70,
+                              height: 20,
+                              backgroundColor: "rgba(0, 0, 0, 0.65)",
+                              borderRadius: 0,
+                              borderWidth: 1,
+                              borderColor: "rgba(255,255,255,0.2)",
+                              zIndex: 2,
+                            },
+                          ]);
+                          setSelectedZoneId(newId);
+                        }}
+                        style={{
+                          padding: "12px 8px",
+                          borderRadius: "6px",
+                          backgroundColor: "rgba(255, 255, 255, 0.05)",
+                          border: "1px solid rgba(255, 255, 255, 0.1)",
+                          cursor: "pointer",
+                          textAlign: "center",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <div style={{ width: 32, height: 22, backgroundColor: "#334155", border: "1px solid #94A3B8" }} />
+                        <span style={{ fontSize: "11px", fontWeight: 600, color: "#FFF" }}>Rectangle</span>
+                      </div>
+
+                      {/* Rounded Card */}
+                      <div
+                        onClick={() => {
+                          const newId = `zone-card-${Date.now().toString(36)}`;
+                          pushHistory([
+                            ...zones,
+                            {
+                              id: newId,
+                              type: "shape",
+                              label: "Rounded Card",
+                              shapeType: "card",
+                              x: 12,
+                              y: 25,
+                              width: 76,
+                              height: 25,
+                              backgroundColor: "#FFFFFF",
+                              borderRadius: 14,
+                              shadow: true,
+                              borderWidth: 1,
+                              borderColor: "rgba(0,0,0,0.1)",
+                              zIndex: 2,
+                            },
+                          ]);
+                          setSelectedZoneId(newId);
+                        }}
+                        style={{
+                          padding: "12px 8px",
+                          borderRadius: "6px",
+                          backgroundColor: "rgba(255, 255, 255, 0.05)",
+                          border: "1px solid rgba(255, 255, 255, 0.1)",
+                          cursor: "pointer",
+                          textAlign: "center",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <div style={{ width: 32, height: 22, backgroundColor: "#FFF", borderRadius: "6px", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }} />
+                        <span style={{ fontSize: "11px", fontWeight: 600, color: "#FFF" }}>Rounded Card</span>
+                      </div>
+
+                      {/* Circle */}
+                      <div
+                        onClick={() => {
+                          const newId = `zone-circle-shape-${Date.now().toString(36)}`;
+                          pushHistory([
+                            ...zones,
+                            {
+                              id: newId,
+                              type: "shape",
+                              label: "Circle Badge",
+                              shapeType: "circle",
+                              x: 38,
+                              y: 35,
+                              width: 24,
+                              height: 24,
+                              backgroundColor: "#FF9933",
+                              borderRadius: 999,
+                              borderColor: "#FFFFFF",
+                              borderWidth: 3,
+                              shadow: true,
+                              zIndex: 3,
+                            },
+                          ]);
+                          setSelectedZoneId(newId);
+                        }}
+                        style={{
+                          padding: "12px 8px",
+                          borderRadius: "6px",
+                          backgroundColor: "rgba(255, 255, 255, 0.05)",
+                          border: "1px solid rgba(255, 255, 255, 0.1)",
+                          cursor: "pointer",
+                          textAlign: "center",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <div style={{ width: 24, height: 24, backgroundColor: "#FF9933", borderRadius: "50%", border: "2px solid #FFF" }} />
+                        <span style={{ fontSize: "11px", fontWeight: 600, color: "#FFF" }}>Circle Badge</span>
+                      </div>
+
+                      {/* Pill Badge */}
+                      <div
+                        onClick={() => {
+                          const newId = `zone-pill-${Date.now().toString(36)}`;
+                          pushHistory([
+                            ...zones,
+                            {
+                              id: newId,
+                              type: "shape",
+                              label: "Pill Badge",
+                              shapeType: "pill",
+                              x: 25,
+                              y: 75,
+                              width: 50,
+                              height: 8,
+                              backgroundColor: "#FFFFFF",
+                              borderRadius: 999,
+                              borderColor: "#7956C9",
+                              borderWidth: 1.5,
+                              shadow: true,
+                              zIndex: 3,
+                            },
+                          ]);
+                          setSelectedZoneId(newId);
+                        }}
+                        style={{
+                          padding: "12px 8px",
+                          borderRadius: "6px",
+                          backgroundColor: "rgba(255, 255, 255, 0.05)",
+                          border: "1px solid rgba(255, 255, 255, 0.1)",
+                          cursor: "pointer",
+                          textAlign: "center",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <div style={{ width: 34, height: 14, backgroundColor: "#FFF", borderRadius: "999px", border: "1.5px solid #7956C9" }} />
+                        <span style={{ fontSize: "11px", fontWeight: 600, color: "#FFF" }}>Pill Badge</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. Divider Lines */}
+                  <div>
+                    <span style={{ fontSize: "11px", fontWeight: 700, color: "#A099B5", textTransform: "uppercase", display: "block", marginBottom: "8px" }}>
+                      Divider Line
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newId = `zone-line-${Date.now().toString(36)}`;
+                        pushHistory([
+                          ...zones,
+                          {
+                            id: newId,
+                            type: "shape",
+                            label: "Accent Line",
+                            shapeType: "line",
+                            x: 10,
+                            y: 50,
+                            width: 80,
+                            height: 0.8,
+                            backgroundColor: "#F59E0B",
+                            borderRadius: 2,
+                            zIndex: 3,
+                          },
+                        ]);
+                        setSelectedZoneId(newId);
+                      }}
+                      style={{
+                        width: "100%",
+                        padding: "10px",
+                        borderRadius: "6px",
+                        backgroundColor: "rgba(255, 255, 255, 0.05)",
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                        color: "#FFF",
+                        fontSize: "11.5px",
+                        fontWeight: 600,
+                      }}
+                    >
+                      <div style={{ flex: 1, height: "2px", backgroundColor: "#F59E0B", borderRadius: "2px" }} />
+                      <span>Add Horizontal Line</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Tab 4: Party Symbols & Cultural Assets */}
               {leftTab === "elements" && (
                 <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "14px" }}>
@@ -2122,6 +2570,88 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                   </div>
                 )}
 
+                {/* If Shape zone is selected */}
+                {selectedZone.type === "shape" && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    {/* Fill Color Picker */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                      <span style={{ fontSize: "10.5px", color: "#A099B5" }}>Fill:</span>
+                      <input
+                        type="color"
+                        value={selectedZone.backgroundColor?.startsWith("#") ? selectedZone.backgroundColor : "#1E1A33"}
+                        onChange={(e) => updateSelectedZone({ backgroundColor: e.target.value })}
+                        style={{ width: "24px", height: "24px", border: "none", cursor: "pointer", borderRadius: "4px", backgroundColor: "transparent" }}
+                        title="Shape Fill Color"
+                      />
+                    </div>
+
+                    {/* Shape Type Selector */}
+                    <select
+                      value={selectedZone.shapeType || "rectangle"}
+                      onChange={(e) => {
+                        const st = e.target.value as ShapeSlotType;
+                        updateSelectedZone({
+                          shapeType: st,
+                          borderRadius: st === "circle" ? 999 : st === "pill" ? 999 : st === "card" ? 14 : 0,
+                        });
+                      }}
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.3)",
+                        border: "1px solid rgba(255,255,255,0.15)",
+                        color: "#FFFFFF",
+                        padding: "3px 8px",
+                        borderRadius: "4px",
+                        fontSize: "11px",
+                        fontWeight: 600,
+                      }}
+                    >
+                      <option value="rectangle" style={{ background: "#201B33" }}>Rectangle</option>
+                      <option value="card" style={{ background: "#201B33" }}>Rounded Card</option>
+                      <option value="circle" style={{ background: "#201B33" }}>Circle</option>
+                      <option value="pill" style={{ background: "#201B33" }}>Pill Badge</option>
+                      <option value="banner" style={{ background: "#201B33" }}>Name Banner Strip</option>
+                      <option value="line" style={{ background: "#201B33" }}>Divider Line</option>
+                    </select>
+
+                    {/* Border Width & Color */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                      <span style={{ fontSize: "10.5px", color: "#A099B5" }}>Border:</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="20"
+                        value={selectedZone.borderWidth ?? 0}
+                        onChange={(e) => updateSelectedZone({ borderWidth: parseInt(e.target.value, 10) || 0 })}
+                        style={{ width: "38px", padding: "2px 4px", fontSize: "11px", backgroundColor: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.15)", color: "#FFF", borderRadius: "4px" }}
+                        title="Border Width"
+                      />
+                      <input
+                        type="color"
+                        value={selectedZone.borderColor || "#FFFFFF"}
+                        onChange={(e) => updateSelectedZone({ borderColor: e.target.value })}
+                        style={{ width: "22px", height: "22px", border: "none", cursor: "pointer", borderRadius: "4px", backgroundColor: "transparent" }}
+                        title="Border Color"
+                      />
+                    </div>
+
+                    {/* Corner Radius Slider (for non-circle/pill) */}
+                    {selectedZone.shapeType !== "circle" && selectedZone.shapeType !== "pill" && (
+                      <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                        <span style={{ fontSize: "10px", color: "#A099B5" }}>Radius:</span>
+                        <input
+                          type="range"
+                          min="0"
+                          max="40"
+                          value={selectedZone.borderRadius ?? 6}
+                          onChange={(e) => updateSelectedZone({ borderRadius: parseInt(e.target.value, 10) || 0 })}
+                          style={{ width: "55px", accentColor: "#7956C9" }}
+                          title={`Radius: ${selectedZone.borderRadius ?? 6}px`}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Common Duplicate / Delete */}
                 <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "6px" }}>
                   <button
@@ -2354,11 +2884,22 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                             width: "100%",
                             height: "100%",
                             backgroundColor: zone.backgroundColor || "rgba(15, 23, 42, 0.75)",
-                            borderRadius: zone.shapeType === "pill" ? "999px" : `${zone.borderRadius || 6}px`,
+                            borderRadius:
+                              zone.shapeType === "circle"
+                                ? "50%"
+                                : zone.shapeType === "pill"
+                                  ? "999px"
+                                  : `${zone.borderRadius ?? 6}px`,
+                            border: zone.borderWidth
+                              ? `${zone.borderWidth}px solid ${zone.borderColor || "#FFFFFF"}`
+                              : "none",
+                            boxShadow: zone.shadow ? "0 4px 14px rgba(0,0,0,0.35)" : "none",
                             opacity: zone.opacity ?? 1,
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
+                            boxSizing: "border-box",
+                            overflow: "hidden",
                           }}
                         >
                           {zone.iconType === "lotus" && (
@@ -3106,6 +3647,216 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                                 }}
                               />
                             </div>
+                          </div>
+                        )}
+
+                        {/* Drop Shadow toggle */}
+                        <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "11.5px", cursor: "pointer", padding: "4px 0" }}>
+                          <span>Drop Shadow</span>
+                          <input
+                            type="checkbox"
+                            checked={selectedZone.shadow ?? true}
+                            onChange={(e) => updateSelectedZone({ shadow: e.target.checked })}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Shape Zone Configuration (if Shape zone) */}
+                  {selectedZone.type === "shape" && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "12px", paddingTop: "4px" }}>
+                      {/* Shape Appearance Card */}
+                      <div
+                        style={{
+                          padding: "12px",
+                          borderRadius: "8px",
+                          backgroundColor: "rgba(121, 86, 201, 0.12)",
+                          border: "1px solid rgba(121, 86, 201, 0.3)",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "10px",
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <span style={{ fontSize: "11px", fontWeight: 700, color: "#FACC15", display: "flex", alignItems: "center", gap: "5px" }}>
+                            <Square size={13} />
+                            <span>SHAPE &amp; BANNER SETTINGS</span>
+                          </span>
+                          <span style={{ fontSize: "9.5px", padding: "2px 6px", borderRadius: "4px", backgroundColor: "rgba(121, 86, 201, 0.2)", color: "#C4B5FD", fontWeight: 700 }}>
+                            {selectedZone.shapeType || "rectangle"}
+                          </span>
+                        </div>
+
+                        {/* Shape Type Selector */}
+                        <div>
+                          <label style={{ fontSize: "10px", color: "#A099B5", textTransform: "uppercase", fontWeight: 700 }}>
+                            Shape Geometry
+                          </label>
+                          <select
+                            value={selectedZone.shapeType || "rectangle"}
+                            onChange={(e) => {
+                              const st = e.target.value as ShapeSlotType;
+                              updateSelectedZone({
+                                shapeType: st,
+                                borderRadius: st === "circle" ? 999 : st === "pill" ? 999 : st === "card" ? 14 : selectedZone.borderRadius,
+                              });
+                            }}
+                            style={{
+                              width: "100%",
+                              padding: "6px 8px",
+                              borderRadius: "6px",
+                              backgroundColor: "rgba(0,0,0,0.3)",
+                              border: "1px solid rgba(255,255,255,0.15)",
+                              color: "#FFFFFF",
+                              fontSize: "11.5px",
+                              marginTop: "3px",
+                            }}
+                          >
+                            <option value="rectangle" style={{ background: "#201B33" }}>Rectangle Box</option>
+                            <option value="card" style={{ background: "#201B33" }}>Rounded Card Container</option>
+                            <option value="circle" style={{ background: "#201B33" }}>Circle Badge</option>
+                            <option value="pill" style={{ background: "#201B33" }}>Pill / Capsule Tag</option>
+                            <option value="banner" style={{ background: "#201B33" }}>Candidate Name Strip</option>
+                            <option value="line" style={{ background: "#201B33" }}>Divider Line</option>
+                          </select>
+                        </div>
+
+                        {/* Fill Color & Opacity */}
+                        <div>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+                            <span style={{ fontSize: "10px", color: "#A099B5" }}>Fill Color:</span>
+                            <span style={{ fontSize: "10px", color: "#C4BFD6" }}>
+                              {selectedZone.backgroundColor || "rgba(15, 23, 42, 0.75)"}
+                            </span>
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                            <input
+                              type="color"
+                              value={selectedZone.backgroundColor?.startsWith("#") ? selectedZone.backgroundColor : "#FFFFFF"}
+                              onChange={(e) => updateSelectedZone({ backgroundColor: e.target.value })}
+                              style={{ width: "32px", height: "28px", borderRadius: "4px", border: "none", cursor: "pointer" }}
+                            />
+                            <input
+                              type="text"
+                              value={selectedZone.backgroundColor || ""}
+                              placeholder="#FFFFFF or rgba(0,0,0,0.5)"
+                              onChange={(e) => updateSelectedZone({ backgroundColor: e.target.value })}
+                              style={{
+                                flex: 1,
+                                padding: "5px 8px",
+                                borderRadius: "4px",
+                                backgroundColor: "rgba(0,0,0,0.3)",
+                                border: "1px solid rgba(255,255,255,0.12)",
+                                color: "#FFFFFF",
+                                fontSize: "11px",
+                              }}
+                            />
+                          </div>
+
+                          {/* Quick Swatches */}
+                          <div style={{ display: "flex", gap: "4px", marginTop: "6px" }}>
+                            {[
+                              { label: "White", val: "#FFFFFF" },
+                              { label: "Saffron", val: "#FF9933" },
+                              { label: "Navy", val: "#1E3A8A" },
+                              { label: "Green", val: "#138808" },
+                              { label: "Gold", val: "#F59E0B" },
+                              { label: "Black Tint", val: "rgba(15, 23, 42, 0.85)" },
+                            ].map((sw) => (
+                              <button
+                                key={sw.label}
+                                type="button"
+                                onClick={() => updateSelectedZone({ backgroundColor: sw.val })}
+                                style={{
+                                  flex: 1,
+                                  height: "18px",
+                                  borderRadius: "3px",
+                                  backgroundColor: sw.val.startsWith("#") ? sw.val : "#334155",
+                                  border: "1px solid rgba(255,255,255,0.2)",
+                                  cursor: "pointer",
+                                }}
+                                title={sw.label}
+                              />
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Opacity Slider */}
+                        <div>
+                          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#A099B5" }}>
+                            <span>Fill Opacity:</span>
+                            <span>{Math.round((selectedZone.opacity ?? 1) * 100)}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0.05"
+                            max="1"
+                            step="0.05"
+                            value={selectedZone.opacity ?? 1}
+                            onChange={(e) => updateSelectedZone({ opacity: parseFloat(e.target.value) })}
+                            style={{ width: "100%", accentColor: "#7956C9", marginTop: "3px" }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Border & Corner Radius */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <div style={{ flex: 1 }}>
+                            <span style={{ fontSize: "10px", color: "#8A849C" }}>Border Width:</span>
+                            <input
+                              type="number"
+                              min="0"
+                              max="20"
+                              value={selectedZone.borderWidth ?? 0}
+                              onChange={(e) => updateSelectedZone({ borderWidth: parseInt(e.target.value, 10) || 0 })}
+                              style={{
+                                width: "100%",
+                                padding: "4px 8px",
+                                borderRadius: "4px",
+                                backgroundColor: "rgba(0,0,0,0.3)",
+                                border: "1px solid rgba(255,255,255,0.1)",
+                                color: "#FFFFFF",
+                                fontSize: "11px",
+                                marginTop: "2px",
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <span style={{ fontSize: "10px", color: "#8A849C" }}>Border Color:</span>
+                            <input
+                              type="color"
+                              value={selectedZone.borderColor || "#FFFFFF"}
+                              onChange={(e) => updateSelectedZone({ borderColor: e.target.value })}
+                              style={{
+                                width: "32px",
+                                height: "26px",
+                                borderRadius: "4px",
+                                border: "none",
+                                cursor: "pointer",
+                                marginTop: "2px",
+                                display: "block",
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Corner Radius Slider (for non-circle/pill) */}
+                        {selectedZone.shapeType !== "circle" && selectedZone.shapeType !== "pill" && (
+                          <div>
+                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#A099B5" }}>
+                              <span>Corner Radius:</span>
+                              <span>{selectedZone.borderRadius ?? 6}px</span>
+                            </div>
+                            <input
+                              type="range"
+                              min="0"
+                              max="50"
+                              value={selectedZone.borderRadius ?? 6}
+                              onChange={(e) => updateSelectedZone({ borderRadius: parseInt(e.target.value, 10) || 0 })}
+                              style={{ width: "100%", accentColor: "#7956C9", marginTop: "3px" }}
+                            />
                           </div>
                         )}
 

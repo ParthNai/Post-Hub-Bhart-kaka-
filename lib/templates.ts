@@ -6,7 +6,7 @@ export type TextAlignment = "Left" | "Center" | "Right";
 export type SlotZoneType = "photo" | "text" | "shape";
 export type PhotoSlotShape = "circle" | "squircle" | "rectangle" | "cutout";
 export type TextSlotBinding = "name" | "designation" | "phone" | "business" | "custom";
-export type ShapeSlotType = "bar" | "pill" | "badge" | "rectangle";
+export type ShapeSlotType = "bar" | "pill" | "badge" | "rectangle" | "circle" | "banner" | "line" | "card";
 
 export interface TemplateSlotZone {
   id: string;

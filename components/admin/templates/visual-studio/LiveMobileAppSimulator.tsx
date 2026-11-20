@@ -355,6 +355,14 @@ export const LiveMobileAppSimulator: React.FC<LiveMobileAppSimulatorProps> = ({
                 }
 
                 if (zone.type === "shape") {
+                  const isCircle = zone.shapeType === "circle";
+                  const isPill = zone.shapeType === "pill";
+                  const borderRadius = isCircle
+                    ? "50%"
+                    : isPill
+                      ? "999px"
+                      : `${zone.borderRadius ?? 6}px`;
+
                   return (
                     <div
                       key={zone.id}
@@ -366,8 +374,13 @@ export const LiveMobileAppSimulator: React.FC<LiveMobileAppSimulatorProps> = ({
                         height: `${zone.height}%`,
                         zIndex: zone.zIndex || 2,
                         backgroundColor: zone.backgroundColor || "rgba(15, 23, 42, 0.75)",
-                        borderRadius: zone.shapeType === "pill" ? "999px" : `${zone.borderRadius || 6}px`,
+                        borderRadius,
+                        border: zone.borderWidth
+                          ? `${zone.borderWidth}px solid ${zone.borderColor || "#FFFFFF"}`
+                          : "none",
+                        boxShadow: zone.shadow ? "0 4px 12px rgba(0,0,0,0.3)" : "none",
                         opacity: zone.opacity ?? 1,
+                        boxSizing: "border-box",
                       }}
                     />
                   );

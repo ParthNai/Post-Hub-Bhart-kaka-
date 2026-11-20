@@ -67,8 +67,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const action = body.action;
 
-    if (action === "create") {
-      const res = createTemplate(body.template || {});
+    if (action === "create" || (!action && (body.name || body.template))) {
+      const templateData = body.template || body;
+      const res = createTemplate(templateData);
       if (!res.success) {
         return NextResponse.json({ error: res.error }, { status: 400 });
       }
