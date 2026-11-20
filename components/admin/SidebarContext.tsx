@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useSyncExternalStore } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 interface SidebarContextType {
   isCollapsed: boolean;
@@ -20,51 +20,41 @@ const SidebarContext = createContext<SidebarContextType>({
 
 export const useSidebar = () => useContext(SidebarContext);
 
-function getSidebarSnapshot(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return localStorage.getItem("posthub_sidebar_collapsed") === "true";
-  } catch {
-    return false;
-  }
-}
-
-function getSidebarServerSnapshot(): boolean {
-  return false;
-}
-
-function subscribeToSidebar(callback: () => void): () => void {
-  if (typeof window === "undefined") return () => {};
-  window.addEventListener("storage", callback);
-  return () => window.removeEventListener("storage", callback);
-}
-
 export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const isCollapsed = useSyncExternalStore(
-    subscribeToSidebar,
-    getSidebarSnapshot,
-    getSidebarServerSnapshot
-  );
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("posthub_sidebar_collapsed");
+      if (stored === "true") {
+        setIsCollapsed(true);
+      }
+    } catch {
+      // Ignore storage errors
+    }
+  }, []);
 
   const toggleSidebar = () => {
     if (typeof window !== "undefined" && window.innerWidth <= 1024) {
       setIsMobileOpen((prev) => !prev);
     } else {
-      try {
-        const next = !getSidebarSnapshot();
-        localStorage.setItem("posthub_sidebar_collapsed", String(next));
-        window.dispatchEvent(new Event("storage"));
-      } catch {
-        // Ignore
-      }
+      setIsCollapsed((prev) => {
+        const next = !prev;
+        try {
+          localStorage.setItem("posthub_sidebar_collapsed", String(next));
+        } catch {
+          // Ignore
+        }
+        return next;
+      });
     }
   };
 
   const handleSetCollapsed = (collapsed: boolean) => {
+    setIsCollapsed(collapsed);
     try {
       localStorage.setItem("posthub_sidebar_collapsed", String(collapsed));
-      window.dispatchEvent(new Event("storage"));
     } catch {
       // Ignore
     }

@@ -56,6 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   const [expandedNav, setExpandedNav] = React.useState<Record<string, boolean>>({ templates: true });
   const [isHovered, setIsHovered] = React.useState(false);
+  const [isMounted, setIsMounted] = React.useState(false);
   const hoverTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const isVisuallyExpanded = !isCollapsed || isHovered;
@@ -83,6 +84,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   };
 
   React.useEffect(() => {
+    setIsMounted(true);
     return () => {
       if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
     };
@@ -119,6 +121,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
       {/* Main Slidable / Rail Sidebar Navigation (Opens on cursor hover when collapsed) */}
       <aside
+        suppressHydrationWarning
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         style={{
@@ -134,7 +137,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           top: 0,
           bottom: 0,
           zIndex: isCollapsed && isHovered ? 55 : 45,
-          transition: "width 0.28s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.28s cubic-bezier(0.2, 0, 0, 1)",
+          transition: isMounted
+            ? "width 0.28s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.28s cubic-bezier(0.2, 0, 0, 1)"
+            : "none",
           boxShadow: isCollapsed && isHovered ? "6px 0 28px rgba(36, 33, 58, 0.16)" : "2px 0 16px rgba(36, 33, 58, 0.04)",
           overflowX: "hidden",
           willChange: "width, box-shadow",

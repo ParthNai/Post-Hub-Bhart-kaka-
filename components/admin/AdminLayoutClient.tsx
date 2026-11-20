@@ -10,6 +10,11 @@ interface AdminLayoutClientProps {
 
 const AdminLayoutContent: React.FC<AdminLayoutClientProps> = ({ children }) => {
   const { isCollapsed, toggleSidebar } = useSidebar();
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <div
@@ -26,6 +31,7 @@ const AdminLayoutContent: React.FC<AdminLayoutClientProps> = ({ children }) => {
 
       {/* Main Content Area with smooth transition matching rail/full sidebar */}
       <div
+        suppressHydrationWarning
         style={{
           flex: 1,
           minWidth: 0,
@@ -33,7 +39,9 @@ const AdminLayoutContent: React.FC<AdminLayoutClientProps> = ({ children }) => {
           flexDirection: "column",
           backgroundColor: "var(--bg)",
           marginLeft: isCollapsed ? "68px" : "250px",
-          transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          transition: isMounted
+            ? "margin-left 0.3s cubic-bezier(0.2, 0, 0, 1), width 0.3s cubic-bezier(0.2, 0, 0, 1)"
+            : "none",
           width: isCollapsed ? "calc(100% - 68px)" : "calc(100% - 250px)",
         }}
         id="admin-main-container"
