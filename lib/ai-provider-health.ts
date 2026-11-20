@@ -1,0 +1,371 @@
+/**
+ * Authoritative types, models and seed datasets for
+ * Screen 28: AI Generation Provider Health & Performance Monitoring
+ */
+
+export type ProviderHealthStatus =
+  | "Healthy"
+  | "Degraded"
+  | "Unavailable"
+  | "Checking"
+  | "Unknown";
+
+export type ModelHealthStatus =
+  | "Healthy"
+  | "Degraded"
+  | "Error"
+  | "Unknown"
+  | "Checking";
+
+export interface ProviderHealthRecord {
+  id: string;
+  name: string;
+  providerId: string;
+  status: ProviderHealthStatus;
+  modelCount: number;
+  lastCheckText: string;
+  lastCheckTimestamp: number;
+  responseTimeMs: number | null;
+  responseTimeText: string;
+  recentError: string | null;
+  hasError: boolean;
+  endpointMasked: string;
+  authStatus: "Configured" | "Pending" | "Not Configured";
+  supportedModels: string[];
+  description: string;
+}
+
+export interface ModelPerformanceRecord {
+  id: string;
+  name: string;
+  provider: string;
+  providerId: string;
+  status: ModelHealthStatus;
+  avgResponseMs: number | null;
+  avgResponseText: string;
+  successfulRequests: number;
+  failedRequests: number;
+  lastCheckText: string;
+  lastCheckTimestamp: number;
+  capabilities: string[];
+}
+
+export interface HealthCheckHistoryItem {
+  id: string;
+  providerId: string;
+  providerName: string;
+  timestamp: string;
+  rawTimestamp: number;
+  status: "passed" | "elevated" | "failed";
+  statusLabel: string;
+  latencyMs: number | null;
+  latencyText: string;
+  details: string;
+}
+
+export interface MonitoringSettings {
+  schedule: "Every 5 Minutes" | "Every 15 Minutes" | "Every 30 Minutes" | "Every 1 Hour";
+  monitoringEnabled: boolean;
+  alertThreshold: "Response > 2s" | "Response > 3s" | "Response > 5s";
+  timeoutSeconds: number;
+  degradationThresholdMs: number;
+  notificationDestination: string;
+  lastUpdated: string;
+}
+
+export interface HealthSummaryMetrics {
+  configuredProviders: number;
+  healthyProviders: number;
+  providersWithIssues: number;
+  monitoringCoverage: string;
+  reportingPeriod: string;
+  lastRefreshedAt: string;
+}
+
+export interface TimeSeriesPoint {
+  timeLabel: string;
+  value: number;
+}
+
+export interface StackedBarPoint {
+  timeLabel: string;
+  successful: number;
+  failed: number;
+}
+
+export interface ProviderHealthDataset {
+  summary: HealthSummaryMetrics;
+  providers: ProviderHealthRecord[];
+  models: ModelPerformanceRecord[];
+  monitoringHistory: HealthCheckHistoryItem[];
+  settings: MonitoringSettings;
+  responseTimeTrend: {
+    labels: string[];
+    periods: {
+      "24 Hours": number[];
+      "7 Days": number[];
+      "30 Days": number[];
+    };
+  };
+  requestSuccessFailure: {
+    labels: string[];
+    periods: {
+      "Last 24 Hours": { successful: number[]; failed: number[] };
+      "Last 7 Days": { successful: number[]; failed: number[] };
+      "Last 30 Days": { successful: number[]; failed: number[] };
+    };
+  };
+  lastUpdated: string;
+}
+
+/**
+ * Canonical Screen 28 Seed Data matching reference photo
+ */
+export const CANONICAL_PROVIDER_HEALTH_SEED: ProviderHealthDataset = {
+  summary: {
+    configuredProviders: 4,
+    healthyProviders: 2,
+    providersWithIssues: 1,
+    monitoringCoverage: "75%",
+    reportingPeriod: "Last 24 Hours",
+    lastRefreshedAt: "Just now",
+  },
+  providers: [
+    {
+      id: "openai",
+      name: "OpenAI",
+      providerId: "openai",
+      status: "Healthy",
+      modelCount: 4,
+      lastCheckText: "Last Check: 2 min ago",
+      lastCheckTimestamp: Date.now() - 2 * 60 * 1000,
+      responseTimeMs: 840,
+      responseTimeText: "Response: 840ms",
+      recentError: null,
+      hasError: false,
+      endpointMasked: "https://api.openai.com/*",
+      authStatus: "Configured",
+      supportedModels: ["GPT-4o", "GPT-4.1", "DALL·E 3", "DALL·E 2"],
+      description: "AI Image Generation Provider",
+    },
+    {
+      id: "stability",
+      name: "Stability AI",
+      providerId: "stability",
+      status: "Degraded",
+      modelCount: 3,
+      lastCheckText: "Last Check: 5 min ago",
+      lastCheckTimestamp: Date.now() - 5 * 60 * 1000,
+      responseTimeMs: 1800,
+      responseTimeText: "Response: 1.8s",
+      recentError: "API Errors",
+      hasError: true,
+      endpointMasked: "https://api.stability.ai/*",
+      authStatus: "Configured",
+      supportedModels: ["Stable Diffusion XL", "SD 3.0 Medium", "SD Turbo"],
+      description: "Text-to-Image & Diffusion Models",
+    },
+    {
+      id: "adobe-firefly",
+      name: "Adobe Firefly",
+      providerId: "adobe-firefly",
+      status: "Unknown",
+      modelCount: 2,
+      lastCheckText: "Last Check: 12 min ago",
+      lastCheckTimestamp: Date.now() - 12 * 60 * 1000,
+      responseTimeMs: null,
+      responseTimeText: "Response: —",
+      recentError: "No Data",
+      hasError: false,
+      endpointMasked: "https://firefly-api.adobe.io/*",
+      authStatus: "Pending",
+      supportedModels: ["Firefly Image 2", "Firefly Vector"],
+      description: "Creative Image Generation Provider",
+    },
+    {
+      id: "gemini",
+      name: "Gemini",
+      providerId: "gemini",
+      status: "Checking",
+      modelCount: 3,
+      lastCheckText: "Last Check: 1 min ago",
+      lastCheckTimestamp: Date.now() - 1 * 60 * 1000,
+      responseTimeMs: null,
+      responseTimeText: "Response: —",
+      recentError: null,
+      hasError: false,
+      endpointMasked: "https://generativelanguage.googleapis.com/*",
+      authStatus: "Configured",
+      supportedModels: ["Gemini 1.5 Pro", "Imagen 3.0", "Gemini Flash"],
+      description: "Google Multimodal & Image AI",
+    },
+  ],
+  models: [
+    {
+      id: "mod-gpt-4o",
+      name: "gpt-4o",
+      provider: "OpenAI",
+      providerId: "openai",
+      status: "Healthy",
+      avgResponseMs: 820,
+      avgResponseText: "820ms",
+      successfulRequests: 12450,
+      failedRequests: 120,
+      lastCheckText: "2 min ago",
+      lastCheckTimestamp: Date.now() - 2 * 60 * 1000,
+      capabilities: ["High-speed reasoning", "Visual analysis", "Generation prompt parsing"],
+    },
+    {
+      id: "mod-claude-35",
+      name: "claude-3.5-sonnet",
+      provider: "Anthropic",
+      providerId: "anthropic",
+      status: "Degraded",
+      avgResponseMs: 1600,
+      avgResponseText: "1.6s",
+      successfulRequests: 8230,
+      failedRequests: 320,
+      lastCheckText: "5 min ago",
+      lastCheckTimestamp: Date.now() - 5 * 60 * 1000,
+      capabilities: ["Design reasoning", "Complex aesthetic critique", "Typography layout"],
+    },
+    {
+      id: "mod-sdxl",
+      name: "stable-diffusion-xl",
+      provider: "Stability AI",
+      providerId: "stability",
+      status: "Error",
+      avgResponseMs: 2100,
+      avgResponseText: "2.1s",
+      successfulRequests: 5120,
+      failedRequests: 780,
+      lastCheckText: "7 min ago",
+      lastCheckTimestamp: Date.now() - 7 * 60 * 1000,
+      capabilities: ["Photorealistic diffusion", "Stylistic rendering"],
+    },
+    {
+      id: "mod-firefly",
+      name: "firefly-image",
+      provider: "Adobe Firefly",
+      providerId: "adobe-firefly",
+      status: "Unknown",
+      avgResponseMs: null,
+      avgResponseText: "—",
+      successfulRequests: 3780,
+      failedRequests: 210,
+      lastCheckText: "12 min ago",
+      lastCheckTimestamp: Date.now() - 12 * 60 * 1000,
+      capabilities: ["Commercial-safe generations", "Vector asset production"],
+    },
+    {
+      id: "mod-gemini-15",
+      name: "gemini-1.5-pro",
+      provider: "Gemini",
+      providerId: "gemini",
+      status: "Checking",
+      avgResponseMs: 1200,
+      avgResponseText: "1.2s",
+      successfulRequests: 7650,
+      failedRequests: 180,
+      lastCheckText: "1 min ago",
+      lastCheckTimestamp: Date.now() - 1 * 60 * 1000,
+      capabilities: ["Multimodal generation", "Long-context visual grounding"],
+    },
+  ],
+  monitoringHistory: [
+    {
+      id: "CHK-903",
+      providerId: "openai",
+      providerName: "OpenAI",
+      timestamp: "Nov 19, 2025 • 12:16 PM",
+      rawTimestamp: 1763534760000,
+      status: "passed",
+      statusLabel: "Health Check Passed",
+      latencyMs: 820,
+      latencyText: "820ms",
+      details: "HTTP 200 OK — Model endpoint ping verified within acceptable threshold.",
+    },
+    {
+      id: "CHK-902",
+      providerId: "openai",
+      providerName: "OpenAI",
+      timestamp: "Nov 19, 2025 • 11:16 AM",
+      rawTimestamp: 1763531160000,
+      status: "elevated",
+      statusLabel: "Response Elevated",
+      latencyMs: 1400,
+      latencyText: "1.4s",
+      details: "HTTP 200 OK — Gateway latency warning; latency exceeded 1.0s target baseline.",
+    },
+    {
+      id: "CHK-901",
+      providerId: "openai",
+      providerName: "OpenAI",
+      timestamp: "Nov 19, 2025 • 10:16 AM",
+      rawTimestamp: 1763527560000,
+      status: "passed",
+      statusLabel: "Health Check Passed",
+      latencyMs: 780,
+      latencyText: "780ms",
+      details: "HTTP 200 OK — Model endpoint ping verified within acceptable threshold.",
+    },
+    {
+      id: "CHK-900",
+      providerId: "stability",
+      providerName: "Stability AI",
+      timestamp: "Nov 19, 2025 • 09:30 AM",
+      rawTimestamp: 1763524800000,
+      status: "failed",
+      statusLabel: "API Errors Detected",
+      latencyMs: 1800,
+      latencyText: "1.8s",
+      details: "HTTP 503 Service Unavailable / Rate Limit spike detected on generation worker node.",
+    },
+  ],
+  settings: {
+    schedule: "Every 15 Minutes",
+    monitoringEnabled: true,
+    alertThreshold: "Response > 3s",
+    timeoutSeconds: 10,
+    degradationThresholdMs: 1500,
+    notificationDestination: "Not Connected",
+    lastUpdated: "Nov 19, 2025 • 12:00 PM",
+  },
+  responseTimeTrend: {
+    labels: ["12AM", "4AM", "8AM", "12PM", "4PM", "8PM", "12AM"],
+    periods: {
+      "24 Hours": [0.95, 0.62, 1.25, 1.35, 0.52, 1.15, 0.88],
+      "7 Days": [0.82, 0.74, 1.10, 1.45, 0.65, 0.98, 0.84],
+      "30 Days": [0.89, 0.81, 1.05, 1.28, 0.70, 1.02, 0.87],
+    },
+  },
+  requestSuccessFailure: {
+    labels: ["12AM", "4AM", "8AM", "12PM", "4PM", "8PM", "12AM"],
+    periods: {
+      "Last 24 Hours": {
+        successful: [9200, 8500, 9800, 11200, 9400, 10100, 9600],
+        failed: [1200, 1100, 1400, 1600, 1300, 1500, 1350],
+      },
+      "Last 7 Days": {
+        successful: [8800, 8300, 9400, 10800, 9100, 9800, 9300],
+        failed: [1100, 950, 1300, 1500, 1200, 1400, 1250],
+      },
+      "Last 30 Days": {
+        successful: [8500, 8100, 9100, 10400, 8800, 9500, 9000],
+        failed: [1000, 900, 1200, 1400, 1150, 1300, 1200],
+      },
+    },
+  },
+  lastUpdated: "Nov 19, 2025 • 12:16 PM",
+};
+
+/**
+ * Format milliseconds into human string (e.g. 840ms or 1.8s)
+ */
+export function formatDuration(ms: number | null): string {
+  if (ms === null || ms === undefined || isNaN(ms)) return "—";
+  if (ms >= 1000) {
+    return `${(ms / 1000).toFixed(1)}s`;
+  }
+  return `${Math.round(ms)}ms`;
+}
