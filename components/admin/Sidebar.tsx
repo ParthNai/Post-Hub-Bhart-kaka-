@@ -54,6 +54,36 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const handleClose = onClose || (() => setMobileOpen(false));
 
   const [expandedNav, setExpandedNav] = React.useState<Record<string, boolean>>({ templates: true });
+  const [isHovered, setIsHovered] = React.useState(false);
+  const hoverTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const isVisuallyExpanded = !isCollapsed || isHovered;
+
+  const handleMouseEnter = () => {
+    if (!isCollapsed) return;
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (!isCollapsed) return;
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHovered(false);
+    }, 140);
+  };
+
+  React.useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    };
+  }, []);
+
   const toggleSubmenu = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -83,11 +113,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         />
       )}
 
-      {/* Main Slidable / Rail Sidebar Navigation */}
+      {/* Main Slidable / Rail Sidebar Navigation (Opens on cursor hover when collapsed) */}
       <aside
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         style={{
-          width: isCollapsed ? "68px" : "250px",
-          minWidth: isCollapsed ? "68px" : "250px",
+          width: isVisuallyExpanded ? "250px" : "68px",
+          minWidth: isVisuallyExpanded ? "250px" : "68px",
           height: "100vh",
           backgroundColor: "var(--bg)",
           borderRight: "1px solid var(--border)",
@@ -97,12 +129,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           left: 0,
           top: 0,
           bottom: 0,
-          zIndex: 45,
-          transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease",
-          boxShadow: "2px 0 16px rgba(36, 33, 58, 0.04)",
+          zIndex: isCollapsed && isHovered ? 55 : 45,
+          transition: "width 0.26s cubic-bezier(0.4, 0, 0.2, 1), transform 0.26s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.26s ease",
+          boxShadow: isCollapsed && isHovered ? "6px 0 28px rgba(36, 33, 58, 0.16)" : "2px 0 16px rgba(36, 33, 58, 0.04)",
           overflowX: "hidden",
         }}
-        className={`admin-sidebar ${isCollapsed ? "collapsed rail-mode" : "expanded"} ${isActuallyMobileOpen ? "open" : ""}`}
+        className={`admin-sidebar ${isCollapsed ? "collapsed rail-mode" : "expanded"} ${isActuallyMobileOpen ? "open" : ""} ${isHovered ? "hover-expanded" : ""}`}
       >
         {/* Brand Header */}
         <div
@@ -110,30 +142,30 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             height: "72px",
             display: "flex",
             alignItems: "center",
-            justifyContent: isCollapsed ? "center" : "space-between",
-            padding: isCollapsed ? "0 8px" : "0 18px",
+            justifyContent: isVisuallyExpanded ? "space-between" : "center",
+            padding: isVisuallyExpanded ? "0 18px" : "0 8px",
             borderBottom: "1px solid var(--border)",
-            transition: "padding 0.3s ease",
+            transition: "padding 0.2s ease",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: isCollapsed ? "center" : "flex-start", width: isCollapsed ? "auto" : "auto" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: isVisuallyExpanded ? "flex-start" : "center", width: isVisuallyExpanded ? "auto" : "auto" }}>
             <Link
               href="/admin/dashboard"
-              title={isCollapsed ? "Post Hub - Expand Navigation" : "Post Hub Dashboard"}
+              title={isVisuallyExpanded ? "Post Hub Dashboard" : "Post Hub - Hover to expand"}
               style={{ display: "inline-flex", alignItems: "center" }}
             >
-              <BrandLogo size="sm" iconOnly={isCollapsed} />
+              <BrandLogo size="sm" iconOnly={!isVisuallyExpanded} />
             </Link>
           </div>
 
-          <div style={{ display: isCollapsed ? "none" : "flex", alignItems: "center", gap: "4px" }}>
-            {/* Slide Collapse Button (Desktop & Tablet) */}
+          <div style={{ display: isVisuallyExpanded ? "flex" : "none", alignItems: "center", gap: "4px" }}>
+            {/* Desktop Pin / Collapse Button */}
             <button
               type="button"
               onClick={toggleSidebar}
               className="sidebar-collapse-btn"
-              title="Collapse sidebar to icons only"
-              aria-label="Collapse sidebar navigation"
+              title={isCollapsed ? "Pin sidebar open" : "Collapse sidebar to icons only"}
+              aria-label={isCollapsed ? "Pin sidebar open" : "Collapse sidebar to icons only"}
               style={{
                 background: "none",
                 border: "none",
@@ -147,7 +179,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 transition: "all 0.15s ease",
               }}
             >
-              <PanelLeftClose size={18} />
+              {isCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
             </button>
 
             {/* Mobile Close Button */}
@@ -176,7 +208,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             flex: 1,
             overflowY: "auto",
             overflowX: "hidden",
-            padding: isCollapsed ? "12px 6px" : "8px 12px",
+            padding: isVisuallyExpanded ? "8px 12px" : "12px 6px",
             display: "flex",
             flexDirection: "column",
             gap: "3px",
@@ -199,37 +231,40 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               <div key={item.id} style={{ display: "flex", flexDirection: "column" }}>
                 <Link
                   href={item.href}
-                  onClick={onClose}
+                  onClick={() => {
+                    setIsHovered(false);
+                    onClose?.();
+                  }}
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: isCollapsed ? "center" : "space-between",
-                    gap: isCollapsed ? "0" : "12px",
-                    padding: isCollapsed ? "10px 0" : "9px 14px",
-                    width: isCollapsed ? "48px" : "100%",
-                    height: isCollapsed ? "44px" : "auto",
-                    margin: isCollapsed ? "0 auto" : "0",
-                    borderRadius: isCollapsed ? "10px" : "8px",
+                    justifyContent: isVisuallyExpanded ? "space-between" : "center",
+                    gap: isVisuallyExpanded ? "12px" : "0",
+                    padding: isVisuallyExpanded ? "9px 14px" : "10px 0",
+                    width: isVisuallyExpanded ? "100%" : "48px",
+                    height: isVisuallyExpanded ? "auto" : "44px",
+                    margin: isVisuallyExpanded ? "0" : "0 auto",
+                    borderRadius: isVisuallyExpanded ? "8px" : "10px",
                     fontSize: "13.5px",
                     fontWeight: (isActive || isSubActive || isTemplatesActive) ? 600 : 500,
                     color: (isActive || isSubActive || isTemplatesActive) ? "var(--primary)" : "var(--text-muted)",
-                    backgroundColor: (isActive && !hasSub) ? "var(--secondary)" : (hasSub && isSubActive && pathname === "/admin/templates") ? "var(--secondary)" : (isCollapsed && (isActive || isSubActive || isTemplatesActive)) ? "var(--secondary)" : "transparent",
+                    backgroundColor: (isActive && !hasSub) ? "var(--secondary)" : (hasSub && isSubActive && pathname === "/admin/templates") ? "var(--secondary)" : (!isVisuallyExpanded && (isActive || isSubActive || isTemplatesActive)) ? "var(--secondary)" : "transparent",
                     transition: "all 0.15s ease",
                     textDecoration: "none",
                   }}
-                  className={`nav-link-item ${isActive || isSubActive || isTemplatesActive ? "active" : ""} ${isCollapsed ? "icon-only-item" : ""}`}
+                  className={`nav-link-item ${isActive || isSubActive || isTemplatesActive ? "active" : ""} ${!isVisuallyExpanded ? "icon-only-item" : ""}`}
                   title={item.label}
                 >
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: isCollapsed ? "center" : "flex-start", gap: isCollapsed ? "0" : "12px", minWidth: 0, width: isCollapsed ? "100%" : "auto" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: isVisuallyExpanded ? "flex-start" : "center", gap: isVisuallyExpanded ? "12px" : "0", minWidth: 0, width: isVisuallyExpanded ? "auto" : "100%" }}>
                     <Icon
-                      size={isCollapsed ? 20 : 18}
+                      size={isVisuallyExpanded ? 18 : 20}
                       style={{
                         color: (isActive || isSubActive || isTemplatesActive) ? "var(--primary)" : "var(--text-muted)",
                         flexShrink: 0,
                       }}
                       strokeWidth={(isActive || isSubActive || isTemplatesActive) ? 2.3 : 1.9}
                     />
-                    {!isCollapsed && (
+                    {isVisuallyExpanded && (
                       <span
                         style={{
                           whiteSpace: "nowrap",
@@ -241,7 +276,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                       </span>
                     )}
                   </div>
-                  {hasSub && !isCollapsed && (
+                  {hasSub && isVisuallyExpanded && (
                     <button
                       type="button"
                       onClick={(e) => toggleSubmenu(item.id, e)}
@@ -266,7 +301,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   )}
                 </Link>
 
-                {hasSub && isExpanded && !isCollapsed && (
+                {hasSub && isExpanded && isVisuallyExpanded && (
                   <div
                     style={{
                       display: "flex",
@@ -283,7 +318,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                         <Link
                           key={sub.id}
                           href={sub.href}
-                          onClick={onClose}
+                          onClick={() => {
+                            setIsHovered(false);
+                            onClose?.();
+                          }}
                           style={{
                             display: "flex",
                             alignItems: "center",
@@ -321,18 +359,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         {/* Sidebar Footer with Workspace info */}
         <div
           style={{
-            padding: isCollapsed ? "12px 6px" : "14px 18px",
+            padding: isVisuallyExpanded ? "14px 18px" : "12px 6px",
             borderTop: "1px solid var(--border)",
             display: "flex",
-            flexDirection: isCollapsed ? "column" : "row",
+            flexDirection: isVisuallyExpanded ? "row" : "column",
             alignItems: "center",
-            justifyContent: isCollapsed ? "center" : "space-between",
+            justifyContent: isVisuallyExpanded ? "space-between" : "center",
             backgroundColor: "var(--bg)",
-            gap: isCollapsed ? "8px" : "0",
+            gap: isVisuallyExpanded ? "0" : "8px",
             transition: "padding 0.2s ease",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: isCollapsed ? "center" : "flex-start", gap: "10px", minWidth: 0, width: isCollapsed ? "100%" : "auto" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: isVisuallyExpanded ? "flex-start" : "center", gap: "10px", minWidth: 0, width: isVisuallyExpanded ? "auto" : "100%" }}>
             <div
               style={{
                 width: "34px",
@@ -351,7 +389,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             >
               A
             </div>
-            {!isCollapsed && (
+            {isVisuallyExpanded && (
               <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
                 <span
                   style={{
@@ -382,7 +420,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             )}
           </div>
 
-          {isCollapsed ? (
+          {isVisuallyExpanded ? (
+            <Link
+              href="/admin/settings"
+              aria-label="Admin Profile Settings"
+              style={{
+                color: "var(--text-muted)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "4px",
+                borderRadius: "6px",
+              }}
+            >
+              <ChevronDown size={15} />
+            </Link>
+          ) : (
             <button
               type="button"
               onClick={toggleSidebar}
@@ -404,21 +457,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             >
               <PanelLeftClose size={16} style={{ transform: "rotate(180deg)" }} />
             </button>
-          ) : (
-            <Link
-              href="/admin/settings"
-              aria-label="Admin Profile Settings"
-              style={{
-                color: "var(--text-muted)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "4px",
-                borderRadius: "6px",
-              }}
-            >
-              <ChevronDown size={15} />
-            </Link>
           )}
         </div>
       </aside>
