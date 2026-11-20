@@ -83,11 +83,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         />
       )}
 
-      {/* Main Slidable Floating Sidebar */}
+      {/* Main Slidable / Rail Sidebar Navigation */}
       <aside
         style={{
-          width: "250px",
-          minWidth: "250px",
+          width: isCollapsed ? "68px" : "250px",
+          minWidth: isCollapsed ? "68px" : "250px",
           height: "100vh",
           backgroundColor: "var(--bg)",
           borderRight: "1px solid var(--border)",
@@ -98,11 +98,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           top: 0,
           bottom: 0,
           zIndex: 45,
-          transform: isCollapsed ? "translateX(-100%)" : "translateX(0)",
-          transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-          boxShadow: isCollapsed ? "none" : "2px 0 16px rgba(36, 33, 58, 0.04)",
+          transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease",
+          boxShadow: "2px 0 16px rgba(36, 33, 58, 0.04)",
+          overflowX: "hidden",
         }}
-        className={`admin-sidebar ${isCollapsed ? "collapsed" : "expanded"} ${isActuallyMobileOpen ? "open" : ""}`}
+        className={`admin-sidebar ${isCollapsed ? "collapsed rail-mode" : "expanded"} ${isActuallyMobileOpen ? "open" : ""}`}
       >
         {/* Brand Header */}
         <div
@@ -110,24 +110,29 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             height: "72px",
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
-            padding: "0 18px",
+            justifyContent: isCollapsed ? "center" : "space-between",
+            padding: isCollapsed ? "0 8px" : "0 18px",
             borderBottom: "1px solid var(--border)",
+            transition: "padding 0.3s ease",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <Link href="/admin/dashboard" style={{ display: "inline-flex", alignItems: "center" }}>
-              <BrandLogo size="sm" />
+          <div style={{ display: "flex", alignItems: "center", justifyContent: isCollapsed ? "center" : "flex-start", width: isCollapsed ? "auto" : "auto" }}>
+            <Link
+              href="/admin/dashboard"
+              title={isCollapsed ? "Post Hub - Expand Navigation" : "Post Hub Dashboard"}
+              style={{ display: "inline-flex", alignItems: "center" }}
+            >
+              <BrandLogo size="sm" iconOnly={isCollapsed} />
             </Link>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <div style={{ display: isCollapsed ? "none" : "flex", alignItems: "center", gap: "4px" }}>
             {/* Slide Collapse Button (Desktop & Tablet) */}
             <button
               type="button"
               onClick={toggleSidebar}
               className="sidebar-collapse-btn"
-              title="Slide navigation closed"
+              title="Collapse sidebar to icons only"
               aria-label="Collapse sidebar navigation"
               style={{
                 background: "none",
@@ -170,10 +175,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           style={{
             flex: 1,
             overflowY: "auto",
-            padding: "8px 12px",
+            overflowX: "hidden",
+            padding: isCollapsed ? "12px 6px" : "8px 12px",
             display: "flex",
             flexDirection: "column",
-            gap: "2px",
+            gap: "3px",
+            transition: "padding 0.2s ease",
           }}
         >
           {ADMIN_NAV_ITEMS.map((item: NavItem) => {
@@ -196,40 +203,45 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: "12px",
-                    padding: "9px 14px",
-                    borderRadius: "8px",
+                    justifyContent: isCollapsed ? "center" : "space-between",
+                    gap: isCollapsed ? "0" : "12px",
+                    padding: isCollapsed ? "10px 0" : "9px 14px",
+                    width: isCollapsed ? "48px" : "100%",
+                    height: isCollapsed ? "44px" : "auto",
+                    margin: isCollapsed ? "0 auto" : "0",
+                    borderRadius: isCollapsed ? "10px" : "8px",
                     fontSize: "13.5px",
                     fontWeight: (isActive || isSubActive || isTemplatesActive) ? 600 : 500,
                     color: (isActive || isSubActive || isTemplatesActive) ? "var(--primary)" : "var(--text-muted)",
-                    backgroundColor: (isActive && !hasSub) ? "var(--secondary)" : (hasSub && isSubActive && pathname === "/admin/templates") ? "var(--secondary)" : "transparent",
+                    backgroundColor: (isActive && !hasSub) ? "var(--secondary)" : (hasSub && isSubActive && pathname === "/admin/templates") ? "var(--secondary)" : (isCollapsed && (isActive || isSubActive || isTemplatesActive)) ? "var(--secondary)" : "transparent",
                     transition: "all 0.15s ease",
                     textDecoration: "none",
                   }}
-                  className={`nav-link-item ${isActive ? "active" : ""}`}
+                  className={`nav-link-item ${isActive || isSubActive || isTemplatesActive ? "active" : ""} ${isCollapsed ? "icon-only-item" : ""}`}
                   title={item.label}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: isCollapsed ? "center" : "flex-start", gap: isCollapsed ? "0" : "12px", minWidth: 0, width: isCollapsed ? "100%" : "auto" }}>
                     <Icon
-                      size={18}
+                      size={isCollapsed ? 20 : 18}
                       style={{
                         color: (isActive || isSubActive || isTemplatesActive) ? "var(--primary)" : "var(--text-muted)",
                         flexShrink: 0,
                       }}
-                      strokeWidth={(isActive || isSubActive || isTemplatesActive) ? 2.2 : 1.9}
+                      strokeWidth={(isActive || isSubActive || isTemplatesActive) ? 2.3 : 1.9}
                     />
-                    <span
-                      style={{
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {item.label}
-                    </span>
+                    {!isCollapsed && (
+                      <span
+                        style={{
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {item.label}
+                      </span>
+                    )}
                   </div>
-                  {hasSub && (
+                  {hasSub && !isCollapsed && (
                     <button
                       type="button"
                       onClick={(e) => toggleSubmenu(item.id, e)}
@@ -254,7 +266,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   )}
                 </Link>
 
-                {hasSub && isExpanded && (
+                {hasSub && isExpanded && !isCollapsed && (
                   <div
                     style={{
                       display: "flex",
@@ -309,75 +321,105 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         {/* Sidebar Footer with Workspace info */}
         <div
           style={{
-            padding: "14px 18px",
+            padding: isCollapsed ? "12px 6px" : "14px 18px",
             borderTop: "1px solid var(--border)",
             display: "flex",
+            flexDirection: isCollapsed ? "column" : "row",
             alignItems: "center",
-            justifyContent: "space-between",
+            justifyContent: isCollapsed ? "center" : "space-between",
             backgroundColor: "var(--bg)",
+            gap: isCollapsed ? "8px" : "0",
+            transition: "padding 0.2s ease",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: isCollapsed ? "center" : "flex-start", gap: "10px", minWidth: 0, width: isCollapsed ? "100%" : "auto" }}>
             <div
               style={{
-                width: "32px",
-                height: "32px",
+                width: "34px",
+                height: "34px",
                 borderRadius: "50%",
                 backgroundColor: "#DCD6E8",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 color: "var(--text)",
-                fontWeight: 600,
+                fontWeight: 700,
                 fontSize: "13px",
                 flexShrink: 0,
               }}
+              title="Admin (System Administrator)"
             >
               A
             </div>
-            <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-              <span
-                style={{
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  color: "var(--text)",
-                  lineHeight: 1.2,
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                Admin
-              </span>
-              <span
-                style={{
-                  fontSize: "11px",
-                  color: "var(--text-muted)",
-                  lineHeight: 1.2,
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                System Administrator
-              </span>
-            </div>
+            {!isCollapsed && (
+              <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+                <span
+                  style={{
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    color: "var(--text)",
+                    lineHeight: 1.2,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  Admin
+                </span>
+                <span
+                  style={{
+                    fontSize: "11px",
+                    color: "var(--text-muted)",
+                    lineHeight: 1.2,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  System Administrator
+                </span>
+              </div>
+            )}
           </div>
 
-          <Link
-            href="/admin/settings"
-            aria-label="Admin Profile Settings"
-            style={{
-              color: "var(--text-muted)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "4px",
-              borderRadius: "6px",
-            }}
-          >
-            <ChevronDown size={15} />
-          </Link>
+          {isCollapsed ? (
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              className="sidebar-rail-expand-btn"
+              title="Expand sidebar navigation"
+              aria-label="Expand sidebar navigation"
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: "6px",
+                borderRadius: "6px",
+                color: "var(--text-muted)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "all 0.15s ease",
+              }}
+            >
+              <PanelLeftClose size={16} style={{ transform: "rotate(180deg)" }} />
+            </button>
+          ) : (
+            <Link
+              href="/admin/settings"
+              aria-label="Admin Profile Settings"
+              style={{
+                color: "var(--text-muted)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "4px",
+                borderRadius: "6px",
+              }}
+            >
+              <ChevronDown size={15} />
+            </Link>
+          )}
         </div>
       </aside>
 
@@ -386,7 +428,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           background-color: var(--primary-light) !important;
           color: var(--text) !important;
         }
-        .sidebar-collapse-btn:hover {
+        .sidebar-collapse-btn:hover,
+        .sidebar-rail-expand-btn:hover {
           background-color: var(--primary-light) !important;
           color: var(--primary) !important;
         }
@@ -394,9 +437,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           .mobile-sidebar-backdrop {
             display: none !important;
           }
+          .admin-sidebar {
+            transform: translateX(0) !important;
+          }
         }
         @media (max-width: 1024px) {
-          .sidebar-collapse-btn {
+          .sidebar-collapse-btn,
+          .sidebar-rail-expand-btn {
             display: none !important;
           }
           .admin-sidebar {
@@ -404,6 +451,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             left: 0;
             top: 0;
             bottom: 0;
+            width: 250px !important;
+            min-width: 250px !important;
             transform: translateX(-100%) !important;
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
           }

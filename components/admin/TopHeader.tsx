@@ -128,8 +128,8 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           <button
             type="button"
             onClick={handleToggle}
-            aria-label={isCollapsed ? "Expand sidebar navigation" : "Collapse sidebar navigation"}
-            title={isCollapsed ? "Expand navigation (Slide in)" : "Collapse navigation (Slide out)"}
+            aria-label={isCollapsed ? "Expand sidebar navigation" : "Collapse sidebar to icons only"}
+            title={isCollapsed ? "Expand sidebar to full navigation" : "Collapse sidebar to icons only"}
             className="admin-sidebar-toggle-btn"
             style={{
               background: "var(--surface)",

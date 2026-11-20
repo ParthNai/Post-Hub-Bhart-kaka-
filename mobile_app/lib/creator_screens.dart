@@ -235,7 +235,9 @@ class TemplatePoster extends StatelessWidget {
 
     final photo = (userAvatarUrl != null && userAvatarUrl!.isNotEmpty)
         ? userAvatarUrl!
-        : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80';
+        : ((zone.sampleAvatarUrl != null && zone.sampleAvatarUrl!.isNotEmpty)
+            ? zone.sampleAvatarUrl!
+            : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80');
 
     final borderColor = _parseHex(zone.borderColor, fallback: Colors.white);
     final borderWidth = isCutout ? 0.0 : zone.borderWidth;
@@ -1236,6 +1238,15 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
     (0xFFFFDCE7, 0xFFA72E59),
     (0xFFD9EDFF, 0xFF265B91),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    final photoZone = widget.template.slotZones.where((z) => z.type == 'photo').firstOrNull;
+    if (photoZone?.sampleAvatarUrl != null && photoZone!.sampleAvatarUrl!.isNotEmpty) {
+      _userAvatarUrl = photoZone.sampleAvatarUrl!;
+    }
+  }
 
   @override
   void dispose() {

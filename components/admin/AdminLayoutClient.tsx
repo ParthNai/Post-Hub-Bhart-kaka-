@@ -24,7 +24,7 @@ const AdminLayoutContent: React.FC<AdminLayoutClientProps> = ({ children }) => {
       {/* Slidable Floating Sidebar Navigation */}
       <Sidebar />
 
-      {/* Main Content Area with smooth transition matching sliding sidebar */}
+      {/* Main Content Area with smooth transition matching rail/full sidebar */}
       <div
         style={{
           flex: 1,
@@ -32,12 +32,12 @@ const AdminLayoutContent: React.FC<AdminLayoutClientProps> = ({ children }) => {
           display: "flex",
           flexDirection: "column",
           backgroundColor: "var(--bg)",
-          marginLeft: isCollapsed ? 0 : "250px",
+          marginLeft: isCollapsed ? "68px" : "250px",
           transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-          width: isCollapsed ? "100%" : "calc(100% - 250px)",
+          width: isCollapsed ? "calc(100% - 68px)" : "calc(100% - 250px)",
         }}
         id="admin-main-container"
-        className={`admin-main-wrapper ${isCollapsed ? "sidebar-collapsed" : ""}`}
+        className={`admin-main-wrapper ${isCollapsed ? "sidebar-collapsed rail-active" : ""}`}
       >
         {React.Children.map(children, (child) => {
           if (React.isValidElement(child)) {

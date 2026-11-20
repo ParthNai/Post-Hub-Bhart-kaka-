@@ -24,6 +24,7 @@ class FlutterSlotZone {
     this.backgroundColor = 'rgba(0,0,0,0.5)',
     this.opacity = 1.0,
     this.customText,
+    this.sampleAvatarUrl,
   });
 
   final String id;
@@ -46,6 +47,7 @@ class FlutterSlotZone {
   final String backgroundColor;
   final double opacity;
   final String? customText;
+  final String? sampleAvatarUrl;
 
   factory FlutterSlotZone.fromJson(Map<String, dynamic> json) {
     return FlutterSlotZone(
@@ -69,6 +71,7 @@ class FlutterSlotZone {
       backgroundColor: (json['backgroundColor'] as String?) ?? 'rgba(0,0,0,0.5)',
       opacity: ((json['opacity'] as num?) ?? 1.0).toDouble(),
       customText: json['customText'] as String?,
+      sampleAvatarUrl: (json['sampleAvatarUrl'] as String?) ?? (json['sampleUrl'] as String?),
     );
   }
 
@@ -93,6 +96,7 @@ class FlutterSlotZone {
     'backgroundColor': backgroundColor,
     'opacity': opacity,
     if (customText != null) 'customText': customText,
+    if (sampleAvatarUrl != null) 'sampleAvatarUrl': sampleAvatarUrl,
   };
 
   FlutterSlotZone copyWith({
@@ -116,28 +120,32 @@ class FlutterSlotZone {
     String? backgroundColor,
     double? opacity,
     String? customText,
-  }) => FlutterSlotZone(
-    id: id ?? this.id,
-    type: type ?? this.type,
-    label: label ?? this.label,
-    x: x ?? this.x,
-    y: y ?? this.y,
-    width: width ?? this.width,
-    height: height ?? this.height,
-    photoShape: photoShape ?? this.photoShape,
-    borderColor: borderColor ?? this.borderColor,
-    borderWidth: borderWidth ?? this.borderWidth,
-    shadow: shadow ?? this.shadow,
-    textBinding: textBinding ?? this.textBinding,
-    fontSize: fontSize ?? this.fontSize,
-    textColor: textColor ?? this.textColor,
-    fontWeight: fontWeight ?? this.fontWeight,
-    alignment: alignment ?? this.alignment,
-    shapeType: shapeType ?? this.shapeType,
-    backgroundColor: backgroundColor ?? this.backgroundColor,
-    opacity: opacity ?? this.opacity,
-    customText: customText ?? this.customText,
-  );
+    String? sampleAvatarUrl,
+  }) {
+    return FlutterSlotZone(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      label: label ?? this.label,
+      x: x ?? this.x,
+      y: y ?? this.y,
+      width: width ?? this.width,
+      height: height ?? this.height,
+      photoShape: photoShape ?? this.photoShape,
+      borderColor: borderColor ?? this.borderColor,
+      borderWidth: borderWidth ?? this.borderWidth,
+      shadow: shadow ?? this.shadow,
+      textBinding: textBinding ?? this.textBinding,
+      fontSize: fontSize ?? this.fontSize,
+      textColor: textColor ?? this.textColor,
+      fontWeight: fontWeight ?? this.fontWeight,
+      alignment: alignment ?? this.alignment,
+      shapeType: shapeType ?? this.shapeType,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      opacity: opacity ?? this.opacity,
+      customText: customText ?? this.customText,
+      sampleAvatarUrl: sampleAvatarUrl ?? this.sampleAvatarUrl,
+    );
+  }
 }
 
 class OccasionTemplate {
@@ -220,8 +228,11 @@ class OccasionTemplate {
     }
 
     final bgUrl = (json['backgroundImageUrl'] as String?) ??
-        (json['thumbnailUrl'] as String?);
-    final rawZones = json['slotZones'] as List<dynamic>?;
+        (json['thumbnailUrl'] as String?) ??
+        (json['assetFileName'] != null && (json['assetFileName'] as String).isNotEmpty
+            ? '/templates/${json['assetFileName']}'
+            : null);
+    final rawZones = (json['slotZones'] as List<dynamic>?) ?? (json['zones'] as List<dynamic>?);
     final zones = rawZones != null
         ? rawZones
             .whereType<Map<String, dynamic>>()
