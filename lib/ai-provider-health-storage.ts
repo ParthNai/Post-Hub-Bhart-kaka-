@@ -1,14 +1,16 @@
 import fs from "fs";
 import path from "path";
-import {
+import type {
   ProviderHealthDataset,
   ProviderHealthRecord,
   ModelPerformanceRecord,
   HealthCheckHistoryItem,
   MonitoringSettings,
+} from "./ai-provider-health.ts";
+import {
   CANONICAL_PROVIDER_HEALTH_SEED,
   formatDuration,
-} from "./ai-provider-health";
+} from "./ai-provider-health.ts";
 
 const DATA_DIR = path.join(process.cwd(), ".data");
 const HEALTH_FILE = path.join(DATA_DIR, "ai-provider-health.json");
@@ -174,6 +176,7 @@ export function updateMonitoringSettings(
   updates: Partial<MonitoringSettings>,
   _adminName: string = "Parth Admin"
 ): { success: boolean; settings: MonitoringSettings } {
+  void _adminName;
   const data = readStoredData();
   data.settings = {
     ...data.settings,
@@ -208,6 +211,7 @@ export async function executeHealthCheck(
   }>;
   data: ProviderHealthDataset;
 }> {
+  void _adminName;
   if (isCheckRunning) {
     throw new Error("A health check is already in progress. Please wait for it to complete.");
   }

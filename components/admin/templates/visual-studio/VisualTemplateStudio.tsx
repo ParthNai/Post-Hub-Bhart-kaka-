@@ -83,6 +83,7 @@ import {
   SlotZoneType,
   PhotoSlotShape,
   TextSlotBinding,
+  ShapeSlotType,
   TemplateFormat,
   TemplateCategory,
 } from "@/lib/templates";
@@ -208,6 +209,12 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
   );
   const [status, setStatus] = useState<"Draft" | "Published">(
     initialTemplate?.status === "Published" ? "Published" : "Draft"
+  );
+  const [primaryColor, setPrimaryColor] = useState<string>(
+    initialTemplate?.primaryColor || "#7956C9"
+  );
+  const [accentColor, setAccentColor] = useState<string>(
+    initialTemplate?.accentColor || "#FFB800"
   );
 
   // Background artwork & auto aspect ratio

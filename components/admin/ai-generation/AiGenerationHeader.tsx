@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { RefreshCw, Settings, BookOpen, Bell, Sparkles, ListFilter, Image as ImageIcon, Shield, BarChart3, Coins, History } from "lucide-react";
+import { RefreshCw, Settings, BookOpen, Bell, Sparkles, ListFilter, Image as ImageIcon, Shield, BarChart3, Coins, History, Zap } from "lucide-react";
 
 interface AiGenerationHeaderProps {
   onRefresh: () => void;
@@ -343,6 +343,30 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
           >
             <History size={14} />
             <span>Audit Trail & Ledger</span>
+          </Link>
+
+          {/* Provider Health & Performance button */}
+          <Link
+            href="/admin/ai-generation/health"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "7px",
+              padding: "8px 14px",
+              borderRadius: "8px",
+              fontSize: "13px",
+              fontWeight: 600,
+              backgroundColor: "var(--surface)",
+              color: "var(--primary)",
+              border: "1px solid var(--border)",
+              cursor: "pointer",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+              transition: "all 0.15s ease",
+              textDecoration: "none",
+            }}
+          >
+            <Zap size={14} />
+            <span>Provider Health & Performance</span>
           </Link>
 
           {/* Refresh button */}
