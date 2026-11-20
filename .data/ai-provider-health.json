@@ -15,7 +15,7 @@
       "status": "Healthy",
       "modelCount": 4,
       "lastCheckText": "Last Check: 2 min ago",
-      "lastCheckTimestamp": 1795160814742,
+      "lastCheckTimestamp": 1795161309629,
       "responseTimeMs": 840,
       "responseTimeText": "Response: 840ms",
       "recentError": null,
@@ -37,7 +37,7 @@
       "status": "Degraded",
       "modelCount": 3,
       "lastCheckText": "Last Check: 5 min ago",
-      "lastCheckTimestamp": 1795160634742,
+      "lastCheckTimestamp": 1795161129629,
       "responseTimeMs": 1800,
       "responseTimeText": "Response: 1.8s",
       "recentError": "API Errors",
@@ -58,7 +58,7 @@
       "status": "Unknown",
       "modelCount": 2,
       "lastCheckText": "Last Check: 12 min ago",
-      "lastCheckTimestamp": 1795160214742,
+      "lastCheckTimestamp": 1795160709629,
       "responseTimeMs": null,
       "responseTimeText": "Response: —",
       "recentError": "No Data",
@@ -78,7 +78,7 @@
       "status": "Checking",
       "modelCount": 3,
       "lastCheckText": "Last Check: 1 min ago",
-      "lastCheckTimestamp": 1795160874742,
+      "lastCheckTimestamp": 1795161369629,
       "responseTimeMs": null,
       "responseTimeText": "Response: —",
       "recentError": null,
@@ -105,7 +105,7 @@
       "successfulRequests": 12450,
       "failedRequests": 120,
       "lastCheckText": "2 min ago",
-      "lastCheckTimestamp": 1795160814742,
+      "lastCheckTimestamp": 1795161309629,
       "capabilities": [
         "High-speed reasoning",
         "Visual analysis",
@@ -123,7 +123,7 @@
       "successfulRequests": 8230,
       "failedRequests": 320,
       "lastCheckText": "5 min ago",
-      "lastCheckTimestamp": 1795160634742,
+      "lastCheckTimestamp": 1795161129629,
       "capabilities": [
         "Design reasoning",
         "Complex aesthetic critique",
@@ -141,7 +141,7 @@
       "successfulRequests": 5120,
       "failedRequests": 780,
       "lastCheckText": "7 min ago",
-      "lastCheckTimestamp": 1795160514742,
+      "lastCheckTimestamp": 1795161009629,
       "capabilities": [
         "Photorealistic diffusion",
         "Stylistic rendering"
@@ -158,7 +158,7 @@
       "successfulRequests": 3780,
       "failedRequests": 210,
       "lastCheckText": "12 min ago",
-      "lastCheckTimestamp": 1795160214742,
+      "lastCheckTimestamp": 1795160709629,
       "capabilities": [
         "Commercial-safe generations",
         "Vector asset production"
@@ -175,7 +175,7 @@
       "successfulRequests": 7650,
       "failedRequests": 180,
       "lastCheckText": "1 min ago",
-      "lastCheckTimestamp": 1795160874742,
+      "lastCheckTimestamp": 1795161369629,
       "capabilities": [
         "Multimodal generation",
         "Long-context visual grounding"
