@@ -83,6 +83,7 @@ import {
   READY_SLOGAN_SNIPPETS,
 } from "./IndianFontsCatalog";
 import { CurvedTextRenderer } from "./CurvedTextRenderer";
+import { DirectImageCropperModal, CropTargetInfo } from "./DirectImageCropperModal";
 import {
   PARTY_AND_CULTURAL_ASSETS,
   createSmartContactBarZones,
@@ -408,6 +409,48 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
   const [showImportModal, setShowImportModal] = useState(false);
   const [importCodeText, setImportCodeText] = useState("");
   const [toastNotification, setToastNotification] = useState<string | null>(null);
+
+  // Direct In-Place Image Cropper state (operates without switching tabs)
+  const [cropTarget, setCropTarget] = useState<CropTargetInfo | null>(null);
+
+  const handleOpenCropper = (
+    imageUrl: string,
+    targetType: "zone" | "background",
+    zoneId?: string,
+    label?: string
+  ) => {
+    if (!imageUrl) {
+      setToastNotification("⚠️ No image available to crop.");
+      return;
+    }
+    setCropTarget({
+      imageUrl,
+      targetType,
+      zoneId: zoneId || (targetType === "zone" ? selectedZoneId || undefined : undefined),
+      label: label || (targetType === "background" ? "Background Artwork" : "Selected Photo Slot"),
+    });
+  };
+
+  const handleApplyCrop = (
+    croppedDataUrl: string,
+    targetType: "zone" | "background",
+    zoneId?: string
+  ) => {
+    if (targetType === "zone") {
+      const targetId = zoneId || selectedZoneId;
+      if (targetId) {
+        const nextZones = zones.map((z) =>
+          z.id === targetId ? { ...z, sampleAvatarUrl: croppedDataUrl } : z
+        );
+        pushHistory(nextZones);
+        setToastNotification("✂️ Photo cropped and updated in slot!");
+      }
+    } else if (targetType === "background") {
+      setBackgroundUrl(croppedDataUrl);
+      setToastNotification("✂️ Background artwork cropped and updated!");
+    }
+    setCropTarget(null);
+  };
 
   // Canvas container ref
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -1368,26 +1411,51 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                   </div>
 
                   {/* Upload button */}
-                  <label
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                      padding: "10px",
-                      borderRadius: "8px",
-                      border: "1.5px dashed rgba(121, 86, 201, 0.5)",
-                      backgroundColor: "rgba(121, 86, 201, 0.1)",
-                      color: "#D8B4FE",
-                      fontSize: "12px",
-                      fontWeight: 700,
-                      cursor: "pointer",
-                    }}
-                  >
-                    <Upload size={14} />
-                    <span>Upload Poster Image</span>
-                    <input type="file" accept="image/*,.svg" onChange={handleImageUpload} style={{ display: "none" }} />
-                  </label>
+                  <div style={{ display: "flex", gap: "6px" }}>
+                    <label
+                      style={{
+                        flex: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                        padding: "10px",
+                        borderRadius: "8px",
+                        border: "1.5px dashed rgba(121, 86, 201, 0.5)",
+                        backgroundColor: "rgba(121, 86, 201, 0.1)",
+                        color: "#D8B4FE",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                      }}
+                    >
+                      <Upload size={14} />
+                      <span>Upload Poster</span>
+                      <input type="file" accept="image/*,.svg" onChange={handleImageUpload} style={{ display: "none" }} />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenCropper(backgroundUrl, "background", undefined, "Background Artwork")}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "5px",
+                        padding: "10px 14px",
+                        borderRadius: "8px",
+                        border: "1px solid rgba(59, 130, 246, 0.4)",
+                        backgroundColor: "rgba(59, 130, 246, 0.2)",
+                        color: "#93C5FD",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                      }}
+                      title="Crop current background artwork directly in-place"
+                    >
+                      <Crop size={14} />
+                      <span>Crop</span>
+                    </button>
+                  </div>
 
                   {/* Preset Gallery */}
                   <div>
@@ -1597,6 +1665,39 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                       style={{ display: "none" }}
                     />
                   </label>
+
+                  {/* In-Place Direct Crop Button for selected photo zone (No tab switch) */}
+                  {selectedZone?.type === "photo" && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleOpenCropper(
+                          selectedZone.sampleAvatarUrl || previewPersona.avatarUrl,
+                          "zone",
+                          selectedZone.id,
+                          selectedZone.label || "Photo Slot"
+                        )
+                      }
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "6px",
+                        padding: "8px 12px",
+                        borderRadius: "6px",
+                        backgroundColor: "rgba(59, 130, 246, 0.2)",
+                        border: "1px solid rgba(59, 130, 246, 0.4)",
+                        color: "#93C5FD",
+                        cursor: "pointer",
+                        fontSize: "11.5px",
+                        fontWeight: 700,
+                      }}
+                      title="Crop the currently selected photo slot directly without leaving this tab"
+                    >
+                      <Crop size={14} />
+                      <span>✂️ Crop Selected Photo Directly</span>
+                    </button>
+                  )}
 
                   {/* Preset Indian Leaders & People Gallery */}
                   <div>
@@ -2497,6 +2598,36 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                       />
                     </label>
 
+                    {/* Inline Direct Crop Button (No Tab Switch) */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleOpenCropper(
+                          selectedZone.sampleAvatarUrl || previewPersona.avatarUrl,
+                          "zone",
+                          selectedZone.id,
+                          selectedZone.label || "Photo Slot"
+                        )
+                      }
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "5px",
+                        padding: "3px 9px",
+                        borderRadius: "4px",
+                        backgroundColor: "#3B82F6",
+                        color: "#FFFFFF",
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        border: "none",
+                      }}
+                      title="Crop this photo directly in-place without changing tabs"
+                    >
+                      <Crop size={13} />
+                      <span>Crop Image</span>
+                    </button>
+
                     {selectedZone.sampleAvatarUrl && (
                       <button
                         type="button"
@@ -2673,9 +2804,32 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                 </div>
               </>
             ) : (
-              <span style={{ color: "#8A849C", fontSize: "11.5px" }}>
-                Select any photo or text zone on the canvas to customize its typography, borders, and position.
-              </span>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                <span style={{ color: "#8A849C", fontSize: "11.5px" }}>
+                  Select any photo, text, or shape zone on the canvas to customize its options.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleOpenCropper(backgroundUrl, "background", undefined, "Background Artwork")}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px",
+                    padding: "3px 9px",
+                    borderRadius: "4px",
+                    backgroundColor: "rgba(59, 130, 246, 0.18)",
+                    border: "1px solid rgba(59, 130, 246, 0.4)",
+                    color: "#93C5FD",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                  title="Crop template background artwork directly in-place without changing tabs"
+                >
+                  <Crop size={12} />
+                  <span>✂️ Crop Background Artwork</span>
+                </button>
+              </div>
             )}
           </div>
 
@@ -2804,6 +2958,18 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                     <div
                       key={zone.id}
                       onMouseDown={(e) => handleZoneMouseDown(e, zone)}
+                      onDoubleClick={(e) => {
+                        e.stopPropagation();
+                        if (zone.type === "photo") {
+                          handleOpenCropper(
+                            zone.sampleAvatarUrl || previewPersona.avatarUrl,
+                            "zone",
+                            zone.id,
+                            zone.label || "Photo Slot"
+                          );
+                        }
+                      }}
+                      title={zone.type === "photo" ? "Double-click to crop this image directly" : undefined}
                       style={{
                         position: "absolute",
                         left: `${zone.x}%`,
@@ -3420,7 +3586,7 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                           </div>
                         </div>
 
-                        {/* Upload button & Reset button */}
+                        {/* Upload button, Crop button & Reset button */}
                         <div style={{ display: "flex", gap: "6px" }}>
                           <label
                             style={{
@@ -3429,7 +3595,7 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                               alignItems: "center",
                               justifyContent: "center",
                               gap: "5px",
-                              padding: "6px 10px",
+                              padding: "6px 8px",
                               borderRadius: "6px",
                               backgroundColor: "#7956C9",
                               color: "#FFFFFF",
@@ -3440,7 +3606,7 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                             }}
                           >
                             <Upload size={13} />
-                            <span>Upload Person Photo</span>
+                            <span>Upload</span>
                             <input
                               type="file"
                               accept="image/*"
@@ -3448,12 +3614,41 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                               style={{ display: "none" }}
                             />
                           </label>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleOpenCropper(
+                                selectedZone.sampleAvatarUrl || previewPersona.avatarUrl,
+                                "zone",
+                                selectedZone.id,
+                                selectedZone.label || "Photo Slot"
+                              )
+                            }
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "4px",
+                              padding: "6px 10px",
+                              borderRadius: "6px",
+                              backgroundColor: "#3B82F6",
+                              color: "#FFFFFF",
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              cursor: "pointer",
+                              border: "none",
+                            }}
+                            title="Crop this photo directly in-place without changing tabs"
+                          >
+                            <Crop size={13} />
+                            <span>Crop</span>
+                          </button>
                           {selectedZone.sampleAvatarUrl && (
                             <button
                               type="button"
                               onClick={() => updateSelectedZone({ sampleAvatarUrl: undefined })}
                               style={{
-                                padding: "6px 10px",
+                                padding: "6px 8px",
                                 borderRadius: "6px",
                                 backgroundColor: "rgba(255, 255, 255, 0.08)",
                                 border: "1px solid rgba(255, 255, 255, 0.15)",
@@ -4016,6 +4211,15 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* 5. Direct In-Place Image Cropper Modal (No tab navigation required) */}
+      {cropTarget && (
+        <DirectImageCropperModal
+          cropTarget={cropTarget}
+          onClose={() => setCropTarget(null)}
+          onApplyCrop={handleApplyCrop}
+        />
       )}
     </div>
   );

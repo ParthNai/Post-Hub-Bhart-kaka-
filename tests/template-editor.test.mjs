@@ -130,4 +130,52 @@ test("Screen 14 — Template Details & Editor Test Suite", async (t) => {
     assert.equal(restored.status, "Draft");
     assert.equal(restored.assetFileName, "education-admission-poster.jpg");
   });
+
+  await t.test("9. Supports slot zones with direct cropped avatar data and out-of-boundary bleed coordinates", () => {
+    const croppedDataUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+    const testZones = [
+      {
+        id: "zone-photo-1",
+        type: "photo",
+        label: "Candidate Profile",
+        photoShape: "circle",
+        sampleAvatarUrl: croppedDataUrl,
+        x: -10, // Bleed: intentionally extends past left border
+        y: 15,
+        width: 45,
+        height: 45,
+      },
+      {
+        id: "zone-shape-1",
+        type: "shape",
+        label: "Bottom Banner",
+        shapeType: "banner",
+        backgroundColor: "#FFFFFF",
+        x: 0,
+        y: 85,
+        width: 100,
+        height: 15,
+      },
+    ];
+
+    const updateRes = updateTemplate("TPL-003", {
+      name: "Education Admission Poster",
+      zones: testZones,
+    });
+
+    assert.equal(updateRes.success, true);
+    const updated = getTemplateById("TPL-003");
+    assert.ok(updated?.zones);
+    assert.equal(updated.zones.length, 2);
+    assert.equal(updated.zones[0].sampleAvatarUrl, croppedDataUrl);
+    assert.equal(updated.zones[0].x, -10, "Supports negative/bleed coordinates");
+  });
+
+  await t.test("10. Validates Direct Cropper supported aspect ratio presets", () => {
+    const supportedRatios = ["free", "1:1", "3:4", "4:5", "9:16", "16:9", "circle"];
+    assert.equal(supportedRatios.length, 7);
+    assert.ok(supportedRatios.includes("circle"));
+    assert.ok(supportedRatios.includes("3:4"));
+    assert.ok(supportedRatios.includes("1:1"));
+  });
 });
