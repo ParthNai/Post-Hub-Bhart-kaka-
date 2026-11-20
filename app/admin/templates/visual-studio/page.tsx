@@ -14,7 +14,7 @@ export const metadata = {
 export default async function VisualStudioPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ templateId?: string }>;
+  searchParams?: Promise<{ templateId?: string; id?: string }>;
 }) {
   const session = await getSession({ allowDevBypass: true });
 
@@ -23,8 +23,9 @@ export default async function VisualStudioPage({
   }
 
   const resolvedParams = searchParams ? await searchParams : {};
-  const initialTemplate = resolvedParams.templateId
-    ? getTemplateById(resolvedParams.templateId) || undefined
+  const targetId = resolvedParams.templateId || (resolvedParams as { id?: string }).id;
+  const initialTemplate = targetId
+    ? getTemplateById(targetId) || undefined
     : undefined;
 
   return (

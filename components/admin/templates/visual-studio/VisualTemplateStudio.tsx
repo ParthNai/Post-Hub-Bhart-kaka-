@@ -197,6 +197,9 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
   const router = useRouter();
 
   // Template basic metadata
+  const [currentTemplateId, setCurrentTemplateId] = useState<string | undefined>(
+    initialTemplate?.id
+  );
   const [templateName, setTemplateName] = useState(
     initialTemplate?.name || "Festive Campaign Poster"
   );
@@ -234,6 +237,49 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
     };
     img.src = backgroundUrl;
   }, [backgroundUrl]);
+
+  // Auto-restore draft from browser localStorage if creating a new template
+  useEffect(() => {
+    if (!initialTemplate?.id) {
+      try {
+        const savedDraftRaw = localStorage.getItem("posthub_studio_draft_v1");
+        if (savedDraftRaw) {
+          const draft = JSON.parse(savedDraftRaw);
+          if (draft && draft.name) {
+            setTemplateName(draft.name);
+            if (draft.category) setCategory(draft.category);
+            if (draft.format) setFormat(draft.format);
+            if (draft.backgroundUrl) setBackgroundUrl(draft.backgroundUrl);
+            if (draft.zones && Array.isArray(draft.zones) && draft.zones.length > 0) {
+              setZones(draft.zones);
+            }
+            setToastNotification("📝 Restored unsaved draft from browser storage");
+          }
+        }
+      } catch {}
+    }
+  }, []);
+
+  // Debounced auto-save draft to localStorage for unsaved templates
+  useEffect(() => {
+    if (initialTemplate?.id || currentTemplateId) return;
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(
+          "posthub_studio_draft_v1",
+          JSON.stringify({
+            name: templateName,
+            category,
+            format,
+            backgroundUrl,
+            zones,
+            savedAt: Date.now(),
+          })
+        );
+      } catch {}
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [templateName, category, format, backgroundUrl, zones, initialTemplate?.id, currentTemplateId]);
 
   // Slot zones list
   const [zones, setZones] = useState<TemplateSlotZone[]>(
@@ -1053,11 +1099,12 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
     };
 
     try {
-      const isEditing = Boolean(initialTemplate?.id);
+      const activeId = currentTemplateId || initialTemplate?.id;
+      const isEditing = Boolean(activeId);
       let res: Response;
 
       if (isEditing) {
-        res = await fetch(`/api/admin/templates/${initialTemplate!.id}`, {
+        res = await fetch(`/api/admin/templates/${activeId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -1077,9 +1124,28 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
         return;
       }
 
+      const savedTemplate = data.template;
+      if (savedTemplate?.id) {
+        setCurrentTemplateId(savedTemplate.id);
+        try {
+          localStorage.removeItem("posthub_studio_draft_v1");
+        } catch {}
+        if (typeof window !== "undefined") {
+          window.history.replaceState(
+            null,
+            "",
+            `/admin/templates/visual-studio?templateId=${savedTemplate.id}`
+          );
+        }
+      }
+
       setSaveSuccess(true);
       setIsSaving(false);
-      setToastNotification("🎉 Template saved successfully!");
+      setToastNotification(
+        publishImmediately
+          ? "🚀 Template published to mobile app catalog!"
+          : "🎉 Template saved successfully!"
+      );
 
       if (onSaved && data.template) {
         onSaved(data.template);
