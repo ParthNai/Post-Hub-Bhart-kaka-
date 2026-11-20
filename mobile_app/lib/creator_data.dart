@@ -94,6 +94,50 @@ class FlutterSlotZone {
     'opacity': opacity,
     if (customText != null) 'customText': customText,
   };
+
+  FlutterSlotZone copyWith({
+    String? id,
+    String? type,
+    String? label,
+    double? x,
+    double? y,
+    double? width,
+    double? height,
+    String? photoShape,
+    String? borderColor,
+    double? borderWidth,
+    bool? shadow,
+    String? textBinding,
+    double? fontSize,
+    String? textColor,
+    String? fontWeight,
+    String? alignment,
+    String? shapeType,
+    String? backgroundColor,
+    double? opacity,
+    String? customText,
+  }) => FlutterSlotZone(
+    id: id ?? this.id,
+    type: type ?? this.type,
+    label: label ?? this.label,
+    x: x ?? this.x,
+    y: y ?? this.y,
+    width: width ?? this.width,
+    height: height ?? this.height,
+    photoShape: photoShape ?? this.photoShape,
+    borderColor: borderColor ?? this.borderColor,
+    borderWidth: borderWidth ?? this.borderWidth,
+    shadow: shadow ?? this.shadow,
+    textBinding: textBinding ?? this.textBinding,
+    fontSize: fontSize ?? this.fontSize,
+    textColor: textColor ?? this.textColor,
+    fontWeight: fontWeight ?? this.fontWeight,
+    alignment: alignment ?? this.alignment,
+    shapeType: shapeType ?? this.shapeType,
+    backgroundColor: backgroundColor ?? this.backgroundColor,
+    opacity: opacity ?? this.opacity,
+    customText: customText ?? this.customText,
+  );
 }
 
 class OccasionTemplate {
@@ -515,6 +559,10 @@ class SavedDesign {
     required this.savedAt,
     this.backgroundImageUrl,
     this.slotZones = const [],
+    this.userName,
+    this.userAvatarUrl,
+    this.userPhone,
+    this.userDesignation,
   });
 
   final String id;
@@ -531,6 +579,10 @@ class SavedDesign {
   final DateTime savedAt;
   final String? backgroundImageUrl;
   final List<FlutterSlotZone> slotZones;
+  final String? userName;
+  final String? userAvatarUrl;
+  final String? userPhone;
+  final String? userDesignation;
 
   factory SavedDesign.fromTemplate(
     OccasionTemplate template, {
@@ -540,6 +592,11 @@ class SavedDesign {
     String? subtitle,
     int? background,
     int? foreground,
+    List<FlutterSlotZone>? slotZones,
+    String? userName,
+    String? userAvatarUrl,
+    String? userPhone,
+    String? userDesignation,
   }) => SavedDesign(
     id: '${template.id}-${DateTime.now().microsecondsSinceEpoch}',
     templateId: template.id,
@@ -554,7 +611,11 @@ class SavedDesign {
     icon: template.icon,
     savedAt: DateTime.now(),
     backgroundImageUrl: template.backgroundImageUrl,
-    slotZones: template.slotZones,
+    slotZones: slotZones ?? template.slotZones,
+    userName: userName,
+    userAvatarUrl: userAvatarUrl,
+    userPhone: userPhone,
+    userDesignation: userDesignation,
   );
 
   Map<String, Object?> toJson() => {
@@ -572,6 +633,10 @@ class SavedDesign {
     'savedAt': savedAt.toIso8601String(),
     if (backgroundImageUrl != null) 'backgroundImageUrl': backgroundImageUrl,
     'slotZones': slotZones.map((z) => z.toJson()).toList(),
+    if (userName != null) 'userName': userName,
+    if (userAvatarUrl != null) 'userAvatarUrl': userAvatarUrl,
+    if (userPhone != null) 'userPhone': userPhone,
+    if (userDesignation != null) 'userDesignation': userDesignation,
   };
 
   factory SavedDesign.fromJson(Map<String, dynamic> json) => SavedDesign(
@@ -593,6 +658,10 @@ class SavedDesign {
             .map(FlutterSlotZone.fromJson)
             .toList() ??
         const [],
+    userName: json['userName'] as String?,
+    userAvatarUrl: json['userAvatarUrl'] as String?,
+    userPhone: json['userPhone'] as String?,
+    userDesignation: json['userDesignation'] as String?,
   );
 }
 

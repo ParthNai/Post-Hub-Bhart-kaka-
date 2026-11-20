@@ -131,6 +131,8 @@ class TemplatePoster extends StatelessWidget {
     this.userAvatarUrl,
     this.userPhone,
     this.userDesignation,
+    this.selectedZoneId,
+    this.onSelectZone,
   });
 
   final String headline;
@@ -145,6 +147,8 @@ class TemplatePoster extends StatelessWidget {
   final String? userAvatarUrl;
   final String? userPhone;
   final String? userDesignation;
+  final String? selectedZoneId;
+  final ValueChanged<String?>? onSelectZone;
 
   factory TemplatePoster.fromTemplate(
     OccasionTemplate template, {
@@ -184,10 +188,10 @@ class TemplatePoster extends StatelessWidget {
     icon: design.icon,
     backgroundImageUrl: design.backgroundImageUrl,
     slotZones: design.slotZones,
-    userName: userName,
-    userAvatarUrl: userAvatarUrl,
-    userPhone: userPhone,
-    userDesignation: userDesignation,
+    userName: userName ?? design.userName,
+    userAvatarUrl: userAvatarUrl ?? design.userAvatarUrl,
+    userPhone: userPhone ?? design.userPhone,
+    userDesignation: userDesignation ?? design.userDesignation,
   );
 
   Widget _buildShapeZone(FlutterSlotZone zone, double w, double h) {
@@ -364,16 +368,64 @@ class TemplatePoster extends StatelessWidget {
     );
   }
 
+  Widget _canvaHandle() => Container(
+    width: 8,
+    height: 8,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      shape: BoxShape.circle,
+      border: Border.all(color: const Color(0xFF00C4CC), width: 2),
+      boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 2)],
+    ),
+  );
+
   Widget _buildSlotZoneWidget(FlutterSlotZone zone, double w, double h) {
+    Widget inner;
     switch (zone.type) {
       case 'photo':
-        return _buildPhotoZone(zone, w, h);
+        inner = _buildPhotoZone(zone, w, h);
+        break;
       case 'text':
-        return _buildTextZone(zone, w, h);
+        inner = _buildTextZone(zone, w, h);
+        break;
       case 'shape':
       default:
-        return _buildShapeZone(zone, w, h);
+        inner = _buildShapeZone(zone, w, h);
+        break;
     }
+
+    final isSelected = selectedZoneId == zone.id;
+    if (isSelected) {
+      inner = Stack(
+        clipBehavior: Clip.none,
+        children: [
+          inner,
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: const Color(0xFF00C4CC), width: 2),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+          ),
+          Positioned(top: -4, left: -4, child: _canvaHandle()),
+          Positioned(top: -4, right: -4, child: _canvaHandle()),
+          Positioned(bottom: -4, left: -4, child: _canvaHandle()),
+          Positioned(bottom: -4, right: -4, child: _canvaHandle()),
+        ],
+      );
+    }
+
+    if (onSelectZone != null) {
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => onSelectZone!(zone.id),
+        child: inner,
+      );
+    }
+    return inner;
   }
 
   @override
@@ -399,9 +451,13 @@ class TemplatePoster extends StatelessWidget {
               return Stack(
                 children: [
                   Positioned.fill(
-                    child: hasBackground
-                        ? _buildPosterBackground(backgroundImageUrl!, background)
-                        : Container(color: Color(background)),
+                    child: GestureDetector(
+                      onTap: () => onSelectZone?.call(null),
+                      behavior: HitTestBehavior.opaque,
+                      child: hasBackground
+                          ? _buildPosterBackground(backgroundImageUrl!, background)
+                          : Container(color: Color(background)),
+                    ),
                   ),
                   if (hasSlots) ...[
                     for (final zone in slotZones)
@@ -1108,10 +1164,70 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
   late final _businessName = TextEditingController(
     text: widget.preferences.businessName,
   );
+  late final _userName = TextEditingController(text: 'Parth Patel');
+  late final _userPhone = TextEditingController(text: '+91 98765 43210');
+  late final _userDesignation = TextEditingController(
+    text: widget.template.category.toLowerCase().contains('festival')
+        ? 'शुभकामनाएं | Director'
+        : 'युवा नेता / Founder',
+  );
+  late final _customPhotoUrlController = TextEditingController();
+
   late int _background = widget.template.background;
   late int _foreground = widget.template.foreground;
   final _posterKey = GlobalKey();
   bool _isSharing = false;
+
+  String? _selectedZoneId;
+  String _activeTab = 'text'; // 'text', 'photo', 'frames'
+  String _userAvatarUrl =
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80';
+  String _photoShape = 'cutout'; // 'cutout', 'circle', 'squircle'
+  late List<FlutterSlotZone> _customZones = List.from(widget.template.slotZones);
+  String _selectedFramePresetId = 'default';
+
+  static const _leaderPresets = [
+    (
+      id: 'modi-ji',
+      name: 'PM Modi Ji',
+      role: 'National Leader',
+      url:
+          'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Narendra_Modi_2021.jpg/440px-Narendra_Modi_2021.jpg',
+      shape: 'cutout',
+    ),
+    (
+      id: 'candidate-cutout',
+      name: 'Candidate Cutout',
+      role: 'Political / Youth',
+      url:
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+      shape: 'cutout',
+    ),
+    (
+      id: 'parth-pro',
+      name: 'Business Pro',
+      role: 'Founder / CEO',
+      url:
+          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+      shape: 'circle',
+    ),
+    (
+      id: 'female-leader',
+      name: 'Female Leader',
+      role: 'Executive',
+      url:
+          'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
+      shape: 'circle',
+    ),
+    (
+      id: 'default-woman',
+      name: 'Default Avatar',
+      role: 'Cutout Portrait',
+      url:
+          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=240&q=80',
+      shape: 'cutout',
+    ),
+  ];
 
   static const _palettes = [
     (0xFFFFE8B2, 0xFF8A3D12),
@@ -1126,7 +1242,313 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
     _headline.dispose();
     _subtitle.dispose();
     _businessName.dispose();
+    _userName.dispose();
+    _userPhone.dispose();
+    _userDesignation.dispose();
+    _customPhotoUrlController.dispose();
     super.dispose();
+  }
+
+  void _applyPhotoPreset(String url, String shape) {
+    setState(() {
+      _userAvatarUrl = url;
+      _photoShape = shape;
+      // Also update shape of any photo zones in custom zones
+      _customZones = _customZones.map((z) {
+        if (z.type == 'photo') {
+          return z.copyWith(photoShape: shape);
+        }
+        return z;
+      }).toList();
+    });
+  }
+
+  void _applyPhotoShape(String shape) {
+    setState(() {
+      _photoShape = shape;
+      _customZones = _customZones.map((z) {
+        if (z.type == 'photo') {
+          return z.copyWith(photoShape: shape);
+        }
+        return z;
+      }).toList();
+    });
+  }
+
+  void _applyFramePreset(String presetId) {
+    setState(() {
+      _selectedFramePresetId = presetId;
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final existingTopZones = widget.template.slotZones.where((z) {
+        final id = z.id.toLowerCase();
+        final lbl = z.label.toLowerCase();
+        return !id.contains('bottom') &&
+            !id.contains('footer') &&
+            !id.contains('pill') &&
+            !lbl.contains('footer') &&
+            !lbl.contains('pill') &&
+            z.y < 70;
+      }).toList();
+
+      switch (presetId) {
+        case 'corp_pill':
+          _customZones = [
+            ...existingTopZones,
+            FlutterSlotZone(
+              id: 'zone-pill-bg-$timestamp',
+              type: 'shape',
+              label: 'Corporate Pill Bar',
+              shapeType: 'pill',
+              x: 4,
+              y: 88,
+              width: 92,
+              height: 9.5,
+              backgroundColor: '#0F172A',
+              borderColor: '#38BDF8',
+              borderWidth: 1.5,
+              shadow: true,
+              opacity: 0.96,
+            ),
+            FlutterSlotZone(
+              id: 'zone-pill-photo-$timestamp',
+              type: 'photo',
+              label: 'User Avatar',
+              photoShape: 'circle',
+              x: 6,
+              y: 88.5,
+              width: 14,
+              height: 8.5,
+              borderColor: '#38BDF8',
+              borderWidth: 2,
+              shadow: true,
+            ),
+            FlutterSlotZone(
+              id: 'zone-pill-name-$timestamp',
+              type: 'text',
+              label: 'User Name',
+              textBinding: 'name',
+              x: 23,
+              y: 89,
+              width: 42,
+              height: 4,
+              fontSize: 14,
+              textColor: '#FFFFFF',
+              fontWeight: '800',
+              alignment: 'left',
+            ),
+            FlutterSlotZone(
+              id: 'zone-pill-contact-$timestamp',
+              type: 'text',
+              label: 'Contact',
+              textBinding: 'phone',
+              x: 23,
+              y: 93,
+              width: 42,
+              height: 4,
+              fontSize: 11,
+              textColor: '#FACC15',
+              fontWeight: '700',
+              alignment: 'left',
+            ),
+            FlutterSlotZone(
+              id: 'zone-pill-badge-$timestamp',
+              type: 'text',
+              label: 'Designation',
+              textBinding: 'designation',
+              x: 66,
+              y: 90,
+              width: 28,
+              height: 5,
+              fontSize: 11,
+              textColor: '#38BDF8',
+              fontWeight: '700',
+              alignment: 'right',
+            ),
+          ];
+          break;
+
+        case 'political_ribbon':
+          _customZones = [
+            ...existingTopZones,
+            FlutterSlotZone(
+              id: 'zone-poly-bg-$timestamp',
+              type: 'shape',
+              label: 'Political Banner',
+              shapeType: 'rectangle',
+              x: 0,
+              y: 86,
+              width: 100,
+              height: 14,
+              backgroundColor: 'rgba(17, 24, 39, 0.95)',
+              borderColor: '#FF9933',
+              borderWidth: 2,
+              shadow: true,
+              opacity: 0.95,
+            ),
+            FlutterSlotZone(
+              id: 'zone-poly-photo-$timestamp',
+              type: 'photo',
+              label: 'Candidate Photo',
+              photoShape: 'cutout',
+              x: 4,
+              y: 72,
+              width: 28,
+              height: 28,
+              borderWidth: 0,
+              shadow: false,
+            ),
+            FlutterSlotZone(
+              id: 'zone-poly-name-$timestamp',
+              type: 'text',
+              label: 'Candidate Name',
+              textBinding: 'name',
+              x: 34,
+              y: 88,
+              width: 62,
+              height: 5.5,
+              fontSize: 16,
+              textColor: '#FFFFFF',
+              fontWeight: '800',
+              alignment: 'left',
+            ),
+            FlutterSlotZone(
+              id: 'zone-poly-phone-$timestamp',
+              type: 'text',
+              label: 'WhatsApp Contact',
+              textBinding: 'phone',
+              x: 34,
+              y: 93.5,
+              width: 62,
+              height: 4.5,
+              fontSize: 12,
+              textColor: '#22C55E',
+              fontWeight: '700',
+              alignment: 'left',
+            ),
+          ];
+          break;
+
+        case 'executive_gold':
+          _customZones = [
+            ...existingTopZones,
+            FlutterSlotZone(
+              id: 'zone-gold-bg-$timestamp',
+              type: 'shape',
+              label: 'Luxury Gold Bar',
+              shapeType: 'rectangle',
+              x: 3,
+              y: 87,
+              width: 94,
+              height: 11,
+              backgroundColor: '#1E1B2E',
+              borderColor: '#F59E0B',
+              borderWidth: 1.5,
+              shadow: true,
+              opacity: 0.95,
+            ),
+            FlutterSlotZone(
+              id: 'zone-gold-name-$timestamp',
+              type: 'text',
+              label: 'Business / Name',
+              textBinding: 'name',
+              x: 6,
+              y: 88.5,
+              width: 50,
+              height: 4.5,
+              fontSize: 14,
+              textColor: '#FFFFFF',
+              fontWeight: '800',
+              alignment: 'left',
+            ),
+            FlutterSlotZone(
+              id: 'zone-gold-phone-$timestamp',
+              type: 'text',
+              label: 'Contact',
+              textBinding: 'phone',
+              x: 58,
+              y: 88.5,
+              width: 36,
+              height: 4.5,
+              fontSize: 12,
+              textColor: '#F59E0B',
+              fontWeight: '700',
+              alignment: 'right',
+            ),
+            FlutterSlotZone(
+              id: 'zone-gold-desig-$timestamp',
+              type: 'text',
+              label: 'Designation',
+              textBinding: 'designation',
+              x: 6,
+              y: 93,
+              width: 88,
+              height: 4,
+              fontSize: 11,
+              textColor: '#D1D5DB',
+              fontWeight: '600',
+              alignment: 'left',
+            ),
+          ];
+          break;
+
+        case 'clean_bar':
+          _customZones = [
+            ...existingTopZones,
+            FlutterSlotZone(
+              id: 'zone-clean-bg-$timestamp',
+              type: 'shape',
+              label: 'Minimal Clean Strip',
+              shapeType: 'rectangle',
+              x: 4,
+              y: 90,
+              width: 92,
+              height: 8,
+              backgroundColor: 'rgba(0, 0, 0, 0.85)',
+              borderWidth: 0,
+              opacity: 0.88,
+              shadow: true,
+            ),
+            FlutterSlotZone(
+              id: 'zone-clean-name-$timestamp',
+              type: 'text',
+              label: 'Name',
+              textBinding: 'name',
+              x: 8,
+              y: 91.5,
+              width: 45,
+              height: 5,
+              fontSize: 13,
+              textColor: '#FFFFFF',
+              fontWeight: '700',
+              alignment: 'left',
+            ),
+            FlutterSlotZone(
+              id: 'zone-clean-phone-$timestamp',
+              type: 'text',
+              label: 'Phone',
+              textBinding: 'phone',
+              x: 55,
+              y: 91.5,
+              width: 38,
+              height: 5,
+              fontSize: 12,
+              textColor: '#FACC15',
+              fontWeight: '700',
+              alignment: 'right',
+            ),
+          ];
+          break;
+
+        case 'none':
+          _customZones = existingTopZones;
+          break;
+
+        case 'default':
+        default:
+          _customZones = List.from(widget.template.slotZones);
+          break;
+      }
+    });
   }
 
   void _save() {
@@ -1140,6 +1562,11 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
       subtitle: _subtitle.text.trim(),
       background: _background,
       foreground: _foreground,
+      slotZones: _customZones,
+      userName: _userName.text,
+      userAvatarUrl: _userAvatarUrl,
+      userPhone: _userPhone.text,
+      userDesignation: _userDesignation.text,
     );
     Navigator.of(context).pop(saved);
   }
@@ -1174,7 +1601,7 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                 mimeType: 'image/png',
               ),
             ],
-            text: 'Made with Post Hub',
+            text: 'Made with Post Hub Canva Studio',
             downloadFallbackEnabled: true,
           ),
         );
@@ -1197,119 +1624,519 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
+      backgroundColor: const Color(0xFF0F0E17),
       appBar: AppBar(
-        title: const Text('Customize design'),
-        backgroundColor: const Color(0xFFFAF7F2),
+        title: const Text(
+          'Customize design',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w800,
+            fontSize: 16,
+          ),
+        ),
+        backgroundColor: const Color(0xFF1B182B),
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            key: const ValueKey('export-design'),
+            tooltip: 'Export PNG',
+            onPressed: _isSharing ? null : _sharePng,
+            icon: _isSharing
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Color(0xFF00C4CC),
+                    ),
+                  )
+                : const Icon(Icons.ios_share_rounded, color: Color(0xFF00C4CC)),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: FilledButton(
+              key: const ValueKey('save-design'),
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF7956C9),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+              ),
+              onPressed: _save,
+              child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w800)),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
           children: [
-            Center(
-              child: RepaintBoundary(
-                key: _posterKey,
-                child: SizedBox(
-                  width: 220,
-                  height: 290,
-                  child: TemplatePoster(
-                    headline: _headline.text.isEmpty
-                        ? widget.template.headline
-                        : _headline.text,
-                    subtitle: _subtitle.text,
-                    businessName: _businessName.text.isNotEmpty
-                        ? _businessName.text
-                        : widget.preferences.businessName,
-                    background: _background,
-                    foreground: _foreground,
-                    icon: widget.template.icon,
-                    backgroundImageUrl: widget.template.backgroundImageUrl,
-                    slotZones: widget.template.slotZones,
+            // 1. CANVA HERO CANVAS STAGE
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF171424),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: Colors.white12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black45,
+                    blurRadius: 14,
+                    offset: Offset(0, 4),
                   ),
-                ),
+                ],
               ),
-            ),
-            const SizedBox(height: 14),
-            const Text(
-              'Edit your design',
-              style: TextStyle(
-                color: Color(0xFF211D35),
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              key: const ValueKey('design-headline'),
-              controller: _headline,
-              onChanged: (_) => setState(() {}),
-              maxLength: 44,
-              decoration: const InputDecoration(
-                labelText: 'Main message',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            TextField(
-              key: const ValueKey('design-subtitle'),
-              controller: _subtitle,
-              onChanged: (_) => setState(() {}),
-              maxLength: 72,
-              decoration: const InputDecoration(
-                labelText: 'Supporting message',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              key: const ValueKey('design-business-name'),
-              controller: _businessName,
-              onChanged: (_) => setState(() {}),
-              decoration: const InputDecoration(
-                labelText: 'Business name (optional)',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 14),
-            const Text(
-              'Choose a color style',
-              style: TextStyle(
-                color: Color(0xFF514A5C),
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 10,
-              children: [
-                for (var index = 0; index < _palettes.length; index++)
-                  InkWell(
-                    key: ValueKey('design-palette-$index'),
-                    onTap: () => setState(() {
-                      _background = _palettes[index].$1;
-                      _foreground = _palettes[index].$2;
-                    }),
-                    customBorder: const CircleBorder(),
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: Color(_palettes[index].$1),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: _background == _palettes[index].$1
-                              ? Color(_palettes[index].$2)
-                              : Colors.white,
-                          width: 3,
+              child: Column(
+                children: [
+                  Center(
+                    child: RepaintBoundary(
+                      key: _posterKey,
+                      child: SizedBox(
+                        width: 200,
+                        height: 260,
+                        child: TemplatePoster(
+                          headline: _headline.text.isEmpty
+                              ? widget.template.headline
+                              : _headline.text,
+                          subtitle: _subtitle.text,
+                          businessName: _businessName.text.isNotEmpty
+                              ? _businessName.text
+                              : widget.preferences.businessName,
+                          background: _background,
+                          foreground: _foreground,
+                          icon: widget.template.icon,
+                          backgroundImageUrl: widget.template.backgroundImageUrl,
+                          slotZones: _customZones,
+                          userName: _userName.text,
+                          userAvatarUrl: _userAvatarUrl,
+                          userPhone: _userPhone.text,
+                          userDesignation: _userDesignation.text,
+                          selectedZoneId: _selectedZoneId,
+                          onSelectZone: (zoneId) {
+                            setState(() {
+                              _selectedZoneId = zoneId;
+                              if (zoneId != null) {
+                                final zone = _customZones.firstWhere(
+                                  (z) => z.id == zoneId,
+                                  orElse: () => _customZones.first,
+                                );
+                                if (zone.type == 'photo') {
+                                  _activeTab = 'photo';
+                                } else if (zone.type == 'text') {
+                                  _activeTab = 'text';
+                                } else {
+                                  _activeTab = 'frames';
+                                }
+                              }
+                            });
+                          },
                         ),
                       ),
                     ),
                   ),
-              ],
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.touch_app_rounded,
+                        size: 13,
+                        color: Color(0xFF00C4CC),
+                      ),
+                      const SizedBox(width: 5),
+                      Flexible(
+                        child: Text(
+                          _selectedZoneId != null
+                              ? 'Selected: ${_selectedZoneId!}'
+                              : 'Tap poster elements to customize',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: _selectedZoneId != null
+                                ? const Color(0xFF00C4CC)
+                                : const Color(0xFF9E99AF),
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 20),
+
+            const SizedBox(height: 12),
+
+            // 2. CANVA TOOL SELECTOR TABS
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildTabChip('text', '🔤 Text & Details', Icons.text_fields_rounded),
+                  const SizedBox(width: 8),
+                  _buildTabChip('photo', '📸 Photo & Cutouts', Icons.person_rounded),
+                  const SizedBox(width: 8),
+                  _buildTabChip('frames', '🖼️ Bottom Frames', Icons.view_compact_rounded),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            // 3. TEXT & DETAILS PANEL (Default Tab)
+            if (_activeTab == 'text') ...[
+              _buildSectionCard(
+                title: 'Text & Personal Details',
+                icon: Icons.edit_note_rounded,
+                badge: 'Live Stamped',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: _userName,
+                      style: const TextStyle(color: Colors.white),
+                      onChanged: (_) => setState(() {}),
+                      decoration: const InputDecoration(
+                        labelText: 'Your / Candidate Name',
+                        labelStyle: TextStyle(color: Color(0xFF00C4CC)),
+                        prefixIcon: Icon(Icons.person, color: Color(0xFF00C4CC)),
+                        border: OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white24),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _userPhone,
+                      style: const TextStyle(color: Colors.white),
+                      onChanged: (_) => setState(() {}),
+                      decoration: const InputDecoration(
+                        labelText: 'Mobile / WhatsApp Number',
+                        labelStyle: TextStyle(color: Color(0xFFFACC15)),
+                        prefixIcon: Icon(Icons.phone, color: Color(0xFFFACC15)),
+                        border: OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white24),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _userDesignation,
+                      style: const TextStyle(color: Colors.white),
+                      onChanged: (_) => setState(() {}),
+                      decoration: const InputDecoration(
+                        labelText: 'Designation / Slogan (Optional)',
+                        labelStyle: TextStyle(color: Color(0xFFB4AFD0)),
+                        prefixIcon: Icon(Icons.badge, color: Color(0xFFB4AFD0)),
+                        border: OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white24),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      key: const ValueKey('design-headline'),
+                      controller: _headline,
+                      style: const TextStyle(color: Colors.white),
+                      onChanged: (_) => setState(() {}),
+                      maxLength: 44,
+                      decoration: const InputDecoration(
+                        labelText: 'Main message',
+                        labelStyle: TextStyle(color: Colors.white70),
+                        border: OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white24),
+                        ),
+                      ),
+                    ),
+                    TextField(
+                      key: const ValueKey('design-subtitle'),
+                      controller: _subtitle,
+                      style: const TextStyle(color: Colors.white),
+                      onChanged: (_) => setState(() {}),
+                      maxLength: 72,
+                      decoration: const InputDecoration(
+                        labelText: 'Supporting message',
+                        labelStyle: TextStyle(color: Colors.white70),
+                        border: OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white24),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    TextField(
+                      key: const ValueKey('design-business-name'),
+                      controller: _businessName,
+                      style: const TextStyle(color: Colors.white),
+                      onChanged: (_) => setState(() {}),
+                      decoration: const InputDecoration(
+                        labelText: 'Business name (optional)',
+                        labelStyle: TextStyle(color: Colors.white70),
+                        border: OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white24),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Choose a color style',
+                      style: TextStyle(
+                        color: Color(0xFFB4AFD0),
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 10,
+                      children: [
+                        for (var index = 0; index < _palettes.length; index++)
+                          InkWell(
+                            key: ValueKey('design-palette-$index'),
+                            onTap: () => setState(() {
+                              _background = _palettes[index].$1;
+                              _foreground = _palettes[index].$2;
+                            }),
+                            customBorder: const CircleBorder(),
+                            child: Container(
+                              width: 34,
+                              height: 34,
+                              decoration: BoxDecoration(
+                                color: Color(_palettes[index].$1),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: _background == _palettes[index].$1
+                                      ? const Color(0xFF00C4CC)
+                                      : Colors.white24,
+                                  width: _background == _palettes[index].$1 ? 3 : 1.5,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+
+            // 4. PHOTO & CUTOUTS PANEL (Visible when 'photo' tab is selected)
+            if (_activeTab == 'photo') ...[
+              _buildSectionCard(
+                title: 'Photo & Leader Cutouts',
+                icon: Icons.person_pin_rounded,
+                badge: '1-Click Replace',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Select Persona or Leader Cutout:',
+                      style: TextStyle(
+                        color: Color(0xFFB4AFD0),
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          for (final leader in _leaderPresets)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: InkWell(
+                                onTap: () =>
+                                    _applyPhotoPreset(leader.url, leader.shape),
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  width: 84,
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: _userAvatarUrl == leader.url
+                                        ? const Color(0xFF7956C9).withValues(alpha: 0.3)
+                                        : const Color(0xFF231F36),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: _userAvatarUrl == leader.url
+                                          ? const Color(0xFF00C4CC)
+                                          : Colors.white12,
+                                      width: _userAvatarUrl == leader.url ? 2 : 1,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: SizedBox(
+                                          width: 48,
+                                          height: 48,
+                                          child: _buildAvatarImage(leader.url),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        leader.name,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      Text(
+                                        leader.role,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          color: Color(0xFF9E99AF),
+                                          fontSize: 8.5,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Photo Shape & Crop:',
+                      style: TextStyle(
+                        color: Color(0xFFB4AFD0),
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        _buildShapeOption('cutout', 'Cutout (Fade)'),
+                        const SizedBox(width: 8),
+                        _buildShapeOption('circle', 'Circle Frame'),
+                        const SizedBox(width: 8),
+                        _buildShapeOption('squircle', 'Squircle'),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _customPhotoUrlController,
+                            style: const TextStyle(color: Colors.white, fontSize: 12),
+                            decoration: InputDecoration(
+                              hintText: 'Paste custom image URL...',
+                              hintStyle: const TextStyle(color: Colors.white38),
+                              isDense: true,
+                              filled: true,
+                              fillColor: const Color(0xFF231F36),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        FilledButton(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFF7956C9),
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
+                          ),
+                          onPressed: () {
+                            final url = _customPhotoUrlController.text.trim();
+                            if (url.isNotEmpty) {
+                              _applyPhotoPreset(url, _photoShape);
+                            }
+                          },
+                          child: const Text('Apply'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+
+            // 5. BOTTOM FRAMES PANEL (Visible when 'frames' tab is selected)
+            if (_activeTab == 'frames') ...[
+              _buildSectionCard(
+                title: 'Bottom Frames & Footer Strips',
+                icon: Icons.view_compact_rounded,
+                badge: '1-Tap Apply',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Choose Footer Strip Layout:',
+                      style: TextStyle(
+                        color: Color(0xFFB4AFD0),
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _buildFramePresetChip(
+                          'default',
+                          'Original Template',
+                          Icons.auto_awesome,
+                        ),
+                        _buildFramePresetChip(
+                          'corp_pill',
+                          'Corporate Pro Pill',
+                          Icons.rounded_corner_rounded,
+                        ),
+                        _buildFramePresetChip(
+                          'political_ribbon',
+                          'Political Banner',
+                          Icons.flag_rounded,
+                        ),
+                        _buildFramePresetChip(
+                          'executive_gold',
+                          'Executive Gold',
+                          Icons.star_rounded,
+                        ),
+                        _buildFramePresetChip(
+                          'clean_bar',
+                          'Minimal Strip',
+                          Icons.horizontal_rule_rounded,
+                        ),
+                        _buildFramePresetChip(
+                          'none',
+                          'No Footer Frame',
+                          Icons.clear_rounded,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+
+            // 6. BOTTOM ACTIONS
             OutlinedButton.icon(
-              key: const ValueKey('export-design'),
+              key: const ValueKey('export-design-bottom'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF00C4CC),
+                side: const BorderSide(color: Color(0xFF00C4CC)),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
               onPressed: _isSharing ? null : _sharePng,
               icon: _isSharing
                   ? const SizedBox(
@@ -1320,17 +2147,193 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                   : const Icon(Icons.ios_share_rounded),
               label: Text(
                 _isSharing ? 'Preparing image…' : 'Export / Share PNG',
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
             ),
             const SizedBox(height: 8),
             FilledButton.icon(
-              key: const ValueKey('save-design'),
+              key: const ValueKey('save-design-bottom'),
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF7956C9),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
               onPressed: _save,
               icon: const Icon(Icons.bookmark_add_rounded),
-              label: const Text('Save to My designs'),
+              label: const Text(
+                'Save to My designs',
+                style: TextStyle(fontWeight: FontWeight.w800),
+              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTabChip(String id, String label, IconData icon) {
+    final isActive = _activeTab == id;
+    return InkWell(
+      onTap: () => setState(() => _activeTab = id),
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        decoration: BoxDecoration(
+          color: isActive
+              ? const Color(0xFF7956C9)
+              : const Color(0xFF1E1B2E),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isActive ? const Color(0xFF00C4CC) : Colors.white12,
+            width: isActive ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 13,
+              color: isActive ? Colors.white : const Color(0xFF9E99AF),
+            ),
+            const SizedBox(width: 5),
+            Text(
+              label,
+              style: TextStyle(
+                color: isActive ? Colors.white : const Color(0xFFB4AFD0),
+                fontSize: 11.5,
+                fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShapeOption(String shape, String label) {
+    final isSelected = _photoShape == shape;
+    return Expanded(
+      child: InkWell(
+        onTap: () => _applyPhotoShape(shape),
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 7),
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFF7956C9) : const Color(0xFF231F36),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isSelected ? const Color(0xFF00C4CC) : Colors.white12,
+            ),
+          ),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: isSelected ? Colors.white : const Color(0xFF9E99AF),
+              fontSize: 10.5,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFramePresetChip(String id, String label, IconData icon) {
+    final isSelected = _selectedFramePresetId == id;
+    return InkWell(
+      onTap: () => _applyFramePreset(id),
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFF7956C9).withValues(alpha: 0.3)
+              : const Color(0xFF231F36),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF00C4CC) : Colors.white12,
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 14,
+              color: isSelected ? const Color(0xFF00C4CC) : const Color(0xFF9E99AF),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : const Color(0xFFD1D5DB),
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionCard({
+    required String title,
+    required IconData icon,
+    String? badge,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1B182B),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 16, color: const Color(0xFF00C4CC)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              if (badge != null) ...[
+                const SizedBox(width: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF7956C9).withValues(alpha: 0.25),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    badge,
+                    style: const TextStyle(
+                      color: Color(0xFFD8B4FE),
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 12),
+          child,
+        ],
       ),
     );
   }
