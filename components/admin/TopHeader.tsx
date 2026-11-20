@@ -130,7 +130,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             onClick={handleToggle}
             aria-label={isCollapsed ? "Expand sidebar navigation" : "Collapse sidebar to icons only"}
             title={isCollapsed ? "Expand sidebar to full navigation" : "Collapse sidebar to icons only"}
-            className="admin-sidebar-toggle-btn"
+            className={`admin-sidebar-toggle-btn ${!isCollapsed ? "hide-on-desktop" : ""}`}
             style={{
               background: "var(--surface)",
               border: "1px solid var(--border)",
@@ -612,6 +612,11 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         }
         .dropdown-item.sign-out:hover {
           background-color: var(--error-bg);
+        }
+        @media (min-width: 1025px) {
+          .admin-sidebar-toggle-btn.hide-on-desktop {
+            display: none !important;
+          }
         }
         @media (max-width: 1024px) {
           .mobile-menu-toggle {
