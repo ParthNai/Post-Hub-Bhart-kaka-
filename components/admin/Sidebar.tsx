@@ -22,6 +22,7 @@ import {
   X,
   ChevronDown,
   PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { useSidebar } from "./SidebarContext";
 

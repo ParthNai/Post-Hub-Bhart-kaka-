@@ -39,6 +39,7 @@ export interface RelatedExecutionEvent {
 }
 
 export interface ApiRequestLog {
+  [key: string]: unknown;
   id: string; // e.g. "REQ-4587"
   timestamp: string; // e.g. "Nov 19, 10:46 AM"
   fullTimestamp: string; // e.g. "Nov 19, 2025, 10:46 AM"

@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { RefreshCw, Settings, BookOpen, Bell, Sparkles, ListFilter, Image as ImageIcon, Shield, BarChart3, Coins, History, Zap, GitBranch, Clock, Cpu, Key } from "lucide-react";
+import { RefreshCw, Settings, BookOpen, Bell, Sparkles, ListFilter, Image as ImageIcon, Shield, BarChart3, Coins, History, Zap, GitBranch, Clock, Cpu, Key, Activity } from "lucide-react";
 
 interface AiGenerationHeaderProps {
   onRefresh: () => void;
