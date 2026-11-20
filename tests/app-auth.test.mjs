@@ -31,8 +31,7 @@ test("App authentication tokens are member-only and app-scoped", async (t) => {
     assert.ok(member);
 
     const token = await createAppSessionToken(member);
-    const lastChar = token.slice(-1);
-    const tamperedToken = `${token.slice(0, -1)}${lastChar === "x" ? "y" : "x"}`;
+    const tamperedToken = `${token.slice(0, 20)}tampered${token.slice(28)}`;
 
     assert.equal(await verifyAppSessionToken(tamperedToken), null);
   });

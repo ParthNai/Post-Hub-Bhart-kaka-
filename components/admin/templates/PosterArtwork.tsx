@@ -44,7 +44,7 @@ export const PosterArtwork: React.FC<PosterArtworkProps> = ({ template, style, u
         }}
       >
         {/* Render each dynamic slot zone */}
-        {effectiveSlotZones?.map((zone) => {
+        {(effectiveSlotZones as any[])?.map((zone: any) => {
           if (zone.type === "shape") {
             const isCircle = zone.shapeType === "circle";
             const isPill = zone.shapeType === "pill";

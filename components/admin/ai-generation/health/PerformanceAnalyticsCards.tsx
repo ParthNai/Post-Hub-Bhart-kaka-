@@ -211,7 +211,7 @@ export const PerformanceAnalyticsCards: React.FC<PerformanceAnalyticsCardsProps>
             {/* Period dropdown */}
             <select
               value={barPeriod}
-              onChange={(e) => setBarPeriod(e.target.value as any)}
+              onChange={(e) => setBarPeriod(e.target.value as "Last 24 Hours" | "Last 7 Days" | "Last 30 Days")}
               className="px-2 py-1 bg-[#FAF7F2] border border-[#EAE4EE] rounded-lg text-[11px] text-[#24213A] font-medium focus:outline-none focus:border-[#7956C9] cursor-pointer"
             >
               <option value="Last 24 Hours">Last 24 Hours</option>
@@ -261,8 +261,6 @@ export const PerformanceAnalyticsCards: React.FC<PerformanceAnalyticsCardsProps>
             {/* Stacked Bars */}
             {activeBarValues.successful.map((succ, idx) => {
               const fail = activeBarValues.failed[idx] || 0;
-              const total = succ + fail;
-              const barTotalH = (total / maxBarTotal) * barPlotH;
               const barSuccH = (succ / maxBarTotal) * barPlotH;
               const barFailH = (fail / maxBarTotal) * barPlotH;
 
