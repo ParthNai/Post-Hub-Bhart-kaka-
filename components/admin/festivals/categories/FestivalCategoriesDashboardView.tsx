@@ -346,9 +346,7 @@ export const FestivalCategoriesDashboardView: React.FC = () => {
         gap: "24px",
         backgroundColor: "#FAF7F2",
       }}>
-        {/* Main Admin Sidebar */}
-        
-            {/* Toast Banner */}
+      {/* Toast Banner */}
             {toastMessage && (
               <div
                 style={{

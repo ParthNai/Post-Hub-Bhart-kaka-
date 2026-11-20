@@ -44,54 +44,156 @@ export function CreditPlansTable({
   });
 
   return (
-    <div className="bg-white rounded-2xl border border-[#EAE4EE] shadow-2xs mb-6 overflow-hidden">
+    <div
+      style={{
+        backgroundColor: "#FFFFFF",
+        borderRadius: "14px",
+        border: "1px solid #EAE4EE",
+        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
+        overflow: "hidden",
+        marginBottom: "20px",
+      }}
+    >
       {/* Header & Controls */}
-      <div className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EAE4EE]">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#FAF7F2] border border-[#E8DFF5] flex items-center justify-center text-[#7956C9] shrink-0">
-            <Crown className="w-4 h-4 stroke-[2.2]" />
+      <div
+        style={{
+          padding: "16px 20px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "12px",
+          borderBottom: "1px solid #EAE4EE",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div
+            style={{
+              width: "32px",
+              height: "32px",
+              borderRadius: "8px",
+              backgroundColor: "#FAF7F2",
+              border: "1px solid #E8DFF5",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#7956C9",
+              flexShrink: 0,
+            }}
+          >
+            <Crown size={16} strokeWidth={2.2} />
           </div>
-          <h2 className="text-base font-bold text-[#24213A]">Credit Plans</h2>
+          <h2
+            style={{
+              fontSize: "15px",
+              fontWeight: 700,
+              color: "#24213A",
+              margin: 0,
+            }}
+          >
+            Credit Plans
+          </h2>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           {/* Search plans */}
-          <div className="relative">
-            <Search className="w-4 h-4 text-[#777184] absolute left-3 top-1/2 -translate-y-1/2" />
+          <div style={{ position: "relative" }}>
+            <Search
+              size={14}
+              color="#777184"
+              style={{
+                position: "absolute",
+                left: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                pointerEvents: "none",
+              }}
+            />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search plans..."
-              className="pl-9 pr-3 py-1.5 bg-[#FAF7F2] border border-[#EAE4EE] rounded-xl text-xs text-[#24213A] placeholder-[#777184] focus:outline-none focus:border-[#7956C9] focus:bg-white w-48 transition-all"
+              style={{
+                paddingLeft: "32px",
+                paddingRight: "12px",
+                paddingTop: "6px",
+                paddingBottom: "6px",
+                backgroundColor: "#FAF7F2",
+                border: "1px solid #EAE4EE",
+                borderRadius: "8px",
+                fontSize: "12px",
+                color: "#24213A",
+                outline: "none",
+                width: "180px",
+              }}
             />
           </div>
 
           {/* Filter dropdown */}
-          <div className="relative">
+          <div style={{ position: "relative" }}>
             <button
+              type="button"
               onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FAF7F2] border border-[#EAE4EE] rounded-xl text-xs font-semibold text-[#24213A] hover:bg-white hover:border-[#7956C9]/40 transition-colors cursor-pointer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "6px 12px",
+                backgroundColor: "#FAF7F2",
+                border: "1px solid #EAE4EE",
+                borderRadius: "8px",
+                fontSize: "12px",
+                fontWeight: 600,
+                color: "#24213A",
+                cursor: "pointer",
+              }}
             >
-              <Filter className="w-3.5 h-3.5 text-[#777184]" />
+              <Filter size={13} color="#777184" />
               <span>Filter ▾</span>
             </button>
 
             {isFilterOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-36 bg-white rounded-xl border border-[#EAE4EE] shadow-lg py-1 z-20 text-xs">
+              <div
+                style={{
+                  position: "absolute",
+                  right: 0,
+                  top: "100%",
+                  marginTop: "6px",
+                  width: "140px",
+                  backgroundColor: "#FFFFFF",
+                  borderRadius: "10px",
+                  border: "1px solid #EAE4EE",
+                  boxShadow: "0 6px 16px rgba(0, 0, 0, 0.08)",
+                  padding: "4px 0",
+                  zIndex: 20,
+                  fontSize: "12px",
+                }}
+              >
                 {["All", "Active", "Draft", "Archived"].map((st) => (
                   <button
                     key={st}
+                    type="button"
                     onClick={() => {
                       setStatusFilter(st);
                       setIsFilterOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-1.5 hover:bg-[#FAF7F2] flex items-center justify-between ${
-                      statusFilter === st ? "font-bold text-[#7956C9]" : "text-[#24213A]"
-                    }`}
+                    style={{
+                      width: "100%",
+                      textAlign: "left",
+                      padding: "6px 12px",
+                      backgroundColor: "transparent",
+                      border: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      fontWeight: statusFilter === st ? 700 : 500,
+                      color: statusFilter === st ? "#7956C9" : "#24213A",
+                      cursor: "pointer",
+                    }}
                   >
                     <span>{st}</span>
-                    {statusFilter === st && <Check className="w-3.5 h-3.5" />}
+                    {statusFilter === st && <Check size={13} color="#7956C9" />}
                   </button>
                 ))}
               </div>
@@ -101,145 +203,243 @@ export function CreditPlansTable({
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-[#FAF7F2]/60 text-[#777184] font-semibold border-b border-[#EAE4EE]">
-            <tr>
-              <th className="py-3 px-5">Plan Name</th>
-              <th className="py-3 px-4">Credits Included</th>
-              <th className="py-3 px-4">Validity</th>
-              <th className="py-3 px-4">Plan Type</th>
-              <th className="py-3 px-4">Status</th>
-              <th className="py-3 px-4">Last Updated</th>
-              <th className="py-3 px-5 text-right">Actions</th>
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
+          <thead>
+            <tr
+              style={{
+                backgroundColor: "#FAF7F2",
+                color: "#777184",
+                fontSize: "11px",
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+                borderBottom: "1px solid #EAE4EE",
+              }}
+            >
+              <th style={{ padding: "12px 18px" }}>Plan Name</th>
+              <th style={{ padding: "12px 16px" }}>Credits Included</th>
+              <th style={{ padding: "12px 16px" }}>Validity</th>
+              <th style={{ padding: "12px 16px" }}>Plan Type</th>
+              <th style={{ padding: "12px 16px" }}>Status</th>
+              <th style={{ padding: "12px 16px" }}>Last Updated</th>
+              <th style={{ padding: "12px 18px", textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#EAE4EE]">
-            {filteredPlans.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="py-8 text-center text-[#777184]">
-                  No credit plans match your search or filter.
-                </td>
-              </tr>
-            ) : (
-              filteredPlans.map((plan) => (
-                <tr key={plan.id} className="hover:bg-[#FAF7F2]/40 transition-colors">
-                  <td className="py-3.5 px-5 font-bold text-[#24213A]">
+          <tbody>
+            {filteredPlans.map((plan) => {
+              const statusBg =
+                plan.status === "Active"
+                  ? "#ECFDF5"
+                  : plan.status === "Draft"
+                  ? "#FEF3C7"
+                  : "#F3F4F6";
+              const statusColor =
+                plan.status === "Active"
+                  ? "#10B981"
+                  : plan.status === "Draft"
+                  ? "#D97706"
+                  : "#6B7280";
+              const statusBorder =
+                plan.status === "Active"
+                  ? "#A7F3D0"
+                  : plan.status === "Draft"
+                  ? "#FDE68A"
+                  : "#E5E7EB";
+
+              return (
+                <tr
+                  key={plan.id}
+                  style={{
+                    borderBottom: "1px solid #F3EDF7",
+                    fontSize: "12.5px",
+                    color: "#24213A",
+                  }}
+                >
+                  <td style={{ padding: "14px 18px", fontWeight: 600 }}>
                     {plan.name}
                   </td>
-                  <td className="py-3.5 px-4 font-semibold text-[#24213A]">
-                    {formatCredits(plan.creditQuantity)} Credits
+                  <td style={{ padding: "14px 16px", fontWeight: 600 }}>
+                    {formatCredits(plan.creditQuantity)}
                   </td>
-                  <td className="py-3.5 px-4 text-[#777184] font-medium">
-                    {plan.validityDays} Days
+                  <td style={{ padding: "14px 16px", color: "#645D73" }}>
+                    {plan.validityDays ? `${plan.validityDays} Days` : "Lifetime"}
                   </td>
-                  <td className="py-3.5 px-4 text-[#777184] font-medium">
+                  <td style={{ padding: "14px 16px", color: "#645D73" }}>
                     {plan.planType}
                   </td>
-                  <td className="py-3.5 px-4">
+                  <td style={{ padding: "14px 16px" }}>
                     <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                        plan.status === "Active"
-                          ? "bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]"
-                          : plan.status === "Draft"
-                          ? "bg-[#FEF3C7] text-[#D97706] border border-[#FDE68A]"
-                          : "bg-[#F3F4F6] text-[#4B5563] border border-[#E5E7EB]"
-                      }`}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        padding: "2px 8px",
+                        borderRadius: "12px",
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        backgroundColor: statusBg,
+                        color: statusColor,
+                        border: `1px solid ${statusBorder}`,
+                      }}
                     >
                       {plan.status}
                     </span>
                   </td>
-                  <td className="py-3.5 px-4 text-[#777184]">
-                    {plan.updatedAt}
+                  <td style={{ padding: "14px 16px", color: "#777184" }}>
+                    {plan.updatedAt ? new Date(plan.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}
                   </td>
-                  <td className="py-3.5 px-5 text-right relative">
-                    <div className="flex items-center justify-end gap-1.5">
-                      {/* Edit Button */}
+                  <td style={{ padding: "14px 18px", textAlign: "right" }}>
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        justifyContent: "flex-end",
+                      }}
+                    >
                       <button
+                        type="button"
                         onClick={() => onEditPlan(plan)}
                         title="Edit Plan"
-                        className="p-1 rounded-lg text-[#777184] hover:text-[#7956C9] hover:bg-[#FAF7F2] transition-colors cursor-pointer"
+                        style={{
+                          background: "none",
+                          border: "none",
+                          padding: "4px",
+                          cursor: "pointer",
+                          color: "#777184",
+                        }}
                       >
-                        <Pencil className="w-3.5 h-3.5" />
+                        <Pencil size={14} />
                       </button>
-
-                      {/* Duplicate Button */}
                       <button
+                        type="button"
                         onClick={() => onDuplicatePlan(plan.id)}
                         title="Duplicate Plan"
-                        className="p-1 rounded-lg text-[#777184] hover:text-[#7956C9] hover:bg-[#FAF7F2] transition-colors cursor-pointer"
+                        style={{
+                          background: "none",
+                          border: "none",
+                          padding: "4px",
+                          cursor: "pointer",
+                          color: "#777184",
+                        }}
                       >
-                        <Copy className="w-3.5 h-3.5" />
+                        <Copy size={14} />
                       </button>
-
-                      {/* More Menu Toggle */}
-                      <button
-                        onClick={() =>
-                          setActiveMenuId(activeMenuId === plan.id ? null : plan.id)
-                        }
-                        title="More Actions"
-                        className="p-1 rounded-lg text-[#777184] hover:text-[#24213A] hover:bg-[#FAF7F2] transition-colors cursor-pointer"
-                      >
-                        <MoreVertical className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
-                    {/* Popover Menu */}
-                    {activeMenuId === plan.id && (
-                      <div className="absolute right-5 top-full mt-1 w-36 bg-white rounded-xl border border-[#EAE4EE] shadow-lg py-1 z-20 text-xs text-left">
+                      <div style={{ position: "relative" }}>
                         <button
-                          onClick={() => {
-                            onToggleStatus(plan.id);
-                            setActiveMenuId(null);
+                          type="button"
+                          onClick={() =>
+                            setActiveMenuId(activeMenuId === plan.id ? null : plan.id)
+                          }
+                          title="More options"
+                          style={{
+                            background: "none",
+                            border: "none",
+                            padding: "4px",
+                            cursor: "pointer",
+                            color: "#777184",
                           }}
-                          className="w-full px-3 py-1.5 hover:bg-[#FAF7F2] text-[#24213A] flex items-center gap-2"
                         >
-                          <Check className="w-3.5 h-3.5 text-[#7956C9]" />
-                          <span>
-                            {plan.status === "Active" ? "Set as Draft" : "Activate"}
-                          </span>
+                          <MoreVertical size={14} />
                         </button>
-                        <button
-                          onClick={() => {
-                            onArchivePlan(plan.id);
-                            setActiveMenuId(null);
-                          }}
-                          className="w-full px-3 py-1.5 hover:bg-[#FAF7F2] text-red-600 flex items-center gap-2"
-                        >
-                          <Archive className="w-3.5 h-3.5 text-red-500" />
-                          <span>Archive Plan</span>
-                        </button>
+                        {activeMenuId === plan.id && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              right: 0,
+                              top: "100%",
+                              backgroundColor: "#FFFFFF",
+                              border: "1px solid #EAE4EE",
+                              boxShadow: "0 6px 16px rgba(0,0,0,0.1)",
+                              borderRadius: "8px",
+                              padding: "4px 0",
+                              zIndex: 10,
+                              minWidth: "120px",
+                              textAlign: "left",
+                            }}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => {
+                                onToggleStatus(plan.id);
+                                setActiveMenuId(null);
+                              }}
+                              style={{
+                                width: "100%",
+                                padding: "6px 12px",
+                                background: "none",
+                                border: "none",
+                                textAlign: "left",
+                                fontSize: "12px",
+                                color: "#24213A",
+                                cursor: "pointer",
+                              }}
+                            >
+                              Toggle Status
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                onArchivePlan(plan.id);
+                                setActiveMenuId(null);
+                              }}
+                              style={{
+                                width: "100%",
+                                padding: "6px 12px",
+                                background: "none",
+                                border: "none",
+                                textAlign: "left",
+                                fontSize: "12px",
+                                color: "#EF4444",
+                                cursor: "pointer",
+                              }}
+                            >
+                              Archive
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </td>
                 </tr>
-              ))
-            )}
+              );
+            })}
           </tbody>
         </table>
       </div>
 
-      {/* Footer */}
-      <div className="p-4 flex items-center justify-between text-xs text-[#777184] border-t border-[#EAE4EE]">
+      {/* Pagination Footer */}
+      <div
+        style={{
+          padding: "12px 20px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderTop: "1px solid #EAE4EE",
+          fontSize: "12px",
+          color: "#777184",
+        }}
+      >
         <span>
           Showing 1 to {filteredPlans.length} of {plans.length} plans
         </span>
-        <div className="flex items-center gap-1">
-          <button
-            disabled
-            className="w-7 h-7 rounded-lg border border-[#EAE4EE] flex items-center justify-center text-[#777184] disabled:opacity-40"
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <span
+            style={{
+              width: "26px",
+              height: "26px",
+              borderRadius: "6px",
+              backgroundColor: "#7956C9",
+              color: "#FFFFFF",
+              fontSize: "11px",
+              fontWeight: 700,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
-            ‹
-          </button>
-          <button className="w-7 h-7 rounded-lg bg-[#7956C9] text-white font-bold flex items-center justify-center">
             1
-          </button>
-          <button
-            disabled
-            className="w-7 h-7 rounded-lg border border-[#EAE4EE] flex items-center justify-center text-[#777184] disabled:opacity-40"
-          >
-            ›
-          </button>
+          </span>
         </div>
       </div>
     </div>

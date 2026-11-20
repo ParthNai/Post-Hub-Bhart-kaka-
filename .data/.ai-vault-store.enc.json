@@ -2,66 +2,66 @@
   "records": {
     "cred_openai_prod_01": {
       "credentialId": "cred_openai_prod_01",
-      "iv": "91485b07960c4b2b657f3d84",
-      "tag": "17be3e093b1bbeb3add6c1279fc8d810",
-      "ciphertext": "a5a347133fd175f3373a557b81d5b4dcba897fe5b9c2645a35337118196f7e67a836dffdf0c54797",
+      "iv": "70775a5b766b7c191261bd9f",
+      "tag": "e9b8692ef083816d1dc659805169c3fd",
+      "ciphertext": "5df8f65428077da32ec17611a016ecb97943c72cfcff48bd2a8ae0c7f0c5fc5a3a35146dbb40a1a7",
       "algorithm": "aes-256-gcm",
       "createdAt": "2026-11-20T08:05:07.944Z",
-      "updatedAt": "2026-11-20T10:00:36.790Z"
+      "updatedAt": "2026-11-20T10:27:14.607Z"
     },
     "cred_gemini_prod_01": {
       "credentialId": "cred_gemini_prod_01",
-      "iv": "a66fc48bdd48eb2112f6fbd9",
-      "tag": "9616914d0d51e2cbcb491b22cb4f2858",
-      "ciphertext": "b4d51e13c357c4cda720acea8b5adc97465ef31c67ac2b76ad01fbb285b3fe373b7ba0a02d1f",
+      "iv": "a530335adedb1d2836a7215c",
+      "tag": "be7935f7b7f9443e220fa0a930fd2414",
+      "ciphertext": "576f77ac9fc814136edfc2971adf02f279202d48de76fe7edf3a7f3f5dc244cf38ddf9767fc9",
       "algorithm": "aes-256-gcm",
       "createdAt": "2026-11-20T08:05:08.005Z",
-      "updatedAt": "2026-11-20T10:00:36.852Z"
+      "updatedAt": "2026-11-20T10:27:14.669Z"
     },
     "cred_stability_staging_01": {
       "credentialId": "cred_stability_staging_01",
-      "iv": "abbaba3af4f8473ab3b5bec4",
-      "tag": "6dd11bdeb13ff9cab0defbea2eae6a1d",
-      "ciphertext": "49ad310575d93d36a72ee3525385b21f4d051e433a03be56ae8350776b0e3b1326a8",
+      "iv": "aa7441061c83bf98078782b7",
+      "tag": "fe2b58ae135699504bafc2566d78cf23",
+      "ciphertext": "a5671e298b662af7b88fdb83ec6bd6f2386ca3aa8d70d59137b9e0092f18c3ef9901",
       "algorithm": "aes-256-gcm",
       "createdAt": "2026-11-20T08:05:08.064Z",
-      "updatedAt": "2026-11-20T10:00:36.913Z"
+      "updatedAt": "2026-11-20T10:27:14.732Z"
     },
     "cred_replicate_prod_01": {
       "credentialId": "cred_replicate_prod_01",
-      "iv": "536e8f3cc8bc9d2433e8ac6a",
-      "tag": "76dea0c1d23db3b899ae51f0f4612312",
-      "ciphertext": "8dad42415a1e03723e0313c175d1fca8c9bebed2787226de21abaeaafe5ac31dad",
+      "iv": "232cd4dd389d23b6415f2463",
+      "tag": "9da99a2edd2cc97fb430590411b56b99",
+      "ciphertext": "2792e94c4df2686130132ae170a7f708b28b4f333df1ce4605e146e29dd27a127f",
       "algorithm": "aes-256-gcm",
       "createdAt": "2026-11-20T08:05:08.123Z",
-      "updatedAt": "2026-11-20T10:00:36.973Z"
+      "updatedAt": "2026-11-20T10:27:14.792Z"
     },
     "cred_openai_staging_02": {
       "credentialId": "cred_openai_staging_02",
-      "iv": "3ff0c7a68deda289eef53876",
-      "tag": "88c7882ec41398dab3b29784b1a0a0a3",
-      "ciphertext": "18dbec63a5b5cde85a612f44722900ff56e1083e8f61ff6f65f82a5543a68897fab64133d8ee",
+      "iv": "e6ef686b390fdbcc605bbd9a",
+      "tag": "f2213fb930584ade6d878060bb376206",
+      "ciphertext": "3b94beb1aeff7b752560516f797f5a324aec3d3b96986bdd2ab089922f90d3ebac1a34b81ae6",
       "algorithm": "aes-256-gcm",
       "createdAt": "2026-11-20T08:05:08.182Z",
-      "updatedAt": "2026-11-20T10:00:37.033Z"
+      "updatedAt": "2026-11-20T10:27:14.853Z"
     },
     "cred_gemini_dev_03": {
       "credentialId": "cred_gemini_dev_03",
-      "iv": "a12fcdfc274d36e1e0878f80",
-      "tag": "33b3b5c9d46daf9d139e2491b79c4c73",
-      "ciphertext": "006e796cffc0fc9691609fafcb54f12d879c334debc73a70d46d0af4c8a2570049",
+      "iv": "8d1e32ddc1c536d40aff59a3",
+      "tag": "389a9410433db9483963f3b1d4d59529",
+      "ciphertext": "419b58a9ed8d378b09ed82f42335e409c1af49f507d0a55dfb27f3885f79bf09d2",
       "algorithm": "aes-256-gcm",
       "createdAt": "2026-11-20T08:05:08.256Z",
-      "updatedAt": "2026-11-20T10:00:37.096Z"
+      "updatedAt": "2026-11-20T10:27:14.911Z"
     },
     "cred_test_vault_01": {
       "credentialId": "cred_test_vault_01",
-      "iv": "ab46ce2acc423929f3553cac",
-      "tag": "66130643ca694dd9d3e9b1fbe38658db",
-      "ciphertext": "2cfcb437f2b19020a3a2ff723da6cdf6f358e5f0e02053152d1a81c00853c5af728c47b3",
+      "iv": "8d3a2c48473815fcdf4decbf",
+      "tag": "9822fc0c984b376e407ba4329eee0f0f",
+      "ciphertext": "5030a8df5a76709b52fd8ba94879659534eaaa501e849f6d9808e4b9eac9254d1ed4bb68",
       "algorithm": "aes-256-gcm",
       "createdAt": "2026-11-20T08:05:08.476Z",
-      "updatedAt": "2026-11-20T10:00:36.071Z"
+      "updatedAt": "2026-11-20T10:27:13.926Z"
     },
     "cred_openai_production_mwop1tps": {
       "credentialId": "cred_openai_production_mwop1tps",
@@ -153,16 +153,34 @@
       "createdAt": "2026-11-20T10:00:36.291Z",
       "updatedAt": "2026-11-20T10:00:36.468Z"
     },
+    "cred_openai_production_mwou16yt": {
+      "credentialId": "cred_openai_production_mwou16yt",
+      "iv": "04544e6ef076c3cda5108677",
+      "tag": "9e6a1b178d733ec222fdddb1dcd165bd",
+      "ciphertext": "88a00480432cbd8bbb9d2d72b86710a1201cd67a290001828cf98411e2751605e9971d92efdb70ee",
+      "algorithm": "aes-256-gcm",
+      "createdAt": "2026-11-20T10:24:37.314Z",
+      "updatedAt": "2026-11-20T10:24:37.463Z"
+    },
+    "cred_openai_production_mwou4jz4": {
+      "credentialId": "cred_openai_production_mwou4jz4",
+      "iv": "99d9f3bbac132c9d404ea531",
+      "tag": "ef2b689f1524bf3188da0a76c92cdc30",
+      "ciphertext": "391dab8b7c570a03c6d3ce133ba7e9bdd161ab7883a5f5607f7d5efd16b19973c2e11e410db6c934",
+      "algorithm": "aes-256-gcm",
+      "createdAt": "2026-11-20T10:27:14.142Z",
+      "updatedAt": "2026-11-20T10:27:14.295Z"
+    },
     "cred_openai_backup_04": {
       "credentialId": "cred_openai_backup_04",
-      "iv": "fda7fccb34f364c59fca3db0",
-      "tag": "c2cf56cd25c064e3232fa7c76741a3d0",
-      "ciphertext": "f67917f3d1f417ac0051237b7057d1afb929f842c7a376973a3b2971bba8994f0dad23",
+      "iv": "a487dc4a4c937a71bb7c85db",
+      "tag": "811f375cef2f5f2e6b5ef82e3c73b530",
+      "ciphertext": "d90c55cd04285f2cd35b27b27ea4b0c719cb56d2cdfd15a7e1f04e8a46a88cf9523152",
       "algorithm": "aes-256-gcm",
-      "createdAt": "2026-11-20T10:00:37.155Z",
-      "updatedAt": "2026-11-20T10:00:37.155Z"
+      "createdAt": "2026-11-20T10:27:14.972Z",
+      "updatedAt": "2026-11-20T10:27:14.972Z"
     }
   },
   "version": 1,
-  "lastUpdated": "2026-11-20T10:00:37.155Z"
+  "lastUpdated": "2026-11-20T10:27:14.972Z"
 }

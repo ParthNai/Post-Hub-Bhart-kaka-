@@ -184,7 +184,20 @@ export const RoutingView: React.FC = () => {
     data.rules.find((r) => r.id === selectedRuleId) || data.rules[0] || null;
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] p-4 sm:p-6 lg:p-8">
+    <div
+      style={{
+        padding: "24px 32px 60px",
+        maxWidth: "1600px",
+        margin: "0 auto",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "24px",
+        backgroundColor: "#FAF7F2",
+        minHeight: "100vh",
+        boxSizing: "border-box",
+      }}
+    >
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 bg-[#24213A] text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2 animate-fade-in">

@@ -353,7 +353,20 @@ export function PresetsView({
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#24213A] p-4 sm:p-6 lg:p-8 space-y-6">
+    <div
+      style={{
+        padding: "24px 32px 60px",
+        maxWidth: "1600px",
+        margin: "0 auto",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "24px",
+        backgroundColor: "#FAF7F2",
+        minHeight: "100vh",
+        boxSizing: "border-box",
+      }}
+    >
       {/* Toast Notification Banner */}
       {toast && (
         <div

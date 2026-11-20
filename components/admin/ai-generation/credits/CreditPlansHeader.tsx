@@ -1,16 +1,8 @@
 "use client";
 
 import React from "react";
-import {
-  Coins,
-  Download,
-  Settings,
-  Plus,
-  Search,
-  Bell,
-  Menu,
-  ChevronDown,
-} from "lucide-react";
+import Link from "next/link";
+import { Coins, Download, Settings, Plus, Bell, ChevronDown } from "lucide-react";
 
 interface CreditPlansHeaderProps {
   onExportTransactions: () => void;
@@ -24,102 +16,267 @@ export function CreditPlansHeader({
   onExportTransactions,
   onOpenSettings,
   onCreatePlan,
-  userName = "Admin",
+  userName = "Parth Patel",
   isExporting = false,
 }: CreditPlansHeaderProps) {
   return (
-    <div className="space-y-4 mb-6">
-      {/* Top Search & Admin Profile Bar matching reference */}
-      <div className="flex items-center justify-between gap-4 bg-white/80 backdrop-blur-xs px-4 py-2.5 rounded-xl border border-[#EAE4EE] shadow-2xs">
-        <div className="flex items-center gap-3 flex-1 max-w-lg">
-          <button
-            type="button"
-            className="p-1.5 text-[#777184] hover:text-[#24213A] rounded-lg hover:bg-[#FAF7F2] lg:hidden transition-colors"
-            title="Toggle Menu"
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "18px",
+        marginBottom: "16px",
+      }}
+    >
+      {/* Top Meta Bar: Breadcrumbs & Admin Profile */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "12px",
+        }}
+      >
+        {/* Breadcrumbs */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            fontSize: "12.5px",
+            color: "#777184",
+          }}
+        >
+          <Link
+            href="/admin/dashboard"
+            style={{ color: "#777184", textDecoration: "none" }}
           >
-            <Menu className="w-5 h-5" />
-          </button>
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#777184] absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search settings, rules, or features..."
-              className="w-full pl-9 pr-14 py-1.5 bg-[#FAF7F2] border border-[#EAE4EE] rounded-lg text-xs text-[#24213A] placeholder-[#777184] focus:outline-none focus:border-[#7956C9] focus:bg-white transition-all"
-            />
-            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-[#777184] bg-white border border-[#EAE4EE] px-1.5 py-0.5 rounded shadow-2xs">
-              ⌘ K
-            </span>
-          </div>
+            Dashboard
+          </Link>
+          <span style={{ opacity: 0.4 }}>/</span>
+          <Link
+            href="/admin/ai-generation"
+            style={{ color: "#777184", textDecoration: "none" }}
+          >
+            AI Image Generation
+          </Link>
+          <span style={{ opacity: 0.4 }}>/</span>
+          <span style={{ color: "#7956C9", fontWeight: 600 }}>
+            Credit Plans &amp; User Allocation
+          </span>
         </div>
 
-        {/* Right side: Notifications & User profile */}
-        <div className="flex items-center gap-4">
+        {/* Right profile chip & notification bell */}
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
           <button
             type="button"
-            className="relative p-2 text-[#777184] hover:text-[#24213A] rounded-lg hover:bg-[#FAF7F2] transition-colors"
             title="Notifications"
+            style={{
+              position: "relative",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "6px",
+              color: "#777184",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
-            <Bell className="w-4 h-4" />
-            <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-[#EF4444] text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-white">
-              3
-            </span>
+            <Bell size={18} />
+            <span
+              style={{
+                position: "absolute",
+                top: "4px",
+                right: "4px",
+                width: "7px",
+                height: "7px",
+                backgroundColor: "#EF4444",
+                borderRadius: "50%",
+                border: "2px solid #FFFFFF",
+              }}
+            />
           </button>
 
-          <div className="flex items-center gap-2 pl-2 border-l border-[#EAE4EE]">
-            <div className="w-8 h-8 rounded-full bg-[#3B82F6] text-white font-bold text-xs flex items-center justify-center shadow-2xs">
-              JD
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              padding: "4px 10px 4px 6px",
+              borderRadius: "20px",
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #EAE4EE",
+            }}
+          >
+            <div
+              style={{
+                width: "28px",
+                height: "28px",
+                borderRadius: "50%",
+                backgroundColor: "#7956C9",
+                color: "#FFFFFF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "11px",
+                fontWeight: 700,
+              }}
+            >
+              {userName
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .slice(0, 2)
+                .toUpperCase() || "PP"}
             </div>
-            <div className="flex items-center gap-1 cursor-pointer">
-              <span className="text-xs font-semibold text-[#24213A]">{userName}</span>
-              <ChevronDown className="w-3.5 h-3.5 text-[#777184]" />
-            </div>
+            <span
+              style={{
+                fontSize: "12.5px",
+                fontWeight: 600,
+                color: "#24213A",
+              }}
+            >
+              {userName}
+            </span>
+            <ChevronDown size={14} color="#777184" />
           </div>
         </div>
       </div>
 
       {/* Main Page Title and Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#FAF7F2] border border-[#E8DFF5] flex items-center justify-center text-[#7956C9] shrink-0 shadow-2xs">
-            <Coins className="w-5 h-5 stroke-[2.2]" />
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "16px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+          <div
+            style={{
+              width: "42px",
+              height: "42px",
+              borderRadius: "12px",
+              backgroundColor: "#FAF7F2",
+              border: "1px solid #E8DFF5",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#7956C9",
+              flexShrink: 0,
+              boxShadow: "0 2px 5px rgba(121, 86, 201, 0.12)",
+            }}
+          >
+            <Coins size={22} strokeWidth={2.2} />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#24213A] tracking-tight">
+            <h1
+              style={{
+                fontSize: "22px",
+                fontWeight: 700,
+                color: "#24213A",
+                margin: 0,
+                letterSpacing: "-0.02em",
+                lineHeight: 1.25,
+              }}
+            >
               Credit Plans &amp; User Allocation
             </h1>
-            <p className="text-xs sm:text-sm text-[#777184] mt-0.5 font-medium">
+            <p
+              style={{
+                fontSize: "13px",
+                color: "#777184",
+                margin: "4px 0 0 0",
+              }}
+            >
               Configure generation credits, manage user balances and review credit transactions.
             </p>
           </div>
         </div>
 
         {/* Right Action Buttons */}
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            flexWrap: "wrap",
+          }}
+        >
           {/* Export Transactions Button */}
           <button
             onClick={onExportTransactions}
             disabled={isExporting}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-[#EAE4EE] text-xs font-semibold text-[#24213A] hover:bg-[#FAF7F2] hover:text-[#7956C9] hover:border-[#7956C9]/30 transition-all shadow-2xs disabled:opacity-50 cursor-pointer"
+            type="button"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "7px",
+              padding: "9px 15px",
+              borderRadius: "10px",
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #EAE4EE",
+              color: "#24213A",
+              fontSize: "12.5px",
+              fontWeight: 600,
+              cursor: isExporting ? "not-allowed" : "pointer",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+              transition: "all 0.15s ease",
+            }}
           >
-            <Download className="w-3.5 h-3.5 text-[#7956C9]" />
-            <span>Export Transactions</span>
+            <Download size={15} color="#7956C9" />
+            <span>{isExporting ? "Exporting..." : "Export Transactions"}</span>
           </button>
 
           {/* Credit Settings Button */}
           <button
             onClick={onOpenSettings}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-[#EAE4EE] text-xs font-semibold text-[#24213A] hover:bg-[#FAF7F2] hover:text-[#7956C9] hover:border-[#7956C9]/30 transition-all shadow-2xs cursor-pointer"
+            type="button"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "7px",
+              padding: "9px 15px",
+              borderRadius: "10px",
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #EAE4EE",
+              color: "#24213A",
+              fontSize: "12.5px",
+              fontWeight: 600,
+              cursor: "pointer",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+              transition: "all 0.15s ease",
+            }}
           >
-            <Settings className="w-3.5 h-3.5 text-[#7956C9]" />
+            <Settings size={15} color="#7956C9" />
             <span>Credit Settings</span>
           </button>
 
-          {/* Create Credit Plan Button */}
+          {/* Create Plan Button */}
           <button
             onClick={onCreatePlan}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#7956C9] text-xs font-semibold text-white hover:bg-[#6847B0] active:scale-[0.98] transition-all shadow-2xs cursor-pointer"
+            type="button"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "7px",
+              padding: "9px 16px",
+              borderRadius: "10px",
+              backgroundColor: "#7956C9",
+              border: "1px solid #7956C9",
+              color: "#FFFFFF",
+              fontSize: "12.5px",
+              fontWeight: 600,
+              cursor: "pointer",
+              boxShadow: "0 2px 6px rgba(121, 86, 201, 0.35)",
+              transition: "all 0.15s ease",
+            }}
           >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
+            <Plus size={16} strokeWidth={2.4} />
             <span>Create Credit Plan</span>
           </button>
         </div>

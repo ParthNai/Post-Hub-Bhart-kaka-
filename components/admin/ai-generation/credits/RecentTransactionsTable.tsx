@@ -1,120 +1,172 @@
 "use client";
 
 import React from "react";
-import { ListOrdered, ArrowRight } from "lucide-react";
+import { History, ArrowRight } from "lucide-react";
 import type { CreditTransaction } from "@/lib/ai-credits";
 import { formatCredits } from "@/lib/ai-credits";
 
 interface RecentTransactionsTableProps {
   transactions: CreditTransaction[];
-  onViewAll?: () => void;
+  onViewAll: () => void;
 }
 
 export function RecentTransactionsTable({
   transactions,
   onViewAll,
 }: RecentTransactionsTableProps) {
-  // Show up to 4 recent transactions in this primary card view
-  const displayTransactions = transactions.slice(0, 4);
+  // Show last 5
+  const recent = transactions.slice(0, 5);
 
   return (
-    <div className="bg-white rounded-2xl border border-[#EAE4EE] shadow-2xs overflow-hidden">
+    <div
+      style={{
+        backgroundColor: "#FFFFFF",
+        borderRadius: "14px",
+        border: "1px solid #EAE4EE",
+        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
+        overflow: "hidden",
+        marginBottom: "20px",
+      }}
+    >
       {/* Header */}
-      <div className="p-5 flex items-center justify-between border-b border-[#EAE4EE]">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#FAF7F2] border border-[#E8DFF5] flex items-center justify-center text-[#7956C9] shrink-0">
-            <ListOrdered className="w-4 h-4 stroke-[2.2]" />
+      <div
+        style={{
+          padding: "16px 20px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderBottom: "1px solid #EAE4EE",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div
+            style={{
+              width: "32px",
+              height: "32px",
+              borderRadius: "8px",
+              backgroundColor: "#FAF7F2",
+              border: "1px solid #E8DFF5",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#7956C9",
+              flexShrink: 0,
+            }}
+          >
+            <History size={16} strokeWidth={2.2} />
           </div>
-          <h2 className="text-base font-bold text-[#24213A]">
+          <h2
+            style={{
+              fontSize: "15px",
+              fontWeight: 700,
+              color: "#24213A",
+              margin: 0,
+            }}
+          >
             Recent Credit Transactions
           </h2>
         </div>
 
-        {onViewAll && (
-          <button
-            onClick={onViewAll}
-            className="flex items-center gap-1 text-xs font-bold text-[#7956C9] hover:text-[#6847B0] transition-colors cursor-pointer"
-          >
-            <span>View All</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={onViewAll}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "5px",
+            fontSize: "12px",
+            fontWeight: 600,
+            color: "#7956C9",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          <span>View All</span>
+          <ArrowRight size={13} />
+        </button>
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-[#FAF7F2]/60 text-[#777184] font-semibold border-b border-[#EAE4EE]">
-            <tr>
-              <th className="py-3 px-5">Transaction ID</th>
-              <th className="py-3 px-4">User</th>
-              <th className="py-3 px-4">Transaction Type</th>
-              <th className="py-3 px-4">Credit Change</th>
-              <th className="py-3 px-4">Source</th>
-              <th className="py-3 px-4">Date</th>
-              <th className="py-3 px-5">Status</th>
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
+          <thead>
+            <tr
+              style={{
+                backgroundColor: "#FAF7F2",
+                color: "#777184",
+                fontSize: "11px",
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+                borderBottom: "1px solid #EAE4EE",
+              }}
+            >
+              <th style={{ padding: "12px 18px" }}>Transaction ID</th>
+              <th style={{ padding: "12px 16px" }}>User</th>
+              <th style={{ padding: "12px 16px" }}>Transaction Type</th>
+              <th style={{ padding: "12px 16px" }}>Credit Change</th>
+              <th style={{ padding: "12px 16px" }}>Source</th>
+              <th style={{ padding: "12px 16px" }}>Date</th>
+              <th style={{ padding: "12px 18px", textAlign: "right" }}>Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#EAE4EE]">
-            {displayTransactions.map((tx) => {
+          <tbody>
+            {recent.map((tx) => {
               const isPositive = tx.creditChange > 0;
-              const formattedChange = isPositive
-                ? `+${formatCredits(tx.creditChange)}`
-                : `${formatCredits(tx.creditChange)}`;
+              const statusColor =
+                tx.status === "Completed" || tx.status === "Success"
+                  ? "#10B981"
+                  : tx.status === "Failed"
+                  ? "#EF4444"
+                  : "#F59E0B";
 
               return (
-                <tr key={tx.id} className="hover:bg-[#FAF7F2]/40 transition-colors">
-                  {/* Transaction ID */}
-                  <td className="py-3.5 px-5 font-medium text-[#24213A]">
+                <tr
+                  key={tx.id}
+                  style={{
+                    borderBottom: "1px solid #F3EDF7",
+                    fontSize: "12.5px",
+                    color: "#24213A",
+                  }}
+                >
+                  <td style={{ padding: "14px 18px", fontFamily: "monospace", fontSize: "12px", color: "#645D73" }}>
                     {tx.id}
                   </td>
-
-                  {/* User */}
-                  <td className="py-3.5 px-4 font-bold text-[#24213A]">
+                  <td style={{ padding: "14px 16px", fontWeight: 600 }}>
                     {tx.userName}
                   </td>
-
-                  {/* Transaction Type Badge */}
-                  <td className="py-3.5 px-4">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
-                        tx.transactionType === "Credit Purchase"
-                          ? "bg-[#F3E8FF] text-[#7956C9] border border-[#E9D5FF]"
-                          : tx.transactionType === "Usage"
-                          ? "bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE]"
-                          : tx.transactionType === "Promotional Grant"
-                          ? "bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]"
-                          : tx.transactionType === "Refund"
-                          ? "bg-[#FEF3C7] text-[#D97706] border border-[#FDE68A]"
-                          : "bg-[#F3F4F6] text-[#4B5563] border border-[#E5E7EB]"
-                      }`}
-                    >
-                      {tx.transactionType}
-                    </span>
+                  <td style={{ padding: "14px 16px", color: "#645D73" }}>
+                    {tx.transactionType}
                   </td>
-
-                  {/* Credit Change */}
                   <td
-                    className={`py-3.5 px-4 font-bold ${
-                      isPositive ? "text-[#10B981]" : "text-[#D97706]"
-                    }`}
+                    style={{
+                      padding: "14px 16px",
+                      fontWeight: 700,
+                      color: isPositive ? "#10B981" : "#EF4444",
+                    }}
                   >
-                    {formattedChange}
+                    {isPositive ? `+${formatCredits(tx.creditChange)}` : formatCredits(tx.creditChange)}
                   </td>
-
-                  {/* Source */}
-                  <td className="py-3.5 px-4 text-[#777184] font-medium">
+                  <td style={{ padding: "14px 16px", color: "#645D73" }}>
                     {tx.source}
                   </td>
-
-                  {/* Date */}
-                  <td className="py-3.5 px-4 text-[#777184]">
+                  <td style={{ padding: "14px 16px", color: "#777184", fontSize: "12px" }}>
                     {tx.date}
                   </td>
-
-                  {/* Status Badge */}
-                  <td className="py-3.5 px-5">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]">
+                  <td style={{ padding: "14px 18px", textAlign: "right" }}>
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        padding: "2px 8px",
+                        borderRadius: "12px",
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        backgroundColor: `${statusColor}15`,
+                        color: statusColor,
+                      }}
+                    >
                       {tx.status}
                     </span>
                   </td>

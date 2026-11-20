@@ -426,10 +426,16 @@ export const ImagesView: React.FC<ImagesViewProps> = ({
   return (
     <div
       style={{
-        minHeight: "100vh",
+        padding: "24px 32px 60px",
+        maxWidth: "1600px",
+        margin: "0 auto",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "24px",
         backgroundColor: "#FAF7F2",
-        padding: "24px 32px 48px 32px",
-        fontFamily: "inherit",
+        minHeight: "100vh",
+        boxSizing: "border-box",
       }}
     >
       {/* Toast Feedback */}

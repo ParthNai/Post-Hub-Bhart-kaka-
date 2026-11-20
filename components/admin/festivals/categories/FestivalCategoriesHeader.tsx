@@ -2,64 +2,146 @@
 
 import React from "react";
 import Link from "next/link";
-import { Calendar, Settings, ArrowUpDown, Plus } from "lucide-react";
+import { LayoutGrid, Settings, ArrowUpDown, Plus, Bell, ChevronDown } from "lucide-react";
+import { FestivalSubscreenNav } from "../FestivalSubscreenNav";
 
 interface FestivalCategoriesHeaderProps {
   onOpenSettings: () => void;
   onOpenReorder: () => void;
   onOpenAddCategory: () => void;
+  adminName?: string;
 }
 
 export const FestivalCategoriesHeader: React.FC<FestivalCategoriesHeaderProps> = ({
   onOpenSettings,
   onOpenReorder,
   onOpenAddCategory,
+  adminName = "Parth Patel",
 }) => {
   return (
     <div
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: "10px",
-        marginBottom: "20px",
+        gap: "18px",
+        marginBottom: "16px",
       }}
     >
-      {/* Breadcrumb */}
-      <nav
+      {/* Top Meta Bar: Breadcrumbs & Admin Profile */}
+      <div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "6px",
-          fontSize: "12px",
-          color: "#777184",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "12px",
         }}
-        aria-label="Breadcrumb"
       >
-        <Link
-          href="/admin/dashboard"
+        {/* Breadcrumb */}
+        <nav
           style={{
-            color: "#777184",
-            textDecoration: "none",
-            display: "inline-flex",
+            display: "flex",
             alignItems: "center",
-            gap: "4px",
-          }}
-        >
-          <span>Dashboard</span>
-        </Link>
-        <span>/</span>
-        <Link
-          href="/admin/festivals"
-          style={{
+            gap: "8px",
+            fontSize: "12.5px",
             color: "#777184",
-            textDecoration: "none",
           }}
+          aria-label="Breadcrumb"
         >
-          <span>Festivals & Events</span>
-        </Link>
-        <span>/</span>
-        <span style={{ color: "#24213A", fontWeight: 600 }}>Categories</span>
-      </nav>
+          <Link
+            href="/admin/dashboard"
+            style={{ color: "#777184", textDecoration: "none" }}
+          >
+            Dashboard
+          </Link>
+          <span style={{ opacity: 0.4 }}>/</span>
+          <Link
+            href="/admin/festivals"
+            style={{ color: "#777184", textDecoration: "none" }}
+          >
+            Festivals &amp; Events
+          </Link>
+          <span style={{ opacity: 0.4 }}>/</span>
+          <span style={{ color: "#7956C9", fontWeight: 600 }}>Categories</span>
+        </nav>
+
+        {/* Right profile chip & notification bell */}
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <button
+            type="button"
+            title="Notifications"
+            style={{
+              position: "relative",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "6px",
+              color: "#777184",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Bell size={18} />
+            <span
+              style={{
+                position: "absolute",
+                top: "4px",
+                right: "4px",
+                width: "7px",
+                height: "7px",
+                backgroundColor: "#EF4444",
+                borderRadius: "50%",
+                border: "2px solid #FFFFFF",
+              }}
+            />
+          </button>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              padding: "4px 10px 4px 6px",
+              borderRadius: "20px",
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #EAE4EE",
+            }}
+          >
+            <div
+              style={{
+                width: "28px",
+                height: "28px",
+                borderRadius: "50%",
+                backgroundColor: "#7956C9",
+                color: "#FFFFFF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "11px",
+                fontWeight: 700,
+              }}
+            >
+              {adminName
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .slice(0, 2)
+                .toUpperCase() || "PP"}
+            </div>
+            <span
+              style={{
+                fontSize: "12.5px",
+                fontWeight: 600,
+                color: "#24213A",
+              }}
+            >
+              {adminName}
+            </span>
+            <ChevronDown size={14} color="#777184" />
+          </div>
+        </div>
+      </div>
 
       {/* Main Header Row */}
       <div
@@ -75,18 +157,20 @@ export const FestivalCategoriesHeader: React.FC<FestivalCategoriesHeaderProps> =
         <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
           <div
             style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "10px",
-              backgroundColor: "#E8DFF5",
+              width: "42px",
+              height: "42px",
+              borderRadius: "12px",
+              backgroundColor: "#FAF7F2",
+              border: "1px solid #E8DFF5",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               color: "#7956C9",
               flexShrink: 0,
+              boxShadow: "0 2px 5px rgba(121, 86, 201, 0.12)",
             }}
           >
-            <Calendar size={22} strokeWidth={2.2} />
+            <LayoutGrid size={22} strokeWidth={2.2} />
           </div>
           <div>
             <h1
@@ -94,17 +178,18 @@ export const FestivalCategoriesHeader: React.FC<FestivalCategoriesHeaderProps> =
                 fontSize: "22px",
                 fontWeight: 700,
                 color: "#24213A",
-                margin: "0 0 4px 0",
-                lineHeight: 1.2,
+                margin: 0,
+                letterSpacing: "-0.02em",
+                lineHeight: 1.25,
               }}
             >
-              Festival & Event Categories
+              Festival &amp; Event Categories
             </h1>
             <p
               style={{
                 fontSize: "13px",
                 color: "#777184",
-                margin: 0,
+                margin: "4px 0 0 0",
               }}
             >
               Organize, customize and manage festival categories, event classifications, icons and regional content groups.
@@ -125,17 +210,18 @@ export const FestivalCategoriesHeader: React.FC<FestivalCategoriesHeaderProps> =
             type="button"
             onClick={onOpenSettings}
             style={{
-              display: "flex",
+              display: "inline-flex",
               alignItems: "center",
               gap: "7px",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 500,
+              padding: "9px 15px",
+              borderRadius: "10px",
+              fontSize: "12.5px",
+              fontWeight: 600,
               backgroundColor: "#FFFFFF",
               color: "#24213A",
               border: "1px solid #EAE4EE",
               cursor: "pointer",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
               transition: "all 0.15s ease",
             }}
           >
@@ -147,17 +233,18 @@ export const FestivalCategoriesHeader: React.FC<FestivalCategoriesHeaderProps> =
             type="button"
             onClick={onOpenReorder}
             style={{
-              display: "flex",
+              display: "inline-flex",
               alignItems: "center",
               gap: "7px",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: 500,
+              padding: "9px 15px",
+              borderRadius: "10px",
+              fontSize: "12.5px",
+              fontWeight: 600,
               backgroundColor: "#FFFFFF",
               color: "#24213A",
               border: "1px solid #EAE4EE",
               cursor: "pointer",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
               transition: "all 0.15s ease",
             }}
           >
@@ -169,26 +256,29 @@ export const FestivalCategoriesHeader: React.FC<FestivalCategoriesHeaderProps> =
             type="button"
             onClick={onOpenAddCategory}
             style={{
-              display: "flex",
+              display: "inline-flex",
               alignItems: "center",
               gap: "7px",
-              padding: "8px 16px",
-              borderRadius: "8px",
-              fontSize: "13px",
+              padding: "9px 16px",
+              borderRadius: "10px",
+              fontSize: "12.5px",
               fontWeight: 600,
               backgroundColor: "#7956C9",
               color: "#FFFFFF",
-              border: "none",
+              border: "1px solid #7956C9",
               cursor: "pointer",
-              boxShadow: "0 2px 4px rgba(121, 86, 201, 0.2)",
+              boxShadow: "0 2px 6px rgba(121, 86, 201, 0.35)",
               transition: "all 0.15s ease",
             }}
           >
-            <Plus size={16} />
+            <Plus size={16} strokeWidth={2.5} />
             <span>Add Category</span>
           </button>
         </div>
       </div>
+
+      {/* Sub-screens Navigation Ribbon */}
+      <FestivalSubscreenNav />
     </div>
   );
 };

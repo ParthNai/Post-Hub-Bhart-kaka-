@@ -241,9 +241,7 @@ export const FestivalsDashboardView: React.FC = () => {
         </div>
       )}
 
-      {/* Left Sidebar */}
-      
-          {/* Header */}
+      {/* Header */}
           <FestivalsHeader
             onAddNewEvent={() => {
               setEventToEdit(null);
