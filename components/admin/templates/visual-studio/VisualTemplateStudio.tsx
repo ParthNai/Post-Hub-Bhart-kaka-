@@ -55,6 +55,9 @@ import {
   FolderOpen,
   Image as ImageIcon,
   Sparkle,
+  User,
+  UserPlus,
+  RefreshCw,
 } from "lucide-react";
 
 import {
@@ -115,6 +118,58 @@ const PRESET_BACKGROUND_ARTWORKS = [
     category: "Promotion" as TemplateCategory,
     format: "3:4" as TemplateFormat,
     url: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1080&q=80",
+  },
+];
+
+export interface LeaderPhotoPreset {
+  id: string;
+  name: string;
+  role: string;
+  url: string;
+  type: PhotoSlotShape;
+  featherBottom?: boolean;
+}
+
+export const LEADER_PHOTO_PRESETS: LeaderPhotoPreset[] = [
+  {
+    id: "modi-cutout",
+    name: "PM Narendra Modi",
+    role: "National Leader Cutout",
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Narendra_Modi_2021.jpg/440px-Narendra_Modi_2021.jpg",
+    type: "cutout",
+    featherBottom: true,
+  },
+  {
+    id: "modi-speech",
+    name: "Narendra Modi (Speech)",
+    role: "Viksit Bharat Cutout",
+    url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Prime_Minister_Narendra_Modi_in_February_2024.jpg/440px-Prime_Minister_Narendra_Modi_in_February_2024.jpg",
+    type: "cutout",
+    featherBottom: true,
+  },
+  {
+    id: "leader-male",
+    name: "Vikramsinh Parmar",
+    role: "Candidate / Leader",
+    url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+    type: "circle",
+    featherBottom: false,
+  },
+  {
+    id: "leader-female",
+    name: "Ananya Sharma",
+    role: "Mahila Morcha / Youth",
+    url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
+    type: "circle",
+    featherBottom: false,
+  },
+  {
+    id: "leader-doc",
+    name: "Dr. Rajesh Rao",
+    role: "Professional / Leader",
+    url: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400&q=80",
+    type: "circle",
+    featherBottom: false,
   },
 ];
 
@@ -644,6 +699,84 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
     const target = zones.find((z) => z.id === id);
     if (!target) return;
     updateSelectedZone({ zIndex: Math.max(1, (target.zIndex || 1) - 1) });
+  };
+
+  // Upload custom person/leader photo or cutout
+  const handleUploadPersonPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      if (!dataUrl) return;
+
+      const currentSelected = zones.find((z) => z.id === selectedZoneId);
+      if (currentSelected && currentSelected.type === "photo") {
+        updateSelectedZone({ sampleAvatarUrl: dataUrl });
+        setToastNotification("📸 Person photo updated for selected slot!");
+      } else {
+        const newId = `zone-person-${Date.now().toString(36)}`;
+        pushHistory([
+          ...zones,
+          {
+            id: newId,
+            type: "photo",
+            label: "Person Cutout",
+            photoShape: "cutout",
+            sampleAvatarUrl: dataUrl,
+            x: 25,
+            y: 15,
+            width: 55,
+            height: 65,
+            featherBottom: true,
+            objectFit: "contain",
+            zIndex: 4,
+          },
+        ]);
+        setSelectedZoneId(newId);
+        setToastNotification("📸 New person photo slot placed on poster!");
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  // Apply preset leader (Modi Ji, Candidate, etc.)
+  const handleApplyLeaderPreset = (leader: LeaderPhotoPreset) => {
+    const currentSelected = zones.find((z) => z.id === selectedZoneId);
+    if (currentSelected && currentSelected.type === "photo") {
+      updateSelectedZone({
+        sampleAvatarUrl: leader.url,
+        photoShape: leader.type,
+        label: leader.name,
+        featherBottom: leader.featherBottom ?? (leader.type === "cutout"),
+        objectFit: leader.type === "cutout" ? "contain" : "cover",
+      });
+      setToastNotification(`👤 Applied ${leader.name} photo to selected slot!`);
+    } else {
+      const newId = `zone-leader-${Date.now().toString(36)}`;
+      pushHistory([
+        ...zones,
+        {
+          id: newId,
+          type: "photo",
+          label: leader.name,
+          photoShape: leader.type,
+          sampleAvatarUrl: leader.url,
+          x: leader.type === "cutout" ? 22 : 8,
+          y: leader.type === "cutout" ? 14 : 75,
+          width: leader.type === "cutout" ? 56 : 18,
+          height: leader.type === "cutout" ? 66 : 18,
+          featherBottom: leader.featherBottom ?? (leader.type === "cutout"),
+          objectFit: leader.type === "cutout" ? "contain" : "cover",
+          borderColor: leader.type === "circle" ? "#FFFFFF" : undefined,
+          borderWidth: leader.type === "circle" ? 3 : 0,
+          zIndex: 4,
+        },
+      ]);
+      setSelectedZoneId(newId);
+      setToastNotification(`👤 Placed ${leader.name} photo on poster!`);
+    }
   };
 
   // Insert 1-Click Smart Contact Bar
@@ -1406,88 +1539,238 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
               {leftTab === "photos" && (
                 <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "14px" }}>
                   <div>
-                    <span style={{ fontSize: "13px", fontWeight: 700, color: "#FFFFFF" }}>Add Photo Slot</span>
+                    <span style={{ fontSize: "13px", fontWeight: 700, color: "#FFFFFF" }}>Person Photos & Cutouts</span>
                     <p style={{ fontSize: "11px", color: "#A099B5", margin: "2px 0 0 0" }}>
-                      Cutouts, Avatars & Multiple Leaders.
+                      Upload custom person photo or select from leaders gallery.
                     </p>
                   </div>
 
-                  {/* Cutout Leader */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newId = `zone-leader-${Date.now().toString(36)}`;
-                      pushHistory([
-                        ...zones,
-                        {
-                          id: newId,
-                          type: "photo",
-                          label: "Leader Cutout",
-                          photoShape: "cutout",
-                          x: 6,
-                          y: 6,
-                          width: 48,
-                          height: 62,
-                          featherBottom: true,
-                          objectFit: "contain",
-                          zIndex: 4,
-                        },
-                      ]);
-                      setSelectedZoneId(newId);
-                    }}
+                  {/* Prominent Upload Person Photo Button */}
+                  <label
                     style={{
-                      padding: "10px",
-                      borderRadius: "6px",
-                      backgroundColor: "rgba(121, 86, 201, 0.2)",
-                      border: "1px solid rgba(121, 86, 201, 0.4)",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "6px",
+                      padding: "14px 10px",
+                      borderRadius: "8px",
+                      border: "2px dashed #7956C9",
+                      backgroundColor: "rgba(121, 86, 201, 0.12)",
                       color: "#FFFFFF",
-                      textAlign: "left",
                       cursor: "pointer",
-                      fontSize: "12px",
-                      fontWeight: 700,
+                      textAlign: "center",
+                      transition: "all 0.15s ease",
                     }}
                   >
-                    👤 Leader Cutout (With Bottom Feather)
-                  </button>
+                    <div style={{ width: 34, height: 34, borderRadius: "50%", backgroundColor: "rgba(121, 86, 201, 0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Upload size={18} color="#D8B4FE" />
+                    </div>
+                    <span style={{ fontSize: "12px", fontWeight: 700 }}>Upload Person Photo / Cutout</span>
+                    <span style={{ fontSize: "10px", color: "#C4BFD6" }}>
+                      PNG transparent cutout, JPG or WebP
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleUploadPersonPhoto}
+                      style={{ display: "none" }}
+                    />
+                  </label>
 
-                  {/* Circle User Photo */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newId = `zone-circle-${Date.now().toString(36)}`;
-                      pushHistory([
-                        ...zones,
-                        {
-                          id: newId,
-                          type: "photo",
-                          label: "User Avatar Circle",
-                          photoShape: "circle",
-                          borderColor: "#FFFFFF",
-                          borderWidth: 3,
-                          shadow: true,
-                          x: 8,
-                          y: 75,
-                          width: 18,
-                          height: 18,
-                          zIndex: 4,
-                        },
-                      ]);
-                      setSelectedZoneId(newId);
-                    }}
-                    style={{
-                      padding: "10px",
-                      borderRadius: "6px",
-                      backgroundColor: "rgba(255, 255, 255, 0.06)",
-                      border: "1px solid rgba(255, 255, 255, 0.12)",
-                      color: "#FFFFFF",
-                      textAlign: "left",
-                      cursor: "pointer",
-                      fontSize: "12px",
-                      fontWeight: 700,
-                    }}
-                  >
-                    ⚪ Circular Avatar with White Border
-                  </button>
+                  {/* Preset Indian Leaders & People Gallery */}
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                      <span style={{ fontSize: "11px", fontWeight: 700, color: "#FACC15", textTransform: "uppercase" }}>
+                        Popular Leaders Gallery
+                      </span>
+                      <span style={{ fontSize: "10px", color: "#8A849C" }}>1-Click Insert</span>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      {LEADER_PHOTO_PRESETS.map((leader) => (
+                        <div
+                          key={leader.id}
+                          onClick={() => handleApplyLeaderPreset(leader)}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            padding: "8px 10px",
+                            borderRadius: "6px",
+                            backgroundColor: "rgba(255, 255, 255, 0.05)",
+                            border: "1px solid rgba(255, 255, 255, 0.08)",
+                            cursor: "pointer",
+                            transition: "background-color 0.15s ease",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: leader.type === "circle" ? "50%" : "6px",
+                              overflow: "hidden",
+                              backgroundColor: "#161324",
+                              flexShrink: 0,
+                              border: "1px solid rgba(255, 255, 255, 0.2)",
+                            }}
+                          >
+                            <img
+                              src={leader.url}
+                              alt={leader.name}
+                              style={{ width: "100%", height: "100%", objectFit: leader.type === "cutout" ? "contain" : "cover" }}
+                            />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: "11px", fontWeight: 700, color: "#FFFFFF", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {leader.name}
+                            </div>
+                            <div style={{ fontSize: "9.5px", color: "#A099B5", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {leader.role}
+                            </div>
+                          </div>
+                          <Plus size={14} color="#7956C9" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Add Blank Photo Slots */}
+                  <div>
+                    <span style={{ fontSize: "11px", fontWeight: 700, color: "#A099B5", textTransform: "uppercase", display: "block", marginBottom: "8px" }}>
+                      Add Blank Photo Slots
+                    </span>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      {/* Cutout Leader */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newId = `zone-leader-${Date.now().toString(36)}`;
+                          pushHistory([
+                            ...zones,
+                            {
+                              id: newId,
+                              type: "photo",
+                              label: "Leader Cutout",
+                              photoShape: "cutout",
+                              x: 20,
+                              y: 10,
+                              width: 58,
+                              height: 68,
+                              featherBottom: true,
+                              objectFit: "contain",
+                              zIndex: 4,
+                            },
+                          ]);
+                          setSelectedZoneId(newId);
+                        }}
+                        style={{
+                          padding: "8px 10px",
+                          borderRadius: "6px",
+                          backgroundColor: "rgba(121, 86, 201, 0.2)",
+                          border: "1px solid rgba(121, 86, 201, 0.4)",
+                          color: "#FFFFFF",
+                          textAlign: "left",
+                          cursor: "pointer",
+                          fontSize: "11.5px",
+                          fontWeight: 700,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <span>👤</span>
+                        <span>Leader Cutout (Bottom Feather)</span>
+                      </button>
+
+                      {/* Circle User Photo */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newId = `zone-circle-${Date.now().toString(36)}`;
+                          pushHistory([
+                            ...zones,
+                            {
+                              id: newId,
+                              type: "photo",
+                              label: "User Avatar Circle",
+                              photoShape: "circle",
+                              borderColor: "#FFFFFF",
+                              borderWidth: 3,
+                              shadow: true,
+                              x: 8,
+                              y: 75,
+                              width: 18,
+                              height: 18,
+                              zIndex: 4,
+                            },
+                          ]);
+                          setSelectedZoneId(newId);
+                        }}
+                        style={{
+                          padding: "8px 10px",
+                          borderRadius: "6px",
+                          backgroundColor: "rgba(255, 255, 255, 0.06)",
+                          border: "1px solid rgba(255, 255, 255, 0.12)",
+                          color: "#FFFFFF",
+                          textAlign: "left",
+                          cursor: "pointer",
+                          fontSize: "11.5px",
+                          fontWeight: 700,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <span>⚪</span>
+                        <span>Circular Avatar (White Border)</span>
+                      </button>
+
+                      {/* Squircle Avatar */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newId = `zone-squircle-${Date.now().toString(36)}`;
+                          pushHistory([
+                            ...zones,
+                            {
+                              id: newId,
+                              type: "photo",
+                              label: "Squircle Avatar",
+                              photoShape: "squircle",
+                              borderColor: "#FFFFFF",
+                              borderWidth: 2,
+                              shadow: true,
+                              x: 8,
+                              y: 75,
+                              width: 18,
+                              height: 18,
+                              zIndex: 4,
+                            },
+                          ]);
+                          setSelectedZoneId(newId);
+                        }}
+                        style={{
+                          padding: "8px 10px",
+                          borderRadius: "6px",
+                          backgroundColor: "rgba(255, 255, 255, 0.06)",
+                          border: "1px solid rgba(255, 255, 255, 0.12)",
+                          color: "#FFFFFF",
+                          textAlign: "left",
+                          cursor: "pointer",
+                          fontSize: "11.5px",
+                          fontWeight: 700,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <span>🔲</span>
+                        <span>Squircle Avatar (Smooth Radius)</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -1726,6 +2009,53 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                 {/* If Photo zone is selected */}
                 {selectedZone.type === "photo" && (
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    {/* Inline Change/Upload Photo */}
+                    <label
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "5px",
+                        padding: "3px 8px",
+                        borderRadius: "4px",
+                        backgroundColor: "#7956C9",
+                        color: "#FFFFFF",
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                      }}
+                      title="Upload person photo or transparent cutout"
+                    >
+                      <Camera size={13} />
+                      <span>{selectedZone.sampleAvatarUrl ? "Change Photo" : "Upload Person Photo"}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleUploadPersonPhoto}
+                        style={{ display: "none" }}
+                      />
+                    </label>
+
+                    {selectedZone.sampleAvatarUrl && (
+                      <button
+                        type="button"
+                        onClick={() => updateSelectedZone({ sampleAvatarUrl: undefined })}
+                        style={{
+                          background: "rgba(255, 255, 255, 0.08)",
+                          border: "1px solid rgba(255, 255, 255, 0.15)",
+                          color: "#C4BFD6",
+                          padding: "3px 6px",
+                          borderRadius: "4px",
+                          fontSize: "10.5px",
+                          cursor: "pointer",
+                          fontWeight: 600,
+                        }}
+                        title="Revert to simulated user avatar"
+                      >
+                        Reset Photo
+                      </button>
+                    )}
+
+                    {/* Shape selector */}
                     <select
                       value={selectedZone.photoShape || "circle"}
                       onChange={(e) => updateSelectedZone({ photoShape: e.target.value as PhotoSlotShape })}
@@ -1745,6 +2075,26 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                       <option value="rectangle" style={{ background: "#201B33" }}>Rectangle</option>
                     </select>
 
+                    {/* Object Fit mode */}
+                    <select
+                      value={selectedZone.objectFit || (selectedZone.photoShape === "cutout" ? "contain" : "cover")}
+                      onChange={(e) => updateSelectedZone({ objectFit: e.target.value as "cover" | "contain" })}
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.3)",
+                        border: "1px solid rgba(255,255,255,0.15)",
+                        color: "#FFFFFF",
+                        padding: "3px 8px",
+                        borderRadius: "4px",
+                        fontSize: "11px",
+                        fontWeight: 600,
+                      }}
+                      title="Object Fit"
+                    >
+                      <option value="contain" style={{ background: "#201B33" }}>Contain (Full Body)</option>
+                      <option value="cover" style={{ background: "#201B33" }}>Cover (Fill Box)</option>
+                    </select>
+
+                    {/* Feather bottom for cutouts */}
                     {selectedZone.photoShape === "cutout" && (
                       <label style={{ display: "flex", alignItems: "center", gap: "4px", cursor: "pointer", fontSize: "11px" }}>
                         <input
@@ -1943,12 +2293,12 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                           }}
                         >
                           <img
-                            src={previewPersona.avatarUrl}
+                            src={zone.sampleAvatarUrl || previewPersona.avatarUrl}
                             alt="User Silhouette"
                             style={{
                               width: "100%",
                               height: "100%",
-                              objectFit: zone.photoShape === "cutout" ? "contain" : (zone.objectFit || "cover"),
+                              objectFit: zone.objectFit || (zone.photoShape === "cutout" ? "contain" : "cover"),
                             }}
                           />
                         </div>
@@ -2401,6 +2751,319 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                           onChange={(e) => updateSelectedZone({ wrapText: e.target.checked })}
                         />
                       </label>
+                    </div>
+                  )}
+
+                  {/* Photo Slot & Source Configuration (if Photo zone) */}
+                  {selectedZone.type === "photo" && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "12px", paddingTop: "4px" }}>
+                      {/* Person Photo Source Card */}
+                      <div
+                        style={{
+                          padding: "12px",
+                          borderRadius: "8px",
+                          backgroundColor: "rgba(121, 86, 201, 0.12)",
+                          border: "1px solid rgba(121, 86, 201, 0.3)",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "10px",
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <span style={{ fontSize: "11px", fontWeight: 700, color: "#FACC15", display: "flex", alignItems: "center", gap: "5px" }}>
+                            <Camera size={13} />
+                            <span>PERSON PHOTO / CUTOUT</span>
+                          </span>
+                          <span
+                            style={{
+                              fontSize: "9.5px",
+                              padding: "2px 6px",
+                              borderRadius: "4px",
+                              backgroundColor: selectedZone.sampleAvatarUrl ? "rgba(16, 185, 129, 0.2)" : "rgba(121, 86, 201, 0.2)",
+                              color: selectedZone.sampleAvatarUrl ? "#34D399" : "#C4B5FD",
+                              fontWeight: 700,
+                            }}
+                          >
+                            {selectedZone.sampleAvatarUrl ? "Custom Loaded" : "Default Persona"}
+                          </span>
+                        </div>
+
+                        {/* Thumbnail + info */}
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                          <div
+                            style={{
+                              width: 48,
+                              height: 48,
+                              borderRadius: selectedZone.photoShape === "circle" ? "50%" : "6px",
+                              overflow: "hidden",
+                              border: "1.5px solid rgba(255, 255, 255, 0.2)",
+                              backgroundColor: "#161324",
+                              flexShrink: 0,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <img
+                              src={selectedZone.sampleAvatarUrl || previewPersona.avatarUrl}
+                              alt="Person Preview"
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: selectedZone.photoShape === "cutout" ? "contain" : (selectedZone.objectFit || "cover"),
+                              }}
+                            />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: "11px", fontWeight: 700, color: "#FFFFFF", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {selectedZone.label || "Person Photo Slot"}
+                            </div>
+                            <div style={{ fontSize: "10px", color: "#A099B5", marginTop: "2px" }}>
+                              PNG Cutout, JPG or WebP
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Upload button & Reset button */}
+                        <div style={{ display: "flex", gap: "6px" }}>
+                          <label
+                            style={{
+                              flex: 1,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "5px",
+                              padding: "6px 10px",
+                              borderRadius: "6px",
+                              backgroundColor: "#7956C9",
+                              color: "#FFFFFF",
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              cursor: "pointer",
+                              textAlign: "center",
+                            }}
+                          >
+                            <Upload size={13} />
+                            <span>Upload Person Photo</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleUploadPersonPhoto}
+                              style={{ display: "none" }}
+                            />
+                          </label>
+                          {selectedZone.sampleAvatarUrl && (
+                            <button
+                              type="button"
+                              onClick={() => updateSelectedZone({ sampleAvatarUrl: undefined })}
+                              style={{
+                                padding: "6px 10px",
+                                borderRadius: "6px",
+                                backgroundColor: "rgba(255, 255, 255, 0.08)",
+                                border: "1px solid rgba(255, 255, 255, 0.15)",
+                                color: "#C4BFD6",
+                                fontSize: "11px",
+                                fontWeight: 600,
+                                cursor: "pointer",
+                              }}
+                              title="Reset to default persona avatar"
+                            >
+                              Reset
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Direct URL input */}
+                        <div>
+                          <span style={{ fontSize: "10px", color: "#8A849C" }}>Or Image / Cutout URL:</span>
+                          <input
+                            type="text"
+                            value={selectedZone.sampleAvatarUrl || ""}
+                            placeholder="https://... image link"
+                            onChange={(e) => updateSelectedZone({ sampleAvatarUrl: e.target.value.trim() || undefined })}
+                            style={{
+                              width: "100%",
+                              padding: "5px 8px",
+                              borderRadius: "4px",
+                              backgroundColor: "rgba(0,0,0,0.3)",
+                              border: "1px solid rgba(255,255,255,0.12)",
+                              color: "#FFFFFF",
+                              fontSize: "10.5px",
+                              marginTop: "3px",
+                            }}
+                          />
+                        </div>
+
+                        {/* Quick Leaders Selection */}
+                        <div>
+                          <span style={{ fontSize: "10px", color: "#8A849C" }}>Choose Popular Leader:</span>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "4px" }}>
+                            {LEADER_PHOTO_PRESETS.map((lp) => (
+                              <button
+                                key={lp.id}
+                                type="button"
+                                onClick={() => handleApplyLeaderPreset(lp)}
+                                style={{
+                                  padding: "3px 7px",
+                                  borderRadius: "4px",
+                                  backgroundColor: "rgba(255, 255, 255, 0.06)",
+                                  border: "1px solid rgba(255, 255, 255, 0.12)",
+                                  color: "#FFFFFF",
+                                  fontSize: "10px",
+                                  cursor: "pointer",
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {lp.name.split(" ")[0]} {lp.name.split(" ")[1] || ""}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Photo Shape & Appearance */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        <div>
+                          <label style={{ fontSize: "11px", fontWeight: 700, color: "#A099B5", textTransform: "uppercase" }}>
+                            Photo Frame Shape
+                          </label>
+                          <select
+                            value={selectedZone.photoShape || "circle"}
+                            onChange={(e) => updateSelectedZone({ photoShape: e.target.value as PhotoSlotShape })}
+                            style={{
+                              width: "100%",
+                              padding: "6px 8px",
+                              borderRadius: "6px",
+                              backgroundColor: "rgba(0,0,0,0.3)",
+                              border: "1px solid rgba(255,255,255,0.15)",
+                              color: "#FFFFFF",
+                              fontSize: "11.5px",
+                              marginTop: "4px",
+                            }}
+                          >
+                            <option value="cutout" style={{ background: "#201B33" }}>Cutout Silhouette (Transparent)</option>
+                            <option value="circle" style={{ background: "#201B33" }}>Circle Avatar (Round)</option>
+                            <option value="squircle" style={{ background: "#201B33" }}>Squircle (Smooth Rounded)</option>
+                            <option value="rectangle" style={{ background: "#201B33" }}>Rectangle (Full Slot)</option>
+                          </select>
+                        </div>
+
+                        {/* Fit Mode */}
+                        <div>
+                          <label style={{ fontSize: "11px", fontWeight: 700, color: "#A099B5", textTransform: "uppercase" }}>
+                            Image Fit Mode
+                          </label>
+                          <div style={{ display: "flex", gap: "6px", marginTop: "4px" }}>
+                            <button
+                              type="button"
+                              onClick={() => updateSelectedZone({ objectFit: "contain" })}
+                              style={{
+                                flex: 1,
+                                padding: "5px 8px",
+                                borderRadius: "4px",
+                                border: (selectedZone.objectFit === "contain" || (!selectedZone.objectFit && selectedZone.photoShape === "cutout"))
+                                  ? "1.5px solid #7956C9"
+                                  : "1px solid rgba(255,255,255,0.12)",
+                                backgroundColor: (selectedZone.objectFit === "contain" || (!selectedZone.objectFit && selectedZone.photoShape === "cutout"))
+                                  ? "rgba(121, 86, 201, 0.3)"
+                                  : "rgba(0,0,0,0.2)",
+                                color: "#FFFFFF",
+                                fontSize: "11px",
+                                fontWeight: 600,
+                                cursor: "pointer",
+                              }}
+                            >
+                              Contain (Full Body)
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => updateSelectedZone({ objectFit: "cover" })}
+                              style={{
+                                flex: 1,
+                                padding: "5px 8px",
+                                borderRadius: "4px",
+                                border: (selectedZone.objectFit === "cover" || (!selectedZone.objectFit && selectedZone.photoShape !== "cutout"))
+                                  ? "1.5px solid #7956C9"
+                                  : "1px solid rgba(255,255,255,0.12)",
+                                backgroundColor: (selectedZone.objectFit === "cover" || (!selectedZone.objectFit && selectedZone.photoShape !== "cutout"))
+                                  ? "rgba(121, 86, 201, 0.3)"
+                                  : "rgba(0,0,0,0.2)",
+                                color: "#FFFFFF",
+                                fontSize: "11px",
+                                fontWeight: 600,
+                                cursor: "pointer",
+                              }}
+                            >
+                              Cover (Fill Frame)
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Soft Feather Bottom */}
+                        {selectedZone.photoShape === "cutout" && (
+                          <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "11.5px", cursor: "pointer", padding: "6px 0" }}>
+                            <span>Soft Feather Bottom (Gradient Blend)</span>
+                            <input
+                              type="checkbox"
+                              checked={Boolean(selectedZone.featherBottom)}
+                              onChange={(e) => updateSelectedZone({ featherBottom: e.target.checked })}
+                            />
+                          </label>
+                        )}
+
+                        {/* Border Width & Color (for circle, squircle, rect) */}
+                        {selectedZone.photoShape !== "cutout" && (
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
+                            <div style={{ flex: 1 }}>
+                              <span style={{ fontSize: "10px", color: "#8A849C" }}>Border Width:</span>
+                              <input
+                                type="number"
+                                min="0"
+                                max="20"
+                                value={selectedZone.borderWidth ?? 3}
+                                onChange={(e) => updateSelectedZone({ borderWidth: parseInt(e.target.value, 10) || 0 })}
+                                style={{
+                                  width: "100%",
+                                  padding: "4px 8px",
+                                  borderRadius: "4px",
+                                  backgroundColor: "rgba(0,0,0,0.3)",
+                                  border: "1px solid rgba(255,255,255,0.1)",
+                                  color: "#FFFFFF",
+                                  fontSize: "11px",
+                                  marginTop: "2px",
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <span style={{ fontSize: "10px", color: "#8A849C" }}>Color:</span>
+                              <input
+                                type="color"
+                                value={selectedZone.borderColor || "#FFFFFF"}
+                                onChange={(e) => updateSelectedZone({ borderColor: e.target.value })}
+                                style={{
+                                  width: "32px",
+                                  height: "26px",
+                                  borderRadius: "4px",
+                                  border: "none",
+                                  cursor: "pointer",
+                                  marginTop: "2px",
+                                  display: "block",
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Drop Shadow toggle */}
+                        <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "11.5px", cursor: "pointer", padding: "4px 0" }}>
+                          <span>Drop Shadow</span>
+                          <input
+                            type="checkbox"
+                            checked={selectedZone.shadow ?? true}
+                            onChange={(e) => updateSelectedZone({ shadow: e.target.checked })}
+                          />
+                        </label>
+                      </div>
                     </div>
                   )}
                 </>

@@ -133,6 +133,49 @@ export const LiveMobileAppSimulator: React.FC<LiveMobileAppSimulatorProps> = ({
             );
           })}
         </div>
+
+        {/* Upload Custom Person Photo for Simulator */}
+        <div style={{ marginTop: "8px" }}>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "4px",
+              padding: "5px 8px",
+              borderRadius: "6px",
+              border: "1px dashed rgba(121, 86, 201, 0.5)",
+              backgroundColor: "rgba(121, 86, 201, 0.12)",
+              color: "#D8B4FE",
+              fontSize: "10.5px",
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            <span>📷 Upload Person Photo to Test</span>
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (!f) return;
+                const r = new FileReader();
+                r.onload = (ev) => {
+                  const url = ev.target?.result as string;
+                  if (url) {
+                    setSelectedPersona((prev) => ({
+                      ...prev,
+                      avatarUrl: url,
+                      role: "Custom Person Photo",
+                    }));
+                  }
+                };
+                r.readAsDataURL(f);
+              }}
+            />
+          </label>
+        </div>
       </div>
 
       {/* Realistic Phone Device Mockup */}
@@ -233,7 +276,7 @@ export const LiveMobileAppSimulator: React.FC<LiveMobileAppSimulatorProps> = ({
               .filter((z) => z.visible !== false)
               .map((zone) => {
                 if (zone.type === "photo") {
-                  const avatarSrc = selectedPersona.avatarUrl;
+                  const avatarSrc = zone.sampleAvatarUrl || selectedPersona.avatarUrl;
                   const isCutout = zone.photoShape === "cutout";
 
                   return (
