@@ -32,6 +32,9 @@ export interface AppScreen {
   supportedCapabilities: string[];
   configData: {
     bannerVisible?: boolean;
+    bannerHeadline?: string;
+    bannerSubtitle?: string;
+    bannerBadge?: string;
     headerTitle?: string;
     itemsPerPage?: number;
     defaultLayout?: string;
