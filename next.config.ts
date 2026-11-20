@@ -4,6 +4,18 @@ const nextConfig: NextConfig = {
   experimental: {
     agentUpgrade: "security",
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+    ],
+  },
   async headers() {
     return [
       {

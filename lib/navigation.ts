@@ -79,7 +79,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     href: "/admin/festivals",
     iconName: "Calendar",
     description: "Schedule festival campaigns, seasonal occasions, and promotional event dates.",
-    implemented: false,
+    implemented: true,
   },
   {
     id: "users",

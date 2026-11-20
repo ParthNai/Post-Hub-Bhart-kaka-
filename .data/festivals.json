@@ -1,0 +1,534 @@
+{
+  "summary": {
+    "totalEvents": 48,
+    "totalEventsTrend": "+5%",
+    "upcomingEvents": 12,
+    "upcomingEventsTrend": "+2%",
+    "activeEvents": 36,
+    "activeEventsTrend": "+3%",
+    "draftEvents": 8,
+    "draftEventsTrend": "0%"
+  },
+  "contentPreparation": {
+    "readyTemplatesPercent": 75,
+    "requiringTemplatesPercent": 15,
+    "awaitingReviewPercent": 10
+  },
+  "categories": [
+    {
+      "id": "cat-1",
+      "name": "Religious",
+      "count": 12,
+      "icon": "Shrine",
+      "description": "Festivals of faith, devotion and religious traditions"
+    },
+    {
+      "id": "cat-2",
+      "name": "National",
+      "count": 8,
+      "icon": "Flag",
+      "description": "Nationwide constitutional and patriotic holidays"
+    },
+    {
+      "id": "cat-3",
+      "name": "Regional",
+      "count": 8,
+      "icon": "MapPin",
+      "description": "State-specific celebrations and harvest festivals"
+    },
+    {
+      "id": "cat-4",
+      "name": "Cultural",
+      "count": 7,
+      "icon": "Sparkles",
+      "description": "Traditional arts, music, and seasonal festivities"
+    },
+    {
+      "id": "cat-5",
+      "name": "Business",
+      "count": 6,
+      "icon": "Briefcase",
+      "description": "Promotional events, festive sales and market celebrations"
+    },
+    {
+      "id": "cat-6",
+      "name": "International",
+      "count": 5,
+      "icon": "Globe",
+      "description": "Global observances and worldwide celebrations"
+    },
+    {
+      "id": "cat-7",
+      "name": "Special",
+      "count": 2,
+      "icon": "Star",
+      "description": "Special observance days and milestone anniversaries"
+    }
+  ],
+  "events": [
+    {
+      "id": "EVT-FEST-001",
+      "name": "Diwali",
+      "slug": "diwali-2026",
+      "iconEmoji": "🪔",
+      "shortDescription": "Festival of Lights, spreading joy and positivity...",
+      "fullDescription": "Diwali, the festival of lights, symbolizes the spiritual victory of light over darkness, good over evil, and knowledge over ignorance. Post Hub provides rich multi-language banners and editable festive templates.",
+      "type": "Religious Occasion",
+      "category": "Religious",
+      "startDate": "2026-11-08",
+      "endDate": "2026-11-08",
+      "formattedDate": "Nov 08, 2026",
+      "isAllDay": true,
+      "isRecurringAnnual": true,
+      "region": "India",
+      "states": [
+        "Gujarat",
+        "Maharashtra",
+        "Delhi",
+        "Rajasthan",
+        "All"
+      ],
+      "language": "Gujarati",
+      "supportedLanguages": [
+        "Gujarati",
+        "Hindi",
+        "English"
+      ],
+      "contentStatus": "Published",
+      "templateStatus": "Available",
+      "associatedTemplateIds": [
+        "TPL-009",
+        "TPL-010",
+        "TPL-011"
+      ],
+      "coverImageUrl": "https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=800&q=80",
+      "templateThumbnails": [
+        "https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=300&q=80",
+        "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=300&q=80",
+        "https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=300&q=80"
+      ],
+      "isFeatured": true,
+      "displayPriority": 1,
+      "calendarHighlight": false,
+      "createdAt": "Nov 01, 2026, 10:00 AM",
+      "updatedAt": "Nov 19, 2026, 04:30 PM"
+    },
+    {
+      "id": "EVT-FEST-002",
+      "name": "Govardhan Puja",
+      "slug": "govardhan-puja-2026",
+      "iconEmoji": "🌾",
+      "shortDescription": "Day of offering prayers to Lord Krishna and Govardhan Hill.",
+      "fullDescription": "Govardhan Puja commemorates Lord Krishna lifting the Govardhan Hill to protect the inhabitants of Vrindavan from heavy rains.",
+      "type": "Religious Occasion",
+      "category": "Religious",
+      "startDate": "2026-11-10",
+      "endDate": "2026-11-10",
+      "formattedDate": "Nov 10, 2026",
+      "isAllDay": true,
+      "isRecurringAnnual": true,
+      "region": "India",
+      "states": [
+        "Uttar Pradesh",
+        "Gujarat",
+        "Delhi"
+      ],
+      "language": "Hindi",
+      "supportedLanguages": [
+        "Hindi",
+        "Gujarati",
+        "English"
+      ],
+      "contentStatus": "Published",
+      "templateStatus": "Available",
+      "associatedTemplateIds": [
+        "TPL-012"
+      ],
+      "coverImageUrl": "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80",
+      "templateThumbnails": [
+        "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=300&q=80"
+      ],
+      "isFeatured": false,
+      "displayPriority": 5,
+      "createdAt": "Nov 01, 2026, 10:30 AM",
+      "updatedAt": "Nov 15, 2026, 02:00 PM"
+    },
+    {
+      "id": "EVT-FEST-003",
+      "name": "Children's Day",
+      "slug": "childrens-day-2026",
+      "iconEmoji": "🎈",
+      "shortDescription": "Celebrating childhood, growth, and joy across schools and communities.",
+      "fullDescription": "Celebrated in honor of Pandit Jawaharlal Nehru, focusing on the welfare, education, and rights of children.",
+      "type": "Special Observance",
+      "category": "Special",
+      "startDate": "2026-11-14",
+      "endDate": "2026-11-14",
+      "formattedDate": "Nov 14, 2026",
+      "isAllDay": true,
+      "isRecurringAnnual": true,
+      "region": "India",
+      "states": [
+        "All"
+      ],
+      "language": "English",
+      "supportedLanguages": [
+        "English",
+        "Hindi"
+      ],
+      "contentStatus": "Published",
+      "templateStatus": "Available",
+      "associatedTemplateIds": [
+        "TPL-013"
+      ],
+      "coverImageUrl": "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=800&q=80",
+      "templateThumbnails": [
+        "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=300&q=80"
+      ],
+      "isFeatured": false,
+      "displayPriority": 6,
+      "createdAt": "Nov 02, 2026, 11:00 AM",
+      "updatedAt": "Nov 16, 2026, 09:30 AM"
+    },
+    {
+      "id": "EVT-FEST-004",
+      "name": "Guru Nanak Jayanti",
+      "slug": "guru-nanak-jayanti-2026",
+      "iconEmoji": "✨",
+      "shortDescription": "Celebrating the birth anniversary of Guru Nanak Dev Ji.",
+      "fullDescription": "Gurpurab marks the birth anniversary of Guru Nanak Dev Ji, celebrated with prayers, processions, and langar distribution.",
+      "type": "Religious Occasion",
+      "category": "Religious",
+      "startDate": "2026-11-16",
+      "endDate": "2026-11-16",
+      "formattedDate": "Nov 16, 2026",
+      "isAllDay": true,
+      "isRecurringAnnual": true,
+      "region": "India",
+      "states": [
+        "Punjab",
+        "Delhi",
+        "Haryana",
+        "All"
+      ],
+      "language": "Hindi",
+      "supportedLanguages": [
+        "Hindi",
+        "English",
+        "Punjabi"
+      ],
+      "contentStatus": "Published",
+      "templateStatus": "Available",
+      "associatedTemplateIds": [
+        "TPL-014"
+      ],
+      "coverImageUrl": "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80",
+      "templateThumbnails": [
+        "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=300&q=80"
+      ],
+      "isFeatured": false,
+      "displayPriority": 7,
+      "createdAt": "Nov 02, 2026, 11:30 AM",
+      "updatedAt": "Nov 16, 2026, 10:15 AM"
+    },
+    {
+      "id": "EVT-FEST-005",
+      "name": "National Education Day",
+      "slug": "national-education-day-2026",
+      "iconEmoji": "📚",
+      "shortDescription": "Commemorating the birth anniversary of Maulana Abul Kalam Azad.",
+      "fullDescription": "Observed annually on 11 November across India to commemorate the contribution of Maulana Abul Kalam Azad to education in independent India.",
+      "type": "National Holiday",
+      "category": "National",
+      "startDate": "2026-11-18",
+      "endDate": "2026-11-18",
+      "formattedDate": "Nov 18, 2026",
+      "isAllDay": true,
+      "isRecurringAnnual": true,
+      "region": "India",
+      "states": [
+        "All"
+      ],
+      "language": "English",
+      "supportedLanguages": [
+        "English",
+        "Hindi"
+      ],
+      "contentStatus": "Published",
+      "templateStatus": "Available",
+      "associatedTemplateIds": [
+        "TPL-015"
+      ],
+      "coverImageUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
+      "templateThumbnails": [
+        "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=300&q=80"
+      ],
+      "isFeatured": false,
+      "displayPriority": 8,
+      "calendarHighlight": true,
+      "createdAt": "Nov 03, 2026, 09:00 AM",
+      "updatedAt": "Nov 17, 2026, 03:00 PM"
+    },
+    {
+      "id": "EVT-FEST-006",
+      "name": "Thanksgiving",
+      "slug": "thanksgiving-2026",
+      "iconEmoji": "🍁",
+      "shortDescription": "Global day of gratitude, family gatherings, and harvest celebrations.",
+      "fullDescription": "Thanksgiving is a national holiday celebrated on various dates in the United States, Canada, Grenada, Saint Lucia, and Liberia.",
+      "type": "International Celebration",
+      "category": "International",
+      "startDate": "2026-11-24",
+      "endDate": "2026-11-24",
+      "formattedDate": "Nov 24, 2026",
+      "isAllDay": true,
+      "isRecurringAnnual": true,
+      "region": "Global",
+      "states": [
+        "Global"
+      ],
+      "language": "English",
+      "supportedLanguages": [
+        "English"
+      ],
+      "contentStatus": "Scheduled",
+      "templateStatus": "Available",
+      "associatedTemplateIds": [
+        "TPL-016"
+      ],
+      "coverImageUrl": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80",
+      "templateThumbnails": [
+        "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=300&q=80"
+      ],
+      "isFeatured": false,
+      "displayPriority": 9,
+      "createdAt": "Nov 04, 2026, 01:00 PM",
+      "updatedAt": "Nov 18, 2026, 11:00 AM"
+    },
+    {
+      "id": "EVT-FEST-007",
+      "name": "Christmas",
+      "slug": "christmas-2026",
+      "iconEmoji": "🎄",
+      "shortDescription": "Worldwide celebration of joy, peace, and festive cheer.",
+      "fullDescription": "Christmas is an annual festival commemorating the birth of Jesus Christ, observed primarily on December 25 as a religious and cultural celebration among billions of people around the world.",
+      "type": "International Celebration",
+      "category": "International",
+      "startDate": "2026-12-25",
+      "endDate": "2026-12-25",
+      "formattedDate": "Dec 25, 2026",
+      "isAllDay": true,
+      "isRecurringAnnual": true,
+      "region": "Global",
+      "states": [
+        "Global"
+      ],
+      "language": "English",
+      "supportedLanguages": [
+        "English",
+        "Hindi"
+      ],
+      "contentStatus": "Scheduled",
+      "templateStatus": "Missing",
+      "associatedTemplateIds": [],
+      "coverImageUrl": "https://images.unsplash.com/photo-1512389142860-9c449e58a543?auto=format&fit=crop&w=800&q=80",
+      "templateThumbnails": [],
+      "isFeatured": true,
+      "displayPriority": 2,
+      "createdAt": "Nov 05, 2026, 10:00 AM",
+      "updatedAt": "Nov 19, 2026, 05:00 PM"
+    },
+    {
+      "id": "EVT-FEST-008",
+      "name": "New Year",
+      "slug": "new-year-2027",
+      "iconEmoji": "⭐",
+      "shortDescription": "Global welcome to the new calendar year with fireworks and hope.",
+      "fullDescription": "New Year's Day is the first day of the year in the Gregorian calendar, celebrated worldwide with festivities, parties, and new aspirations.",
+      "type": "International Celebration",
+      "category": "Cultural",
+      "startDate": "2027-01-01",
+      "endDate": "2027-01-01",
+      "formattedDate": "Jan 01, 2027",
+      "isAllDay": true,
+      "isRecurringAnnual": true,
+      "region": "Global",
+      "states": [
+        "Global"
+      ],
+      "language": "English",
+      "supportedLanguages": [
+        "English",
+        "Hindi",
+        "Gujarati"
+      ],
+      "contentStatus": "Draft",
+      "templateStatus": "In Progress",
+      "associatedTemplateIds": [
+        "TPL-017"
+      ],
+      "coverImageUrl": "https://images.unsplash.com/photo-1467810563316-b5476525c0f9?auto=format&fit=crop&w=800&q=80",
+      "templateThumbnails": [
+        "https://images.unsplash.com/photo-1467810563316-b5476525c0f9?auto=format&fit=crop&w=300&q=80"
+      ],
+      "isFeatured": true,
+      "displayPriority": 3,
+      "createdAt": "Nov 06, 2026, 02:00 PM",
+      "updatedAt": "Nov 18, 2026, 09:00 AM"
+    },
+    {
+      "id": "EVT-FEST-009",
+      "name": "Makar Sankranti",
+      "slug": "makar-sankranti-2027",
+      "iconEmoji": "🪁",
+      "shortDescription": "Harvest festival marked by colorful kites and festive sweets.",
+      "fullDescription": "Makar Sankranti or Uttarayan is a prominent Hindu festival celebrated across India, marking the transition of the Sun into the zodiac sign of Makara (Capricorn).",
+      "type": "Cultural Event",
+      "category": "Cultural",
+      "startDate": "2027-01-14",
+      "endDate": "2027-01-14",
+      "formattedDate": "Jan 14, 2027",
+      "isAllDay": true,
+      "isRecurringAnnual": true,
+      "region": "India",
+      "states": [
+        "Gujarat",
+        "Maharashtra",
+        "Rajasthan"
+      ],
+      "language": "Gujarati",
+      "supportedLanguages": [
+        "Gujarati",
+        "Hindi",
+        "English"
+      ],
+      "contentStatus": "Pending Review",
+      "templateStatus": "Available",
+      "associatedTemplateIds": [
+        "TPL-018",
+        "TPL-019"
+      ],
+      "coverImageUrl": "https://images.unsplash.com/photo-1548625361-197e411baad7?auto=format&fit=crop&w=800&q=80",
+      "templateThumbnails": [
+        "https://images.unsplash.com/photo-1548625361-197e411baad7?auto=format&fit=crop&w=300&q=80"
+      ],
+      "isFeatured": false,
+      "displayPriority": 4,
+      "createdAt": "Nov 07, 2026, 11:00 AM",
+      "updatedAt": "Nov 19, 2026, 12:00 PM"
+    },
+    {
+      "id": "EVT-FEST-010",
+      "name": "Republic Day",
+      "slug": "republic-day-2027",
+      "iconEmoji": "🇮🇳",
+      "shortDescription": "Commemorating the Constitution of India coming into effect.",
+      "fullDescription": "Republic Day is a national holiday in India commemorating the adoption of the Constitution of India on 26 January 1950.",
+      "type": "National Holiday",
+      "category": "National",
+      "startDate": "2027-01-26",
+      "endDate": "2027-01-26",
+      "formattedDate": "Jan 26, 2027",
+      "isAllDay": true,
+      "isRecurringAnnual": true,
+      "region": "India",
+      "states": [
+        "All"
+      ],
+      "language": "Hindi",
+      "supportedLanguages": [
+        "Hindi",
+        "English",
+        "Gujarati"
+      ],
+      "contentStatus": "Published",
+      "templateStatus": "Available",
+      "associatedTemplateIds": [
+        "TPL-020"
+      ],
+      "coverImageUrl": "https://images.unsplash.com/photo-1532375810709-75b1da00537c?auto=format&fit=crop&w=800&q=80",
+      "templateThumbnails": [
+        "https://images.unsplash.com/photo-1532375810709-75b1da00537c?auto=format&fit=crop&w=300&q=80"
+      ],
+      "isFeatured": true,
+      "displayPriority": 2,
+      "createdAt": "Nov 08, 2026, 09:00 AM",
+      "updatedAt": "Nov 18, 2026, 04:00 PM"
+    },
+    {
+      "id": "EVT-FEST-011",
+      "name": "Holi",
+      "slug": "holi-2027",
+      "iconEmoji": "🎨",
+      "shortDescription": "Festival of colors, welcoming spring with music and laughter.",
+      "fullDescription": "Holi is a popular ancient Hindu festival, also known as the Festival of Colours, celebrating the eternal and divine love of Radha and Krishna and the triumph of good over evil.",
+      "type": "Festival",
+      "category": "Religious",
+      "startDate": "2027-03-17",
+      "endDate": "2027-03-17",
+      "formattedDate": "Mar 17, 2027",
+      "isAllDay": true,
+      "isRecurringAnnual": true,
+      "region": "India",
+      "states": [
+        "All"
+      ],
+      "language": "Hindi",
+      "supportedLanguages": [
+        "Hindi",
+        "Gujarati",
+        "English"
+      ],
+      "contentStatus": "Scheduled",
+      "templateStatus": "In Progress",
+      "associatedTemplateIds": [
+        "TPL-021"
+      ],
+      "coverImageUrl": "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=800&q=80",
+      "templateThumbnails": [
+        "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=300&q=80"
+      ],
+      "isFeatured": false,
+      "displayPriority": 3,
+      "createdAt": "Nov 09, 2026, 04:00 PM",
+      "updatedAt": "Nov 19, 2026, 02:00 PM"
+    },
+    {
+      "id": "EVT-FEST-012",
+      "name": "Christmas Campaign Prep",
+      "slug": "christmas-campaign-prep-2026",
+      "iconEmoji": "🎄",
+      "shortDescription": "Advent kickoff and early holiday template distribution.",
+      "fullDescription": "Pre-season holiday promotional campaign setup for businesses and creative agencies.",
+      "type": "Business Event",
+      "category": "Business",
+      "startDate": "2026-11-30",
+      "endDate": "2026-11-30",
+      "formattedDate": "Nov 30, 2026",
+      "isAllDay": true,
+      "isRecurringAnnual": false,
+      "region": "Global",
+      "states": [
+        "Global"
+      ],
+      "language": "English",
+      "supportedLanguages": [
+        "English"
+      ],
+      "contentStatus": "Published",
+      "templateStatus": "Available",
+      "associatedTemplateIds": [
+        "TPL-022"
+      ],
+      "coverImageUrl": "https://images.unsplash.com/photo-1512389142860-9c449e58a543?auto=format&fit=crop&w=800&q=80",
+      "templateThumbnails": [
+        "https://images.unsplash.com/photo-1512389142860-9c449e58a543?auto=format&fit=crop&w=300&q=80"
+      ],
+      "isFeatured": false,
+      "displayPriority": 10,
+      "createdAt": "Nov 10, 2026, 08:00 AM",
+      "updatedAt": "Nov 17, 2026, 01:00 PM"
+    }
+  ],
+  "lastUpdated": "Nov 20, 2026, 01:57 PM"
+}
