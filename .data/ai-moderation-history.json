@@ -1,5 +1,62 @@
 [
   {
+    "id": "HIST-1795160203020-0ut7",
+    "imageId": "IMG-20261027-002",
+    "action": "approved",
+    "reviewer": "Parth Patel",
+    "timestamp": "11/20/2026, 1:06:43 PM",
+    "notes": "Bulk approved"
+  },
+  {
+    "id": "HIST-1795160203017-b29e",
+    "imageId": "IMG-20261027-001",
+    "action": "approved",
+    "reviewer": "Parth Patel",
+    "timestamp": "11/20/2026, 1:06:43 PM",
+    "notes": "Bulk approved"
+  },
+  {
+    "id": "HIST-1795160202984-9kzq",
+    "imageId": "IMG-20261027-002",
+    "action": "rejected",
+    "reviewer": "Parth Patel",
+    "timestamp": "11/20/2026, 1:06:42 PM",
+    "notes": "Bulk moderation batch test"
+  },
+  {
+    "id": "HIST-1795160202982-da9c",
+    "imageId": "IMG-20261027-001",
+    "action": "rejected",
+    "reviewer": "Parth Patel",
+    "timestamp": "11/20/2026, 1:06:42 PM",
+    "notes": "Bulk moderation batch test"
+  },
+  {
+    "id": "HIST-1795160202969-ah3g",
+    "imageId": "IMG-20261028-003",
+    "action": "flagged",
+    "reviewer": "Parth Patel",
+    "timestamp": "11/20/2026, 1:06:42 PM",
+    "notes": "Contains trademark or logo"
+  },
+  {
+    "id": "HIST-1795160202944-xh4g",
+    "imageId": "IMG-20261027-003",
+    "action": "rejected",
+    "reviewer": "Parth Patel",
+    "timestamp": "11/20/2026, 1:06:42 PM",
+    "notes": "Distorted text elements in lower banner",
+    "reason": "Low visual quality or distortion"
+  },
+  {
+    "id": "HIST-1795160202920-iyw3",
+    "imageId": "IMG-20261028-002",
+    "action": "approved",
+    "reviewer": "Parth Patel",
+    "timestamp": "11/20/2026, 1:06:42 PM",
+    "notes": "Looks good, approved."
+  },
+  {
     "id": "HIST-1795159436415-3tau",
     "imageId": "IMG-20261027-002",
     "action": "approved",

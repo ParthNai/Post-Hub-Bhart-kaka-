@@ -1,0 +1,395 @@
+{
+  "summary": {
+    "totalRequests": "—",
+    "successfulResponses": "—",
+    "failedRequests": "—",
+    "averageApiLatency": "—"
+  },
+  "activityTrends": [
+    {
+      "time": "10 AM",
+      "incomingRequests": 53,
+      "successfulResponses": 35,
+      "failedResponses": 13
+    },
+    {
+      "time": "10:15 AM",
+      "incomingRequests": 62,
+      "successfulResponses": 49,
+      "failedResponses": 18
+    },
+    {
+      "time": "10:30 AM",
+      "incomingRequests": 89,
+      "successfulResponses": 68,
+      "failedResponses": 15
+    },
+    {
+      "time": "10:45 AM",
+      "incomingRequests": 72,
+      "successfulResponses": 52,
+      "failedResponses": 14
+    },
+    {
+      "time": "11 AM",
+      "incomingRequests": 60,
+      "successfulResponses": 42,
+      "failedResponses": 12
+    }
+  ],
+  "logs": [
+    {
+      "id": "REQ-4587",
+      "timestamp": "Nov 19, 10:46 AM",
+      "fullTimestamp": "Nov 19, 2025, 10:46 AM",
+      "correlationId": "CORR-7845",
+      "relatedJobId": "JOB-7845",
+      "endpoint": "/api/generate-image",
+      "method": "POST",
+      "responseCode": 200,
+      "latency": "850ms",
+      "latencyMs": 850,
+      "requestSource": "Admin Panel",
+      "status": "Success",
+      "requestMetadata": {
+        "generationType": "Image",
+        "model": "OpenAI / GPT-4o",
+        "priority": "High",
+        "dimensions": "1024x1024",
+        "aspectRatio": "1:1",
+        "preset": "Festival Poster",
+        "promptTokens": 142,
+        "clientIp": "192.168.***.***"
+      },
+      "responseMetadata": {
+        "processingStatus": "Success",
+        "resultSize": "1.2 MB",
+        "outputAssetRef": "s3://posthub-assets/posters/ast_7845.png",
+        "providerResponseTime": "1.1s",
+        "queueWaitDuration": "80ms",
+        "workerProcessingDuration": "770ms",
+        "cacheHit": false
+      },
+      "relatedEvents": [
+        {
+          "step": "API Request Ingested",
+          "timestamp": "Nov 19, 2025, 10:46:00 AM",
+          "component": "API Gateway",
+          "status": "Success",
+          "details": "Validated authorization and rate tokens"
+        },
+        {
+          "step": "Queue Dispatch",
+          "timestamp": "Nov 19, 2025, 10:46:01 AM",
+          "component": "Queue Manager",
+          "status": "Success",
+          "details": "Assigned to Image Pool with Critical priority"
+        },
+        {
+          "step": "Worker Claim",
+          "timestamp": "Nov 19, 2025, 10:46:02 AM",
+          "component": "Worker WK-1001",
+          "status": "Success",
+          "details": "Claimed and dispatched to OpenAI GPT-4o"
+        }
+      ]
+    },
+    {
+      "id": "REQ-4586",
+      "timestamp": "Nov 19, 10:44 AM",
+      "fullTimestamp": "Nov 19, 2025, 10:44 AM",
+      "correlationId": "CORR-7844",
+      "relatedJobId": "JOB-7844",
+      "endpoint": "/api/generate-image",
+      "method": "POST",
+      "responseCode": 500,
+      "latency": "1.2s",
+      "latencyMs": 1200,
+      "requestSource": "System",
+      "status": "Failed",
+      "errorCategory": "Server Error",
+      "errorMessage": "External provider returned HTTP 500 Internal Error",
+      "requestMetadata": {
+        "generationType": "Image",
+        "model": "Gemini / 1.5 Pro",
+        "priority": "Normal",
+        "dimensions": "1024x1024",
+        "aspectRatio": "1:1",
+        "promptTokens": 98,
+        "clientIp": "10.0.***.***"
+      },
+      "responseMetadata": {
+        "processingStatus": "Server Error",
+        "resultSize": "0 KB",
+        "outputAssetRef": null,
+        "providerResponseTime": "1.2s",
+        "cacheHit": false
+      },
+      "relatedEvents": [
+        {
+          "step": "API Request Ingested",
+          "timestamp": "Nov 19, 2025, 10:44:00 AM",
+          "component": "API Gateway",
+          "status": "Success",
+          "details": "Ingested from scheduled campaign runner"
+        },
+        {
+          "step": "Provider Upstream Error",
+          "timestamp": "Nov 19, 2025, 10:44:02 AM",
+          "component": "Gemini Adapter",
+          "status": "Failed",
+          "details": "Remote endpoint timed out on generation payload"
+        }
+      ]
+    },
+    {
+      "id": "REQ-4585",
+      "timestamp": "Nov 19, 10:42 AM",
+      "fullTimestamp": "Nov 19, 2025, 10:42 AM",
+      "correlationId": "CORR-7843",
+      "relatedJobId": "JOB-7843",
+      "endpoint": "/api/generate-image",
+      "method": "POST",
+      "responseCode": 200,
+      "latency": "780ms",
+      "latencyMs": 780,
+      "requestSource": "Web App",
+      "status": "Success",
+      "requestMetadata": {
+        "generationType": "Image",
+        "model": "Stability AI / SDXL",
+        "priority": "Normal",
+        "dimensions": "1024x1024",
+        "aspectRatio": "1:1",
+        "promptTokens": 110,
+        "clientIp": "172.16.***.***"
+      },
+      "responseMetadata": {
+        "processingStatus": "Success",
+        "resultSize": "1.4 MB",
+        "outputAssetRef": "s3://posthub-assets/posters/ast_7843.png",
+        "providerResponseTime": "750ms",
+        "cacheHit": false
+      },
+      "relatedEvents": [
+        {
+          "step": "API Request Ingested",
+          "timestamp": "Nov 19, 2025, 10:42:00 AM",
+          "component": "API Gateway",
+          "status": "Success",
+          "details": "Web user session validated"
+        },
+        {
+          "step": "Generation Completed",
+          "timestamp": "Nov 19, 2025, 10:42:01 AM",
+          "component": "Storage Engine",
+          "status": "Success",
+          "details": "PNG poster saved to asset bucket"
+        }
+      ]
+    },
+    {
+      "id": "REQ-4584",
+      "timestamp": "Nov 19, 10:40 AM",
+      "fullTimestamp": "Nov 19, 2025, 10:40 AM",
+      "correlationId": "CORR-7842",
+      "relatedJobId": "JOB-7842",
+      "endpoint": "/api/generate-image",
+      "method": "POST",
+      "responseCode": 200,
+      "latency": "720ms",
+      "latencyMs": 720,
+      "requestSource": "Admin Panel",
+      "status": "Success",
+      "requestMetadata": {
+        "generationType": "Image",
+        "model": "OpenAI / GPT-4o",
+        "priority": "High",
+        "dimensions": "1024x1024",
+        "aspectRatio": "1:1",
+        "promptTokens": 85,
+        "clientIp": "192.168.***.***"
+      },
+      "responseMetadata": {
+        "processingStatus": "Success",
+        "resultSize": "1.1 MB",
+        "outputAssetRef": "s3://posthub-assets/posters/ast_7842.png",
+        "providerResponseTime": "680ms",
+        "cacheHit": false
+      },
+      "relatedEvents": [
+        {
+          "step": "Admin Ingest",
+          "timestamp": "Nov 19, 2025, 10:40:00 AM",
+          "component": "API Gateway",
+          "status": "Success",
+          "details": "Admin test run initiated"
+        },
+        {
+          "step": "Result Stored",
+          "timestamp": "Nov 19, 2025, 10:40:01 AM",
+          "component": "Worker WK-1001",
+          "status": "Success",
+          "details": "Image rendering completed"
+        }
+      ]
+    },
+    {
+      "id": "REQ-4583",
+      "timestamp": "Nov 19, 10:38 AM",
+      "fullTimestamp": "Nov 19, 2025, 10:38 AM",
+      "correlationId": "CORR-7841",
+      "relatedJobId": "JOB-7841",
+      "endpoint": "/api/generate-image",
+      "method": "POST",
+      "responseCode": 429,
+      "latency": "1.5s",
+      "latencyMs": 1500,
+      "requestSource": "Mobile App",
+      "status": "Retry",
+      "errorCategory": "Rate Limit",
+      "errorMessage": "Upstream rate limit exceeded (429 Too Many Requests)",
+      "requestMetadata": {
+        "generationType": "Image",
+        "model": "OpenAI / GPT-4o",
+        "priority": "Normal",
+        "dimensions": "1024x1024",
+        "aspectRatio": "1:1",
+        "promptTokens": 130,
+        "clientIp": "49.36.***.***"
+      },
+      "responseMetadata": {
+        "processingStatus": "Rate Limited",
+        "resultSize": "0 KB",
+        "outputAssetRef": null,
+        "providerResponseTime": "1.5s",
+        "cacheHit": false
+      },
+      "relatedEvents": [
+        {
+          "step": "API Request Ingested",
+          "timestamp": "Nov 19, 2025, 10:38:00 AM",
+          "component": "API Gateway",
+          "status": "Success",
+          "details": "Mobile device client request received"
+        },
+        {
+          "step": "Rate Limit Encountered",
+          "timestamp": "Nov 19, 2025, 10:38:02 AM",
+          "component": "OpenAI Adapter",
+          "status": "Failed",
+          "details": "Retry scheduled via exponential backoff queue"
+        }
+      ]
+    }
+  ],
+  "httpStatusDistribution": [
+    {
+      "category": "2xx",
+      "count": 960,
+      "percentage": 75,
+      "color": "#10B981"
+    },
+    {
+      "category": "4xx",
+      "count": 180,
+      "percentage": 14,
+      "color": "#F59E0B"
+    },
+    {
+      "category": "5xx",
+      "count": 100,
+      "percentage": 8,
+      "color": "#EF4444"
+    },
+    {
+      "category": "Others",
+      "count": 40,
+      "percentage": 3,
+      "color": "#7956C9"
+    }
+  ],
+  "errorCategories": [
+    {
+      "category": "Rate Limit",
+      "count": 78,
+      "percentage": 48
+    },
+    {
+      "category": "Timeout",
+      "count": 42,
+      "percentage": 26
+    },
+    {
+      "category": "Invalid Request",
+      "count": 24,
+      "percentage": 15
+    },
+    {
+      "category": "Server Error",
+      "count": 12,
+      "percentage": 8
+    },
+    {
+      "category": "Others",
+      "count": 5,
+      "percentage": 3
+    }
+  ],
+  "endpointActivity": [
+    {
+      "endpoint": "/generate",
+      "count": 850,
+      "percentage": 66
+    },
+    {
+      "endpoint": "/edit",
+      "count": 210,
+      "percentage": 16
+    },
+    {
+      "endpoint": "/status",
+      "count": 160,
+      "percentage": 13
+    },
+    {
+      "endpoint": "/upload",
+      "count": 60,
+      "percentage": 5
+    }
+  ],
+  "latencyDistribution": [
+    {
+      "range": "< 500ms",
+      "count": 480,
+      "percentage": 38,
+      "color": "#7956C9"
+    },
+    {
+      "range": "500ms – 1s",
+      "count": 540,
+      "percentage": 42,
+      "color": "#9F7AEA"
+    },
+    {
+      "range": "1s – 2s",
+      "count": 200,
+      "percentage": 16,
+      "color": "#B794F4"
+    },
+    {
+      "range": "> 2s",
+      "count": 60,
+      "percentage": 4,
+      "color": "#D6BCFA"
+    }
+  ],
+  "retentionConfig": {
+    "retentionDays": 30,
+    "autoCleanupEnabled": true,
+    "lastCleanupTime": "Nov 19, 2025, 04:00 AM",
+    "totalStoredLogs": 1280,
+    "estimatedStorageSize": "48.5 MB"
+  },
+  "lastUpdated": "Nov 19, 2025, 10:48 AM"
+}

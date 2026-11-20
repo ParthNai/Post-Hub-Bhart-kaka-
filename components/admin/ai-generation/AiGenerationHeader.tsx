@@ -465,6 +465,30 @@ export const AiGenerationHeader: React.FC<AiGenerationHeaderProps> = ({
             <span>Job Trace</span>
           </Link>
 
+          {/* Request Logs & API Activity Monitor button */}
+          <Link
+            href="/admin/ai-generation/logs"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "7px",
+              padding: "8px 14px",
+              borderRadius: "8px",
+              fontSize: "13px",
+              fontWeight: 600,
+              backgroundColor: "var(--surface)",
+              color: "var(--primary)",
+              border: "1px solid var(--border)",
+              cursor: "pointer",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+              transition: "all 0.15s ease",
+              textDecoration: "none",
+            }}
+          >
+            <Activity size={14} />
+            <span>Request Logs</span>
+          </Link>
+
           {/* Refresh button */}
           <button
             type="button"
