@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'auth_service.dart';
 import 'creator_data.dart';
 
 Color _parseHex(String? hex, {Color fallback = Colors.white}) {
@@ -25,6 +27,9 @@ Color _parseZoneBackground(String? colorStr, double opacity) {
   if (colorStr == null || colorStr.isEmpty) {
     return Colors.black.withValues(alpha: opacity.clamp(0.0, 1.0));
   }
+  if (colorStr.trim() == 'transparent') {
+    return Colors.transparent;
+  }
   if (colorStr.startsWith('#')) {
     return _parseHex(colorStr).withValues(alpha: opacity.clamp(0.0, 1.0));
   }
@@ -37,7 +42,78 @@ Color _parseZoneBackground(String? colorStr, double opacity) {
       return Color.fromRGBO(r, g, b, opacity.clamp(0.0, 1.0));
     }
   }
-  return Colors.black.withValues(alpha: opacity.clamp(0.0, 1.0));
+  return Colors.transparent;
+}
+
+Widget _buildPosterBackground(String url, int fallbackColor) {
+  final trimmed = url.trim();
+  if (trimmed.isEmpty) {
+    return Container(color: Color(fallbackColor));
+  }
+
+  // Handle base64 data URI (data:image/...)
+  if (trimmed.startsWith('data:image')) {
+    try {
+      final commaIndex = trimmed.indexOf(',');
+      final base64Data = commaIndex != -1 ? trimmed.substring(commaIndex + 1) : trimmed;
+      final cleanBase64 = base64Data.replaceAll(RegExp(r'\s+'), '');
+      final bytes = base64Decode(cleanBase64);
+      return Image.memory(
+        bytes,
+        fit: BoxFit.fill,
+        errorBuilder: (_, __, ___) => Container(color: Color(fallbackColor)),
+      );
+    } catch (_) {
+      return Container(color: Color(fallbackColor));
+    }
+  }
+
+  // Handle relative URL (/templates/...) by prepending backend URL
+  String fullUrl = trimmed;
+  if (trimmed.startsWith('/')) {
+    fullUrl = '${defaultApiBaseUrl()}$trimmed';
+  }
+
+  return Image.network(
+    fullUrl,
+    fit: BoxFit.fill,
+    errorBuilder: (_, __, ___) => Container(color: Color(fallbackColor)),
+  );
+}
+
+Widget _buildAvatarImage(String photo) {
+  final trimmed = photo.trim();
+  if (trimmed.startsWith('data:image')) {
+    try {
+      final commaIndex = trimmed.indexOf(',');
+      final base64Data = commaIndex != -1 ? trimmed.substring(commaIndex + 1) : trimmed;
+      final cleanBase64 = base64Data.replaceAll(RegExp(r'\s+'), '');
+      return Image.memory(
+        base64Decode(cleanBase64),
+        fit: BoxFit.cover,
+        alignment: Alignment.topCenter,
+        errorBuilder: (_, __, ___) => Container(
+          color: Colors.white24,
+          child: const Icon(Icons.person, color: Colors.white, size: 24),
+        ),
+      );
+    } catch (_) {}
+  }
+
+  String fullUrl = trimmed;
+  if (trimmed.startsWith('/')) {
+    fullUrl = '${defaultApiBaseUrl()}$trimmed';
+  }
+
+  return Image.network(
+    fullUrl,
+    fit: BoxFit.cover,
+    alignment: Alignment.topCenter,
+    errorBuilder: (_, __, ___) => Container(
+      color: Colors.white24,
+      child: const Icon(Icons.person, color: Colors.white, size: 24),
+    ),
+  );
 }
 
 class TemplatePoster extends StatelessWidget {
@@ -116,11 +192,29 @@ class TemplatePoster extends StatelessWidget {
 
   Widget _buildShapeZone(FlutterSlotZone zone, double w, double h) {
     final isPill = zone.shapeType == 'pill';
+    final isCircle = zone.shapeType == 'circle';
     final bgColor = _parseZoneBackground(zone.backgroundColor, zone.opacity);
+    final borderColor = _parseHex(zone.borderColor, fallback: Colors.transparent);
+    final borderWidth = zone.borderWidth;
+
     return Container(
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(isPill ? 999 : 8),
+        borderRadius: isCircle
+            ? BorderRadius.circular(999)
+            : BorderRadius.circular(isPill ? 999 : 8),
+        border: borderWidth > 0 && zone.borderColor.isNotEmpty && zone.borderColor != 'transparent'
+            ? Border.all(color: borderColor, width: borderWidth)
+            : null,
+        boxShadow: zone.shadow
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : null,
       ),
     );
   }
@@ -142,15 +236,7 @@ class TemplatePoster extends StatelessWidget {
     final borderColor = _parseHex(zone.borderColor, fallback: Colors.white);
     final borderWidth = isCutout ? 0.0 : zone.borderWidth;
 
-    Widget imageWidget = Image.network(
-      photo,
-      fit: isCutout ? BoxFit.contain : BoxFit.cover,
-      alignment: Alignment.topCenter,
-      errorBuilder: (context, error, stackTrace) => Container(
-        color: Colors.white24,
-        child: const Icon(Icons.person, color: Colors.white, size: 24),
-      ),
-    );
+    Widget imageWidget = _buildAvatarImage(photo);
 
     // Soft bottom gradient fade for cutout/silhouette so it blends seamlessly into foreground
     if (isCutout) {
@@ -204,11 +290,34 @@ class TemplatePoster extends StatelessWidget {
             : 'Founder & Director';
         break;
       case 'businessName':
+      case 'business':
         text = businessName.isNotEmpty ? businessName : 'Post Hub Studio';
+        break;
+      case 'headline':
+      case 'title':
+        text = headline.isNotEmpty ? headline : (zone.customText ?? zone.label);
+        break;
+      case 'subtitle':
+      case 'subheadline':
+        text = subtitle.isNotEmpty ? subtitle : (zone.customText ?? zone.label);
         break;
       case 'custom':
       default:
-        text = zone.customText ?? zone.label;
+        final lbl = zone.label.toLowerCase();
+        if (headline.isNotEmpty &&
+            (lbl.contains('title') ||
+                lbl.contains('headline') ||
+                lbl == 'main message' ||
+                lbl.contains('banner'))) {
+          text = headline;
+        } else if (subtitle.isNotEmpty &&
+            (lbl.contains('sub') ||
+                lbl.contains('message') ||
+                lbl.contains('greeting'))) {
+          text = subtitle;
+        } else {
+          text = zone.customText ?? zone.label;
+        }
         break;
     }
 
@@ -291,13 +400,7 @@ class TemplatePoster extends StatelessWidget {
                 children: [
                   Positioned.fill(
                     child: hasBackground
-                        ? Image.network(
-                            backgroundImageUrl!,
-                            fit: BoxFit.fill,
-                            errorBuilder: (context, error, stackTrace) => Container(
-                              color: Color(background),
-                            ),
-                          )
+                        ? _buildPosterBackground(backgroundImageUrl!, background)
                         : Container(color: Color(background)),
                   ),
                   if (hasSlots) ...[
@@ -305,8 +408,8 @@ class TemplatePoster extends StatelessWidget {
                       Positioned(
                         left: w * (zone.x / 100),
                         top: h * (zone.y / 100),
-                        width: (w * (zone.width / 100)).clamp(10.0, w),
-                        height: (h * (zone.height / 100)).clamp(10.0, h),
+                        width: (w * (zone.width / 100)).clamp(1.0, w),
+                        height: (h * (zone.height / 100)).clamp(1.0, h),
                         child: _buildSlotZoneWidget(zone, w, h),
                       ),
                   ] else ...[
@@ -1114,10 +1217,14 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                         ? widget.template.headline
                         : _headline.text,
                     subtitle: _subtitle.text,
-                    businessName: _businessName.text,
+                    businessName: _businessName.text.isNotEmpty
+                        ? _businessName.text
+                        : widget.preferences.businessName,
                     background: _background,
                     foreground: _foreground,
                     icon: widget.template.icon,
+                    backgroundImageUrl: widget.template.backgroundImageUrl,
+                    slotZones: widget.template.slotZones,
                   ),
                 ),
               ),
