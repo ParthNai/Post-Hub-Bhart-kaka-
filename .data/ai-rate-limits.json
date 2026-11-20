@@ -1,0 +1,215 @@
+{
+  "summary": {
+    "activePolicies": 5,
+    "protectedEndpoints": 8,
+    "requestsCurrentlyThrottled": 12,
+    "rateLimitEvents": 48
+  },
+  "policies": [
+    {
+      "id": "POL-001",
+      "name": "Global Rate Limit",
+      "scope": "Global",
+      "endpoint": "/api/generate-image",
+      "requestLimit": 1000,
+      "timeWindow": "1 Hour",
+      "timeWindowSeconds": 3600,
+      "burstAllowance": 100,
+      "enforcementMode": "Throttling (Queue)",
+      "status": "Active",
+      "enabled": true,
+      "lastUpdated": "Nov 19, 2025, 10:30 AM",
+      "updatedBy": "Parth Admin"
+    },
+    {
+      "id": "POL-002",
+      "name": "Per User Limit",
+      "scope": "Per User",
+      "endpoint": "/api/generate-image",
+      "requestLimit": 100,
+      "timeWindow": "1 Hour",
+      "timeWindowSeconds": 3600,
+      "burstAllowance": 20,
+      "enforcementMode": "Throttling (Queue)",
+      "status": "Active",
+      "enabled": true,
+      "lastUpdated": "Nov 19, 2025, 09:45 AM",
+      "updatedBy": "Parth Admin"
+    },
+    {
+      "id": "POL-003",
+      "name": "Premium Plan Limit",
+      "scope": "Per Subscription Plan",
+      "endpoint": "/api/generate-image",
+      "requestLimit": 2000,
+      "timeWindow": "1 Hour",
+      "timeWindowSeconds": 3600,
+      "burstAllowance": 200,
+      "enforcementMode": "Throttling (Queue)",
+      "status": "Active",
+      "enabled": true,
+      "lastUpdated": "Nov 19, 2025, 09:30 AM",
+      "updatedBy": "Parth Admin"
+    },
+    {
+      "id": "POL-004",
+      "name": "Per Provider Limit",
+      "scope": "Per Provider",
+      "endpoint": "/api/generate-image",
+      "requestLimit": 500,
+      "timeWindow": "1 Hour",
+      "timeWindowSeconds": 3600,
+      "burstAllowance": 50,
+      "enforcementMode": "Throttling (Queue)",
+      "status": "Paused",
+      "enabled": false,
+      "lastUpdated": "Nov 19, 2025, 08:20 AM",
+      "updatedBy": "Parth Admin"
+    },
+    {
+      "id": "POL-005",
+      "name": "Burst Protection",
+      "scope": "Per Endpoint",
+      "endpoint": "/api/generate-image",
+      "requestLimit": 200,
+      "timeWindow": "5 Minutes",
+      "timeWindowSeconds": 300,
+      "burstAllowance": 50,
+      "enforcementMode": "Reject Request (HTTP 429)",
+      "status": "Active",
+      "enabled": true,
+      "lastUpdated": "Nov 19, 2025, 08:15 AM",
+      "updatedBy": "Parth Admin"
+    }
+  ],
+  "planLimits": [
+    {
+      "id": "card_free",
+      "title": "Free Plan Limits",
+      "badge": "Inherited",
+      "badgeType": "purple",
+      "features": [
+        "100 requests/hour",
+        "10 concurrent",
+        "Basic models"
+      ]
+    },
+    {
+      "id": "card_paid",
+      "title": "Paid Plan Limits",
+      "badge": "Inherited",
+      "badgeType": "purple",
+      "features": [
+        "2,000 requests/hour",
+        "50 concurrent",
+        "Premium models"
+      ]
+    },
+    {
+      "id": "card_user_overrides",
+      "title": "Individual User Overrides",
+      "badge": "None",
+      "badgeType": "gray",
+      "features": [
+        "No custom limits for selected users"
+      ]
+    },
+    {
+      "id": "card_admin_exemptions",
+      "title": "Administrative Exemptions",
+      "badge": "1 Active",
+      "badgeType": "green",
+      "features": [
+        "Internal team accounts are exempted"
+      ]
+    }
+  ],
+  "providerRateLimits": [
+    {
+      "provider": "OpenAI",
+      "model": "GPT-4o",
+      "requestsPerMinute": "Unavailable",
+      "concurrentRequests": "Unavailable",
+      "providerQuota": "Unavailable",
+      "currentUsage": "Unavailable",
+      "configurationSource": "Default",
+      "status": "Active"
+    },
+    {
+      "provider": "Gemini",
+      "model": "Gemini 1.5 Pro",
+      "requestsPerMinute": "Unavailable",
+      "concurrentRequests": "Unavailable",
+      "providerQuota": "Unavailable",
+      "currentUsage": "Unavailable",
+      "configurationSource": "Default",
+      "status": "Active"
+    },
+    {
+      "provider": "Stability AI",
+      "model": "Stable Diffusion XL",
+      "requestsPerMinute": "Unavailable",
+      "concurrentRequests": "Unavailable",
+      "providerQuota": "Unavailable",
+      "currentUsage": "Unavailable",
+      "configurationSource": "Default",
+      "status": "Limited"
+    }
+  ],
+  "throttlingBehavior": {
+    "selectedBehavior": "Reject Request",
+    "http429Title": "Too Many Requests",
+    "http429Message": "Your request has been rate limited. Please try again later.",
+    "cooldownDurationMinutes": 15,
+    "retryAfterSeconds": 60
+  },
+  "eventHistory": [
+    {
+      "id": "EVT-1001",
+      "timestamp": "Nov 19, 2025, 10:46 AM",
+      "userClientReference": "user_2847",
+      "endpoint": "/api/generate-image",
+      "appliedPolicy": "Global Rate Limit",
+      "requestCount": 1001,
+      "enforcementAction": "Throttled",
+      "relatedRequestId": "REQ-4587"
+    },
+    {
+      "id": "EVT-1002",
+      "timestamp": "Nov 19, 2025, 10:40 AM",
+      "userClientReference": "user_1293",
+      "endpoint": "/api/generate-image",
+      "appliedPolicy": "Per User Limit",
+      "requestCount": 101,
+      "enforcementAction": "Delayed",
+      "relatedRequestId": "REQ-4586"
+    },
+    {
+      "id": "EVT-1003",
+      "timestamp": "Nov 19, 2025, 10:35 AM",
+      "userClientReference": "user_7721",
+      "endpoint": "/api/generate-image",
+      "appliedPolicy": "Burst Protection",
+      "requestCount": 201,
+      "enforcementAction": "Rejected",
+      "relatedRequestId": "REQ-4585"
+    }
+  ],
+  "auditHistory": [
+    {
+      "id": "AUD-POL-01",
+      "timestamp": "Nov 19, 2025, 10:30 AM",
+      "adminName": "Parth Admin",
+      "action": "Updated Global Rate Limit",
+      "details": "Configured request limit to 1,000 / 1 Hour with burst 100"
+    },
+    {
+      "id": "AUD-POL-02",
+      "timestamp": "Nov 19, 2025, 08:20 AM",
+      "adminName": "Parth Admin",
+      "action": "Paused Per Provider Limit",
+      "details": "Temporarily paused Per Provider Limit policy for maintenance"
+    }
+  ],
+  "lastUpdated": "Nov 19, 2025, 10:30 AM"
+}
