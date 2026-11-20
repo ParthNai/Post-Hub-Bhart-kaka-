@@ -64,9 +64,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     if (!isCollapsed) return;
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
     }
-    setIsHovered(true);
+    // Subtle 50ms entrance delay prevents accidental opening during rapid cursor sweeps
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHovered(true);
+    }, 50);
   };
 
   const handleMouseLeave = () => {
@@ -74,9 +76,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
     }
+    // Graceful 180ms exit delay prevents premature collapsing
     hoverTimeoutRef.current = setTimeout(() => {
       setIsHovered(false);
-    }, 140);
+    }, 180);
   };
 
   React.useEffect(() => {
@@ -131,9 +134,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           top: 0,
           bottom: 0,
           zIndex: isCollapsed && isHovered ? 55 : 45,
-          transition: "width 0.26s cubic-bezier(0.4, 0, 0.2, 1), transform 0.26s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.26s ease",
+          transition: "width 0.28s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.28s cubic-bezier(0.2, 0, 0, 1)",
           boxShadow: isCollapsed && isHovered ? "6px 0 28px rgba(36, 33, 58, 0.16)" : "2px 0 16px rgba(36, 33, 58, 0.04)",
           overflowX: "hidden",
+          willChange: "width, box-shadow",
         }}
         className={`admin-sidebar ${isCollapsed ? "collapsed rail-mode" : "expanded"} ${isActuallyMobileOpen ? "open" : ""} ${isHovered ? "hover-expanded" : ""}`}
       >
@@ -143,23 +147,80 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             height: "72px",
             display: "flex",
             alignItems: "center",
-            justifyContent: isVisuallyExpanded ? "space-between" : "center",
-            padding: isVisuallyExpanded ? "0 18px" : "0 8px",
+            justifyContent: "space-between",
+            padding: "0 14px",
             borderBottom: "1px solid var(--border)",
-            transition: "padding 0.2s ease",
+            overflow: "hidden",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: isVisuallyExpanded ? "flex-start" : "center", width: isVisuallyExpanded ? "auto" : "auto" }}>
+          <div style={{ display: "flex", alignItems: "center", minWidth: 0 }}>
             <Link
               href="/admin/dashboard"
-              title={isVisuallyExpanded ? "Post Hub Dashboard" : "Post Hub - Hover to expand"}
-              style={{ display: "inline-flex", alignItems: "center" }}
+              title="Post Hub Dashboard"
+              style={{ display: "inline-flex", alignItems: "center", textDecoration: "none" }}
             >
-              <BrandLogo size="sm" iconOnly={!isVisuallyExpanded} />
+              <div
+                style={{
+                  width: "36px",
+                  height: "36px",
+                  minWidth: "36px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <BrandLogo size="sm" iconOnly={true} />
+              </div>
+              <div
+                style={{
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                  maxWidth: isVisuallyExpanded ? "120px" : "0px",
+                  opacity: isVisuallyExpanded ? 1 : 0,
+                  transform: isVisuallyExpanded ? "translateX(0)" : "translateX(-8px)",
+                  transition: "max-width 0.28s cubic-bezier(0.2, 0, 0, 1), opacity 0.22s cubic-bezier(0.2, 0, 0, 1), transform 0.25s cubic-bezier(0.2, 0, 0, 1)",
+                  display: "inline-flex",
+                  alignItems: "baseline",
+                  marginLeft: "8px",
+                }}
+              >
+                <span
+                  style={{
+                    color: "var(--text, #24213A)",
+                    fontSize: "19px",
+                    letterSpacing: "-0.03em",
+                    marginRight: "3px",
+                    fontWeight: 700,
+                  }}
+                >
+                  Post
+                </span>
+                <span
+                  style={{
+                    color: "var(--primary, #7956C9)",
+                    fontSize: "19px",
+                    letterSpacing: "-0.03em",
+                    fontWeight: 700,
+                  }}
+                >
+                  Hub
+                </span>
+              </div>
             </Link>
           </div>
 
-          <div style={{ display: isVisuallyExpanded ? "flex" : "none", alignItems: "center", gap: "4px" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              opacity: isVisuallyExpanded ? 1 : 0,
+              pointerEvents: isVisuallyExpanded ? "auto" : "none",
+              transform: isVisuallyExpanded ? "scale(1)" : "scale(0.85)",
+              transition: "opacity 0.2s cubic-bezier(0.2, 0, 0, 1), transform 0.2s cubic-bezier(0.2, 0, 0, 1)",
+            }}
+          >
             {/* Desktop Pin / Collapse Button */}
             <button
               type="button"
@@ -209,11 +270,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             flex: 1,
             overflowY: "auto",
             overflowX: "hidden",
-            padding: isVisuallyExpanded ? "8px 12px" : "12px 6px",
+            padding: "10px 8px",
             display: "flex",
             flexDirection: "column",
-            gap: "3px",
-            transition: "padding 0.2s ease",
+            gap: "4px",
           }}
         >
           {ADMIN_NAV_ITEMS.map((item: NavItem) => {
@@ -239,70 +299,101 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: isVisuallyExpanded ? "space-between" : "center",
-                    gap: isVisuallyExpanded ? "12px" : "0",
-                    padding: isVisuallyExpanded ? "9px 14px" : "10px 0",
-                    width: isVisuallyExpanded ? "100%" : "48px",
-                    height: isVisuallyExpanded ? "auto" : "44px",
-                    margin: isVisuallyExpanded ? "0" : "0 auto",
-                    borderRadius: isVisuallyExpanded ? "8px" : "10px",
+                    justifyContent: "flex-start",
+                    width: "100%",
+                    height: "42px",
+                    boxSizing: "border-box",
+                    padding: "0 6px",
+                    borderRadius: "8px",
                     fontSize: "13.5px",
                     fontWeight: (isActive || isSubActive || isTemplatesActive) ? 600 : 500,
                     color: (isActive || isSubActive || isTemplatesActive) ? "var(--primary)" : "var(--text-muted)",
                     backgroundColor: (isActive && !hasSub) ? "var(--secondary)" : (hasSub && isSubActive && pathname === "/admin/templates") ? "var(--secondary)" : (!isVisuallyExpanded && (isActive || isSubActive || isTemplatesActive)) ? "var(--secondary)" : "transparent",
-                    transition: "all 0.15s ease",
+                    transition: "background-color 0.15s ease, color 0.15s ease",
                     textDecoration: "none",
+                    overflow: "hidden",
                   }}
                   className={`nav-link-item ${isActive || isSubActive || isTemplatesActive ? "active" : ""} ${!isVisuallyExpanded ? "icon-only-item" : ""}`}
-                  title={item.label}
+                  title={!isVisuallyExpanded ? item.label : undefined}
                 >
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: isVisuallyExpanded ? "flex-start" : "center", gap: isVisuallyExpanded ? "12px" : "0", minWidth: 0, width: isVisuallyExpanded ? "auto" : "100%" }}>
+                  {/* Stable Icon Container - Never shifts */}
+                  <div
+                    style={{
+                      width: "36px",
+                      height: "36px",
+                      minWidth: "36px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
                     <Icon
-                      size={isVisuallyExpanded ? 18 : 20}
+                      size={19}
                       style={{
                         color: (isActive || isSubActive || isTemplatesActive) ? "var(--primary)" : "var(--text-muted)",
                         flexShrink: 0,
+                        transition: "color 0.15s ease",
                       }}
                       strokeWidth={(isActive || isSubActive || isTemplatesActive) ? 2.3 : 1.9}
                     />
-                    {isVisuallyExpanded && (
-                      <span
-                        style={{
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {item.label}
-                      </span>
-                    )}
                   </div>
-                  {hasSub && isVisuallyExpanded && (
-                    <button
-                      type="button"
-                      onClick={(e) => toggleSubmenu(item.id, e)}
+
+                  {/* Smooth Label and Submenu Toggle Container */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flex: 1,
+                      minWidth: 0,
+                      overflow: "hidden",
+                      marginLeft: "6px",
+                      opacity: isVisuallyExpanded ? 1 : 0,
+                      maxWidth: isVisuallyExpanded ? "180px" : "0px",
+                      transform: isVisuallyExpanded ? "translateX(0)" : "translateX(-8px)",
+                      transition: "max-width 0.28s cubic-bezier(0.2, 0, 0, 1), opacity 0.22s cubic-bezier(0.2, 0, 0, 1), transform 0.25s cubic-bezier(0.2, 0, 0, 1)",
+                    }}
+                  >
+                    <span
                       style={{
-                        background: "none",
-                        border: "none",
-                        padding: "2px",
-                        cursor: "pointer",
-                        color: (isActive || isSubActive || isTemplatesActive) ? "var(--primary)" : "var(--text-muted)",
-                        display: "flex",
-                        alignItems: "center",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        fontSize: "13.5px",
+                        lineHeight: 1,
                       }}
                     >
-                      <ChevronDown
-                        size={15}
+                      {item.label}
+                    </span>
+                    {hasSub && (
+                      <button
+                        type="button"
+                        onClick={(e) => toggleSubmenu(item.id, e)}
                         style={{
-                          transform: isExpanded ? "rotate(0deg)" : "rotate(-90deg)",
-                          transition: "transform 0.2s ease",
+                          background: "none",
+                          border: "none",
+                          padding: "2px 4px",
+                          cursor: "pointer",
+                          color: (isActive || isSubActive || isTemplatesActive) ? "var(--primary)" : "var(--text-muted)",
+                          display: "flex",
+                          alignItems: "center",
                         }}
-                      />
-                    </button>
-                  )}
+                      >
+                        <ChevronDown
+                          size={15}
+                          style={{
+                            transform: isExpanded ? "rotate(0deg)" : "rotate(-90deg)",
+                            transition: "transform 0.2s ease",
+                          }}
+                        />
+                      </button>
+                    )}
+                  </div>
                 </Link>
 
-                {hasSub && isExpanded && isVisuallyExpanded && (
+                {/* Submenu with height and opacity transition */}
+                {hasSub && (
                   <div
                     style={{
                       display: "flex",
@@ -310,7 +401,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                       gap: "2px",
                       marginTop: "2px",
                       marginBottom: "4px",
-                      paddingLeft: "24px",
+                      paddingLeft: "44px",
+                      maxHeight: hasSub && isExpanded && isVisuallyExpanded ? "160px" : "0px",
+                      opacity: hasSub && isExpanded && isVisuallyExpanded ? 1 : 0,
+                      overflow: "hidden",
+                      transform: hasSub && isExpanded && isVisuallyExpanded ? "translateY(0)" : "translateY(-4px)",
+                      transition: "max-height 0.26s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease, transform 0.22s ease",
                     }}
                   >
                     {item.subItems!.map((sub) => {
@@ -335,6 +431,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                             backgroundColor: isChildActive ? "var(--secondary)" : "transparent",
                             textDecoration: "none",
                             transition: "all 0.15s ease",
+                            whiteSpace: "nowrap",
                           }}
                         >
                           <span
@@ -360,22 +457,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         {/* Sidebar Footer with Workspace info */}
         <div
           style={{
-            padding: isVisuallyExpanded ? "14px 18px" : "12px 6px",
+            padding: "14px 12px",
             borderTop: "1px solid var(--border)",
             display: "flex",
-            flexDirection: isVisuallyExpanded ? "row" : "column",
             alignItems: "center",
-            justifyContent: isVisuallyExpanded ? "space-between" : "center",
+            justifyContent: "space-between",
             backgroundColor: "var(--bg)",
-            gap: isVisuallyExpanded ? "0" : "8px",
-            transition: "padding 0.2s ease",
+            overflow: "hidden",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: isVisuallyExpanded ? "flex-start" : "center", gap: "10px", minWidth: 0, width: isVisuallyExpanded ? "auto" : "100%" }}>
+          <div style={{ display: "flex", alignItems: "center", minWidth: 0, flex: 1 }}>
             <div
               style={{
-                width: "34px",
-                height: "34px",
+                width: "36px",
+                height: "36px",
+                minWidth: "36px",
                 borderRadius: "50%",
                 backgroundColor: "#DCD6E8",
                 display: "flex",
@@ -390,38 +486,54 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             >
               A
             </div>
-            {isVisuallyExpanded && (
-              <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-                <span
-                  style={{
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    color: "var(--text)",
-                    lineHeight: 1.2,
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  Admin
-                </span>
-                <span
-                  style={{
-                    fontSize: "11px",
-                    color: "var(--text-muted)",
-                    lineHeight: 1.2,
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  System Administrator
-                </span>
-              </div>
-            )}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                minWidth: 0,
+                marginLeft: "10px",
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+                opacity: isVisuallyExpanded ? 1 : 0,
+                maxWidth: isVisuallyExpanded ? "130px" : "0px",
+                transform: isVisuallyExpanded ? "translateX(0)" : "translateX(-8px)",
+                transition: "max-width 0.28s cubic-bezier(0.2, 0, 0, 1), opacity 0.22s cubic-bezier(0.2, 0, 0, 1), transform 0.25s cubic-bezier(0.2, 0, 0, 1)",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  color: "var(--text)",
+                  lineHeight: 1.2,
+                  textOverflow: "ellipsis",
+                  overflow: "hidden",
+                }}
+              >
+                Admin
+              </span>
+              <span
+                style={{
+                  fontSize: "11px",
+                  color: "var(--text-muted)",
+                  lineHeight: 1.2,
+                  textOverflow: "ellipsis",
+                  overflow: "hidden",
+                }}
+              >
+                System Administrator
+              </span>
+            </div>
           </div>
 
-          {isVisuallyExpanded ? (
+          <div
+            style={{
+              opacity: isVisuallyExpanded ? 1 : 0,
+              pointerEvents: isVisuallyExpanded ? "auto" : "none",
+              transform: isVisuallyExpanded ? "scale(1)" : "scale(0.85)",
+              transition: "opacity 0.2s cubic-bezier(0.2, 0, 0, 1), transform 0.2s cubic-bezier(0.2, 0, 0, 1)",
+            }}
+          >
             <Link
               href="/admin/settings"
               aria-label="Admin Profile Settings"
@@ -436,29 +548,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             >
               <ChevronDown size={15} />
             </Link>
-          ) : (
-            <button
-              type="button"
-              onClick={toggleSidebar}
-              className="sidebar-rail-expand-btn"
-              title="Expand sidebar navigation"
-              aria-label="Expand sidebar navigation"
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: "6px",
-                borderRadius: "6px",
-                color: "var(--text-muted)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "all 0.15s ease",
-              }}
-            >
-              <PanelLeftClose size={16} style={{ transform: "rotate(180deg)" }} />
-            </button>
-          )}
+          </div>
         </div>
       </aside>
 
