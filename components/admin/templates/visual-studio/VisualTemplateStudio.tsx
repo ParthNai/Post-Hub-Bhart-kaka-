@@ -59,7 +59,16 @@ import {
   UserPlus,
   RefreshCw,
   Crop,
+  PanelBottom,
 } from "lucide-react";
+
+import {
+  BOTTOMS_AND_FRAMES_CATALOG,
+  BottomKind,
+  BottomPresetItem,
+  stripExistingBottomZones,
+  isZoneFromBottomOrFrame,
+} from "./BottomsAndFramesCatalog";
 
 import {
   parsePostHubSpec,
@@ -361,9 +370,16 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
 
   // Left dock navigation
   const [leftTab, setLeftTab] = useState<
-    "artworks" | "text" | "photos" | "shapes" | "elements" | "contact" | "layers"
+    "artworks" | "text" | "photos" | "shapes" | "bottoms" | "elements" | "contact" | "layers"
   >("artworks");
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
+
+  // Bottoms & Frames studio state
+  const [bottomSubTab, setBottomSubTab] = useState<BottomKind>("only_bottom");
+  const [replaceExistingBottom, setReplaceExistingBottom] = useState<boolean>(true);
+  const [bottomStartY, setBottomStartY] = useState<number>(88);
+  const [bottomAvatarSide, setBottomAvatarSide] = useState<"left" | "right" | "none">("left");
+  const [bottomTagFilter, setBottomTagFilter] = useState<string>("All");
 
   // Right sidebar pane mode
   const [rightTab, setRightTab] = useState<"inspector" | "simulator">("inspector");
@@ -842,6 +858,42 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
     pushHistory([...zones, ...contactBarZones]);
     setSelectedZoneId(contactBarZones[0].id);
     setToastNotification("✨ Smart 4-Item Contact Footer added!");
+  };
+
+  // 1-Click Apply Bottom or Bottom with Frame preset
+  const handleApplyBottomPreset = (preset: BottomPresetItem) => {
+    let baseZones = zones;
+    if (replaceExistingBottom) {
+      baseZones = stripExistingBottomZones(zones);
+    }
+    const newZones = preset.generateZones({
+      startY: bottomStartY,
+      avatarSide: bottomAvatarSide,
+      primaryColor: primaryColor || "#0F172A",
+      accentColor: accentColor || preset.accentColor,
+    });
+    pushHistory([...baseZones, ...newZones]);
+    if (newZones.length > 0) {
+      setSelectedZoneId(newZones[0].id);
+    }
+    setToastNotification(
+      preset.kind === "only_bottom"
+        ? `Applied "${preset.name}" bottom strip!`
+        : `Applied "${preset.name}" frame & bottom!`
+    );
+  };
+
+  // Remove applied bottoms / frames
+  const handleRemoveExistingBottom = () => {
+    const stripped = stripExistingBottomZones(zones);
+    const count = zones.length - stripped.length;
+    if (count === 0) {
+      setToastNotification("No bottom or frame zones found to remove.");
+      return;
+    }
+    pushHistory(stripped);
+    setSelectedZoneId(null);
+    setToastNotification(`🗑️ Removed ${count} bottom / frame elements!`);
   };
 
   // Insert Ready Slogan
@@ -1379,8 +1431,8 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
               { id: "text", label: "Text", icon: <Type size={18} /> },
               { id: "photos", label: "Photos", icon: <Camera size={18} /> },
               { id: "shapes", label: "Shapes", icon: <Square size={18} /> },
+              { id: "bottoms", label: "Bottoms", icon: <PanelBottom size={18} /> },
               { id: "elements", label: "Assets", icon: <Sparkle size={18} /> },
-              { id: "contact", label: "Contact", icon: <Phone size={18} /> },
               { id: "layers", label: "Layers", icon: <Layers size={18} /> },
             ].map((t) => {
               const isActive = leftTab === t.id && isDrawerOpen;
@@ -2407,38 +2459,318 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                 </div>
               )}
 
-              {/* Tab 5: Smart Contact Bar */}
-              {leftTab === "contact" && (
+              {/* Tab 5: Bottoms & Frames (The Only Bottoms + Bottoms with Frames) */}
+              {(leftTab === "bottoms" || leftTab === "contact") && (
                 <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "14px" }}>
                   <div>
-                    <span style={{ fontSize: "13px", fontWeight: 700, color: "#FFFFFF" }}>Contact Bar Builder</span>
+                    <span style={{ fontSize: "13px", fontWeight: 700, color: "#FFFFFF" }}>Bottoms & Frames</span>
                     <p style={{ fontSize: "11px", color: "#A099B5", margin: "2px 0 0 0" }}>
-                      Complete footer strip for user contact details.
+                      Footer branding strips & full poster frames with integrated contact slots.
                     </p>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={handleAddSmartContactBar}
+                  {/* Segmented Mode Selector: "The Only Bottoms" vs "Bottoms with Frames" */}
+                  <div
                     style={{
-                      padding: "12px",
-                      borderRadius: "8px",
-                      background: "linear-gradient(135deg, #7956C9 0%, #3B82F6 100%)",
-                      border: "none",
-                      color: "#FFFFFF",
-                      fontSize: "12px",
-                      fontWeight: 700,
-                      cursor: "pointer",
                       display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "6px",
-                      boxShadow: "0 2px 8px rgba(59, 130, 246, 0.3)",
+                      backgroundColor: "rgba(0, 0, 0, 0.4)",
+                      padding: "3px",
+                      borderRadius: "8px",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
                     }}
                   >
-                    <Plus size={14} />
-                    <span>+ Add 4-Item Contact Footer</span>
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => setBottomSubTab("only_bottom")}
+                      style={{
+                        flex: 1,
+                        padding: "7px 4px",
+                        borderRadius: "6px",
+                        border: "none",
+                        backgroundColor: bottomSubTab === "only_bottom" ? "#7956C9" : "transparent",
+                        color: bottomSubTab === "only_bottom" ? "#FFFFFF" : "#A099B5",
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "4px",
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      <span>📌 The Only Bottoms</span>
+                      <span
+                        style={{
+                          fontSize: "9px",
+                          padding: "1px 5px",
+                          borderRadius: "10px",
+                          backgroundColor:
+                            bottomSubTab === "only_bottom"
+                              ? "rgba(255,255,255,0.25)"
+                              : "rgba(255,255,255,0.08)",
+                          color: "#FFF",
+                        }}
+                      >
+                        {BOTTOMS_AND_FRAMES_CATALOG.filter((b) => b.kind === "only_bottom").length}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setBottomSubTab("bottom_with_frame")}
+                      style={{
+                        flex: 1,
+                        padding: "7px 4px",
+                        borderRadius: "6px",
+                        border: "none",
+                        backgroundColor: bottomSubTab === "bottom_with_frame" ? "#7956C9" : "transparent",
+                        color: bottomSubTab === "bottom_with_frame" ? "#FFFFFF" : "#A099B5",
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "4px",
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      <span>🖼️ Bottoms with Frames</span>
+                      <span
+                        style={{
+                          fontSize: "9px",
+                          padding: "1px 5px",
+                          borderRadius: "10px",
+                          backgroundColor:
+                            bottomSubTab === "bottom_with_frame"
+                              ? "rgba(255,255,255,0.25)"
+                              : "rgba(255,255,255,0.08)",
+                          color: "#FFF",
+                        }}
+                      >
+                        {BOTTOMS_AND_FRAMES_CATALOG.filter((b) => b.kind === "bottom_with_frame").length}
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Actions & Replace Options */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "6px" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "11px", color: "#C4BFD6", cursor: "pointer" }}>
+                      <input
+                        type="checkbox"
+                        checked={replaceExistingBottom}
+                        onChange={(e) => setReplaceExistingBottom(e.target.checked)}
+                        style={{ accentColor: "#7956C9" }}
+                      />
+                      <span>Replace existing bottom</span>
+                    </label>
+
+                    <button
+                      type="button"
+                      onClick={handleRemoveExistingBottom}
+                      style={{
+                        padding: "4px 8px",
+                        borderRadius: "5px",
+                        border: "1px solid rgba(239, 68, 68, 0.4)",
+                        backgroundColor: "rgba(239, 68, 68, 0.15)",
+                        color: "#FCA5A5",
+                        fontSize: "10.5px",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                      }}
+                      title="Clear applied bottom/frame zones from canvas"
+                    >
+                      <Trash2 size={11} />
+                      <span>Clear</span>
+                    </button>
+                  </div>
+
+                  {/* Fine-Tuning Controls (Avatar placement & Y height) */}
+                  <div
+                    style={{
+                      padding: "10px",
+                      borderRadius: "6px",
+                      backgroundColor: "rgba(255, 255, 255, 0.04)",
+                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "8px",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span style={{ fontSize: "10.5px", color: "#A099B5" }}>Avatar Placement:</span>
+                      <div style={{ display: "flex", gap: "3px" }}>
+                        {(["left", "right", "none"] as const).map((side) => (
+                          <button
+                            key={side}
+                            type="button"
+                            onClick={() => setBottomAvatarSide(side)}
+                            style={{
+                              padding: "2px 8px",
+                              borderRadius: "4px",
+                              border: "none",
+                              backgroundColor: bottomAvatarSide === side ? "rgba(121, 86, 201, 0.5)" : "rgba(255,255,255,0.06)",
+                              color: bottomAvatarSide === side ? "#D8B4FE" : "#8A849C",
+                              fontSize: "10px",
+                              fontWeight: 600,
+                              textTransform: "capitalize",
+                              cursor: "pointer",
+                            }}
+                          >
+                            {side}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
+                      <span style={{ fontSize: "10.5px", color: "#A099B5" }}>Bottom Height (Y%):</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <input
+                          type="range"
+                          min="78"
+                          max="94"
+                          value={bottomStartY}
+                          onChange={(e) => setBottomStartY(parseInt(e.target.value, 10))}
+                          style={{ width: "85px", accentColor: "#7956C9" }}
+                        />
+                        <span style={{ fontSize: "10px", color: "#E2E8F0", width: "26px", textAlign: "right" }}>
+                          {bottomStartY}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Filter Tags */}
+                  <div style={{ display: "flex", gap: "4px", overflowX: "auto", paddingBottom: "2px" }}>
+                    {["All", "Corporate", "Festive", "Political", "Minimal", "Tech"].map((tag) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => setBottomTagFilter(tag)}
+                        style={{
+                          padding: "3px 8px",
+                          borderRadius: "12px",
+                          border: "none",
+                          backgroundColor: bottomTagFilter === tag ? "#7956C9" : "rgba(255, 255, 255, 0.06)",
+                          color: bottomTagFilter === tag ? "#FFFFFF" : "#A099B5",
+                          fontSize: "10px",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Preset Cards List */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {BOTTOMS_AND_FRAMES_CATALOG.filter((item) => {
+                      const matchesKind = item.kind === bottomSubTab;
+                      const matchesTag = bottomTagFilter === "All" || item.tag === bottomTagFilter;
+                      return matchesKind && matchesTag;
+                    }).map((item) => (
+                      <div
+                        key={item.id}
+                        style={{
+                          borderRadius: "8px",
+                          backgroundColor: "rgba(255, 255, 255, 0.05)",
+                          border: "1px solid rgba(255, 255, 255, 0.1)",
+                          overflow: "hidden",
+                          transition: "border-color 0.15s ease",
+                        }}
+                      >
+                        {/* Visual SVG Thumbnail */}
+                        <div style={{ padding: "6px 8px", backgroundColor: "rgba(0, 0, 0, 0.25)" }}>
+                          {item.previewSvg(primaryColor, accentColor)}
+                        </div>
+
+                        {/* Details & Apply Button */}
+                        <div style={{ padding: "8px 10px", display: "flex", flexDirection: "column", gap: "6px" }}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <span style={{ fontSize: "11.5px", fontWeight: 700, color: "#FFFFFF" }}>{item.name}</span>
+                            <span
+                              style={{
+                                fontSize: "9px",
+                                padding: "2px 6px",
+                                borderRadius: "4px",
+                                backgroundColor: "rgba(121, 86, 201, 0.25)",
+                                color: "#D8B4FE",
+                                fontWeight: 700,
+                              }}
+                            >
+                              {item.tag}
+                            </span>
+                          </div>
+                          <p style={{ fontSize: "10px", color: "#A099B5", margin: 0, lineHeight: 1.35 }}>
+                            {item.description}
+                          </p>
+
+                          <button
+                            type="button"
+                            onClick={() => handleApplyBottomPreset(item)}
+                            style={{
+                              width: "100%",
+                              padding: "6px 10px",
+                              marginTop: "2px",
+                              borderRadius: "6px",
+                              border: "none",
+                              background:
+                                item.kind === "only_bottom"
+                                  ? "linear-gradient(135deg, #7956C9 0%, #633CAE 100%)"
+                                  : "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
+                              color: "#FFFFFF",
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "5px",
+                              boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+                            }}
+                          >
+                            <Plus size={12} />
+                            <span>
+                              {item.kind === "only_bottom" ? "+ Apply Bottom" : "+ Apply Frame & Bottom"}
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Simple 4-Item Contact Strip button */}
+                  <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "10px", marginTop: "4px" }}>
+                    <button
+                      type="button"
+                      onClick={handleAddSmartContactBar}
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        borderRadius: "6px",
+                        backgroundColor: "rgba(255, 255, 255, 0.06)",
+                        border: "1px dashed rgba(255, 255, 255, 0.2)",
+                        color: "#C4BFD6",
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <Plus size={13} />
+                      <span>+ Add Simple 4-Item Contact Strip</span>
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -3083,7 +3415,8 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                           style={{
                             width: "100%",
                             height: "100%",
-                            backgroundColor: zone.backgroundColor || "rgba(15, 23, 42, 0.75)",
+                            backgroundColor:
+                              zone.backgroundColor !== undefined ? zone.backgroundColor : "rgba(15, 23, 42, 0.75)",
                             borderRadius:
                               zone.shapeType === "circle"
                                 ? "50%"
