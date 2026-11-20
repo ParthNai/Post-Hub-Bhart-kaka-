@@ -35,105 +35,214 @@ export function AuditFiltersToolbar({
   onClearFilters,
 }: AuditFiltersToolbarProps) {
   return (
-    <div className="bg-white p-4 rounded-2xl border border-[#EAE4EE] shadow-2xs mb-6 space-y-3">
-      <div className="flex items-center gap-3 flex-wrap">
+    <div
+      style={{
+        backgroundColor: "#FFFFFF",
+        padding: "16px 20px",
+        borderRadius: "14px",
+        border: "1px solid #EAE4EE",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+        marginBottom: "20px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "12px",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          flexWrap: "wrap",
+        }}
+      >
         {/* Search Transaction ID */}
-        <div className="relative flex-1 min-w-[180px]">
-          <Search className="w-4 h-4 text-[#777184] absolute left-3 top-1/2 -translate-y-1/2" />
+        <div style={{ position: "relative", flex: 1, minWidth: "170px" }}>
+          <Search
+            size={14}
+            color="#777184"
+            style={{
+              position: "absolute",
+              left: "10px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              pointerEvents: "none",
+            }}
+          />
           <input
             type="text"
             value={searchId}
             onChange={(e) => onSearchIdChange(e.target.value)}
             placeholder="Search Transaction ID"
-            className="w-full pl-9 pr-3 py-2 bg-[#FAF7F2] border border-[#EAE4EE] rounded-xl text-xs text-[#24213A] placeholder-[#777184] focus:outline-none focus:border-[#7956C9] focus:bg-white transition-all"
+            style={{
+              width: "100%",
+              paddingLeft: "32px",
+              paddingRight: "12px",
+              paddingTop: "7px",
+              paddingBottom: "7px",
+              backgroundColor: "#FAF7F2",
+              border: "1px solid #EAE4EE",
+              borderRadius: "8px",
+              fontSize: "12px",
+              color: "#24213A",
+              outline: "none",
+              boxSizing: "border-box",
+            }}
           />
         </div>
 
         {/* Search User */}
-        <div className="relative flex-1 min-w-[180px]">
-          <Search className="w-4 h-4 text-[#777184] absolute left-3 top-1/2 -translate-y-1/2" />
+        <div style={{ position: "relative", flex: 1, minWidth: "170px" }}>
+          <Search
+            size={14}
+            color="#777184"
+            style={{
+              position: "absolute",
+              left: "10px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              pointerEvents: "none",
+            }}
+          />
           <input
             type="text"
             value={searchUser}
             onChange={(e) => onSearchUserChange(e.target.value)}
             placeholder="Search User"
-            className="w-full pl-9 pr-3 py-2 bg-[#FAF7F2] border border-[#EAE4EE] rounded-xl text-xs text-[#24213A] placeholder-[#777184] focus:outline-none focus:border-[#7956C9] focus:bg-white transition-all"
+            style={{
+              width: "100%",
+              paddingLeft: "32px",
+              paddingRight: "12px",
+              paddingTop: "7px",
+              paddingBottom: "7px",
+              backgroundColor: "#FAF7F2",
+              border: "1px solid #EAE4EE",
+              borderRadius: "8px",
+              fontSize: "12px",
+              color: "#24213A",
+              outline: "none",
+              boxSizing: "border-box",
+            }}
           />
         </div>
 
         {/* Transaction Type Dropdown */}
-        <div className="relative">
-          <select
-            value={selectedType}
-            onChange={(e) => onTypeChange(e.target.value)}
-            className="px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE4EE] rounded-xl text-xs font-semibold text-[#24213A] focus:outline-none focus:border-[#7956C9] cursor-pointer"
-          >
-            <option value="All Types">Transaction Type ▾</option>
-            <option value="Credit Purchase">Credit Purchase</option>
-            <option value="AI Generation Usage">AI Generation Usage</option>
-            <option value="Promotional Credit">Promotional Credit</option>
-            <option value="Admin Credit Grant">Admin Credit Grant</option>
-            <option value="Credit Reversal">Credit Reversal</option>
-            <option value="Credit Expiry">Credit Expiry</option>
-          </select>
-        </div>
+        <select
+          value={selectedType}
+          onChange={(e) => onTypeChange(e.target.value)}
+          style={{
+            padding: "7px 12px",
+            backgroundColor: "#FAF7F2",
+            border: "1px solid #EAE4EE",
+            borderRadius: "8px",
+            fontSize: "12px",
+            fontWeight: 600,
+            color: "#24213A",
+            outline: "none",
+            cursor: "pointer",
+          }}
+        >
+          <option value="All Types">Transaction Type ▾</option>
+          <option value="Credit Purchase">Credit Purchase</option>
+          <option value="AI Generation Usage">AI Generation Usage</option>
+          <option value="Promotional Credit">Promotional Credit</option>
+          <option value="Admin Credit Grant">Admin Credit Grant</option>
+          <option value="Credit Reversal">Credit Reversal</option>
+          <option value="Credit Expiry">Credit Expiry</option>
+        </select>
 
         {/* Transaction Status Dropdown */}
-        <div className="relative">
-          <select
-            value={selectedStatus}
-            onChange={(e) => onStatusChange(e.target.value)}
-            className="px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE4EE] rounded-xl text-xs font-semibold text-[#24213A] focus:outline-none focus:border-[#7956C9] cursor-pointer"
-          >
-            <option value="All Statuses">Transaction Status ▾</option>
-            <option value="Successful">Successful</option>
-            <option value="Reversed">Reversed</option>
-            <option value="Pending">Pending</option>
-            <option value="Failed">Failed</option>
-          </select>
-        </div>
+        <select
+          value={selectedStatus}
+          onChange={(e) => onStatusChange(e.target.value)}
+          style={{
+            padding: "7px 12px",
+            backgroundColor: "#FAF7F2",
+            border: "1px solid #EAE4EE",
+            borderRadius: "8px",
+            fontSize: "12px",
+            fontWeight: 600,
+            color: "#24213A",
+            outline: "none",
+            cursor: "pointer",
+          }}
+        >
+          <option value="All Statuses">Transaction Status ▾</option>
+          <option value="Successful">Successful</option>
+          <option value="Reversed">Reversed</option>
+          <option value="Pending">Pending</option>
+          <option value="Failed">Failed</option>
+        </select>
 
         {/* Credit Source Dropdown */}
-        <div className="relative">
-          <select
-            value={selectedSource}
-            onChange={(e) => onSourceChange(e.target.value)}
-            className="px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE4EE] rounded-xl text-xs font-semibold text-[#24213A] focus:outline-none focus:border-[#7956C9] cursor-pointer"
-          >
-            <option value="All Sources">Credit Source ▾</option>
-            <option value="Razorpay">Razorpay</option>
-            <option value="Generation">Generation</option>
-            <option value="Promo">Promo</option>
-            <option value="Admin">Admin</option>
-            <option value="System">System</option>
-          </select>
-        </div>
+        <select
+          value={selectedSource}
+          onChange={(e) => onSourceChange(e.target.value)}
+          style={{
+            padding: "7px 12px",
+            backgroundColor: "#FAF7F2",
+            border: "1px solid #EAE4EE",
+            borderRadius: "8px",
+            fontSize: "12px",
+            fontWeight: 600,
+            color: "#24213A",
+            outline: "none",
+            cursor: "pointer",
+          }}
+        >
+          <option value="All Sources">Credit Source ▾</option>
+          <option value="Stripe Checkout">Stripe Checkout</option>
+          <option value="PayPal">PayPal</option>
+          <option value="Razorpay">Razorpay</option>
+          <option value="Poster Generation API">Poster Generation API</option>
+          <option value="Promotion Campaign">Promotion Campaign</option>
+          <option value="Admin Console">Admin Console</option>
+          <option value="Support Refund">Support Refund</option>
+        </select>
 
-        {/* Date Range Selector */}
-        <div className="relative">
-          <div className="flex items-center gap-1.5 px-3 py-2 bg-[#FAF7F2] border border-[#EAE4EE] rounded-xl text-xs font-semibold text-[#24213A] cursor-pointer">
-            <Calendar className="w-3.5 h-3.5 text-[#777184]" />
-            <select
-              value={selectedDateRange}
-              onChange={(e) => onDateRangeChange(e.target.value)}
-              className="bg-transparent focus:outline-none cursor-pointer"
-            >
-              <option value="All Time">Select Date Range ▾</option>
-              <option value="Today">Today (19 Nov)</option>
-              <option value="Last 7 Days">Last 7 Days</option>
-              <option value="Last 30 Days">Last 30 Days</option>
-              <option value="This Month">This Month (Nov 2026)</option>
-            </select>
-          </div>
-        </div>
+        {/* Date Range Dropdown */}
+        <select
+          value={selectedDateRange}
+          onChange={(e) => onDateRangeChange(e.target.value)}
+          style={{
+            padding: "7px 12px",
+            backgroundColor: "#FAF7F2",
+            border: "1px solid #EAE4EE",
+            borderRadius: "8px",
+            fontSize: "12px",
+            fontWeight: 600,
+            color: "#24213A",
+            outline: "none",
+            cursor: "pointer",
+          }}
+        >
+          <option value="All Time">Date Range ▾</option>
+          <option value="Today">Today</option>
+          <option value="Last 7 Days">Last 7 Days</option>
+          <option value="Last 30 Days">Last 30 Days</option>
+          <option value="Last 90 Days">Last 90 Days</option>
+        </select>
 
         {/* Clear Filters Button */}
         <button
+          type="button"
           onClick={onClearFilters}
-          className="flex items-center gap-1.5 px-3.5 py-2 bg-white border border-[#EAE4EE] hover:bg-[#FAF7F2] hover:text-[#7956C9] text-xs font-semibold text-[#24213A] rounded-xl transition-all shadow-2xs cursor-pointer ml-auto"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "5px",
+            padding: "7px 12px",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid #EAE4EE",
+            borderRadius: "8px",
+            fontSize: "12px",
+            fontWeight: 600,
+            color: "#777184",
+            cursor: "pointer",
+          }}
         >
-          <RotateCcw className="w-3.5 h-3.5 text-[#777184]" />
-          <span>Clear Filters</span>
+          <RotateCcw size={12} />
+          <span>Reset</span>
         </button>
       </div>
     </div>

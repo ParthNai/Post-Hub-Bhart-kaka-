@@ -18,7 +18,20 @@ export function TransactionDetailsDrawer({
   const isPositive = transaction.creditChange > 0;
 
   return (
-    <div className="w-full lg:w-[360px] xl:w-[380px] shrink-0 bg-white border border-[#EAE4EE] rounded-2xl p-5 shadow-2xs self-start space-y-5">
+    <div
+      style={{
+        width: "360px",
+        backgroundColor: "#FFFFFF",
+        border: "1px solid #EAE4EE",
+        borderRadius: "14px",
+        padding: "20px",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "16px",
+        flexShrink: 0,
+      }}
+    >
       {/* Header */}
       <div className="flex items-center justify-between pb-3 border-b border-[#EAE4EE]">
         <h3 className="text-sm font-bold text-[#24213A]">

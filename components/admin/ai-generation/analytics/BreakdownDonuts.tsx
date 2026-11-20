@@ -14,7 +14,18 @@ export function BreakdownDonuts({ breakdown }: BreakdownDonutsProps) {
   const circumference = 2 * Math.PI * radius; // ~175.9
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-[#EAE4EE] shadow-2xs space-y-4">
+    <div
+      style={{
+        backgroundColor: "#FFFFFF",
+        padding: "24px",
+        borderRadius: "14px",
+        border: "1px solid #EAE4EE",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "16px",
+      }}
+    >
       {/* Header */}
       <div className="flex items-start gap-2.5">
         <div className="w-8 h-8 rounded-lg bg-[#FAF7F2] border border-[#E8DFF5] flex items-center justify-center text-[#7956C9] shrink-0">

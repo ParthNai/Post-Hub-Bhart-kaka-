@@ -16,19 +16,22 @@ export const FestivalSubscreenNav: React.FC = () => {
   return (
     <div
       style={{
+        backgroundColor: "#FFFFFF",
+        borderRadius: "14px",
+        border: "1px solid #EAE4EE",
+        padding: "12px 14px",
+        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.03)",
+        marginBottom: "22px",
         width: "100%",
-        marginBottom: "20px",
+        boxSizing: "border-box",
       }}
     >
       <div
         style={{
           display: "flex",
+          flexWrap: "wrap",
           alignItems: "center",
           gap: "10px",
-          overflowX: "auto",
-          padding: "4px 2px 6px 2px",
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
         }}
       >
         {FESTIVAL_SUBSCREENS.map((item) => {
@@ -47,22 +50,22 @@ export const FestivalSubscreenNav: React.FC = () => {
                 alignItems: "center",
                 gap: "7px",
                 padding: "8px 16px",
-                borderRadius: "9px",
-                fontSize: "13px",
+                borderRadius: "8px",
+                fontSize: "12.5px",
                 fontWeight: isActive ? 600 : 500,
-                backgroundColor: isActive ? "#7956C9" : "#FFFFFF",
-                color: isActive ? "#FFFFFF" : "#4A4658",
+                backgroundColor: isActive ? "#7956C9" : "#FAF7F2",
+                color: isActive ? "#FFFFFF" : "#544E61",
                 border: `1px solid ${isActive ? "#7956C9" : "#EAE4EE"}`,
                 boxShadow: isActive
                   ? "0 2px 6px rgba(121, 86, 201, 0.28)"
-                  : "0 1px 2px rgba(0, 0, 0, 0.03)",
+                  : "none",
                 textDecoration: "none",
                 whiteSpace: "nowrap",
                 transition: "all 0.15s ease",
                 cursor: "pointer",
               }}
             >
-              <Icon size={15} color={isActive ? "#FFFFFF" : "#7956C9"} />
+              <Icon size={14} color={isActive ? "#FFFFFF" : "#7956C9"} />
               <span>{item.label}</span>
             </Link>
           );

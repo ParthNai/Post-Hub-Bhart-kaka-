@@ -10,7 +10,16 @@ interface AuditHistoryTableProps {
 
 export function AuditHistoryTable({ events }: AuditHistoryTableProps) {
   return (
-    <div className="bg-white rounded-2xl border border-[#EAE4EE] shadow-2xs overflow-hidden mb-6">
+    <div
+      style={{
+        backgroundColor: "#FFFFFF",
+        borderRadius: "14px",
+        border: "1px solid #EAE4EE",
+        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
+        overflow: "hidden",
+        marginBottom: "20px",
+      }}
+    >
       {/* Header */}
       <div className="p-5 flex items-start gap-3 border-b border-[#EAE4EE]">
         <div className="w-8 h-8 rounded-lg bg-[#FAF7F2] border border-[#E8DFF5] flex items-center justify-center text-[#7956C9] shrink-0">

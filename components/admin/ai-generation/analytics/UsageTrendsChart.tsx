@@ -48,7 +48,18 @@ export function UsageTrendsChart({ data, trends }: UsageTrendsChartProps) {
   const failedPath = makePath("failed");
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-[#EAE4EE] shadow-2xs space-y-4">
+    <div
+      style={{
+        backgroundColor: "#FFFFFF",
+        padding: "24px",
+        borderRadius: "14px",
+        border: "1px solid #EAE4EE",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "16px",
+      }}
+    >
       {/* Header & Legend */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-start gap-2.5">

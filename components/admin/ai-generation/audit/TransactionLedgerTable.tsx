@@ -16,7 +16,16 @@ export function TransactionLedgerTable({
   onSelectTransaction,
 }: TransactionLedgerTableProps) {
   return (
-    <div className="bg-white rounded-2xl border border-[#EAE4EE] shadow-2xs mb-6 overflow-hidden">
+    <div
+      style={{
+        backgroundColor: "#FFFFFF",
+        borderRadius: "14px",
+        border: "1px solid #EAE4EE",
+        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
+        overflow: "hidden",
+        marginBottom: "20px",
+      }}
+    >
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead className="bg-[#FAF7F2]/80 text-[#777184] font-semibold border-b border-[#EAE4EE]">

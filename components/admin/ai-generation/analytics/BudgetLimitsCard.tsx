@@ -13,7 +13,18 @@ export function BudgetLimitsCard({ budget, onConfigureBudget }: BudgetLimitsCard
   const percentage = Math.min(100, Math.max(0, budget.consumedPercentage));
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-[#EAE4EE] shadow-2xs space-y-4">
+    <div
+      style={{
+        backgroundColor: "#FFFFFF",
+        padding: "24px",
+        borderRadius: "14px",
+        border: "1px solid #EAE4EE",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "16px",
+      }}
+    >
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2.5">

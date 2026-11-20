@@ -3,16 +3,12 @@
 import React from "react";
 import Link from "next/link";
 import {
-  Zap,
+  GitBranch,
   Settings,
   History,
   Save,
-  Search,
   Bell,
-  Menu,
   ChevronDown,
-  Home,
-  ChevronRight,
 } from "lucide-react";
 
 interface RoutingHeaderProps {
@@ -28,114 +24,261 @@ export const RoutingHeader: React.FC<RoutingHeaderProps> = ({
   onViewHistory,
   onSaveChanges,
   isSaving = false,
-  adminName = "Parth Admin",
+  adminName = "Parth Patel",
 }) => {
   return (
-    <div className="space-y-4 mb-6">
-      {/* Top Search & Profile Bar matching reference */}
-      <div className="flex items-center justify-between gap-4 bg-white/80 backdrop-blur-xs px-4 py-2.5 rounded-xl border border-[#EAE4EE] shadow-2xs">
-        <div className="flex items-center gap-3 flex-1 max-w-lg">
-          <button
-            type="button"
-            className="p-1.5 text-[#777184] hover:text-[#24213A] rounded-lg hover:bg-[#FAF7F2] lg:hidden transition-colors"
-            title="Toggle Menu"
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "18px",
+        marginBottom: "16px",
+      }}
+    >
+      {/* Top Meta Bar: Breadcrumbs & Admin Profile */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "12px",
+        }}
+      >
+        {/* Breadcrumbs */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            fontSize: "12.5px",
+            color: "#777184",
+          }}
+        >
+          <Link
+            href="/admin/dashboard"
+            style={{ color: "#777184", textDecoration: "none" }}
           >
-            <Menu className="w-5 h-5" />
-          </button>
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#777184] absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search anything..."
-              className="w-full pl-9 pr-4 py-1.5 bg-[#FAF7F2] border border-[#EAE4EE] rounded-lg text-xs text-[#24213A] placeholder-[#777184] focus:outline-none focus:border-[#7956C9] focus:bg-white transition-all"
-            />
-          </div>
+            Dashboard
+          </Link>
+          <span style={{ opacity: 0.4 }}>/</span>
+          <Link
+            href="/admin/ai-generation"
+            style={{ color: "#777184", textDecoration: "none" }}
+          >
+            AI Image Generation
+          </Link>
+          <span style={{ opacity: 0.4 }}>/</span>
+          <span style={{ color: "#7956C9", fontWeight: 600 }}>
+            Provider Failover &amp; Routing
+          </span>
         </div>
 
-        {/* Right side: Notifications & User profile */}
-        <div className="flex items-center gap-4">
+        {/* Right profile chip & notification bell */}
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
           <button
             type="button"
-            className="relative p-2 text-[#777184] hover:text-[#24213A] rounded-lg hover:bg-[#FAF7F2] transition-colors"
             title="Notifications"
+            style={{
+              position: "relative",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "6px",
+              color: "#777184",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
-            <Bell className="w-4 h-4" />
-            <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-[#EF4444] text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-white">
-              3
-            </span>
+            <Bell size={18} />
+            <span
+              style={{
+                position: "absolute",
+                top: "4px",
+                right: "4px",
+                width: "7px",
+                height: "7px",
+                backgroundColor: "#EF4444",
+                borderRadius: "50%",
+                border: "2px solid #FFFFFF",
+              }}
+            />
           </button>
 
-          <div className="flex items-center gap-2 pl-2 border-l border-[#EAE4EE]">
-            <div className="w-8 h-8 rounded-full bg-[#7956C9] text-white font-bold text-xs flex items-center justify-center shadow-2xs">
-              P
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              padding: "4px 10px 4px 6px",
+              borderRadius: "20px",
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #EAE4EE",
+            }}
+          >
+            <div
+              style={{
+                width: "28px",
+                height: "28px",
+                borderRadius: "50%",
+                backgroundColor: "#7956C9",
+                color: "#FFFFFF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "11px",
+                fontWeight: 700,
+              }}
+            >
+              {adminName
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .slice(0, 2)
+                .toUpperCase() || "PP"}
             </div>
-            <div className="flex items-center gap-1 cursor-pointer">
-              <span className="text-xs font-semibold text-[#24213A]">{adminName}</span>
-              <ChevronDown className="w-3.5 h-3.5 text-[#777184]" />
-            </div>
+            <span
+              style={{
+                fontSize: "12.5px",
+                fontWeight: 600,
+                color: "#24213A",
+              }}
+            >
+              {adminName}
+            </span>
+            <ChevronDown size={14} color="#777184" />
           </div>
         </div>
       </div>
 
-      {/* Sub-navigation breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-xs text-[#777184]">
-        <Link href="/admin/dashboard" className="hover:text-[#24213A] transition-colors">
-          <Home className="w-3.5 h-3.5" />
-        </Link>
-        <ChevronRight className="w-3 h-3 text-[#A098AE]" />
-        <Link href="/admin/ai-generation" className="hover:text-[#7956C9] transition-colors font-medium">
-          AI Image Generation
-        </Link>
-        <ChevronRight className="w-3 h-3 text-[#A098AE]" />
-        <span className="font-semibold text-[#24213A]">
-          Provider Failover &amp; Routing
-        </span>
-      </nav>
-
-      {/* Main Page Title & Actions */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <div className="text-[#7956C9]">
-              <Zap className="w-6 h-6 fill-[#7956C9]" />
-            </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#24213A] tracking-tight">
-              Provider Failover &amp; Routing
-            </h1>
+      {/* Main Page Title and Controls */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "16px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+          <div
+            style={{
+              width: "42px",
+              height: "42px",
+              borderRadius: "12px",
+              backgroundColor: "#FAF7F2",
+              border: "1px solid #E8DFF5",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#7956C9",
+              flexShrink: 0,
+              boxShadow: "0 2px 5px rgba(121, 86, 201, 0.12)",
+            }}
+          >
+            <GitBranch size={22} strokeWidth={2.2} />
           </div>
-          <p className="text-xs sm:text-sm text-[#777184] mt-0.5">
-            Configure provider priority, model routing rules and automatic fallback behavior.
-          </p>
+          <div>
+            <h1
+              style={{
+                fontSize: "22px",
+                fontWeight: 700,
+                color: "#24213A",
+                margin: 0,
+                letterSpacing: "-0.02em",
+                lineHeight: 1.25,
+              }}
+            >
+              Provider Failover &amp; Routing Configuration
+            </h1>
+            <p
+              style={{
+                fontSize: "13px",
+                color: "#777184",
+                margin: "4px 0 0 0",
+              }}
+            >
+              Automated routing rules, failover priorities and load-distribution policies across AI generation providers.
+            </p>
+          </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            flexWrap: "wrap",
+          }}
+        >
           <button
             type="button"
-            onClick={onOpenSettings}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-[#FAF7F2] text-[#24213A] border border-[#EAE4EE] rounded-lg text-xs font-medium shadow-2xs transition-all cursor-pointer"
+            onClick={onViewHistory}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "7px",
+              padding: "8px 14px",
+              borderRadius: "10px",
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #EAE4EE",
+              color: "#24213A",
+              fontSize: "12.5px",
+              fontWeight: 600,
+              cursor: "pointer",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+            }}
           >
-            <Settings className="w-3.5 h-3.5 text-[#777184]" />
-            <span>Routing Settings</span>
+            <History size={14} color="#7956C9" />
+            <span>Routing History</span>
           </button>
 
           <button
             type="button"
-            onClick={onViewHistory}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-[#FAF7F2] text-[#24213A] border border-[#EAE4EE] rounded-lg text-xs font-medium shadow-2xs transition-all cursor-pointer"
+            onClick={onOpenSettings}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "7px",
+              padding: "8px 14px",
+              borderRadius: "10px",
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #EAE4EE",
+              color: "#24213A",
+              fontSize: "12.5px",
+              fontWeight: 600,
+              cursor: "pointer",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+            }}
           >
-            <History className="w-3.5 h-3.5 text-[#777184]" />
-            <span>View Routing History</span>
+            <Settings size={14} color="#7956C9" />
+            <span>Routing Settings</span>
           </button>
 
           <button
             type="button"
             onClick={onSaveChanges}
             disabled={isSaving}
-            className="flex items-center gap-2 px-3.5 py-2 bg-[#7956C9] hover:bg-[#6846B8] text-white rounded-lg text-xs font-semibold shadow-xs transition-all disabled:opacity-60 cursor-pointer"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "7px",
+              padding: "8px 16px",
+              borderRadius: "10px",
+              backgroundColor: "#7956C9",
+              border: "1px solid #7956C9",
+              color: "#FFFFFF",
+              fontSize: "12.5px",
+              fontWeight: 600,
+              cursor: isSaving ? "not-allowed" : "pointer",
+              boxShadow: "0 2px 6px rgba(121, 86, 201, 0.35)",
+            }}
           >
-            <Save className={`w-3.5 h-3.5 ${isSaving ? "animate-spin" : ""}`} />
-            <span>{isSaving ? "Saving..." : "Save Changes"}</span>
+            <Save size={15} />
+            <span>{isSaving ? "Saving..." : "Save Configuration"}</span>
           </button>
         </div>
       </div>

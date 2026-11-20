@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Coins, Check, RotateCcw, Clock, Info } from "lucide-react";
+import { Coins, Check, RotateCcw, Clock } from "lucide-react";
 import type { AuditSummaryMetrics } from "@/lib/ai-audit";
 
 interface AuditSummaryCardsProps {
@@ -9,83 +9,105 @@ interface AuditSummaryCardsProps {
 }
 
 export function AuditSummaryCards({ summary }: AuditSummaryCardsProps) {
+  const cards = [
+    {
+      label: "Total Transactions",
+      value: summary.totalTransactions.toLocaleString(),
+      icon: Coins,
+      iconColor: "#7956C9",
+      iconBg: "#F4EFFC",
+    },
+    {
+      label: "Successful Transactions",
+      value: summary.successfulTransactions.toLocaleString(),
+      icon: Check,
+      iconColor: "#10B981",
+      iconBg: "#ECFDF5",
+    },
+    {
+      label: "Reversed Transactions",
+      value: summary.reversedTransactions.toLocaleString(),
+      icon: RotateCcw,
+      iconColor: "#F59E0B",
+      iconBg: "#FEF3C7",
+    },
+    {
+      label: "Last Reconciliation",
+      value: summary.lastReconciliation,
+      icon: Clock,
+      iconColor: "#7956C9",
+      iconBg: "#F4EFFC",
+      isDate: true,
+    },
+  ];
+
   return (
-    <div className="space-y-2 mb-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Total Transactions */}
-        <div className="bg-white p-5 rounded-2xl border border-[#EAE4EE] shadow-2xs hover:shadow-xs transition-all flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold text-[#777184] block mb-1">
-              Total Transactions
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#24213A]">
-                {summary.totalTransactions.toLocaleString()}
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+        gap: "16px",
+        marginBottom: "20px",
+      }}
+    >
+      {cards.map((c, idx) => {
+        const Icon = c.icon;
+        return (
+          <div
+            key={idx}
+            style={{
+              backgroundColor: "#FFFFFF",
+              borderRadius: "14px",
+              padding: "20px 22px",
+              border: "1px solid #EAE4EE",
+              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "16px",
+            }}
+          >
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span
+                style={{
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  color: "#777184",
+                  display: "block",
+                  marginBottom: "6px",
+                }}
+              >
+                {c.label}
+              </span>
+              <span
+                style={{
+                  fontSize: c.isDate ? "15px" : "26px",
+                  fontWeight: 700,
+                  color: "#24213A",
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                {c.value}
               </span>
             </div>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-[#E8DFF5]/60 flex items-center justify-center text-[#7956C9] shrink-0">
-            <Coins className="w-6 h-6 stroke-[2]" />
-          </div>
-        </div>
-
-        {/* Card 2: Successful Transactions */}
-        <div className="bg-white p-5 rounded-2xl border border-[#EAE4EE] shadow-2xs hover:shadow-xs transition-all flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold text-[#777184] block mb-1">
-              Successful Transactions
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#24213A]">
-                {summary.successfulTransactions.toLocaleString()}
-              </span>
+            <div
+              style={{
+                width: "44px",
+                height: "44px",
+                borderRadius: "12px",
+                backgroundColor: c.iconBg,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: c.iconColor,
+                flexShrink: 0,
+              }}
+            >
+              <Icon size={22} strokeWidth={2} />
             </div>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-[#ECFDF5] flex items-center justify-center text-[#10B981] shrink-0">
-            <Check className="w-6 h-6 stroke-[2.5]" />
-          </div>
-        </div>
-
-        {/* Card 3: Reversed Transactions */}
-        <div className="bg-white p-5 rounded-2xl border border-[#EAE4EE] shadow-2xs hover:shadow-xs transition-all flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold text-[#777184] block mb-1">
-              Reversed Transactions
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#24213A]">
-                {summary.reversedTransactions.toLocaleString()}
-              </span>
-            </div>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-[#FEF2F2] flex items-center justify-center text-[#EF4444] shrink-0">
-            <RotateCcw className="w-6 h-6 stroke-[2]" />
-          </div>
-        </div>
-
-        {/* Card 4: Pending Transactions */}
-        <div className="bg-white p-5 rounded-2xl border border-[#EAE4EE] shadow-2xs hover:shadow-xs transition-all flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold text-[#777184] block mb-1">
-              Pending Transactions
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#24213A]">
-                {summary.pendingTransactions.toLocaleString()}
-              </span>
-            </div>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-[#FFFBEB] flex items-center justify-center text-[#D97706] shrink-0">
-            <Clock className="w-6 h-6 stroke-[2]" />
-          </div>
-        </div>
-      </div>
-
-      {/* Illustrative sample data note */}
-      <div className="flex items-center gap-1.5 text-[11px] text-[#777184] pt-1 pl-1">
-        <Info className="w-3.5 h-3.5 text-[#777184]" />
-        <span>Illustrative sample data</span>
-      </div>
+        );
+      })}
     </div>
   );
 }

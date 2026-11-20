@@ -12,87 +12,127 @@ interface AnalyticsKpiCardsProps {
 export function AnalyticsKpiCards({ overview, metrics }: AnalyticsKpiCardsProps) {
   const activeOverview = overview || metrics;
   if (!activeOverview) return null;
+
+  const cards = [
+    {
+      label: "Total Images Generated",
+      value: activeOverview.totalImagesGenerated.toLocaleString(),
+      change: activeOverview.totalImagesChange,
+      icon: ImageIcon,
+    },
+    {
+      label: "Total Credits Consumed",
+      value: activeOverview.totalCreditsConsumed.toLocaleString(),
+      change: activeOverview.totalCreditsChange,
+      icon: Layers,
+    },
+    {
+      label: "Actual Provider Cost",
+      value: `$${activeOverview.actualProviderCost.toFixed(2)}`,
+      change: activeOverview.actualProviderCostChange,
+      icon: Coins,
+    },
+    {
+      label: "Average Cost Per Image",
+      value: `$${activeOverview.averageCostPerImage.toFixed(4)}`,
+      change: activeOverview.averageCostChange,
+      icon: Calculator,
+    },
+  ];
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      {/* Card 1: Total Images Generated */}
-      <div className="bg-white p-5 rounded-2xl border border-[#EAE4EE] shadow-2xs hover:shadow-xs transition-all flex items-center justify-between">
-        <div>
-          <span className="text-xs font-semibold text-[#777184] uppercase tracking-wider block mb-1">
-            Total Images Generated
-          </span>
-          <div className="flex items-baseline gap-2.5">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#24213A]">
-              {activeOverview.totalImagesGenerated.toLocaleString()}
-            </span>
-            <span className="inline-flex items-center text-xs font-bold text-[#10B981] bg-[#ECFDF5] px-2 py-0.5 rounded-full border border-[#A7F3D0]">
-              {activeOverview.totalImagesChange}
-            </span>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+        gap: "16px",
+        marginBottom: "20px",
+      }}
+    >
+      {cards.map((c, idx) => {
+        const Icon = c.icon;
+        return (
+          <div
+            key={idx}
+            style={{
+              backgroundColor: "#FFFFFF",
+              borderRadius: "14px",
+              padding: "20px 22px",
+              border: "1px solid #EAE4EE",
+              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "16px",
+            }}
+          >
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span
+                style={{
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  color: "#777184",
+                  display: "block",
+                  marginBottom: "6px",
+                }}
+              >
+                {c.label}
+              </span>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: "8px",
+                  flexWrap: "wrap",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "26px",
+                    fontWeight: 700,
+                    color: "#24213A",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  {c.value}
+                </span>
+                {c.change && (
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      color: "#10B981",
+                      backgroundColor: "#ECFDF5",
+                      border: "1px solid #A7F3D0",
+                      padding: "1px 7px",
+                      borderRadius: "12px",
+                    }}
+                  >
+                    {c.change}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div
+              style={{
+                width: "44px",
+                height: "44px",
+                borderRadius: "12px",
+                backgroundColor: "#F4EFFC",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#7956C9",
+                flexShrink: 0,
+              }}
+            >
+              <Icon size={22} strokeWidth={2} />
+            </div>
           </div>
-        </div>
-        <div className="w-12 h-12 rounded-2xl bg-[#E8DFF5]/60 flex items-center justify-center text-[#7956C9] shrink-0">
-          <ImageIcon className="w-6 h-6 stroke-[2]" />
-        </div>
-      </div>
-
-      {/* Card 2: Total Credits Consumed */}
-      <div className="bg-white p-5 rounded-2xl border border-[#EAE4EE] shadow-2xs hover:shadow-xs transition-all flex items-center justify-between">
-        <div>
-          <span className="text-xs font-semibold text-[#777184] uppercase tracking-wider block mb-1">
-            Total Credits Consumed
-          </span>
-          <div className="flex items-baseline gap-2.5">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#24213A]">
-              {activeOverview.totalCreditsConsumed.toLocaleString()}
-            </span>
-            <span className="inline-flex items-center text-xs font-bold text-[#10B981] bg-[#ECFDF5] px-2 py-0.5 rounded-full border border-[#A7F3D0]">
-              {activeOverview.totalCreditsChange}
-            </span>
-          </div>
-        </div>
-        <div className="w-12 h-12 rounded-2xl bg-[#E8DFF5]/60 flex items-center justify-center text-[#7956C9] shrink-0">
-          <Layers className="w-6 h-6 stroke-[2]" />
-        </div>
-      </div>
-
-      {/* Card 3: Actual Provider Cost */}
-      <div className="bg-white p-5 rounded-2xl border border-[#EAE4EE] shadow-2xs hover:shadow-xs transition-all flex items-center justify-between">
-        <div>
-          <span className="text-xs font-semibold text-[#777184] uppercase tracking-wider block mb-1">
-            Actual Provider Cost
-          </span>
-          <div className="flex items-baseline gap-2.5">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#24213A]">
-              ${activeOverview.actualProviderCost.toFixed(2)}
-            </span>
-            <span className="inline-flex items-center text-xs font-bold text-[#10B981] bg-[#ECFDF5] px-2 py-0.5 rounded-full border border-[#A7F3D0]">
-              {activeOverview.actualProviderCostChange}
-            </span>
-          </div>
-        </div>
-        <div className="w-12 h-12 rounded-2xl bg-[#E8DFF5]/60 flex items-center justify-center text-[#7956C9] shrink-0">
-          <Coins className="w-6 h-6 stroke-[2]" />
-        </div>
-      </div>
-
-      {/* Card 4: Average Cost Per Image */}
-      <div className="bg-white p-5 rounded-2xl border border-[#EAE4EE] shadow-2xs hover:shadow-xs transition-all flex items-center justify-between">
-        <div>
-          <span className="text-xs font-semibold text-[#777184] uppercase tracking-wider block mb-1">
-            Average Cost Per Image
-          </span>
-          <div className="flex items-baseline gap-2.5">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#24213A]">
-              ${activeOverview.averageCostPerImage.toFixed(4)}
-            </span>
-            <span className="inline-flex items-center text-xs font-bold text-[#10B981] bg-[#ECFDF5] px-2 py-0.5 rounded-full border border-[#A7F3D0]">
-              {activeOverview.averageCostChange}
-            </span>
-          </div>
-        </div>
-        <div className="w-12 h-12 rounded-2xl bg-[#E8DFF5]/60 flex items-center justify-center text-[#7956C9] shrink-0">
-          <Calculator className="w-6 h-6 stroke-[2]" />
-        </div>
-      </div>
+        );
+      })}
     </div>
   );
 }
