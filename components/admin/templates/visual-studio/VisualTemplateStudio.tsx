@@ -58,6 +58,7 @@ import {
   User,
   UserPlus,
   RefreshCw,
+  Crop,
 } from "lucide-react";
 
 import {
@@ -320,7 +321,7 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
     setZones(next);
   };
 
-  // Keyboard shortcut listener for Undo / Redo / Delete
+  // Keyboard shortcut listener for Undo / Redo / Delete / Arrow Nudge
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
@@ -337,6 +338,19 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
         if (selectedZoneId) {
           e.preventDefault();
           handleDeleteZone(selectedZoneId);
+        }
+      } else if (selectedZoneId && ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+        e.preventDefault();
+        const step = e.shiftKey ? 2 : 0.5;
+        const target = zones.find((z) => z.id === selectedZoneId);
+        if (target) {
+          let nextX = target.x;
+          let nextY = target.y;
+          if (e.key === "ArrowUp") nextY = Math.round((target.y - step) * 10) / 10;
+          if (e.key === "ArrowDown") nextY = Math.round((target.y + step) * 10) / 10;
+          if (e.key === "ArrowLeft") nextX = Math.round((target.x - step) * 10) / 10;
+          if (e.key === "ArrowRight") nextX = Math.round((target.x + step) * 10) / 10;
+          updateSelectedZone({ x: nextX, y: nextY });
         }
       }
     };
@@ -363,6 +377,7 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
   // Viewport Zoom & Safe Guides
   const [zoomLevel, setZoomLevel] = useState<number>(100);
   const [showSafeZones, setShowSafeZones] = useState(false);
+  const [clipContent, setClipContent] = useState<boolean>(false);
 
   // Drag-to-move & resize state
   const [dragState, setDragState] = useState<{
@@ -403,13 +418,13 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
   // Active test persona for studio preview
   const [previewPersona] = useState(SIMULATED_PERSONAS[0]);
 
-  // Convert mouse event to percentage relative to canvas
+  // Convert mouse event to percentage relative to canvas (unconstrained for bleed / off-canvas support)
   const getCanvasCoords = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>): { x: number; y: number } | null => {
+    (e: React.MouseEvent<HTMLDivElement> | MouseEvent): { x: number; y: number } | null => {
       if (!canvasRef.current) return null;
       const rect = canvasRef.current.getBoundingClientRect();
-      const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
-      const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
       return { x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10 };
     },
     []
@@ -467,192 +482,191 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
     setCurrentBox({ x: coords.x, y: coords.y, w: 0, h: 0 });
   };
 
-  // Canvas mousemove (handles moving, resizing, and drawing)
-  const handleCanvasMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    // 1. Moving or Resizing an existing zone
-    if (dragState && canvasRef.current) {
-      const rect = canvasRef.current.getBoundingClientRect();
-      const deltaXPercent = ((e.clientX - dragState.startClientX) / rect.width) * 100;
-      const deltaYPercent = ((e.clientY - dragState.startClientY) / rect.height) * 100;
+  // Global window listeners for drag & resize: ensures dragging smoothly outside the template canvas
+  useEffect(() => {
+    if (!dragState && !isDrawing) return;
 
-      if (dragState.type === "move") {
-        let newX = Math.round((dragState.initialZone.x + deltaXPercent) * 10) / 10;
-        let newY = Math.round((dragState.initialZone.y + deltaYPercent) * 10) / 10;
+    const onPointerMove = (e: MouseEvent) => {
+      if (dragState && canvasRef.current) {
+        const rect = canvasRef.current.getBoundingClientRect();
+        const deltaXPercent = ((e.clientX - dragState.startClientX) / rect.width) * 100;
+        const deltaYPercent = ((e.clientY - dragState.startClientY) / rect.height) * 100;
 
-        // Boundary clamping
-        newX = Math.max(0, Math.min(100 - dragState.initialZone.width, newX));
-        newY = Math.max(0, Math.min(100 - dragState.initialZone.height, newY));
+        if (dragState.type === "move") {
+          let newX = Math.round((dragState.initialZone.x + deltaXPercent) * 10) / 10;
+          let newY = Math.round((dragState.initialZone.y + deltaYPercent) * 10) / 10;
 
-        // Magnetic Snap Guides
-        let guideX: number | null = null;
-        let guideY: number | null = null;
+          // Allow elements to freely bleed and move outside the template boundaries (-80% to 160%)
+          newX = Math.max(-80, Math.min(160, newX));
+          newY = Math.max(-80, Math.min(160, newY));
 
-        if (snapEnabled) {
-          const centerX = newX + dragState.initialZone.width / 2;
-          const centerY = newY + dragState.initialZone.height / 2;
+          // Magnetic Snap Guides
+          let guideX: number | null = null;
+          let guideY: number | null = null;
 
-          // Snap to Canvas Center X (50%)
-          if (Math.abs(centerX - 50) < 1.4) {
-            newX = 50 - dragState.initialZone.width / 2;
-            guideX = 50;
+          if (snapEnabled) {
+            const centerX = newX + dragState.initialZone.width / 2;
+            const centerY = newY + dragState.initialZone.height / 2;
+
+            // Snap to Canvas Center X (50%)
+            if (Math.abs(centerX - 50) < 1.4) {
+              newX = 50 - dragState.initialZone.width / 2;
+              guideX = 50;
+            }
+            // Snap to Canvas Center Y (50%)
+            if (Math.abs(centerY - 50) < 1.4) {
+              newY = 50 - dragState.initialZone.height / 2;
+              guideY = 50;
+            }
           }
-          // Snap to Canvas Center Y (50%)
-          if (Math.abs(centerY - 50) < 1.4) {
-            newY = 50 - dragState.initialZone.height / 2;
-            guideY = 50;
+
+          setActiveSnapGuides({ x: guideX, y: guideY });
+
+          setZones((prev) =>
+            prev.map((z) =>
+              z.id === dragState.zoneId ? { ...z, x: newX, y: newY } : z
+            )
+          );
+        } else if (dragState.type === "resize" && dragState.handle) {
+          const init = dragState.initialZone;
+          let newX = init.x;
+          let newY = init.y;
+          let newW = init.width;
+          let newH = init.height;
+
+          if (dragState.handle.includes("e")) {
+            newW = Math.max(2, Math.min(250, init.width + deltaXPercent));
           }
-        }
+          if (dragState.handle.includes("w")) {
+            newX = init.x + deltaXPercent;
+            newW = Math.max(2, init.width - deltaXPercent);
+          }
+          if (dragState.handle.includes("s")) {
+            newH = Math.max(2, Math.min(250, init.height + deltaYPercent));
+          }
+          if (dragState.handle.includes("n")) {
+            newY = init.y + deltaYPercent;
+            newH = Math.max(2, init.height - deltaYPercent);
+          }
 
-        setActiveSnapGuides({ x: guideX, y: guideY });
+          setZones((prev) =>
+            prev.map((z) =>
+              z.id === dragState.zoneId
+                ? {
+                  ...z,
+                  x: Math.round(newX * 10) / 10,
+                  y: Math.round(newY * 10) / 10,
+                  width: Math.round(newW * 10) / 10,
+                  height: Math.round(newH * 10) / 10,
+                }
+                : z
+            )
+          );
+        }
+      } else if (isDrawing && drawStart && canvasRef.current) {
+        const coords = getCanvasCoords(e);
+        if (!coords) return;
 
-        setZones((prev) =>
-          prev.map((z) =>
-            z.id === dragState.zoneId ? { ...z, x: newX, y: newY } : z
-          )
-        );
-      } else if (dragState.type === "resize" && dragState.handle) {
-        const init = dragState.initialZone;
-        let newX = init.x;
-        let newY = init.y;
-        let newW = init.width;
-        let newH = init.height;
+        const x = Math.min(drawStart.x, coords.x);
+        const y = Math.min(drawStart.y, coords.y);
+        const w = Math.abs(coords.x - drawStart.x);
+        const h = Math.abs(coords.y - drawStart.y);
 
-        if (dragState.handle.includes("e")) {
-          newW = Math.max(4, Math.min(100 - init.x, init.width + deltaXPercent));
-        }
-        if (dragState.handle.includes("w")) {
-          const maxDelta = init.width - 4;
-          const clampedDelta = Math.min(maxDelta, deltaXPercent);
-          newX = Math.max(0, init.x + clampedDelta);
-          newW = init.width - (newX - init.x);
-        }
-        if (dragState.handle.includes("s")) {
-          newH = Math.max(2, Math.min(100 - init.y, init.height + deltaYPercent));
-        }
-        if (dragState.handle.includes("n")) {
-          const maxDelta = init.height - 2;
-          const clampedDelta = Math.min(maxDelta, deltaYPercent);
-          newY = Math.max(0, init.y + clampedDelta);
-          newH = init.height - (newY - init.y);
-        }
-
-        setZones((prev) =>
-          prev.map((z) =>
-            z.id === dragState.zoneId
-              ? {
-                ...z,
-                x: Math.round(newX * 10) / 10,
-                y: Math.round(newY * 10) / 10,
-                width: Math.round(newW * 10) / 10,
-                height: Math.round(newH * 10) / 10,
-              }
-              : z
-          )
-        );
+        setCurrentBox({
+          x: Math.round(x * 10) / 10,
+          y: Math.round(y * 10) / 10,
+          w: Math.round(w * 10) / 10,
+          h: Math.round(h * 10) / 10,
+        });
       }
-      return;
-    }
+    };
 
-    // 2. Drag-drawing new box
-    if (isDrawing && drawStart) {
-      const coords = getCanvasCoords(e);
-      if (!coords) return;
+    const onPointerUp = () => {
+      setActiveSnapGuides({ x: null, y: null });
 
-      const x = Math.min(drawStart.x, coords.x);
-      const y = Math.min(drawStart.y, coords.y);
-      const w = Math.abs(coords.x - drawStart.x);
-      const h = Math.abs(coords.y - drawStart.y);
+      if (dragState) {
+        setDragState(null);
+        setHistory((prev) => [...prev.slice(-30), zones]);
+        setFuture([]);
+      }
 
-      setCurrentBox({
-        x: Math.round(x * 10) / 10,
-        y: Math.round(y * 10) / 10,
-        w: Math.round(w * 10) / 10,
-        h: Math.round(h * 10) / 10,
-      });
-    }
-  };
+      if (isDrawing && currentBox) {
+        if (currentBox.w < 3 || currentBox.h < 3) {
+          setIsDrawing(false);
+          setDrawStart(null);
+          setCurrentBox(null);
+          return;
+        }
 
-  // Canvas mouseup
-  const handleCanvasMouseUp = () => {
-    setActiveSnapGuides({ x: null, y: null });
+        const newId = `zone-${Date.now().toString(36)}`;
+        let newZone: TemplateSlotZone;
 
-    if (dragState) {
-      setDragState(null);
-      // Record history on drag completion
-      setHistory((prev) => [...prev.slice(-30), zones]);
-      setFuture([]);
-      return;
-    }
+        if (activeTool === "draw_photo") {
+          newZone = {
+            id: newId,
+            type: "photo",
+            label: "User Photo",
+            x: currentBox.x,
+            y: currentBox.y,
+            width: currentBox.w,
+            height: currentBox.h,
+            photoShape: currentBox.w === currentBox.h ? "circle" : "squircle",
+            borderColor: "#FFFFFF",
+            borderWidth: 2,
+            shadow: true,
+            zIndex: 4,
+          };
+        } else if (activeTool === "draw_text") {
+          newZone = {
+            id: newId,
+            type: "text",
+            label: "Text Field",
+            x: currentBox.x,
+            y: currentBox.y,
+            width: currentBox.w,
+            height: currentBox.h,
+            textBinding: "name",
+            fontSize: Math.max(12, Math.min(22, Math.round(currentBox.h * 1.4))),
+            color: "#FFFFFF",
+            fontWeight: "700",
+            fontFamily: "Poppins",
+            alignment: "center",
+            textShadow: true,
+            zIndex: 5,
+          };
+        } else {
+          newZone = {
+            id: newId,
+            type: "shape",
+            label: "Shape Container",
+            x: currentBox.x,
+            y: currentBox.y,
+            width: currentBox.w,
+            height: currentBox.h,
+            shapeType: currentBox.h > 18 ? "rectangle" : "pill",
+            backgroundColor: "rgba(15, 23, 42, 0.75)",
+            borderRadius: 8,
+            opacity: 0.9,
+            zIndex: 2,
+          };
+        }
 
-    if (isDrawing && currentBox) {
-      if (currentBox.w < 3 || currentBox.h < 3) {
+        pushHistory([...zones, newZone]);
+        setSelectedZoneId(newId);
+        setActiveTool("select");
         setIsDrawing(false);
         setDrawStart(null);
         setCurrentBox(null);
-        return;
       }
+    };
 
-      const newId = `zone-${Date.now().toString(36)}`;
-      let newZone: TemplateSlotZone;
-
-      if (activeTool === "draw_photo") {
-        newZone = {
-          id: newId,
-          type: "photo",
-          label: "User Photo",
-          x: currentBox.x,
-          y: currentBox.y,
-          width: currentBox.w,
-          height: currentBox.h,
-          photoShape: currentBox.w === currentBox.h ? "circle" : "squircle",
-          borderColor: "#FFFFFF",
-          borderWidth: 2,
-          shadow: true,
-          zIndex: 4,
-        };
-      } else if (activeTool === "draw_text") {
-        newZone = {
-          id: newId,
-          type: "text",
-          label: "Text Field",
-          x: currentBox.x,
-          y: currentBox.y,
-          width: currentBox.w,
-          height: currentBox.h,
-          textBinding: "name",
-          fontSize: Math.max(12, Math.min(22, Math.round(currentBox.h * 1.4))),
-          color: "#FFFFFF",
-          fontWeight: "700",
-          fontFamily: "Poppins",
-          alignment: "center",
-          textShadow: true,
-          zIndex: 5,
-        };
-      } else {
-        newZone = {
-          id: newId,
-          type: "shape",
-          label: "Shape Container",
-          x: currentBox.x,
-          y: currentBox.y,
-          width: currentBox.w,
-          height: currentBox.h,
-          shapeType: currentBox.h > 18 ? "rectangle" : "pill",
-          backgroundColor: "rgba(15, 23, 42, 0.75)",
-          borderRadius: 8,
-          opacity: 0.9,
-          zIndex: 2,
-        };
-      }
-
-      pushHistory([...zones, newZone]);
-      setSelectedZoneId(newId);
-      setActiveTool("select");
-      setIsDrawing(false);
-      setDrawStart(null);
-      setCurrentBox(null);
-    }
-  };
+    window.addEventListener("mousemove", onPointerMove);
+    window.addEventListener("mouseup", onPointerUp);
+    return () => {
+      window.removeEventListener("mousemove", onPointerMove);
+      window.removeEventListener("mouseup", onPointerUp);
+    };
+  }, [dragState, isDrawing, drawStart, currentBox, snapEnabled, zones, activeTool, getCanvasCoords]);
 
   // Zone CRUD operations
   const updateZoneById = (id: string, updates: Partial<TemplateSlotZone>) => {
@@ -2146,15 +2160,13 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
               position: "relative",
               backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px)",
               backgroundSize: "20px 20px",
-              padding: "24px",
+              padding: "90px",
             }}
           >
             {/* The Actual Poster Canvas Container */}
             <div
               ref={canvasRef}
               onMouseDown={handleCanvasMouseDown}
-              onMouseMove={handleCanvasMouseMove}
-              onMouseUp={handleCanvasMouseUp}
               style={{
                 width: `${canvasDimensions.width}px`,
                 height: `${canvasDimensions.height}px`,
@@ -2162,6 +2174,9 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                 transformOrigin: "center center",
                 position: "relative",
                 borderRadius: "0px",
+                overflow: clipContent ? "hidden" : "visible",
+                outline: clipContent ? "none" : "2px dashed rgba(168, 85, 247, 0.45)",
+                outlineOffset: "0px",
                 boxShadow: "0 25px 60px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255,255,255,0.1)",
                 backgroundColor: "#0F172A",
                 background: `url(${backgroundUrl}) center center / 100% 100% no-repeat`,
@@ -2170,6 +2185,15 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                 transition: "transform 0.15s ease-out",
               }}
             >
+              {/* Template Edge Corner Crop Marks (Shows boundary when bleed/pop-out is active) */}
+              {!clipContent && (
+                <>
+                  <div style={{ position: "absolute", top: -8, left: -8, width: 16, height: 16, borderTop: "2.5px solid #A855F7", borderLeft: "2.5px solid #A855F7", pointerEvents: "none", zIndex: 35 }} />
+                  <div style={{ position: "absolute", top: -8, right: -8, width: 16, height: 16, borderTop: "2.5px solid #A855F7", borderRight: "2.5px solid #A855F7", pointerEvents: "none", zIndex: 35 }} />
+                  <div style={{ position: "absolute", bottom: -8, left: -8, width: 16, height: 16, borderBottom: "2.5px solid #A855F7", borderLeft: "2.5px solid #A855F7", pointerEvents: "none", zIndex: 35 }} />
+                  <div style={{ position: "absolute", bottom: -8, right: -8, width: 16, height: 16, borderBottom: "2.5px solid #A855F7", borderRight: "2.5px solid #A855F7", pointerEvents: "none", zIndex: 35 }} />
+                </>
+              )}
               {/* Magnetic Snap Guideline: Vertical Center */}
               {activeSnapGuides.x !== null && (
                 <div
@@ -2510,6 +2534,34 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
               <Shield size={13} />
               <span>Safe Guides</span>
             </button>
+
+            {/* Bleed / Out of Template Overflow Toggle */}
+            <button
+              type="button"
+              onClick={() => {
+                const nextState = !clipContent;
+                setClipContent(nextState);
+                setToastNotification(
+                  nextState
+                    ? "✂️ Clip to Frame: ON (Cropped view)"
+                    : "✨ Bleed & Out of Template: ON (Elements can freely extend outside the template!)"
+                );
+              }}
+              style={{
+                background: "none",
+                border: "none",
+                color: !clipContent ? "#A855F7" : "#64748B",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                cursor: "pointer",
+                fontWeight: 600,
+              }}
+              title="Toggle whether elements can visibly extend outside template borders (Pop-out & Bleed)"
+            >
+              <Crop size={13} />
+              <span>{clipContent ? "Clip: ON" : "Bleed/Out: ON"}</span>
+            </button>
           </div>
         </div>
 
@@ -2678,6 +2730,9 @@ export const VisualTemplateStudio: React.FC<VisualTemplateStudioProps> = ({
                             fontSize: "11px",
                           }}
                         />
+                      </div>
+                      <div style={{ gridColumn: "1 / -1", fontSize: "10px", color: "#C4B5FD", marginTop: "2px" }}>
+                        ✨ Out-of-template &amp; Bleed enabled (negative &amp; &gt;100% values supported)
                       </div>
                     </div>
                   </div>
