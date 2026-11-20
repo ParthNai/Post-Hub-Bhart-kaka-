@@ -126,7 +126,18 @@ export const EventCategoriesModal: React.FC<EventCategoriesModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "8px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px" }}>
+          <a
+            href="/admin/festivals/categories"
+            style={{
+              fontSize: "12.5px",
+              fontWeight: 600,
+              color: "#7956C9",
+              textDecoration: "none",
+            }}
+          >
+            Open Full Categories Management →
+          </a>
           <button
             type="button"
             onClick={onClose}
