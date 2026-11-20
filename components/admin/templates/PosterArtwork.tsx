@@ -65,8 +65,8 @@ export const PosterArtwork: React.FC<PosterArtworkProps> = ({ template, style, u
                   top: `${zone.y}%`,
                   width: `${zone.width}%`,
                   height: `${zone.height}%`,
-                  backgroundColor: zone.backgroundColor || "rgba(0,0,0,0.55)",
-                  backdropFilter: "blur(6px)",
+                  backgroundColor: zone.backgroundColor !== undefined ? zone.backgroundColor : "rgba(0,0,0,0.55)",
+                  backdropFilter: zone.backgroundColor === "transparent" ? "none" : undefined,
                   borderRadius,
                   border: zone.borderWidth
                     ? `${zone.borderWidth}px solid ${zone.borderColor || "#FFFFFF"}`

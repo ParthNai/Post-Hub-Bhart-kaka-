@@ -58,6 +58,8 @@ export interface TemplateSlotZone {
   // Layer governance
   locked?: boolean;
   visible?: boolean;
+  isBottomZone?: boolean;
+  frameGroupId?: string;
 }
 
 export interface PosterTemplate {
