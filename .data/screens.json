@@ -61,29 +61,17 @@
     },
     "version": 3,
     "lastUpdated": "Nov 20, 2026",
-    "lastSavedAt": "Today at 1:35 PM",
+    "lastSavedAt": "Today at 1:37 PM",
     "history": [
       {
         "version": 3,
-        "savedAt": "Nov 20, 2026 at 1:35 PM",
+        "savedAt": "Nov 20, 2026 at 1:37 PM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
       },
       {
         "version": 3,
-        "savedAt": "Nov 20, 2026 at 1:35 PM",
-        "author": "Admin Workspace",
-        "changesSummary": "Draft updated: Home"
-      },
-      {
-        "version": 3,
-        "savedAt": "Nov 20, 2026 at 1:27 PM",
-        "author": "Admin Workspace",
-        "changesSummary": "Draft updated: Home"
-      },
-      {
-        "version": 3,
-        "savedAt": "Nov 20, 2026 at 1:27 PM",
+        "savedAt": "Nov 20, 2026 at 1:37 PM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
       },
@@ -120,12 +108,24 @@
       {
         "version": 3,
         "savedAt": "Nov 20, 2026 at 12:53 PM",
+        "author": "Admin Workspace",
+        "changesSummary": "Draft updated: Home"
+      },
+      {
+        "version": 3,
+        "savedAt": "Nov 20, 2026 at 12:38 PM",
+        "author": "Admin Workspace",
+        "changesSummary": "Draft updated: Home"
+      },
+      {
+        "version": 3,
+        "savedAt": "Nov 20, 2026 at 12:38 PM",
         "author": "Admin Workspace",
         "changesSummary": "Draft updated: Home"
       }
     ],
     "createdAt": "2025-10-01T00:00:00.000Z",
-    "updatedAt": "2026-11-20T08:05:48.310Z",
+    "updatedAt": "2026-11-20T08:07:54.789Z",
     "isSample": true,
     "draftConfigData": {
       "bannerVisible": true,
