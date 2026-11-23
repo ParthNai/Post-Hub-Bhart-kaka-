@@ -122,9 +122,11 @@ class AppRemoteConfig {
   factory AppRemoteConfig.fromJson(Map<String, dynamic> json) {
     final root = (json['data'] is Map<String, dynamic>)
         ? json['data'] as Map<String, dynamic>
-        : (json['config'] is Map<String, dynamic> ? json['config'] as Map<String, dynamic> : json);
+        : (json['config'] is Map<String, dynamic>
+              ? json['config'] as Map<String, dynamic>
+              : json);
 
-    // 1. App Branding & Logo
+    // 1. App Branding
     String? appIcon;
     String? logo;
     String iconPreset = '🇮🇳';
@@ -171,8 +173,14 @@ class AppRemoteConfig {
     if (root['preloader'] is Map<String, dynamic>) {
       final pre = root['preloader'] as Map<String, dynamic>;
       preloaderEnabled = pre['enabled'] as bool? ?? true;
-      preloaderPrimary = hexToColor(pre['primaryColor'] as String?, fallback: const Color(0xFFFE8706));
-      preloaderSecondary = hexToColor(pre['secondaryColor'] as String?, fallback: const Color(0xFF0055B8));
+      preloaderPrimary = hexToColor(
+        pre['primaryColor'] as String?,
+        fallback: const Color(0xFFFE8706),
+      );
+      preloaderSecondary = hexToColor(
+        pre['secondaryColor'] as String?,
+        fallback: const Color(0xFF0055B8),
+      );
       preloaderDuration = (pre['durationMs'] as num?)?.toInt() ?? 2000;
       preloaderMedia = pre['mediaType'] as String? ?? 'animation';
       preloaderVideo = pre['videoUrl'] as String?;
@@ -205,7 +213,10 @@ class AppRemoteConfig {
     if (root['theme'] is Map<String, dynamic>) {
       final th = root['theme'] as Map<String, dynamic>;
       theme = th['mode'] as String? ?? 'Light';
-      primaryAccent = hexToColor(th['primaryAccent'] as String?, fallback: const Color(0xFF0055B8));
+      primaryAccent = hexToColor(
+        th['primaryAccent'] as String?,
+        fallback: const Color(0xFF0055B8),
+      );
       bg = th['backgroundColor'] as String? ?? '#FFFFFF';
       radius = th['cardRadius'] as String? ?? '14px';
     }
@@ -217,24 +228,14 @@ class AppRemoteConfig {
     String subtitle = 'Choose a format below or start from templates.';
     if (root['heroSection'] is Map<String, dynamic>) {
       final hero = root['heroSection'] as Map<String, dynamic>;
-      heroVis = (hero['visible'] as bool? ?? true) && (hero['enabled'] as bool? ?? true);
+      heroVis =
+          (hero['visible'] as bool? ?? true) &&
+          (hero['enabled'] as bool? ?? true);
       badge = hero['badge'] as String? ?? '✨ MAGIC STUDIO';
       headline = hero['headline'] as String? ?? 'What will you design today?';
-      subtitle = hero['subtitle'] as String? ?? 'Choose a format below or start from templates.';
-    } else if (root['homeScreen'] is Map<String, dynamic>) {
-      final hs = root['homeScreen'] as Map<String, dynamic>;
-      if (hs['heroTitle'] is String && (hs['heroTitle'] as String).isNotEmpty) {
-        headline = hs['heroTitle'] as String;
-      }
-      if (hs['heroSubtitle'] is String && (hs['heroSubtitle'] as String).isNotEmpty) {
-        subtitle = hs['heroSubtitle'] as String;
-      }
-      if (hs['noticeBanner'] is Map<String, dynamic>) {
-        final nb = hs['noticeBanner'] as Map<String, dynamic>;
-        if (nb['text'] is String && (nb['text'] as String).isNotEmpty) {
-          badge = nb['text'] as String;
-        }
-      }
+      subtitle =
+          hero['subtitle'] as String? ??
+          'Choose a format below or start from templates.';
     }
 
     // Screens map
@@ -253,8 +254,8 @@ class AppRemoteConfig {
 
     // Templates list
     final templatesList = <RemoteTemplate>[];
-    if (json['templates'] is List) {
-      for (final item in json['templates'] as List) {
+    if (root['templates'] is List) {
+      for (final item in root['templates'] as List) {
         if (item is Map<String, dynamic>) {
           templatesList.add(RemoteTemplate.fromJson(item));
         }
@@ -262,9 +263,9 @@ class AppRemoteConfig {
     }
 
     return AppRemoteConfig(
-      platform: json['platform'] as String? ?? 'Post Hub Mobile Client',
-      schemaVersion: json['schemaVersion'] as String? ?? '2.1.0',
-      publishedAt: json['publishedAt'] as String? ?? '',
+      platform: root['platform'] as String? ?? 'Post Hub Mobile Client',
+      schemaVersion: root['schemaVersion'] as String? ?? '2.1.0',
+      publishedAt: root['publishedAt'] as String? ?? '',
       appIconUrl: appIcon,
       logoUrl: logo,
       appIconPreset: iconPreset,
@@ -309,8 +310,10 @@ class AppRemoteConfig {
       },
       'preloader': {
         'enabled': isPreloaderEnabled,
-        'primaryColor': '#${preloaderPrimaryColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
-        'secondaryColor': '#${preloaderSecondaryColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
+        'primaryColor':
+            '#${preloaderPrimaryColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
+        'secondaryColor':
+            '#${preloaderSecondaryColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
         'durationMs': preloaderDurationMs,
         'mediaType': preloaderMediaType,
         'videoUrl': preloaderVideoUrl,
@@ -323,7 +326,8 @@ class AppRemoteConfig {
       },
       'theme': {
         'mode': themeMode,
-        'primaryAccent': '#${primaryAccentColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
+        'primaryAccent':
+            '#${primaryAccentColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
         'backgroundColor': backgroundColor,
         'cardRadius': cardRadius,
       },
@@ -384,7 +388,8 @@ class RemoteScreenConfig {
       id: 'scr_home_001',
       key: 'home',
       name: 'Home',
-      description: 'Discover templates, create AI images, and explore festival designs.',
+      description:
+          'Discover templates, create AI images, and explore festival designs.',
       route: '/home',
       icon: 'Home',
       category: 'Navigation',
@@ -392,7 +397,11 @@ class RemoteScreenConfig {
       version: 1,
       visibilityEnabled: true,
       minAppVersion: '1.0.0',
-      capabilities: const ['hero_banner', 'category_rail', 'trending_templates'],
+      capabilities: const [
+        'hero_banner',
+        'category_rail',
+        'trending_templates',
+      ],
       layoutConfig: ScreenLayoutConfig.defaultHomeLayout(),
     );
   }
@@ -410,7 +419,11 @@ class RemoteScreenConfig {
       version: 1,
       visibilityEnabled: true,
       minAppVersion: '1.0.0',
-      capabilities: const ['email_password_auth', 'remember_me', 'password_recovery'],
+      capabilities: const [
+        'email_password_auth',
+        'remember_me',
+        'password_recovery',
+      ],
       layoutConfig: const ScreenLayoutConfig(),
     );
   }
@@ -428,12 +441,15 @@ class RemoteScreenConfig {
       version: (json['version'] as num?)?.toInt() ?? 1,
       visibilityEnabled: json['visibilityEnabled'] as bool? ?? true,
       minAppVersion: json['minAppVersion'] as String? ?? '1.0.0',
-      capabilities: (json['capabilities'] as List<dynamic>?)
+      capabilities:
+          (json['capabilities'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],
       layoutConfig: json['layoutConfig'] is Map<String, dynamic>
-          ? ScreenLayoutConfig.fromJson(json['layoutConfig'] as Map<String, dynamic>)
+          ? ScreenLayoutConfig.fromJson(
+              json['layoutConfig'] as Map<String, dynamic>,
+            )
           : ScreenLayoutConfig.defaultHomeLayout(),
     );
   }
@@ -494,11 +510,36 @@ class ScreenLayoutConfig {
       primaryAccent: '#0055B8',
       cardRadius: '14px',
       sections: [
-        ScreenSectionConfig(id: 'hero', title: 'Hero Banner', enabled: true, order: 1),
-        ScreenSectionConfig(id: 'categories', title: 'Category Rail', enabled: true, order: 2),
-        ScreenSectionConfig(id: 'ai_studio', title: 'AI Studio', enabled: true, order: 3),
-        ScreenSectionConfig(id: 'featured_templates', title: 'Featured Templates', enabled: true, order: 4),
-        ScreenSectionConfig(id: 'screen_navigator', title: 'Screen Navigator', enabled: true, order: 5),
+        ScreenSectionConfig(
+          id: 'hero',
+          title: 'Hero Banner',
+          enabled: true,
+          order: 1,
+        ),
+        ScreenSectionConfig(
+          id: 'categories',
+          title: 'Category Rail',
+          enabled: true,
+          order: 2,
+        ),
+        ScreenSectionConfig(
+          id: 'ai_studio',
+          title: 'AI Studio',
+          enabled: true,
+          order: 3,
+        ),
+        ScreenSectionConfig(
+          id: 'featured_templates',
+          title: 'Featured Templates',
+          enabled: true,
+          order: 4,
+        ),
+        ScreenSectionConfig(
+          id: 'screen_navigator',
+          title: 'Screen Navigator',
+          enabled: true,
+          order: 5,
+        ),
       ],
     );
   }
@@ -571,12 +612,7 @@ class ScreenSectionConfig {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'title': title,
-      'enabled': enabled,
-      'order': order,
-    };
+    return {'id': id, 'title': title, 'enabled': enabled, 'order': order};
   }
 }
 
@@ -625,7 +661,9 @@ class RemoteTemplate {
       aspectRatio: json['aspectRatio'] as String? ?? '3:4',
       thumbnailUrl: json['thumbnailUrl'] as String?,
       backgroundImageUrl: json['backgroundImageUrl'] as String?,
-      tags: (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
+      tags:
+          (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+          const [],
     );
   }
 
@@ -649,7 +687,10 @@ class RemoteTemplate {
 }
 
 /// Helper to convert hex string (#RRGGBB or #AARRGGBB) to Flutter Color
-Color hexToColor(String? hexString, {Color fallback = const Color(0xFF0055B8)}) {
+Color hexToColor(
+  String? hexString, {
+  Color fallback = const Color(0xFF0055B8),
+}) {
   if (hexString == null || hexString.isEmpty) return fallback;
   var hex = hexString.replaceAll('#', '').trim();
   if (hex.length == 6) {

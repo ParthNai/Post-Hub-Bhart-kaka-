@@ -7,7 +7,6 @@ import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
-import 'package:panchayat_post/features/splash/presentation/widgets/brand_logo_widget.dart';
 
 /// Screen 09: Main Home Dashboard Screen
 ///
@@ -94,9 +93,17 @@ class _HomeScreenState extends State<HomeScreen> {
     } else if (index == 2) {
       _showAllTemplatesLibrary(context);
     } else if (index == 3) {
-      _showMyDesignsModal(context);
+      Navigator.of(context).pushNamed(AppRoutes.myDesigns).then((_) {
+        if (mounted) {
+          setState(() => _selectedNavIndex = 0);
+        }
+      });
     } else if (index == 4) {
-      _showProfileDrawer(context);
+      Navigator.of(context).pushNamed(AppRoutes.profile).then((_) {
+        if (mounted) {
+          setState(() => _selectedNavIndex = 0);
+        }
+      });
     }
   }
 
@@ -590,61 +597,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showMyDesignsModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(Icons.photo_library_outlined, color: Color(0xFF6D28D9), size: 22.0),
-                SizedBox(width: 8.0),
-                Expanded(
-                  child: Text(
-                    'My Saved Designs',
-                    style: TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textNavy,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12.0),
-            const Text(
-              'You have 0 saved custom designs. Start customizing a popular template or generate with AI!',
-              style: TextStyle(fontSize: 13.0, color: Color(0xFF64748B), height: 1.4),
-            ),
-            const SizedBox(height: 16.0),
-            Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6D28D9),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-                ),
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                  _showAllTemplatesLibrary(context);
-                },
-                child: const Text('Create My First Poster'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _showProfileDrawer(BuildContext context) {
     final strings = LocaleScope.of(context).strings;
     showModalBottomSheet(
@@ -764,6 +716,9 @@ class _HomeScreenState extends State<HomeScreen> {
             _buildNavTile(ctx, 'Screen 11: Festival Details', AppRoutes.festivalDetail),
             _buildNavTile(ctx, 'Screen 12: Poster Editor Studio', AppRoutes.posterEditor),
             _buildNavTile(ctx, 'Screen 13: Final Poster Preview & Share', AppRoutes.posterPreview),
+            _buildNavTile(ctx, 'Screen 14: My Designs Library', AppRoutes.myDesigns),
+            _buildNavTile(ctx, 'Screen 15: User Profile', AppRoutes.profile),
+            _buildNavTile(ctx, 'Screen 16: Settings & Preferences', AppRoutes.settings),
             const SizedBox(height: 10.0),
           ],
         ),
@@ -912,9 +867,11 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
                 children: [
-                  // Panchayat Post Logo (Admin controllable)
-                  const BrandLogoWidget(
+                  // Panchayat Post Logo
+                  Image.asset(
+                    AppAssets.panchayatLogo,
                     height: 36.0,
+                    fit: BoxFit.contain,
                   ),
                   const SizedBox(width: 6.0),
                   const Column(

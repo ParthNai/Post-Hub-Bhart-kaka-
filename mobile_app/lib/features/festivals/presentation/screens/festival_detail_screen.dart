@@ -1527,9 +1527,7 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
               activeIcon: Icons.image_rounded,
               label: s.navMyDesigns,
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('My Designs section')),
-                );
+                Navigator.of(context).pushNamed(AppRoutes.myDesigns);
               },
             ),
           ),
@@ -1540,7 +1538,7 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
               activeIcon: Icons.person_rounded,
               label: s.navProfile,
               onTap: () {
-                Navigator.of(context).pushNamed(AppRoutes.profileSetup);
+                Navigator.of(context).pushNamed(AppRoutes.profile);
               },
             ),
           ),

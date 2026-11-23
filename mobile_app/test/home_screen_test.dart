@@ -55,6 +55,9 @@ void main() {
             AppRoutes.recoveryStatus: (context) => const Scaffold(body: Center(child: Text('Recovery Status Screen'))),
             AppRoutes.onboardingConfirmation: (context) => const Scaffold(body: Center(child: Text('Onboarding Done Screen'))),
             AppRoutes.festivals: (context) => const Scaffold(body: Center(child: Text('Festivals Screen'))),
+            AppRoutes.profile: (context) => const Scaffold(body: Center(child: Text('Profile Screen'))),
+            AppRoutes.myDesigns: (context) => const Scaffold(body: Center(child: Text('My Designs Screen'))),
+            AppRoutes.settings: (context) => const Scaffold(body: Center(child: Text('Settings Screen'))),
           },
         ),
       ),
@@ -167,7 +170,7 @@ void main() {
       expect(find.text('All Popular Templates'), findsOneWidget);
     });
 
-    testWidgets('Tapping Profile in bottom nav opens profile sheet with edit and test options', (tester) async {
+    testWidgets('Tapping Profile in bottom nav navigates to profile screen', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -181,8 +184,8 @@ void main() {
       await tester.tap(profileTab);
       await tester.pumpAndSettle();
 
-      expect(find.text('Edit Profile Details'), findsOneWidget);
-      expect(find.text('Test All Screens (01–08)'), findsOneWidget);
+      // Profile nav now navigates to the profile route
+      expect(find.text('Profile Screen'), findsOneWidget);
     });
 
     testWidgets('Tapping Explore Designs button opens festival templates modal', (tester) async {

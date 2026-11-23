@@ -1239,33 +1239,40 @@ class _PosterPreviewScreenState extends State<PosterPreviewScreen> {
 
   // 8. Saved in My Designs Status Banner
   Widget _buildSavedInMyDesignsBadge(AppStrings s) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0),
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF0FDF4),
-        borderRadius: BorderRadius.circular(14.0),
-        border: Border.all(color: const Color(0xFFBBF7D0)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.folder_open_rounded,
-            size: 18.0,
-            color: Color(0xFF16A34A),
-          ),
-          const SizedBox(width: 8.0),
-          Text(
-            s.savedInMyDesignsBadge,
-            key: const ValueKey('saved_in_my_designs_text'),
-            style: const TextStyle(
-              fontSize: 12.5,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF15803D),
+    return InkWell(
+      key: const ValueKey('saved_in_my_designs_button'),
+      borderRadius: BorderRadius.circular(14.0),
+      onTap: () {
+        Navigator.of(context).pushNamed(AppRoutes.myDesigns);
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(vertical: 10.0),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF0FDF4),
+          borderRadius: BorderRadius.circular(14.0),
+          border: Border.all(color: const Color(0xFFBBF7D0)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.folder_open_rounded,
+              size: 18.0,
+              color: Color(0xFF16A34A),
             ),
-          ),
-        ],
+            const SizedBox(width: 8.0),
+            Text(
+              s.savedInMyDesignsBadge,
+              key: const ValueKey('saved_in_my_designs_text'),
+              style: const TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF15803D),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
