@@ -117,9 +117,12 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     } on AuthException catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
+      final message = e.message.toLowerCase().contains('already exist')
+          ? strings.mobileAlreadyRegisteredError
+          : e.message;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.message),
+          content: Text(message),
           backgroundColor: const Color(0xFFEF4444),
         ),
       );

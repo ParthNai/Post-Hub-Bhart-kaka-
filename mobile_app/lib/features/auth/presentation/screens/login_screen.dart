@@ -12,9 +12,8 @@ import 'package:panchayat_post/features/auth/presentation/widgets/auth_text_fiel
 import 'package:panchayat_post/features/welcome/presentation/widgets/welcome_background_painter.dart';
 
 /// Screen 04: User Login Screen.
-/// Implements Username + Password authentication exclusively.
-/// Features secure salted SHA-256 password verification, configurable session persistence
-/// (Remember Me), account recovery dialog, and live multi-language switching.
+/// Authenticates users with their registered mobile number and PIN.
+/// Supports configurable session persistence and live multi-language switching.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({
     super.key,
@@ -103,12 +102,12 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
       setState(() => _isLoading = false);
 
-      // Map backend error messages to localized strings where appropriate
       String displayMsg = e.message;
-      if (e.message.contains('does not exist')) {
-        displayMsg = strings.accountNotFoundError;
-      } else if (e.message.contains('Invalid password')) {
-        displayMsg = strings.invalidPasswordError;
+      final errorMessage = e.message.toLowerCase();
+      if (errorMessage.contains('inactive')) {
+        displayMsg = strings.accountInactiveError;
+      } else if (errorMessage.contains('pin') || errorMessage.contains('does not exist')) {
+        displayMsg = strings.pinInvalidError;
       }
 
       ScaffoldMessenger.of(context).removeCurrentSnackBar();

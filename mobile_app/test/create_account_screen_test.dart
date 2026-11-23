@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
@@ -8,7 +12,6 @@ import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/presentation/screens/create_account_screen.dart';
 import 'package:panchayat_post/features/auth/presentation/screens/login_screen.dart';
 import 'package:panchayat_post/features/auth/presentation/widgets/auth_text_field.dart';
-import 'package:panchayat_post/features/auth/presentation/widgets/password_guidelines_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -17,6 +20,7 @@ void main() {
   late LocaleController localeController;
   late AuthService authService;
   late SessionService sessionService;
+  late List<http.Request> requests;
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
@@ -24,7 +28,36 @@ void main() {
     localeController = LocaleController(preferences: prefs);
     await localeController.loadSavedLanguage();
     sessionService = SessionService(preferences: prefs);
-    authService = AuthService(preferences: prefs, sessionService: sessionService);
+    requests = [];
+    authService = AuthService(
+      preferences: prefs,
+      sessionService: sessionService,
+      httpClient: MockClient((request) async {
+        requests.add(request);
+        if (request.url.path.endsWith('/register')) {
+          return http.Response(
+            jsonEncode({'message': 'User registered successfully'}),
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }
+        return http.Response(
+          jsonEncode({
+            'message': 'Login Success',
+            'token': 'test-token',
+            'user': {
+              '_id': 'test-user',
+              'name': 'Rameshbhai Patel',
+              'mobile': 7801985214,
+              'status': true,
+              'createdAt': '2026-01-01T00:00:00.000Z',
+            },
+          }),
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+      }),
+    );
   });
 
   Widget buildTestableScreen({Size size = const Size(390, 844)}) {
@@ -73,18 +106,14 @@ void main() {
       );
 
       // 4. Input Fields
-      expect(find.byType(AuthTextField), findsNWidgets(4));
+      expect(find.byType(AuthTextField), findsNWidgets(7));
       expect(find.text('તમારું પૂરું નામ લખો'), findsWidgets);
-      expect(find.text('તમારું યુઝરનેમ બનાવો'), findsWidgets);
-      expect(find.text('પાસવર્ડ બનાવો'), findsWidgets);
-      expect(find.text('પાસવર્ડ ફરીથી લખો'), findsWidgets);
-
-      // 5. Password guidelines card
-      expect(find.byType(PasswordGuidelinesWidget), findsOneWidget);
-      expect(find.text('પાસવર્ડ માટે સુચના:'), findsOneWidget);
-      expect(find.text('ઓછામાં ઓછા 8 અક્ષર'), findsOneWidget);
-      expect(find.text('મોટા અને નાના અક્ષર'), findsOneWidget);
-      expect(find.text('ઓછામાં ઓછો 1 નંબર'), findsOneWidget);
+      expect(find.text('મોબાઇલ નંબર *'), findsOneWidget);
+      expect(find.text('4 અંકનો PIN'), findsOneWidget);
+      expect(find.text('વ્યવસાય *'), findsOneWidget);
+      expect(find.text('ગામ / શહેર'), findsOneWidget);
+      expect(find.text('તાલુકો'), findsWidgets);
+      expect(find.text('જિલ્લો'), findsWidgets);
 
       // 6. Terms & Conditions checkbox & text
       expect(find.byType(Checkbox), findsOneWidget);
@@ -97,39 +126,7 @@ void main() {
       expect(find.text('Login કરો'), findsOneWidget);
     });
 
-    testWidgets('Password requirements dynamically update indicators as user types',
-        (tester) async {
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-
-      await tester.pumpWidget(buildTestableScreen());
-      await tester.pumpAndSettle();
-
-      // Find password input (3rd TextFormField)
-      final passwordFields = find.byType(TextFormField);
-      final passwordInput = passwordFields.at(2);
-
-      // Initially no checkmarks are active
-      expect(find.byIcon(Icons.check_circle), findsNothing);
-
-      // Type 8 lowercase letters -> min length fulfilled
-      await tester.enterText(passwordInput, 'abcdefgh');
-      await tester.pump();
-      expect(find.byIcon(Icons.check_circle), findsNWidgets(1));
-
-      // Add uppercase -> case fulfilled
-      await tester.enterText(passwordInput, 'Abcdefgh');
-      await tester.pump();
-      expect(find.byIcon(Icons.check_circle), findsNWidgets(2));
-
-      // Add number -> all 3 fulfilled
-      await tester.enterText(passwordInput, 'Abcdefgh1');
-      await tester.pump();
-      expect(find.byIcon(Icons.check_circle), findsNWidgets(3));
-    });
-
-    testWidgets('Validation triggers errors for empty fields, password mismatch, and unaccepted terms',
+    testWidgets('Validation requires mobile, PIN, occupation, and accepted terms',
         (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
@@ -146,7 +143,9 @@ void main() {
 
       // Expect field errors and terms error
       expect(find.text('કૃપા કરીને તમારું પૂરું નામ લખો'), findsOneWidget);
-      expect(find.text('યુઝરનેમમાં ઓછામાં ઓછા 3 અક્ષર હોવા જોઈએ'), findsOneWidget);
+      expect(find.text('કૃપા કરીને મોબાઇલ નંબર લખો'), findsOneWidget);
+      expect(find.text('કૃપા કરીને 4 અંકનો PIN લખો'), findsOneWidget);
+      expect(find.text('કૃપા કરીને વ્યવસાય લખો'), findsOneWidget);
       expect(find.text('કૃપા કરીને Terms & Conditions સ્વીકારો.'), findsOneWidget);
     });
 
@@ -195,7 +194,7 @@ void main() {
       expect(find.text('ફરીથી આપનું સ્વાગત છે!'), findsOneWidget);
     });
 
-    testWidgets('Valid form submission registers account and navigates to next screen',
+    testWidgets('Valid form submits profile fields and navigates to login',
         (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
@@ -209,15 +208,12 @@ void main() {
       // 1. Enter Full Name
       await tester.enterText(textFields.at(0), 'Rameshbhai Patel');
 
-      // 2. Enter Username
-      await tester.enterText(textFields.at(1), 'sarpanch_ramesh');
-      await tester.pump(const Duration(milliseconds: 350)); // Debounce timer
-
-      // 3. Enter Password
-      await tester.enterText(textFields.at(2), 'Village@2026');
-
-      // 4. Enter Confirm Password
-      await tester.enterText(textFields.at(3), 'Village@2026');
+      await tester.enterText(textFields.at(1), '7801985214');
+      await tester.enterText(textFields.at(2), '4567');
+      await tester.enterText(textFields.at(3), 'Sarpanch');
+      await tester.enterText(textFields.at(4), 'Palanpur');
+      await tester.enterText(textFields.at(5), 'Palanpur');
+      await tester.enterText(textFields.at(6), 'Bk');
 
       // 5. Accept Terms
       final checkbox = find.byType(Checkbox);
@@ -231,12 +227,20 @@ void main() {
       await tester.tap(submitBtn);
       await tester.pumpAndSettle();
 
-      // Verified navigated to Home Screen 06
-      expect(find.text('Home Screen 06'), findsOneWidget);
-
-      // Verified session is marked authenticated
-      final sessionState = await sessionService.checkSession();
-      expect(sessionState, equals(SessionState.authenticated));
+      expect(find.byType(LoginScreen), findsOneWidget);
+      expect(requests, hasLength(1));
+      expect(requests.single.url.path, endsWith('/api/register'));
+      final payload = jsonDecode(requests.single.body) as Map<String, dynamic>;
+      expect(payload, {
+        'name': 'Rameshbhai Patel',
+        'mobile': '7801985214',
+        'pin': '4567',
+        'occupation': 'Sarpanch',
+        'village': 'Palanpur',
+        'taluka': 'Palanpur',
+        'district': 'Bk',
+      });
+      expect(await sessionService.checkSession(), SessionState.firstTime);
     });
   });
 

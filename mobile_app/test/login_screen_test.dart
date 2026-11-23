@@ -1,12 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
 import 'package:panchayat_post/core/services/session_service.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/presentation/screens/create_account_screen.dart';
-import 'package:panchayat_post/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:panchayat_post/features/auth/presentation/screens/login_screen.dart';
 import 'package:panchayat_post/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,16 +27,37 @@ void main() {
     localeController = LocaleController(preferences: prefs);
     await localeController.loadSavedLanguage();
     sessionService = SessionService(preferences: prefs);
-    authService = AuthService(preferences: prefs, sessionService: sessionService);
-
-    // Seed a registered test user
-    await authService.registerUser(
-      fullName: 'Rameshbhai Patel',
-      username: 'ramesh_sarpanch',
-      password: 'VillagePassword1',
+    authService = AuthService(
+      preferences: prefs,
+      sessionService: sessionService,
+      httpClient: MockClient((request) async {
+        final payload = jsonDecode(request.body) as Map<String, dynamic>;
+        if (payload['mobile'] == '7801985214' && payload['otp'] == '4567') {
+          return http.Response(
+            jsonEncode({
+              'message': 'Login Success',
+              'token': 'test-token',
+              'user': {
+                '_id': 'test-user',
+                'name': 'Rameshbhai Patel',
+                'mobile': 7801985214,
+                'status': true,
+                'createdAt': '2026-01-01T00:00:00.000Z',
+                'village': 'Palanpur',
+                'district': 'Bk',
+              },
+            }),
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }
+        return http.Response(
+          jsonEncode({'message': 'Invalid Pin or user does not exist'}),
+          500,
+          headers: {'content-type': 'application/json'},
+        );
+      }),
     );
-    // Clear session so login can be independently tested
-    await sessionService.clearSession();
   });
 
   Widget buildTestableScreen({Size size = const Size(390, 844)}) {
@@ -48,7 +72,6 @@ void main() {
           ),
           routes: {
             AppRoutes.createAccount: (context) => const CreateAccountScreen(),
-            AppRoutes.forgotPassword: (context) => const ForgotPasswordScreen(),
             AppRoutes.home: (context) => const Scaffold(body: Text('Home Screen 06')),
           },
         ),
@@ -87,15 +110,14 @@ void main() {
 
       // 4. Input Fields
       expect(find.byType(AuthTextField), findsNWidgets(2));
-      expect(find.text('યુઝરનેમ'), findsWidgets);
-      expect(find.text('તમારું યુઝરનેમ લખો'), findsOneWidget);
-      expect(find.text('પાસવર્ડ'), findsWidgets);
-      expect(find.text('તમારો પાસવર્ડ લખો'), findsOneWidget);
+      expect(find.text('મોબાઇલ નંબર'), findsOneWidget);
+      expect(find.text('10 અંકનો મોબાઇલ નંબર'), findsOneWidget);
+      expect(find.text('4 અંકનો PIN'), findsOneWidget);
+      expect(find.text('તમારો PIN લખો'), findsOneWidget);
 
-      // 5. Remember Me & Forgot Password
+      // 5. Remember Me
       expect(find.byType(Checkbox), findsOneWidget);
       expect(find.text('મને યાદ રાખો'), findsOneWidget);
-      expect(find.text('પાસવર્ડ ભૂલી ગયા?'), findsOneWidget);
 
       // 6. Primary Action Button
       expect(find.text('લોગિન કરો'), findsOneWidget);
@@ -126,7 +148,7 @@ void main() {
       expect(find.byIcon(Icons.visibility_outlined), findsOneWidget);
     });
 
-    testWidgets('Validation triggers errors for empty username or password', (tester) async {
+    testWidgets('Validation triggers errors for empty mobile number or PIN', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -140,11 +162,11 @@ void main() {
       await tester.tap(loginBtn);
       await tester.pumpAndSettle();
 
-      expect(find.text('કૃપા કરીને તમારું યુઝરનેમ લખો'), findsOneWidget);
-      expect(find.text('કૃપા કરીને તમારો પાસવર્ડ લખો'), findsOneWidget);
+      expect(find.text('કૃપા કરીને મોબાઇલ નંબર લખો'), findsOneWidget);
+      expect(find.text('કૃપા કરીને 4 અંકનો PIN લખો'), findsOneWidget);
     });
 
-    testWidgets('Shows error when account does not exist or password is wrong', (tester) async {
+    testWidgets('Shows an error for an unknown mobile number or incorrect PIN', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -154,41 +176,22 @@ void main() {
 
       final textFields = find.byType(TextFormField);
 
-      // 1. Non-existent username
-      await tester.enterText(textFields.at(0), 'unknown_user');
-      await tester.enterText(textFields.at(1), 'SomePass123');
+      await tester.enterText(textFields.at(0), '9999999999');
+      await tester.enterText(textFields.at(1), '0000');
 
       final loginBtn = find.text('લોગિન કરો');
       await tester.ensureVisible(loginBtn);
       await tester.tap(loginBtn);
       await tester.pumpAndSettle();
 
-      expect(find.text('આ યુઝરનેમ વાળું એકાઉન્ટ મળ્યું નથી.'), findsOneWidget);
+      expect(find.text('મોબાઇલ નંબર અથવા PIN ખોટો છે'), findsOneWidget);
 
-      // 2. Correct username, wrong password
-      await tester.enterText(textFields.at(0), 'ramesh_sarpanch');
-      await tester.enterText(textFields.at(1), 'WrongPassword123');
+      await tester.enterText(textFields.at(0), '7801985214');
+      await tester.enterText(textFields.at(1), '1111');
       await tester.tap(loginBtn);
       await tester.pumpAndSettle();
 
-      expect(find.text('ખોટો પાસવર્ડ દાખલ કર્યો છે.'), findsOneWidget);
-    });
-
-    testWidgets('Tapping Forgot Password navigates to Screen 05 Forgot Password', (tester) async {
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-
-      await tester.pumpWidget(buildTestableScreen());
-      await tester.pumpAndSettle();
-
-      final forgotLink = find.text('પાસવર્ડ ભૂલી ગયા?');
-      await tester.ensureVisible(forgotLink);
-      await tester.tap(forgotLink);
-      await tester.pumpAndSettle();
-
-      expect(find.byType(ForgotPasswordScreen), findsOneWidget);
-      expect(find.textContaining('ચિંતા કરશો નહીં!'), findsOneWidget);
+      expect(find.text('મોબાઇલ નંબર અથવા PIN ખોટો છે'), findsOneWidget);
     });
 
     testWidgets('Tapping "એકાઉન્ટ બનાવો" navigates to Screen 03 Create Account',
@@ -220,8 +223,8 @@ void main() {
 
       final textFields = find.byType(TextFormField);
 
-      await tester.enterText(textFields.at(0), 'ramesh_sarpanch');
-      await tester.enterText(textFields.at(1), 'VillagePassword1');
+      await tester.enterText(textFields.at(0), '7801985214');
+      await tester.enterText(textFields.at(1), '4567');
 
       final loginBtn = find.text('લોગિન કરો');
       await tester.ensureVisible(loginBtn);
