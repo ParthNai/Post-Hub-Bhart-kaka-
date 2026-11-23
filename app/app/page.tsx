@@ -7,7 +7,7 @@ import { AppShowcase } from "@/components/app/AppShowcase";
 import { AppLoginForm } from "@/components/app/AppLoginForm";
 import { MobileAppHomeScreen } from "@/components/mobile/MobileAppHomeScreen";
 import { MobileAppPreloader } from "@/components/mobile/MobileAppPreloader";
-import { AppUser, clearAppUser, PRESET_DEMO_USERS, saveAppUser } from "@/lib/app-auth";
+import { AppUser, clearAppUser, getAppUser, PRESET_DEMO_USERS, saveAppUser } from "@/lib/app-auth";
 import { PosterTemplate } from "@/lib/templates";
 
 export default function MobileAppRootPage() {
@@ -101,7 +101,15 @@ export default function MobileAppRootPage() {
         durationMs={appRemoteConfig?.preloader?.durationMs || 2200}
         logoUrl={appRemoteConfig?.appBranding?.logoUrl || appRemoteConfig?.appBranding?.appIconUrl}
         tagline="Create. Celebrate. Share."
-        onComplete={() => setCurrentScreen("login")}
+        onComplete={() => {
+          const user = getAppUser();
+          if (user) {
+            setActiveUser(user);
+            setCurrentScreen("home");
+          } else {
+            setCurrentScreen("login");
+          }
+        }}
       />
     );
   }
