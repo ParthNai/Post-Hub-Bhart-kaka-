@@ -54,6 +54,7 @@ void main() {
             AppRoutes.forgotPassword: (context) => const Scaffold(body: Center(child: Text('Forgot Password Screen'))),
             AppRoutes.recoveryStatus: (context) => const Scaffold(body: Center(child: Text('Recovery Status Screen'))),
             AppRoutes.onboardingConfirmation: (context) => const Scaffold(body: Center(child: Text('Onboarding Done Screen'))),
+            AppRoutes.festivals: (context) => const Scaffold(body: Center(child: Text('Festivals Screen'))),
           },
         ),
       ),

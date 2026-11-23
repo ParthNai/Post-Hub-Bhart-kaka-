@@ -73,4 +73,17 @@ class AppAssets {
   static const String homeFestivalNavratri = 'assets/images/home_festival_navratri.png';
   static const String homeFestivalDiwali = 'assets/images/home_festival_diwali.png';
   static const String homeFestivalBhaiBeej = 'assets/images/home_festival_bhaibeej.png';
+
+  /// Approved UI reference for Screen 10 Festival & Upcoming Events Listing.
+  static const String screen10Reference = 'assets/images/screen_10_reference.jpg';
+  static const String festivalHeroBanner = 'assets/images/festival_hero_banner.png';
+  static const String festivalHeroDancers = 'assets/images/festival_hero_dancers.png';
+  static const String festivalNavratriMaa = 'assets/images/festival_navratri_maa.png';
+  static const String festivalDiwaliDiyas = 'assets/images/festival_diwali_diyas.png';
+  static const String festivalBhaiBeej = 'assets/images/festival_bhai_beej.png';
+  static const String festivalChristmasSanta = 'assets/images/festival_christmas_santa.png';
+  static const String festivalAllMakarSankranti = 'assets/images/festival_all_makar_sankranti.png';
+  static const String festivalAllHoli = 'assets/images/festival_all_holi.png';
+  static const String festivalAllJanmashtami = 'assets/images/festival_all_janmashtami.png';
+  static const String festivalAllGanesh = 'assets/images/festival_all_ganesh.png';
 }

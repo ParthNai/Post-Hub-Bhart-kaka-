@@ -85,7 +85,11 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     if (index == 1) {
-      _showTemplatesModal(context, 'Festivals');
+      Navigator.of(context).pushNamed(AppRoutes.festivals).then((_) {
+        if (mounted) {
+          setState(() => _selectedNavIndex = 0);
+        }
+      });
     } else if (index == 2) {
       _showAllTemplatesLibrary(context);
     } else if (index == 3) {

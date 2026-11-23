@@ -199,6 +199,30 @@ class AppStrings {
     required this.navProfile,
     required this.notificationsTitle,
     required this.noNewNotifications,
+    // Screen 10: Festival & Upcoming Events listing strings
+    required this.festivalsPageTitle,
+    required this.festivalsPageSubtitle,
+    required this.searchFestivalsHint,
+    required this.upcomingFestivalBadge,
+    required this.navratriCelebrationTitle,
+    required this.navratriCelebrationScript,
+    required this.exploreFestiveDesignsSubtitle,
+    required this.viewDesignsButton,
+    required this.exploreCategoriesTitle,
+    required this.categoryAll,
+    required this.categoryHinduFestivals,
+    required this.categoryNationalDays,
+    required this.categoryReligiousEvents,
+    required this.categoryCulturalEvents,
+    required this.upcomingFestivalsHeader,
+    required this.viewCalendarAction,
+    required this.exploreAllFestivalsTitle,
+    required this.upcomingStatusBadge,
+    required this.noFestivalsFound,
+    required this.clearSearchAction,
+    required this.filterTitle,
+    required this.filterAllOption,
+    required this.filterUpcomingOnly,
   });
 
   final String languageName;
@@ -407,6 +431,30 @@ class AppStrings {
   final String navProfile;
   final String notificationsTitle;
   final String noNewNotifications;
+  // Screen 10 Strings
+  final String festivalsPageTitle;
+  final String festivalsPageSubtitle;
+  final String searchFestivalsHint;
+  final String upcomingFestivalBadge;
+  final String navratriCelebrationTitle;
+  final String navratriCelebrationScript;
+  final String exploreFestiveDesignsSubtitle;
+  final String viewDesignsButton;
+  final String exploreCategoriesTitle;
+  final String categoryAll;
+  final String categoryHinduFestivals;
+  final String categoryNationalDays;
+  final String categoryReligiousEvents;
+  final String categoryCulturalEvents;
+  final String upcomingFestivalsHeader;
+  final String viewCalendarAction;
+  final String exploreAllFestivalsTitle;
+  final String upcomingStatusBadge;
+  final String noFestivalsFound;
+  final String clearSearchAction;
+  final String filterTitle;
+  final String filterAllOption;
+  final String filterUpcomingOnly;
 
   static const String defaultLanguageCode = 'gu';
 
@@ -609,6 +657,29 @@ class AppStrings {
       navProfile: 'Profile',
       notificationsTitle: 'સૂચનાઓ (Notifications)',
       noNewNotifications: 'કોઈ નવી સૂચના નથી',
+      festivalsPageTitle: 'Festivals',
+      festivalsPageSubtitle: 'Discover beautiful festival designs',
+      searchFestivalsHint: 'Search festivals, occasions...',
+      upcomingFestivalBadge: 'UPCOMING FESTIVAL',
+      navratriCelebrationTitle: 'Navratri',
+      navratriCelebrationScript: 'Celebration',
+      exploreFestiveDesignsSubtitle: 'Explore beautiful festive designs',
+      viewDesignsButton: 'View Designs',
+      exploreCategoriesTitle: 'Explore Categories',
+      categoryAll: 'All',
+      categoryHinduFestivals: 'Hindu Festivals',
+      categoryNationalDays: 'National Days',
+      categoryReligiousEvents: 'Religious Events',
+      categoryCulturalEvents: 'Cultural Events',
+      upcomingFestivalsHeader: 'Upcoming Festivals',
+      viewCalendarAction: 'View Calendar',
+      exploreAllFestivalsTitle: 'Explore All Festivals',
+      upcomingStatusBadge: 'Upcoming',
+      noFestivalsFound: 'કોઈ તહેવાર મળ્યા નથી',
+      clearSearchAction: 'શોધ સાફ કરો',
+      filterTitle: 'ફિલ્ટર (Filter)',
+      filterAllOption: 'બધા તહેવારો (All)',
+      filterUpcomingOnly: 'માત્ર આગામી (Upcoming)',
     ),
     'hi': AppStrings(
       languageName: 'हिंदी',
@@ -808,6 +879,29 @@ class AppStrings {
       navProfile: 'Profile',
       notificationsTitle: 'सूचनाएं (Notifications)',
       noNewNotifications: 'कोई नई सूचना नहीं है',
+      festivalsPageTitle: 'Festivals',
+      festivalsPageSubtitle: 'Discover beautiful festival designs',
+      searchFestivalsHint: 'Search festivals, occasions...',
+      upcomingFestivalBadge: 'UPCOMING FESTIVAL',
+      navratriCelebrationTitle: 'Navratri',
+      navratriCelebrationScript: 'Celebration',
+      exploreFestiveDesignsSubtitle: 'Explore beautiful festive designs',
+      viewDesignsButton: 'View Designs',
+      exploreCategoriesTitle: 'Explore Categories',
+      categoryAll: 'All',
+      categoryHinduFestivals: 'Hindu Festivals',
+      categoryNationalDays: 'National Days',
+      categoryReligiousEvents: 'Religious Events',
+      categoryCulturalEvents: 'Cultural Events',
+      upcomingFestivalsHeader: 'Upcoming Festivals',
+      viewCalendarAction: 'View Calendar',
+      exploreAllFestivalsTitle: 'Explore All Festivals',
+      upcomingStatusBadge: 'Upcoming',
+      noFestivalsFound: 'कोई त्यौहार नहीं मिला',
+      clearSearchAction: 'खोज साफ़ करें',
+      filterTitle: 'फ़िल्टर (Filter)',
+      filterAllOption: 'सभी त्यौहार (All)',
+      filterUpcomingOnly: 'केवल आगामी (Upcoming)',
     ),
     'en': AppStrings(
       languageName: 'English',
@@ -1007,6 +1101,29 @@ class AppStrings {
       navProfile: 'Profile',
       notificationsTitle: 'Notifications',
       noNewNotifications: 'No new notifications',
+      festivalsPageTitle: 'Festivals',
+      festivalsPageSubtitle: 'Discover beautiful festival designs',
+      searchFestivalsHint: 'Search festivals, occasions...',
+      upcomingFestivalBadge: 'UPCOMING FESTIVAL',
+      navratriCelebrationTitle: 'Navratri',
+      navratriCelebrationScript: 'Celebration',
+      exploreFestiveDesignsSubtitle: 'Explore beautiful festive designs',
+      viewDesignsButton: 'View Designs',
+      exploreCategoriesTitle: 'Explore Categories',
+      categoryAll: 'All',
+      categoryHinduFestivals: 'Hindu Festivals',
+      categoryNationalDays: 'National Days',
+      categoryReligiousEvents: 'Religious Events',
+      categoryCulturalEvents: 'Cultural Events',
+      upcomingFestivalsHeader: 'Upcoming Festivals',
+      viewCalendarAction: 'View Calendar',
+      exploreAllFestivalsTitle: 'Explore All Festivals',
+      upcomingStatusBadge: 'Upcoming',
+      noFestivalsFound: 'No festivals found',
+      clearSearchAction: 'Clear Search',
+      filterTitle: 'Filter',
+      filterAllOption: 'All Festivals',
+      filterUpcomingOnly: 'Upcoming Only',
     ),
   };
 
