@@ -74,4 +74,14 @@ class DesignStorageService {
     final rawList = allDesigns.map((d) => d.toJson()).toList();
     return prefs.setStringList(_keyDesigns, rawList);
   }
+
+  /// Creates and stores an independent duplicate copy of a design project.
+  Future<PosterTemplateProject> duplicateDesign(
+    PosterTemplateProject project, {
+    String? userId,
+  }) async {
+    final copy = project.duplicate();
+    await saveDesign(copy, userId: userId);
+    return copy;
+  }
 }

@@ -335,6 +335,13 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       ),
     );
+
+    if (success) {
+      Navigator.of(context).pushNamed(
+        AppRoutes.posterPreview,
+        arguments: _project,
+      );
+    }
   }
 
   void _previewPoster() {

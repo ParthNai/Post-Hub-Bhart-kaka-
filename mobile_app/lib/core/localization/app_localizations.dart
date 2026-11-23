@@ -269,6 +269,26 @@ class AppStrings {
     required this.saveDesignButton,
     required this.allChangesSavedLabel,
     required this.designSavedSuccess,
+    // Screen 13
+    required this.yourPosterTitle,
+    required this.yourDesignIsReady,
+    required this.posterCreatedSuccessfully,
+    required this.readyToDownloadAndShare,
+    required this.customDesignBadge,
+    required this.previewAction,
+    required this.editAction,
+    required this.duplicateAction,
+    required this.moreAction,
+    required this.downloadYourPosterTitle,
+    required this.highQualityOption,
+    required this.downloadPosterButton,
+    required this.shareYourCreationTitle,
+    required this.whatsAppAction,
+    required this.instagramAction,
+    required this.shareMoreAction,
+    required this.savedInMyDesignsBadge,
+    required this.sharePosterButton,
+    required this.duplicateCreatedSuccess,
   });
 
   final String languageName;
@@ -547,6 +567,26 @@ class AppStrings {
   final String saveDesignButton;
   final String allChangesSavedLabel;
   final String designSavedSuccess;
+  // Screen 13 Strings
+  final String yourPosterTitle;
+  final String yourDesignIsReady;
+  final String posterCreatedSuccessfully;
+  final String readyToDownloadAndShare;
+  final String customDesignBadge;
+  final String previewAction;
+  final String editAction;
+  final String duplicateAction;
+  final String moreAction;
+  final String downloadYourPosterTitle;
+  final String highQualityOption;
+  final String downloadPosterButton;
+  final String shareYourCreationTitle;
+  final String whatsAppAction;
+  final String instagramAction;
+  final String shareMoreAction;
+  final String savedInMyDesignsBadge;
+  final String sharePosterButton;
+  final String duplicateCreatedSuccess;
 
   static const String defaultLanguageCode = 'gu';
 
@@ -818,6 +858,26 @@ class AppStrings {
       saveDesignButton: 'Save Design',
       allChangesSavedLabel: 'All changes saved',
       designSavedSuccess: 'પોસ્ટર ડિઝાઇન સફળતાપૂર્વક સાચવવામાં આવી!',
+      // Screen 13
+      yourPosterTitle: 'તમારું પોસ્ટર',
+      yourDesignIsReady: 'તમારી ડિઝાઇન તૈયાર છે!',
+      posterCreatedSuccessfully: 'પોસ્ટર સફળતાપૂર્વક બનાવવામાં આવ્યું',
+      readyToDownloadAndShare: 'તમારી ડિઝાઇન ડાઉનલોડ અને શેર કરવા માટે તૈયાર છે.',
+      customDesignBadge: 'કસ્ટમ ડિઝાઇન',
+      previewAction: 'Preview',
+      editAction: 'Edit',
+      duplicateAction: 'Duplicate',
+      moreAction: 'More',
+      downloadYourPosterTitle: 'તમારું પોસ્ટર ડાઉનલોડ કરો',
+      highQualityOption: 'High Quality',
+      downloadPosterButton: 'પોસ્ટર ડાઉનલોડ કરો',
+      shareYourCreationTitle: 'તમારી રચના શેર કરો',
+      whatsAppAction: 'WhatsApp',
+      instagramAction: 'Instagram',
+      shareMoreAction: 'Share More',
+      savedInMyDesignsBadge: 'Saved in My Designs',
+      sharePosterButton: 'પોસ્ટર શેર કરો',
+      duplicateCreatedSuccess: 'ડુપ્લિકેટ પોસ્ટર સાચવવામાં આવ્યું!',
     ),
     'hi': AppStrings(
       languageName: 'हिंदी',
@@ -1086,6 +1146,26 @@ class AppStrings {
       saveDesignButton: 'Save Design',
       allChangesSavedLabel: 'All changes saved',
       designSavedSuccess: 'पोस्टर डिज़ाइन सफलतापूर्वक सहेजा गया!',
+      // Screen 13
+      yourPosterTitle: 'आपका पोस्टर',
+      yourDesignIsReady: 'आपकी डिज़ाइन तैयार है!',
+      posterCreatedSuccessfully: 'पोस्टर सफलतापूर्वक बनाया गया',
+      readyToDownloadAndShare: 'आपकी डिज़ाइन डाउनलोड और साझा करने के लिए तैयार है।',
+      customDesignBadge: 'कस्टम डिज़ाइन',
+      previewAction: 'Preview',
+      editAction: 'Edit',
+      duplicateAction: 'Duplicate',
+      moreAction: 'More',
+      downloadYourPosterTitle: 'अपना पोस्टर डाउनलोड करें',
+      highQualityOption: 'High Quality',
+      downloadPosterButton: 'पोस्टर डाउनलोड करें',
+      shareYourCreationTitle: 'अपनी रचना साझा करें',
+      whatsAppAction: 'WhatsApp',
+      instagramAction: 'Instagram',
+      shareMoreAction: 'Share More',
+      savedInMyDesignsBadge: 'Saved in My Designs',
+      sharePosterButton: 'पोस्टर साझा करें',
+      duplicateCreatedSuccess: 'डुप्लिकेट पोस्टर सहेजा गया!',
     ),
     'en': AppStrings(
       languageName: 'English',
@@ -1354,6 +1434,26 @@ class AppStrings {
       saveDesignButton: 'Save Design',
       allChangesSavedLabel: 'All changes saved',
       designSavedSuccess: 'Poster design saved successfully!',
+      // Screen 13
+      yourPosterTitle: 'Your Poster',
+      yourDesignIsReady: 'Your design is ready!',
+      posterCreatedSuccessfully: 'Poster Created Successfully',
+      readyToDownloadAndShare: 'Your design is ready to download and share.',
+      customDesignBadge: 'Custom Design',
+      previewAction: 'Preview',
+      editAction: 'Edit',
+      duplicateAction: 'Duplicate',
+      moreAction: 'More',
+      downloadYourPosterTitle: 'Download Your Poster',
+      highQualityOption: 'High Quality',
+      downloadPosterButton: 'Download Poster',
+      shareYourCreationTitle: 'Share Your Creation',
+      whatsAppAction: 'WhatsApp',
+      instagramAction: 'Instagram',
+      shareMoreAction: 'Share More',
+      savedInMyDesignsBadge: 'Saved in My Designs',
+      sharePosterButton: 'Share Poster',
+      duplicateCreatedSuccess: 'Duplicate poster saved successfully!',
     ),
   };
 

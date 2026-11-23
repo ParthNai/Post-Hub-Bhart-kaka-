@@ -47,6 +47,16 @@ class PosterTemplateProject {
     );
   }
 
+  /// Creates a distinct copy of this project with a new ID and updated timestamp.
+  PosterTemplateProject duplicate({String? newTitle}) {
+    final now = DateTime.now();
+    return copyWith(
+      id: 'proj_${now.millisecondsSinceEpoch}',
+      title: newTitle ?? '$title (Copy)',
+      updatedAt: now,
+    );
+  }
+
   Map<String, dynamic> toMap() => {
         'id': id,
         'templateId': templateId,
@@ -89,7 +99,7 @@ class PosterTemplateProject {
     return PosterTemplateProject(
       id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
       templateId: templateId ?? 'navratri_shubh',
-      title: title ?? 'શુભ નવરાત્રી',
+      title: title ?? 'Navratri Celebration',
       backgroundAsset: imageAsset ?? AppAssets.editorCanvasNavratri,
       backgroundColor: const Color(0xFF2E0854),
       updatedAt: DateTime.now(),
