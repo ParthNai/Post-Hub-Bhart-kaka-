@@ -1082,8 +1082,21 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
     );
   }
 
-  // 5. Active Editing Controls Panel (Text Tab)
+  // 5. Active Editing Controls Panel
   Widget _buildEditingControlsPanel(AppStrings s) {
+    if (_selectedTab == 'colors') {
+      return _buildColorsTabPanel(s);
+    } else if (_selectedTab == 'fonts') {
+      return _buildFontsTabPanel(s);
+    } else if (_selectedTab == 'images') {
+      return _buildImagesTabPanel(s);
+    } else if (_selectedTab == 'background') {
+      return _buildBackgroundTabPanel(s);
+    }
+    return _buildTextTabPanel(s);
+  }
+
+  Widget _buildTextTabPanel(AppStrings s) {
     final selectedElement = _project.elements.firstWhere(
       (e) => e.id == _selectedElementId,
       orElse: () => _project.elements.first,
@@ -1286,6 +1299,223 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildColorsTabPanel(AppStrings s) {
+    final selectedElement = _project.elements.firstWhere(
+      (e) => e.id == _selectedElementId,
+      orElse: () => _project.elements.first,
+    );
+
+    return Container(
+      padding: const EdgeInsets.all(14.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10.0,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.palette_outlined, color: Color(0xFF7C3AED), size: 18.0),
+              const SizedBox(width: 8.0),
+              Text(
+                s.textColorLabel,
+                style: const TextStyle(fontSize: 14.0, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12.0),
+          Wrap(
+            spacing: 8.0,
+            runSpacing: 8.0,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              for (final color in [
+                const Color(0xFF7C3AED),
+                const Color(0xFFF59E0B),
+                const Color(0xFFDC2626),
+                const Color(0xFF1E293B),
+                const Color(0xFF16A34A),
+                const Color(0xFF2563EB),
+                const Color(0xFFDB2777),
+                const Color(0xFFFFFFFF),
+              ])
+                _buildColorSwatch(color, selectedElement.color),
+              _buildCustomColorAdd(),
+            ],
+          ),
+          const SizedBox(height: 14.0),
+          Text(
+            'Tap any color above to apply instantly to the active text element on your poster canvas.',
+            style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFontsTabPanel(AppStrings s) {
+    final selectedElement = _project.elements.firstWhere(
+      (e) => e.id == _selectedElementId,
+      orElse: () => _project.elements.first,
+    );
+
+    return Container(
+      padding: const EdgeInsets.all(14.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10.0,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Text('Aa', style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w800, color: Color(0xFF7C3AED))),
+              SizedBox(width: 8.0),
+              Text(
+                'Select Font Style',
+                style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          Wrap(
+            spacing: 8.0,
+            runSpacing: 8.0,
+            children: _availableFonts.map((font) {
+              final isCurrent = selectedElement.fontFamily == font;
+              return ChoiceChip(
+                label: Text(font, style: TextStyle(fontFamily: font, fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500)),
+                selected: isCurrent,
+                selectedColor: const Color(0xFFEDE9FE),
+                labelStyle: TextStyle(color: isCurrent ? const Color(0xFF6D28D9) : const Color(0xFF334155)),
+                onSelected: (_) => _updateSelectedFont(font),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImagesTabPanel(AppStrings s) {
+    return Container(
+      padding: const EdgeInsets.all(14.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10.0,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.image_outlined, color: Color(0xFF7C3AED), size: 18.0),
+              SizedBox(width: 8.0),
+              Text(
+                'Poster Artwork & Elements',
+                style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF6D28D9),
+                    side: const BorderSide(color: Color(0xFF6D28D9)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                  ),
+                  icon: const Icon(Icons.photo_library_outlined, size: 16.0),
+                  label: const Text('Add Image'),
+                  onPressed: _replaceImageAction,
+                ),
+              ),
+              const SizedBox(width: 10.0),
+              Expanded(
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF6D28D9),
+                    side: const BorderSide(color: Color(0xFF6D28D9)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                  ),
+                  icon: const Icon(Icons.copy_rounded, size: 16.0),
+                  label: const Text('Duplicate'),
+                  onPressed: _duplicateSelectedElement,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBackgroundTabPanel(AppStrings s) {
+    return Container(
+      padding: const EdgeInsets.all(14.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10.0,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.texture_rounded, color: Color(0xFF7C3AED), size: 18.0),
+              SizedBox(width: 8.0),
+              Text(
+                'Background Atmosphere',
+                style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          const Text(
+            'The active background theme is calibrated to festival artwork with authentic Indian temple backdrops and illumination.',
+            style: TextStyle(fontSize: 12.0, color: Color(0xFF64748B)),
           ),
         ],
       ),

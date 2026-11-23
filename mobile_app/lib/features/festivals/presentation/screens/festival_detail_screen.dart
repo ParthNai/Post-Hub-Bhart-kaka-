@@ -6,6 +6,7 @@ import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
+import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
 import 'package:panchayat_post/features/festivals/data/services/festival_service.dart';
 import 'package:panchayat_post/features/festivals/domain/models/festival_item.dart';
 
@@ -224,14 +225,9 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          '${template?.title ?? _currentFestival.name} poster customized for ${nameController.text}!',
+                          '${template?.title ?? _currentFestival.name} poster saved to gallery!',
                         ),
-                        backgroundColor: const Color(0xFF16A34A),
-                        behavior: SnackBarBehavior.floating,
-                        duration: const Duration(seconds: 3),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        backgroundColor: const Color(0xFF059669),
                       ),
                     );
                   },
@@ -249,14 +245,19 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                   ),
                   icon: const Icon(Icons.tune_rounded, size: 18.0),
                   label: const Text(
-                    'Open in Customization Studio',
+                    'Open in Poster Editor Studio',
                     style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.0),
                   ),
                   onPressed: () {
                     Navigator.of(ctx).pop();
+                    final project = PosterTemplateProject.createDefaultNavratriProject(
+                      templateId: template?.id ?? 'festival_${_currentFestival.id}',
+                      imageAsset: template?.imageAsset ?? _currentFestival.imageAsset,
+                      title: template?.title ?? _currentFestival.name,
+                    );
                     Navigator.of(context).pushNamed(
                       AppRoutes.posterEditor,
-                      arguments: template,
+                      arguments: project,
                     );
                   },
                 ),
@@ -1451,7 +1452,17 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                 borderRadius: BorderRadius.circular(16.0),
               ),
             ),
-            onPressed: () => _showPosterCustomizationSheet(context),
+            onPressed: () {
+              final project = PosterTemplateProject.createDefaultNavratriProject(
+                templateId: 'festival_${_currentFestival.id}',
+                imageAsset: _currentFestival.imageAsset,
+                title: _currentFestival.name,
+              );
+              Navigator.of(context).pushNamed(
+                AppRoutes.posterEditor,
+                arguments: project,
+              );
+            },
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

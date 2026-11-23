@@ -7,6 +7,7 @@ import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
+import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
 
 /// Screen 09: Main Home Dashboard Screen
 ///
@@ -318,132 +319,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showTemplateEditorModal(BuildContext context, String title, String asset) {
-    final nameController = TextEditingController(
-      text: _currentUser?.effectiveDisplayName ?? 'Panchayat Post User',
+    final defaultProject = PosterTemplateProject.createDefaultNavratriProject(
+      templateId: 'home_template_${title.toLowerCase().replaceAll(' ', '_')}',
+      imageAsset: asset,
+      title: title,
     );
-    final villageController = TextEditingController(
-      text: _currentUser?.villageCity ?? 'Gram Panchayat',
-    );
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
-      ),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          left: 20.0,
-          right: 20.0,
-          top: 18.0,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + 20.0,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    'Customize: $title',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textNavy,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close_rounded),
-                  onPressed: () => Navigator.of(ctx).pop(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10.0),
-            Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.0),
-                child: Image.asset(
-                  asset,
-                  height: 140.0,
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12.0),
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(
-                labelText: 'Your Name on Poster',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            TextField(
-              controller: villageController,
-              decoration: InputDecoration(
-                labelText: 'Village / Designation',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
-              ),
-            ),
-            const SizedBox(height: 14.0),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6D28D9),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-                      padding: const EdgeInsets.symmetric(vertical: 12.0),
-                    ),
-                    icon: const Icon(Icons.download_rounded, size: 18.0),
-                    label: const Text('Save Poster', style: TextStyle(fontWeight: FontWeight.w700)),
-                    onPressed: () {
-                      Navigator.of(ctx).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Poster for "$title" saved successfully!'),
-                          backgroundColor: const Color(0xFF16A34A),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 10.0),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF6D28D9),
-                      side: const BorderSide(color: Color(0xFF6D28D9)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-                      padding: const EdgeInsets.symmetric(vertical: 12.0),
-                    ),
-                    icon: const Icon(Icons.share_rounded, size: 18.0),
-                    label: const Text('Share', style: TextStyle(fontWeight: FontWeight.w700)),
-                    onPressed: () {
-                      Navigator.of(ctx).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Sharing poster to WhatsApp & Social Media...'),
-                          backgroundColor: Color(0xFF0055B8),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+    Navigator.of(context).pushNamed(
+      AppRoutes.posterEditor,
+      arguments: defaultProject,
     );
   }
 

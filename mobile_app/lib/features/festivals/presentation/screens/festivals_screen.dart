@@ -6,6 +6,7 @@ import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
+import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
 import 'package:panchayat_post/features/festivals/data/services/festival_service.dart';
 import 'package:panchayat_post/features/festivals/domain/models/festival_item.dart';
 
@@ -472,29 +473,61 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
               ),
             ),
             const SizedBox(height: 14.0),
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6D28D9),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 12.0),
-              ),
-              icon: const Icon(Icons.download_rounded, size: 18.0),
-              label: const Text('Download / Share Poster',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      '${festival.name} poster saved to gallery!',
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF6D28D9),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
                     ),
-                    backgroundColor: const Color(0xFF16A34A),
+                    icon: const Icon(Icons.edit_rounded, size: 18.0),
+                    label: const Text('Open in Poster Editor Studio',
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      final project = PosterTemplateProject.createDefaultNavratriProject(
+                        templateId: 'festival_${festival.id}',
+                        imageAsset: festival.imageAsset,
+                        title: festival.name,
+                      );
+                      Navigator.of(context).pushNamed(
+                        AppRoutes.posterEditor,
+                        arguments: project,
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+                const SizedBox(width: 8.0),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF6D28D9),
+                      side: const BorderSide(color: Color(0xFF6D28D9)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    ),
+                    icon: const Icon(Icons.download_rounded, size: 18.0),
+                    label: const Text('Download / Share Poster',
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Poster for ${festival.name} ready for download!'),
+                          backgroundColor: const Color(0xFF059669),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -578,11 +611,14 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Selected template: $title'),
-            backgroundColor: const Color(0xFF6D28D9),
-          ),
+        final project = PosterTemplateProject.createDefaultNavratriProject(
+          templateId: 'tpl_${title.toLowerCase().replaceAll(' ', '_')}',
+          imageAsset: asset,
+          title: title,
+        );
+        Navigator.of(context).pushNamed(
+          AppRoutes.posterEditor,
+          arguments: project,
         );
       },
       child: Container(
