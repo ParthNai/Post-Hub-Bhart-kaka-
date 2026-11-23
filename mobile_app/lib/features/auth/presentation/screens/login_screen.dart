@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/constants/app_colors.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
@@ -32,13 +33,13 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _mobileController = TextEditingController();
+  final _pinController = TextEditingController();
 
   late final AuthService _authService;
   late final SessionService _sessionService;
 
-  bool _obscurePassword = true;
+  bool _obscurePin = true;
   bool _rememberMe = true;
   bool _isLoading = false;
 
@@ -51,8 +52,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    _usernameController.dispose();
-    _passwordController.dispose();
+    _mobileController.dispose();
+    _pinController.dispose();
     super.dispose();
   }
 
@@ -67,9 +68,9 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final user = await _authService.login(
-        username: _usernameController.text.trim(),
-        password: _passwordController.text,
+      final user = await _authService.loginWithPin(
+        mobile: _mobileController.text.trim(),
+        pin: _pinController.text.trim(),
         rememberMe: _rememberMe,
       );
 
@@ -192,38 +193,44 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 24.0),
 
-                        // Field 1: Username
+                        // Field 1: Mobile number
                         AuthTextField(
-                          label: strings.loginUsernameLabel,
-                          hintText: strings.loginUsernameHint,
-                          controller: _usernameController,
+                          label: strings.mobileNumberLabel,
+                          hintText: strings.mobileNumberHint,
+                          controller: _mobileController,
+                          keyboardType: TextInputType.phone,
                           textInputAction: TextInputAction.next,
                           labelIcon: const Icon(
-                            Icons.person_rounded,
+                            Icons.phone_android_rounded,
                             size: 16.0,
                             color: AppColors.textNavy,
                           ),
-                          prefixWidget: const Icon(
-                            Icons.person_outline_rounded,
-                            color: AppColors.textNavy,
-                            size: 20.0,
-                          ),
+                          prefixWidget: const Icon(Icons.phone_android_rounded, color: AppColors.textNavy),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(10),
+                          ],
                           validator: (val) {
-                            if (val == null || val.trim().isEmpty) {
-                              return strings.loginUsernameRequiredError;
-                            }
-                            return null;
+                            if (val == null || val.trim().isEmpty) return strings.mobileRequiredError;
+                            return RegExp(r'^\d{10}$').hasMatch(val.trim())
+                                ? null
+                                : strings.mobileInvalidError;
                           },
                         ),
                         const SizedBox(height: 16.0),
 
-                        // Field 2: Password
+                        // Field 2: PIN
                         AuthTextField(
-                          label: strings.loginPasswordLabel,
-                          hintText: strings.loginPasswordHint,
-                          controller: _passwordController,
-                          obscureText: _obscurePassword,
+                          label: strings.pinLabel,
+                          hintText: strings.pinHint,
+                          controller: _pinController,
+                          obscureText: _obscurePin,
+                          keyboardType: TextInputType.number,
                           textInputAction: TextInputAction.done,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(4),
+                          ],
                           labelIcon: const Icon(
                             Icons.lock_rounded,
                             size: 15.0,
@@ -236,93 +243,41 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           suffixWidget: IconButton(
                             icon: Icon(
-                              _obscurePassword
+                              _obscurePin
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
                               color: const Color(0xFF64748B),
                               size: 20.0,
                             ),
-                            onPressed: () =>
-                                setState(() => _obscurePassword = !_obscurePassword),
+                            onPressed: () => setState(() => _obscurePin = !_obscurePin),
                           ),
                           validator: (val) {
-                            if (val == null || val.isEmpty) {
-                              return strings.loginPasswordRequiredError;
-                            }
-                            return null;
+                            if (val == null || val.isEmpty) return strings.pinRequiredError;
+                            return RegExp(r'^\d{4}$').hasMatch(val) ? null : strings.pinRequiredError;
                           },
                         ),
                         const SizedBox(height: 12.0),
 
-                        // Remember Me and Forgot Password Row
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // Remember Me Checkbox
-                            Flexible(
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                alignment: Alignment.centerLeft,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    SizedBox(
-                                      width: 24,
-                                      height: 24,
-                                      child: Checkbox(
-                                        value: _rememberMe,
-                                        activeColor: AppColors.primaryBlue,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(4.0),
-                                        ),
-                                        onChanged: (val) {
-                                          setState(() => _rememberMe = val ?? true);
-                                        },
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8.0),
-                                    Text(
-                                      strings.rememberMeLabel,
-                                      style: const TextStyle(
-                                        fontSize: 13.0,
-                                        fontWeight: FontWeight.w500,
-                                        color: Color(0xFF334155),
-                                      ),
-                                    ),
-                                  ],
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Checkbox(
+                                value: _rememberMe,
+                                activeColor: AppColors.primaryBlue,
+                                onChanged: (val) => setState(() => _rememberMe = val ?? true),
+                              ),
+                              Text(
+                                strings.rememberMeLabel,
+                                style: const TextStyle(
+                                  fontSize: 13.0,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF334155),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 8.0),
-
-                            // Forgot Password Link
-                            Flexible(
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                alignment: Alignment.centerRight,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).pushNamed(AppRoutes.forgotPassword);
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 4.0,
-                                      vertical: 4.0,
-                                    ),
-                                    child: Text(
-                                      strings.forgotPasswordLabel,
-                                      style: const TextStyle(
-                                        fontSize: 13.0,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.primaryBlue,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 22.0),
 

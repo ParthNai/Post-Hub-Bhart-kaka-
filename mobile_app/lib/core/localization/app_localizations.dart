@@ -21,6 +21,19 @@ class AppStrings {
     required this.fullNameLabel,
     required this.fullNameHint,
     required this.fullNameRequiredError,
+    required this.mobileNumberHint,
+    required this.mobileRequiredError,
+    required this.mobileInvalidError,
+    required this.pinLabel,
+    required this.pinHint,
+    required this.pinRequiredError,
+    required this.pinInvalidError,
+    required this.accountInactiveError,
+    required this.mobileAlreadyRegisteredError,
+    required this.occupationLabel,
+    required this.occupationHint,
+    required this.occupationRequiredError,
+    required this.talukaLabel,
     required this.usernameLabel,
     required this.usernameHint,
     required this.usernameHelper,
@@ -416,6 +429,19 @@ class AppStrings {
   final String fullNameLabel;
   final String fullNameHint;
   final String fullNameRequiredError;
+  final String mobileNumberHint;
+  final String mobileRequiredError;
+  final String mobileInvalidError;
+  final String pinLabel;
+  final String pinHint;
+  final String pinRequiredError;
+  final String pinInvalidError;
+  final String accountInactiveError;
+  final String mobileAlreadyRegisteredError;
+  final String occupationLabel;
+  final String occupationHint;
+  final String occupationRequiredError;
+  final String talukaLabel;
   final String usernameLabel;
   final String usernameHint;
   final String usernameHelper;
@@ -822,6 +848,19 @@ class AppStrings {
       fullNameLabel: 'તમારું પૂરું નામ લખો',
       fullNameHint: 'તમારું પૂરું નામ લખો',
       fullNameRequiredError: 'કૃપા કરીને તમારું પૂરું નામ લખો',
+      mobileNumberHint: '10 અંકનો મોબાઇલ નંબર',
+      mobileRequiredError: 'કૃપા કરીને મોબાઇલ નંબર લખો',
+      mobileInvalidError: '10 અંકનો માન્ય મોબાઇલ નંબર લખો',
+      pinLabel: '4 અંકનો PIN',
+      pinHint: 'તમારો PIN લખો',
+      pinRequiredError: 'કૃપા કરીને 4 અંકનો PIN લખો',
+      pinInvalidError: 'મોબાઇલ નંબર અથવા PIN ખોટો છે',
+      accountInactiveError: 'તમારું એકાઉન્ટ નિષ્ક્રિય છે. કૃપા કરીને એડમિનનો સંપર્ક કરો.',
+      mobileAlreadyRegisteredError: 'આ મોબાઇલ નંબર પહેલેથી નોંધાયેલ છે',
+      occupationLabel: 'વ્યવસાય',
+      occupationHint: 'તમારો વ્યવસાય લખો',
+      occupationRequiredError: 'કૃપા કરીને વ્યવસાય લખો',
+      talukaLabel: 'તાલુકો',
       usernameLabel: 'તમારું યુઝરનેમ બનાવો',
       usernameHint: 'તમારું યુઝરનેમ બનાવો',
       usernameHelper: 'આ યુઝરનેમથી તમે લોગિન કરી શકશો.',
@@ -1214,6 +1253,19 @@ class AppStrings {
       fullNameLabel: 'अपना पूरा नाम लिखें',
       fullNameHint: 'अपना पूरा नाम लिखें',
       fullNameRequiredError: 'कृपया अपना पूरा नाम लिखें',
+      mobileNumberHint: '10 अंकों का मोबाइल नंबर',
+      mobileRequiredError: 'कृपया मोबाइल नंबर दर्ज करें',
+      mobileInvalidError: 'कृपया 10 अंकों का मान्य मोबाइल नंबर दर्ज करें',
+      pinLabel: '4 अंकों का PIN',
+      pinHint: 'अपना PIN दर्ज करें',
+      pinRequiredError: 'कृपया 4 अंकों का PIN दर्ज करें',
+      pinInvalidError: 'मोबाइल नंबर या PIN गलत है',
+      accountInactiveError: 'आपका खाता निष्क्रिय है। कृपया व्यवस्थापक से संपर्क करें।',
+      mobileAlreadyRegisteredError: 'यह मोबाइल नंबर पहले से पंजीकृत है',
+      occupationLabel: 'व्यवसाय',
+      occupationHint: 'अपना व्यवसाय दर्ज करें',
+      occupationRequiredError: 'कृपया अपना व्यवसाय दर्ज करें',
+      talukaLabel: 'तालुका',
       usernameLabel: 'अपना यूज़रनेम बनाएं',
       usernameHint: 'अपना यूज़रनेम बनाएं',
       usernameHelper: 'इस यूज़रनेम से आप लॉगिन कर सकेंगे।',
@@ -1606,6 +1658,19 @@ class AppStrings {
       fullNameLabel: 'Enter your full name',
       fullNameHint: 'Enter your full name',
       fullNameRequiredError: 'Please enter your full name',
+      mobileNumberHint: '10-digit mobile number',
+      mobileRequiredError: 'Please enter your mobile number',
+      mobileInvalidError: 'Enter a valid 10-digit mobile number',
+      pinLabel: '4-digit PIN',
+      pinHint: 'Enter your PIN',
+      pinRequiredError: 'Please enter a 4-digit PIN',
+      pinInvalidError: 'The mobile number or PIN is incorrect',
+      accountInactiveError: 'Your account is inactive. Please contact your administrator.',
+      mobileAlreadyRegisteredError: 'This mobile number is already registered',
+      occupationLabel: 'Occupation',
+      occupationHint: 'Enter your occupation',
+      occupationRequiredError: 'Please enter your occupation',
+      talukaLabel: 'Taluka',
       usernameLabel: 'Create your username',
       usernameHint: 'Create your username',
       usernameHelper: 'You will be able to log in with this username.',
