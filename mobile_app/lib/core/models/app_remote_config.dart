@@ -13,9 +13,21 @@ class AppRemoteConfig {
     required this.publishedAt,
     this.appIconUrl,
     this.logoUrl,
+    this.appIconPreset = '🇮🇳',
+    this.appIconShape = 'rounded_square',
+    this.appIconBgColor = 'blue',
+    this.isPreloaderEnabled = true,
     required this.preloaderPrimaryColor,
     required this.preloaderSecondaryColor,
     this.preloaderDurationMs = 2000,
+    this.preloaderMediaType = 'animation',
+    this.preloaderVideoUrl,
+    this.preloaderVideoMuted = true,
+    this.preloaderVideoLoop = true,
+    this.preloaderVideoFit = 'cover',
+    this.preloaderSkipButtonEnabled = true,
+    this.preloaderTagline = 'તમારા ગામનું પોતાનું ડિજિટલ પોસ્ટર',
+    this.preloaderBgGradient = 'gradient_blue',
     required this.themeMode,
     required this.primaryAccentColor,
     this.backgroundColor = '#FFFFFF',
@@ -35,11 +47,23 @@ class AppRemoteConfig {
   // 1. App Icon / Logo
   final String? appIconUrl;
   final String? logoUrl;
+  final String appIconPreset;
+  final String appIconShape;
+  final String appIconBgColor;
 
   // 2. Preloader
+  final bool isPreloaderEnabled;
   final Color preloaderPrimaryColor;
   final Color preloaderSecondaryColor;
   final int preloaderDurationMs;
+  final String preloaderMediaType; // "video" | "animation"
+  final String? preloaderVideoUrl;
+  final bool preloaderVideoMuted;
+  final bool preloaderVideoLoop;
+  final String preloaderVideoFit;
+  final bool preloaderSkipButtonEnabled;
+  final String preloaderTagline;
+  final String preloaderBgGradient;
 
   // 3. Theme
   final String themeMode; // "Light" | "Dark"
@@ -64,9 +88,21 @@ class AppRemoteConfig {
       publishedAt: DateTime.now().toIso8601String(),
       appIconUrl: null,
       logoUrl: null,
+      appIconPreset: '🇮🇳',
+      appIconShape: 'rounded_square',
+      appIconBgColor: 'blue',
+      isPreloaderEnabled: true,
       preloaderPrimaryColor: const Color(0xFFFE8706),
       preloaderSecondaryColor: const Color(0xFF0055B8),
       preloaderDurationMs: 2000,
+      preloaderMediaType: 'animation',
+      preloaderVideoUrl: null,
+      preloaderVideoMuted: true,
+      preloaderVideoLoop: true,
+      preloaderVideoFit: 'cover',
+      preloaderSkipButtonEnabled: true,
+      preloaderTagline: 'Create. Celebrate. Share.',
+      preloaderBgGradient: 'gradient_blue',
       themeMode: 'Light',
       primaryAccentColor: const Color(0xFF0055B8),
       backgroundColor: '#FFFFFF',
@@ -91,34 +127,74 @@ class AppRemoteConfig {
     // 1. App Branding & Logo
     String? appIcon;
     String? logo;
+    String iconPreset = '🇮🇳';
+    String iconShape = 'rounded_square';
+    String iconBgColor = 'blue';
+
     if (root['appBranding'] is Map<String, dynamic>) {
       final branding = root['appBranding'] as Map<String, dynamic>;
       appIcon = branding['appIconUrl'] as String?;
       logo = branding['logoUrl'] as String?;
+      iconPreset = branding['preset'] as String? ?? '🇮🇳';
+      iconShape = branding['shape'] as String? ?? 'rounded_square';
+      iconBgColor = branding['bgColor'] as String? ?? 'blue';
     }
     // Fallback: check preloaderScreen.appIcon from legacy backend
-    if ((appIcon == null || appIcon.isEmpty) && root['preloaderScreen'] is Map<String, dynamic>) {
+    if (root['preloaderScreen'] is Map<String, dynamic>) {
       final preScreen = root['preloaderScreen'] as Map<String, dynamic>;
       if (preScreen['appIcon'] is Map<String, dynamic>) {
         final iconMap = preScreen['appIcon'] as Map<String, dynamic>;
-        appIcon = iconMap['url'] as String?;
-        logo ??= appIcon;
+        if (appIcon == null || appIcon.isEmpty) {
+          appIcon = iconMap['url'] as String?;
+          logo ??= appIcon;
+        }
+        iconPreset = iconMap['preset'] as String? ?? iconPreset;
+        iconShape = iconMap['shape'] as String? ?? iconShape;
+        iconBgColor = iconMap['bgColor'] as String? ?? iconBgColor;
       }
     }
 
     // 2. Preloader
+    bool preloaderEnabled = true;
     Color preloaderPrimary = const Color(0xFFFE8706);
     Color preloaderSecondary = const Color(0xFF0055B8);
     int preloaderDuration = 2000;
+    String preloaderMedia = 'animation';
+    String? preloaderVideo;
+    bool preloaderMuted = true;
+    bool preloaderLoop = true;
+    String preloaderFit = 'cover';
+    bool preloaderSkip = true;
+    String preloaderTagline = 'તમારા ગામનું પોતાનું ડિજિટલ પોસ્ટર';
+    String preloaderBg = 'gradient_blue';
+
     if (root['preloader'] is Map<String, dynamic>) {
       final pre = root['preloader'] as Map<String, dynamic>;
+      preloaderEnabled = pre['enabled'] as bool? ?? true;
       preloaderPrimary = hexToColor(pre['primaryColor'] as String?, fallback: const Color(0xFFFE8706));
       preloaderSecondary = hexToColor(pre['secondaryColor'] as String?, fallback: const Color(0xFF0055B8));
       preloaderDuration = (pre['durationMs'] as num?)?.toInt() ?? 2000;
+      preloaderMedia = pre['mediaType'] as String? ?? 'animation';
+      preloaderVideo = pre['videoUrl'] as String?;
+      preloaderMuted = pre['videoMuted'] as bool? ?? true;
+      preloaderLoop = pre['videoLoop'] as bool? ?? true;
+      preloaderFit = pre['videoFit'] as String? ?? 'cover';
+      preloaderSkip = pre['skipButtonEnabled'] as bool? ?? true;
+      preloaderTagline = pre['tagline'] as String? ?? preloaderTagline;
+      preloaderBg = pre['bgGradient'] as String? ?? 'gradient_blue';
     } else if (root['preloaderScreen'] is Map<String, dynamic>) {
       final pre = root['preloaderScreen'] as Map<String, dynamic>;
+      preloaderEnabled = pre['enabled'] as bool? ?? true;
       final durationSec = (pre['durationSeconds'] as num?)?.toDouble() ?? 2.0;
       preloaderDuration = (durationSec * 1000).toInt();
+      preloaderMedia = pre['mediaType'] as String? ?? 'animation';
+      preloaderVideo = pre['videoUrl'] as String?;
+      preloaderMuted = pre['videoMuted'] as bool? ?? true;
+      preloaderLoop = pre['videoLoop'] as bool? ?? true;
+      preloaderFit = pre['videoFit'] as String? ?? 'cover';
+      preloaderSkip = pre['skipButtonEnabled'] as bool? ?? true;
+      preloaderTagline = pre['tagline'] as String? ?? preloaderTagline;
+      preloaderBg = pre['bgGradient'] as String? ?? 'gradient_blue';
     }
 
     // 3. Theme
@@ -191,9 +267,21 @@ class AppRemoteConfig {
       publishedAt: json['publishedAt'] as String? ?? '',
       appIconUrl: appIcon,
       logoUrl: logo,
+      appIconPreset: iconPreset,
+      appIconShape: iconShape,
+      appIconBgColor: iconBgColor,
+      isPreloaderEnabled: preloaderEnabled,
       preloaderPrimaryColor: preloaderPrimary,
       preloaderSecondaryColor: preloaderSecondary,
       preloaderDurationMs: preloaderDuration,
+      preloaderMediaType: preloaderMedia,
+      preloaderVideoUrl: preloaderVideo,
+      preloaderVideoMuted: preloaderMuted,
+      preloaderVideoLoop: preloaderLoop,
+      preloaderVideoFit: preloaderFit,
+      preloaderSkipButtonEnabled: preloaderSkip,
+      preloaderTagline: preloaderTagline,
+      preloaderBgGradient: preloaderBg,
       themeMode: theme,
       primaryAccentColor: primaryAccent,
       backgroundColor: bg,
@@ -215,11 +303,23 @@ class AppRemoteConfig {
       'appBranding': {
         'appIconUrl': appIconUrl,
         'logoUrl': logoUrl,
+        'preset': appIconPreset,
+        'shape': appIconShape,
+        'bgColor': appIconBgColor,
       },
       'preloader': {
+        'enabled': isPreloaderEnabled,
         'primaryColor': '#${preloaderPrimaryColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
         'secondaryColor': '#${preloaderSecondaryColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
         'durationMs': preloaderDurationMs,
+        'mediaType': preloaderMediaType,
+        'videoUrl': preloaderVideoUrl,
+        'videoMuted': preloaderVideoMuted,
+        'videoLoop': preloaderVideoLoop,
+        'videoFit': preloaderVideoFit,
+        'skipButtonEnabled': preloaderSkipButtonEnabled,
+        'tagline': preloaderTagline,
+        'bgGradient': preloaderBgGradient,
       },
       'theme': {
         'mode': themeMode,

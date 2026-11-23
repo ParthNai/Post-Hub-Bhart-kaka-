@@ -96,11 +96,16 @@ export default function MobileAppRootPage() {
   if (currentScreen === "preloader") {
     return (
       <MobileAppPreloader
-        primaryColor={appRemoteConfig?.preloader?.primaryColor || "#FE8706"}
-        secondaryColor={appRemoteConfig?.preloader?.secondaryColor || "#0055B8"}
-        durationMs={appRemoteConfig?.preloader?.durationMs || 2200}
-        logoUrl={appRemoteConfig?.appBranding?.logoUrl || appRemoteConfig?.appBranding?.appIconUrl}
-        tagline="Create. Celebrate. Share."
+        primaryColor={appRemoteConfig?.preloader?.primaryColor || appRemoteConfig?.preloaderScreen?.spinnerColor || "#FE8706"}
+        secondaryColor={appRemoteConfig?.preloader?.secondaryColor || appRemoteConfig?.preloaderScreen?.spinnerSecondaryColor || "#0055B8"}
+        durationMs={appRemoteConfig?.preloader?.durationMs || (appRemoteConfig?.preloaderScreen?.durationSeconds ? appRemoteConfig.preloaderScreen.durationSeconds * 1000 : 2200)}
+        logoUrl={appRemoteConfig?.appBranding?.logoUrl || appRemoteConfig?.appBranding?.appIconUrl || appRemoteConfig?.preloaderScreen?.appIcon?.url}
+        title={appRemoteConfig?.preloader?.title || appRemoteConfig?.preloaderScreen?.title || "Panchayat Post"}
+        tagline={appRemoteConfig?.preloader?.tagline || appRemoteConfig?.preloaderScreen?.tagline || "તમારા ગામનું પોતાનું ડિજિટલ પોસ્ટર"}
+        videoUrl={appRemoteConfig?.preloader?.videoUrl || appRemoteConfig?.preloaderScreen?.videoUrl}
+        mediaType={appRemoteConfig?.preloader?.mediaType || appRemoteConfig?.preloaderScreen?.mediaType || "animation"}
+        skipButtonEnabled={appRemoteConfig?.preloader?.skipButtonEnabled ?? appRemoteConfig?.preloaderScreen?.skipButtonEnabled ?? true}
+        backgroundColor={appRemoteConfig?.preloader?.backgroundColor || appRemoteConfig?.preloaderScreen?.backgroundColor || "#FFFFFF"}
         onComplete={() => {
           const user = getAppUser();
           if (user) {

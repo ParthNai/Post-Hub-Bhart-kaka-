@@ -27,7 +27,7 @@ class AppConfigService {
   AppRemoteConfig get config => configNotifier.value;
 
   String? _cachedServerUrl;
-  bool _isInitialized = false;
+  Future<void>? _initializationFuture;
   bool _isLoading = false;
   DateTime? _lastSyncedAt;
   String? _syncError;
@@ -66,10 +66,11 @@ class AppConfigService {
   /// 1. Reads saved server URL from SharedPreferences.
   /// 2. Restores previously cached configuration instantly (zero launch lag).
   /// 3. Asynchronously fetches the latest published configuration from the Admin API.
-  Future<void> initialize() async {
-    if (_isInitialized) return;
-    _isInitialized = true;
+  Future<void> initialize() {
+    return _initializationFuture ??= _initialize();
+  }
 
+  Future<void> _initialize() async {
     try {
       final prefs = await SharedPreferences.getInstance();
 
@@ -94,8 +95,12 @@ class AppConfigService {
       debugPrint('[AppConfigService] SharedPreferences error during init: $e');
     }
 
-    // Trigger non-blocking remote sync with a short 3.5s timeout
-    unawaited(refreshConfig());
+    // Wait for the bounded request so startup can use the latest admin preloader.
+    try {
+      await refreshConfig();
+    } catch (e) {
+      debugPrint('[AppConfigService] Remote sync timeout or offline: $e');
+    }
   }
 
   /// Fetches published configuration from the Admin Panel (/api/app/config).
