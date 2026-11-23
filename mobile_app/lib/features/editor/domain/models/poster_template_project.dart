@@ -13,8 +13,12 @@ class PosterTemplateProject {
     this.backgroundColor = const Color(0xFF2E0854),
     this.elements = const [],
     required this.updatedAt,
+    DateTime? createdAt,
     this.userId = 'default_user',
-  });
+    this.category = 'Festivals',
+    this.isFavorite = false,
+    this.previewAsset,
+  }) : createdAt = createdAt ?? updatedAt;
 
   final String id;
   final String templateId;
@@ -23,7 +27,11 @@ class PosterTemplateProject {
   final Color backgroundColor;
   final List<PosterElement> elements;
   final DateTime updatedAt;
+  final DateTime createdAt;
   final String userId;
+  final String category;
+  final bool isFavorite;
+  final String? previewAsset;
 
   PosterTemplateProject copyWith({
     String? id,
@@ -33,7 +41,11 @@ class PosterTemplateProject {
     Color? backgroundColor,
     List<PosterElement>? elements,
     DateTime? updatedAt,
+    DateTime? createdAt,
     String? userId,
+    String? category,
+    bool? isFavorite,
+    String? previewAsset,
   }) {
     return PosterTemplateProject(
       id: id ?? this.id,
@@ -43,7 +55,11 @@ class PosterTemplateProject {
       backgroundColor: backgroundColor ?? this.backgroundColor,
       elements: elements ?? this.elements,
       updatedAt: updatedAt ?? this.updatedAt,
+      createdAt: createdAt ?? this.createdAt,
       userId: userId ?? this.userId,
+      category: category ?? this.category,
+      isFavorite: isFavorite ?? this.isFavorite,
+      previewAsset: previewAsset ?? this.previewAsset,
     );
   }
 
@@ -54,6 +70,7 @@ class PosterTemplateProject {
       id: 'proj_${now.millisecondsSinceEpoch}',
       title: newTitle ?? '$title (Copy)',
       updatedAt: now,
+      createdAt: now,
     );
   }
 
@@ -65,7 +82,11 @@ class PosterTemplateProject {
         'backgroundColor': backgroundColor.toARGB32(),
         'elements': elements.map((e) => e.toJson()).toList(),
         'updatedAt': updatedAt.toIso8601String(),
+        'createdAt': createdAt.toIso8601String(),
         'userId': userId,
+        'category': category,
+        'isFavorite': isFavorite,
+        'previewAsset': previewAsset,
       };
 
   factory PosterTemplateProject.fromMap(Map<String, dynamic> map) {
@@ -81,7 +102,13 @@ class PosterTemplateProject {
           [],
       updatedAt: DateTime.tryParse(map['updatedAt'] as String? ?? '') ??
           DateTime.now(),
+      createdAt: DateTime.tryParse(map['createdAt'] as String? ?? '') ??
+          DateTime.tryParse(map['updatedAt'] as String? ?? '') ??
+          DateTime.now(),
       userId: map['userId'] as String? ?? 'default_user',
+      category: map['category'] as String? ?? 'Festivals',
+      isFavorite: map['isFavorite'] as bool? ?? false,
+      previewAsset: map['previewAsset'] as String?,
     );
   }
 

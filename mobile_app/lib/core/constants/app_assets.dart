@@ -108,4 +108,12 @@ class AppAssets {
 
   /// Approved UI reference for Screen 13 Final Poster Preview, Download & Share.
   static const String screen13Reference = 'assets/images/screen_13_reference.jpg';
+
+  /// Approved UI reference for Screen 14 My Designs — Saved Posters Library.
+  static const String screen14Reference = 'assets/images/screen_14_reference.jpg';
+  static const String myDesignVillageDev = 'assets/images/my_design_village_dev.png';
+  static const String myDesignGramSabha = 'assets/images/my_design_gram_sabha.png';
+  static const String myDesignEmptyBox = 'assets/images/my_design_empty_box.png';
+  static const String myDesignNavratriWishes = 'assets/images/my_design_navratri_wishes.png';
+  static const String myDesignHappyDiwali = 'assets/images/my_design_happy_diwali.png';
 }

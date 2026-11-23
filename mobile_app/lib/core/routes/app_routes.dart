@@ -5,11 +5,14 @@ import 'package:panchayat_post/features/auth/presentation/screens/login_screen.d
 import 'package:panchayat_post/features/auth/presentation/screens/onboarding_confirmation_screen.dart';
 import 'package:panchayat_post/features/auth/presentation/screens/profile_setup_screen.dart';
 import 'package:panchayat_post/features/auth/presentation/screens/recovery_status_screen.dart';
+import 'package:panchayat_post/features/editor/presentation/screens/my_designs_screen.dart';
 import 'package:panchayat_post/features/editor/presentation/screens/poster_editor_screen.dart';
 import 'package:panchayat_post/features/editor/presentation/screens/poster_preview_screen.dart';
 import 'package:panchayat_post/features/festivals/presentation/screens/festival_detail_screen.dart';
 import 'package:panchayat_post/features/festivals/presentation/screens/festivals_screen.dart';
 import 'package:panchayat_post/features/home/presentation/screens/home_screen.dart';
+import 'package:panchayat_post/features/profile/presentation/screens/profile_screen.dart';
+import 'package:panchayat_post/features/profile/presentation/screens/settings_screen.dart';
 import 'package:panchayat_post/features/splash/presentation/screens/splash_screen.dart';
 import 'package:panchayat_post/features/welcome/presentation/screens/welcome_screen.dart';
 
@@ -56,6 +59,15 @@ class AppRoutes {
   /// Screen 13: Final Poster Preview, Download & Share
   static const String posterPreview = '/poster-preview';
 
+  /// Screen 14: My Designs — Saved Posters Library
+  static const String myDesigns = '/my-designs';
+
+  /// Screen 15: User Profile & Account Management
+  static const String profile = '/profile';
+
+  /// Screen 16: Settings & Preferences
+  static const String settings = '/settings';
+
   /// Route generator map
   static Map<String, WidgetBuilder> get routes => {
         splash: (context) => const SplashScreen(),
@@ -71,5 +83,8 @@ class AppRoutes {
         festivalDetail: (context) => const FestivalDetailScreen(),
         posterEditor: (context) => const PosterEditorScreen(),
         posterPreview: (context) => const PosterPreviewScreen(),
+        myDesigns: (context) => const MyDesignsScreen(),
+        profile: (context) => const ProfileScreen(),
+        settings: (context) => const SettingsScreen(),
       };
 }

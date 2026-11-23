@@ -289,6 +289,110 @@ class AppStrings {
     required this.savedInMyDesignsBadge,
     required this.sharePosterButton,
     required this.duplicateCreatedSuccess,
+    // Screen 14
+    required this.myDesignsTitle,
+    required this.myDesignsSubtitle,
+    required this.totalDesignsLabel,
+    required this.recentlyCreatedLabel,
+    required this.favoritesLabel,
+    required this.searchYourDesignsHint,
+    required this.categoryAllDesigns,
+    required this.categoryPanchayat,
+    required this.categoryBusiness,
+    required this.yourCreationsTitle,
+    required this.editDesignMenu,
+    required this.previewMenu,
+    required this.duplicateMenu,
+    required this.downloadMenu,
+    required this.shareMenu,
+    required this.deleteMenu,
+    required this.deleteConfirmTitle,
+    required this.deleteConfirmMessage,
+    required this.confirmDeleteAction,
+    required this.cancelAction,
+    required this.noDesignsYetTitle,
+    required this.noDesignsYetSubtitle,
+    required this.createFirstPosterButton,
+    // Screen 15: Profile
+    required this.profileTitle,
+    required this.profileSubtitle,
+    required this.verifiedAccountBadge,
+    required this.personalInfoTitle,
+    required this.mobileNumberLabel,
+    required this.emailAddressLabel,
+    required this.villageCityLabel,
+    required this.districtLabel,
+    required this.preferencesTitle,
+    required this.appLanguageLabel,
+    required this.notificationPrefLabel,
+    required this.themePrefLabel,
+    required this.lightThemeOption,
+    required this.accountSupportTitle,
+    required this.accountSecurityLabel,
+    required this.helpSupportLabel,
+    required this.aboutPanchayatPostLabel,
+    required this.privacyPolicyLabel,
+    required this.termsConditionsLabel,
+    required this.logoutAction,
+    required this.logoutConfirmTitle,
+    required this.logoutConfirmMessage,
+    // Screen 16: Settings & Preferences
+    required this.settingsTitle,
+    required this.settingsSubtitle,
+    required this.accountPreferencesTitle,
+    required this.personalInfoSettingsTitle,
+    required this.personalInfoSettingsSubtitle,
+    required this.changePasswordTitle,
+    required this.changePasswordSubtitle,
+    required this.mobileEmailTitle,
+    required this.mobileEmailSubtitle,
+    required this.languagePrefTitle,
+    required this.languagePrefSubtitle,
+    required this.notificationPrefSettingsTitle,
+    required this.notificationPrefSettingsSubtitle,
+    required this.appPreferencesTitle,
+    required this.appLanguageSettingsTitle,
+    required this.appLanguageSettingsSubtitle,
+    required this.defaultPosterLanguageTitle,
+    required this.defaultPosterLanguageSubtitle,
+    required this.notificationSettingsTitle,
+    required this.notificationSettingsSubtitle,
+    required this.festivalRemindersTitle,
+    required this.festivalRemindersSubtitle,
+    required this.appThemeTitle,
+    required this.appThemeSubtitle,
+    required this.privacySecurityTitle,
+    required this.privacySettingsTitle,
+    required this.privacySettingsSubtitle,
+    required this.privacySettingsContent,
+    required this.accountSecuritySettingsTitle,
+    required this.accountSecuritySettingsSubtitle,
+    required this.accountSecuritySettingsContent,
+    required this.activeSessionsTitle,
+    required this.activeSessionsSubtitle,
+    required this.activeSessionsContent,
+    required this.dataPermissionsTitle,
+    required this.dataPermissionsSubtitle,
+    required this.dataPermissionsContent,
+    required this.supportTitle,
+    required this.helpSupportSettingsTitle,
+    required this.helpSupportSettingsSubtitle,
+    required this.helpSupportSettingsContent,
+    required this.faqTitle,
+    required this.faqSubtitle,
+    required this.faqContent,
+    required this.contactUsTitle,
+    required this.contactUsSubtitle,
+    required this.contactUsContent,
+    required this.aboutAppTitle,
+    required this.aboutAppSubtitle,
+    required this.aboutAppContent,
+    required this.accountActionsTitle,
+    required this.logoutSettingsSubtitle,
+    required this.deleteAccountTitle,
+    required this.deleteAccountSubtitle,
+    required this.deleteAccountMessage,
+    required this.deleteAccountAction,
   });
 
   final String languageName;
@@ -587,6 +691,112 @@ class AppStrings {
   final String savedInMyDesignsBadge;
   final String sharePosterButton;
   final String duplicateCreatedSuccess;
+  // Screen 14 Strings
+  final String myDesignsTitle;
+  final String myDesignsSubtitle;
+  final String totalDesignsLabel;
+  final String recentlyCreatedLabel;
+  final String favoritesLabel;
+  final String searchYourDesignsHint;
+  final String categoryAllDesigns;
+  final String categoryPanchayat;
+  final String categoryBusiness;
+  final String yourCreationsTitle;
+  final String editDesignMenu;
+  final String previewMenu;
+  final String duplicateMenu;
+  final String downloadMenu;
+  final String shareMenu;
+  final String deleteMenu;
+  final String deleteConfirmTitle;
+  final String deleteConfirmMessage;
+  final String confirmDeleteAction;
+  final String cancelAction;
+  final String noDesignsYetTitle;
+  final String noDesignsYetSubtitle;
+  final String createFirstPosterButton;
+
+  // Screen 15: Profile
+  final String profileTitle;
+  final String profileSubtitle;
+  final String verifiedAccountBadge;
+  final String personalInfoTitle;
+  final String mobileNumberLabel;
+  final String emailAddressLabel;
+  final String villageCityLabel;
+  final String districtLabel;
+  final String preferencesTitle;
+  final String appLanguageLabel;
+  final String notificationPrefLabel;
+  final String themePrefLabel;
+  final String lightThemeOption;
+  final String accountSupportTitle;
+  final String accountSecurityLabel;
+  final String helpSupportLabel;
+  final String aboutPanchayatPostLabel;
+  final String privacyPolicyLabel;
+  final String termsConditionsLabel;
+  final String logoutAction;
+  final String logoutConfirmTitle;
+  final String logoutConfirmMessage;
+
+  // Screen 16: Settings & Preferences
+  final String settingsTitle;
+  final String settingsSubtitle;
+  final String accountPreferencesTitle;
+  final String personalInfoSettingsTitle;
+  final String personalInfoSettingsSubtitle;
+  final String changePasswordTitle;
+  final String changePasswordSubtitle;
+  final String mobileEmailTitle;
+  final String mobileEmailSubtitle;
+  final String languagePrefTitle;
+  final String languagePrefSubtitle;
+  final String notificationPrefSettingsTitle;
+  final String notificationPrefSettingsSubtitle;
+  final String appPreferencesTitle;
+  final String appLanguageSettingsTitle;
+  final String appLanguageSettingsSubtitle;
+  final String defaultPosterLanguageTitle;
+  final String defaultPosterLanguageSubtitle;
+  final String notificationSettingsTitle;
+  final String notificationSettingsSubtitle;
+  final String festivalRemindersTitle;
+  final String festivalRemindersSubtitle;
+  final String appThemeTitle;
+  final String appThemeSubtitle;
+  final String privacySecurityTitle;
+  final String privacySettingsTitle;
+  final String privacySettingsSubtitle;
+  final String privacySettingsContent;
+  final String accountSecuritySettingsTitle;
+  final String accountSecuritySettingsSubtitle;
+  final String accountSecuritySettingsContent;
+  final String activeSessionsTitle;
+  final String activeSessionsSubtitle;
+  final String activeSessionsContent;
+  final String dataPermissionsTitle;
+  final String dataPermissionsSubtitle;
+  final String dataPermissionsContent;
+  final String supportTitle;
+  final String helpSupportSettingsTitle;
+  final String helpSupportSettingsSubtitle;
+  final String helpSupportSettingsContent;
+  final String faqTitle;
+  final String faqSubtitle;
+  final String faqContent;
+  final String contactUsTitle;
+  final String contactUsSubtitle;
+  final String contactUsContent;
+  final String aboutAppTitle;
+  final String aboutAppSubtitle;
+  final String aboutAppContent;
+  final String accountActionsTitle;
+  final String logoutSettingsSubtitle;
+  final String deleteAccountTitle;
+  final String deleteAccountSubtitle;
+  final String deleteAccountMessage;
+  final String deleteAccountAction;
 
   static const String defaultLanguageCode = 'gu';
 
@@ -878,6 +1088,110 @@ class AppStrings {
       savedInMyDesignsBadge: 'Saved in My Designs',
       sharePosterButton: 'પોસ્ટર શેર કરો',
       duplicateCreatedSuccess: 'ડુપ્લિકેટ પોસ્ટર સાચવવામાં આવ્યું!',
+      // Screen 14
+      myDesignsTitle: 'મારા ડિઝાઇન',
+      myDesignsSubtitle: 'તમારી બધી રચનાત્મક ડિઝાઇન એક જગ્યાએ',
+      totalDesignsLabel: 'Total Designs',
+      recentlyCreatedLabel: 'Recently Created',
+      favoritesLabel: 'Favorites',
+      searchYourDesignsHint: 'Search your designs...',
+      categoryAllDesigns: 'All Designs',
+      categoryPanchayat: 'Panchayat',
+      categoryBusiness: 'Business',
+      yourCreationsTitle: 'Your Creations',
+      editDesignMenu: 'Edit Design',
+      previewMenu: 'Preview',
+      duplicateMenu: 'Duplicate',
+      downloadMenu: 'Download',
+      shareMenu: 'Share',
+      deleteMenu: 'Delete',
+      deleteConfirmTitle: 'ડિઝાઇન કાઢી નાખવી છે?',
+      deleteConfirmMessage: 'શું તમે ખરેખર આ પોસ્ટર કાયમ માટે કાઢી નાખવા માંગો છો?',
+      confirmDeleteAction: 'Delete',
+      cancelAction: 'Cancel',
+      noDesignsYetTitle: 'No Designs Yet',
+      noDesignsYetSubtitle: 'Your creations will appear here.',
+      createFirstPosterButton: '+ Create Your First Poster',
+      // Screen 15
+      profileTitle: 'મારી પ્રોફ઼ાઇલ',
+      profileSubtitle: 'તમારો એકાઉન્ટ અને પ્રાધાન્યો સંચાલિત કરો',
+      verifiedAccountBadge: 'ચકાસાયેલ ખાતું',
+      personalInfoTitle: 'વ્યક્તિગત માહિતી',
+      mobileNumberLabel: 'મોબાઇલ નંબર',
+      emailAddressLabel: 'ઇ-મેઇલ સરનામું',
+      villageCityLabel: 'ગામ / શહેર',
+      districtLabel: 'જિલ્લો',
+      preferencesTitle: 'પ્રાધાન્ય',
+      appLanguageLabel: 'ઍપ ભાષા',
+      notificationPrefLabel: 'સૂચના પ્રાધાન્ય',
+      themePrefLabel: 'થીમ પ્રાધાન્ય',
+      lightThemeOption: 'લાઇટ થીમ',
+      accountSupportTitle: 'ખાતું અને સહાય',
+      accountSecurityLabel: 'ખાતાની સુરક્ષા',
+      helpSupportLabel: 'સહાય',
+      aboutPanchayatPostLabel: 'Panchayat Post વિશે',
+      privacyPolicyLabel: 'ગોપનીયતા નીતિ',
+      termsConditionsLabel: 'નિયમો અને શરતો',
+      logoutAction: 'લૉગ આઉટ',
+      logoutConfirmTitle: 'લૉગ આઉટ?',
+      logoutConfirmMessage: 'શું તમે ખરેખર Panchayat Post ખાતામાંથી લૉગ આઉટ કરવા માગો છો?',
+      // Screen 16
+      settingsTitle: 'સેટિંગ્સ અને પ્રાધાન્ય',
+      settingsSubtitle: 'તમારો ઍપ અનુભવ સંચાલિત કરો.',
+      accountPreferencesTitle: 'ખાતું પ્રાધાન્ય',
+      personalInfoSettingsTitle: 'વ્યક્તિગત માહિતી',
+      personalInfoSettingsSubtitle: 'તમારી પ્રોફ઼ાઇલ વિગતો જુઓ અને અપડેટ કરો',
+      changePasswordTitle: 'પાસવર્ડ બદલો',
+      changePasswordSubtitle: 'તમારા ખાતાનો પાસવર્ડ અપડેટ કરો',
+      mobileEmailTitle: 'મોબાઇલ નંબર અને ઈ-મેઇલ',
+      mobileEmailSubtitle: 'તમારો મોબાઇલ નંબર અને ઈ-મેઇલ સંચાલિત કરો',
+      languagePrefTitle: 'ભાષા પ્રાધાન્ય',
+      languagePrefSubtitle: 'તમારી પસંદગીની ભાષા પસંદ કરો',
+      notificationPrefSettingsTitle: 'સૂચના પ્રાધાન્ય',
+      notificationPrefSettingsSubtitle: 'તમારી સૂચના સેટિંગ્સ સંચાલિત કરો',
+      appPreferencesTitle: 'ઍપ પ્રાધાન્ય',
+      appLanguageSettingsTitle: 'ઍપ ભાષા',
+      appLanguageSettingsSubtitle: 'તમારી ઍપ ભાષા પસંદ કરો',
+      defaultPosterLanguageTitle: 'ડિફૉલ્ટ પોસ્ટર ભાષા',
+      defaultPosterLanguageSubtitle: 'નવા પોસ્ટર માટે ડિફૉલ્ટ ભાષા સેટ કરો',
+      notificationSettingsTitle: 'સૂચના સેટિંગ્સ',
+      notificationSettingsSubtitle: 'મહત્વના અપડેટ વિશે સૂચના મેળવો',
+      festivalRemindersTitle: 'તહેવાર રિમાઇન્ડર્સ',
+      festivalRemindersSubtitle: 'તહેવાર અને ઇવેન્ટ રિમાઇન્ડર્સ મેળવો',
+      appThemeTitle: 'ઍપ થીમ',
+      appThemeSubtitle: 'તમારી પસંદગીની થીમ પસંદ કરો',
+      privacySecurityTitle: 'ગોપનીયતા અને સુરક્ષા',
+      privacySettingsTitle: 'ગોપનીયતા સેટિંગ્સ',
+      privacySettingsSubtitle: 'તમારો ડેટા અને ગોપનીયતા નિયંત્રિત કરો',
+      privacySettingsContent: 'અમે તમારી ગોપનીયતાનું સન્માન કરીએ છીએ. વ્યક્તિગત માહિતી તમારા ઉપકરણ પર સ્થાનિક રીતે સંગ્રહિત થાય છે.',
+      accountSecuritySettingsTitle: 'ખાતાની સુરક્ષા',
+      accountSecuritySettingsSubtitle: 'સુરક્ષા સેટિંગ્સ સંચાલિત કરો',
+      accountSecuritySettingsContent: 'તમારું ખાતું સુરક્ષિત પાસવર્ડ સાથે સુરક્ષિત છે.',
+      activeSessionsTitle: 'સક્રિય સત્રો',
+      activeSessionsSubtitle: 'તમારા લૉગ-ઇન ઉપકરણો જુઓ',
+      activeSessionsContent: 'તમારું વર્તમાન સત્ર આ ઉપકરણ પર સક્રિય છે.',
+      dataPermissionsTitle: 'ડેટા અને પરવાનગીઓ',
+      dataPermissionsSubtitle: 'ડેટા ઍક્સેસ અને પરવાનગીઓ સંચાલિત કરો',
+      dataPermissionsContent: 'ઍપ પરવાનગીઓ તમારા ઉપકરણ સેટિંગ્સમાં સંચાલિત કરી શકાય છે.',
+      supportTitle: 'સહાય',
+      helpSupportSettingsTitle: 'સહાય અને સપોર્ટ',
+      helpSupportSettingsSubtitle: 'જ્યારે પણ જરૂર હોય ત્યારે સહાય મેળવો',
+      helpSupportSettingsContent: 'સહાય માટે, support@panchayatpost.in પર સંપર્ક કરો.',
+      faqTitle: 'વારંવાર પૂછાતા પ્રશ્નો',
+      faqSubtitle: 'સામાન્ય પ્રશ્નોના જવાબો શોધો',
+      faqContent: 'અહીં Panchayat Post વિશેના સૌથી સામાન્ય પ્રશ્નોના જવાબો છે.',
+      contactUsTitle: 'અમારો સંપર્ક કરો',
+      contactUsSubtitle: 'અમે મદદ કરવા અહીં છીએ',
+      contactUsContent: '📧 support@panchayatpost.in\n📞 1800-123-7262\n⏰ સોમ-શનિ, 9:00 AM - 6:00 PM',
+      aboutAppTitle: 'Panchayat Post વિશે',
+      aboutAppSubtitle: 'ઍપ વર્ઝન, માહિતી અને વધુ',
+      aboutAppContent: 'Panchayat Post v1.0.0\n\nગામડાના સમુદાયો માટે સુંદર તહેવાર અને સરકારી પોસ્ટર બનાવવા અને શેર કરવા માટેનું પ્લેટફોર્મ.\n\n❤️ ભારત માટે બનાવવામાં આવ્યું.',
+      accountActionsTitle: 'ખાતું ક્રિયાઓ',
+      logoutSettingsSubtitle: 'તમારા ખાતામાંથી સાઇન આઉટ કરો',
+      deleteAccountTitle: 'ખાતું કાઢી નાખો',
+      deleteAccountSubtitle: 'તમારું ખાતું કાયમ માટે દૂર કરો',
+      deleteAccountMessage: 'આ ક્રિયા તમારા ખાતા, ડિઝાઇન અને ડેટાને કાયમ માટે કાઢી નાખશે. આ ક્રિયા પૂર્વવત્ કરી શકાતી નથી.',
+      deleteAccountAction: 'ખાતું કાઢી નાખો',
     ),
     'hi': AppStrings(
       languageName: 'हिंदी',
@@ -1166,6 +1480,110 @@ class AppStrings {
       savedInMyDesignsBadge: 'Saved in My Designs',
       sharePosterButton: 'पोस्टर साझा करें',
       duplicateCreatedSuccess: 'डुप्लिकेट पोस्टर सहेजा गया!',
+      // Screen 14
+      myDesignsTitle: 'मेरी डिज़ाइन',
+      myDesignsSubtitle: 'आपकी सभी रचनात्मक डिज़ाइन एक स्थान पर',
+      totalDesignsLabel: 'Total Designs',
+      recentlyCreatedLabel: 'Recently Created',
+      favoritesLabel: 'Favorites',
+      searchYourDesignsHint: 'Search your designs...',
+      categoryAllDesigns: 'All Designs',
+      categoryPanchayat: 'Panchayat',
+      categoryBusiness: 'Business',
+      yourCreationsTitle: 'Your Creations',
+      editDesignMenu: 'Edit Design',
+      previewMenu: 'Preview',
+      duplicateMenu: 'Duplicate',
+      downloadMenu: 'Download',
+      shareMenu: 'Share',
+      deleteMenu: 'Delete',
+      deleteConfirmTitle: 'डिज़ाइन हटाएं?',
+      deleteConfirmMessage: 'क्या आप वाकई इस पोस्टर को हटाना चाहते हैं?',
+      confirmDeleteAction: 'Delete',
+      cancelAction: 'Cancel',
+      noDesignsYetTitle: 'No Designs Yet',
+      noDesignsYetSubtitle: 'Your creations will appear here.',
+      createFirstPosterButton: '+ Create Your First Poster',
+      // Screen 15
+      profileTitle: 'मेरी प्रोफ़ाइल',
+      profileSubtitle: 'अपना खाता और प्राथमिकताएँ प्रबंधित करें',
+      verifiedAccountBadge: 'सत्यापित खाता',
+      personalInfoTitle: 'व्यक्तिगत जानकारी',
+      mobileNumberLabel: 'मोबाइल नंबर',
+      emailAddressLabel: 'ईमेल पता',
+      villageCityLabel: 'गाँव / शहर',
+      districtLabel: 'जिला',
+      preferencesTitle: 'प्राथमिकताएँ',
+      appLanguageLabel: 'ऐप भाषा',
+      notificationPrefLabel: 'सूचना प्राथमिकताएँ',
+      themePrefLabel: 'थीम प्राथमिकता',
+      lightThemeOption: 'लाइट थीम',
+      accountSupportTitle: 'खाता और सहायता',
+      accountSecurityLabel: 'खाता सुरक्षा',
+      helpSupportLabel: 'सहायता',
+      aboutPanchayatPostLabel: 'Panchayat Post के बारे में',
+      privacyPolicyLabel: 'गोपनीयता नीति',
+      termsConditionsLabel: 'नियम और शर्तें',
+      logoutAction: 'लॉग आउट',
+      logoutConfirmTitle: 'लॉग आउट करें?',
+      logoutConfirmMessage: 'क्या आप अपने Panchayat Post खाते से लॉग आउट करना चाहते हैं?',
+      // Screen 16
+      settingsTitle: 'सेटिंग्स और प्राथमिकताएँ',
+      settingsSubtitle: 'अपने ऐप अनुभव को प्रबंधित करें.',
+      accountPreferencesTitle: 'खाता प्राथमिकताएँ',
+      personalInfoSettingsTitle: 'व्यक्तिगत जानकारी',
+      personalInfoSettingsSubtitle: 'अपनी प्रोफ़ाइल विवरण देखें और अपडेट करें',
+      changePasswordTitle: 'पासवर्ड बदलें',
+      changePasswordSubtitle: 'अपने खाते का पासवर्ड अपडेट करें',
+      mobileEmailTitle: 'मोबाइल नंबर और ईमेल',
+      mobileEmailSubtitle: 'अपना मोबाइल नंबर और ईमेल प्रबंधित करें',
+      languagePrefTitle: 'भाषा प्राथमिकता',
+      languagePrefSubtitle: 'अपनी पसंदीदा भाषा चुनें',
+      notificationPrefSettingsTitle: 'सूचना प्राथमिकताएँ',
+      notificationPrefSettingsSubtitle: 'अपनी सूचना सेटिंग्स प्रबंधित करें',
+      appPreferencesTitle: 'ऐप प्राथमिकताएँ',
+      appLanguageSettingsTitle: 'ऐप भाषा',
+      appLanguageSettingsSubtitle: 'अपनी ऐप भाषा चुनें',
+      defaultPosterLanguageTitle: 'डिफ़ॉल्ट पोस्टर भाषा',
+      defaultPosterLanguageSubtitle: 'नए पोस्टर के लिए डिफ़ॉल्ट भाषा सेट करें',
+      notificationSettingsTitle: 'सूचना सेटिंग्स',
+      notificationSettingsSubtitle: 'महत्वपूर्ण अपडेट के बारे में सूचनाएं प्राप्त करें',
+      festivalRemindersTitle: 'त्योहार रिमाइंडर',
+      festivalRemindersSubtitle: 'त्योहार और इवेंट रिमाइंडर प्राप्त करें',
+      appThemeTitle: 'ऐप थीम',
+      appThemeSubtitle: 'अपनी पसंदीदा थीम चुनें',
+      privacySecurityTitle: 'गोपनीयता और सुरक्षा',
+      privacySettingsTitle: 'गोपनीयता सेटिंग्स',
+      privacySettingsSubtitle: 'अपना डेटा और गोपनीयता नियंत्रित करें',
+      privacySettingsContent: 'हम आपकी गोपनीयता का सम्मान करते हैं। व्यक्तिगत जानकारी आपके डिवाइस पर स्थानीय रूप से संग्रहित होती है.',
+      accountSecuritySettingsTitle: 'खाता सुरक्षा',
+      accountSecuritySettingsSubtitle: 'सुरक्षा सेटिंग्स प्रबंधित करें',
+      accountSecuritySettingsContent: 'आपका खाता सुरक्षित पासवर्ड से सुरक्षित है.',
+      activeSessionsTitle: 'सक्रिय सत्र',
+      activeSessionsSubtitle: 'अपने लॉग-इन डिवाइस देखें',
+      activeSessionsContent: 'आपका वर्तमान सत्र इस डिवाइस पर सक्रिय है.',
+      dataPermissionsTitle: 'डेटा और अनुमतियाँ',
+      dataPermissionsSubtitle: 'डेटा एक्सेस और अनुमतियाँ प्रबंधित करें',
+      dataPermissionsContent: 'ऐप अनुमतियाँ आपकी डिवाइस सेटिंग्स में प्रबंधित की जा सकती हैं.',
+      supportTitle: 'सहायता',
+      helpSupportSettingsTitle: 'सहायता और सपोर्ट',
+      helpSupportSettingsSubtitle: 'जब भी जरूरत हो सहायता प्राप्त करें',
+      helpSupportSettingsContent: 'सहायता के लिए, support@panchayatpost.in पर संपर्क करें.',
+      faqTitle: 'अक्सर पूछे जाने वाले प्रश्न',
+      faqSubtitle: 'सामान्य प्रश्नों के उत्तर खोजें',
+      faqContent: 'यहाँ Panchayat Post के बारे में सबसे आम प्रश्नों के उत्तर हैं.',
+      contactUsTitle: 'हमसे संपर्क करें',
+      contactUsSubtitle: 'हम मदद करने के लिए यहाँ हैं',
+      contactUsContent: '📧 support@panchayatpost.in\n📞 1800-123-7262\n⏰ सोम-शनि, 9:00 AM - 6:00 PM',
+      aboutAppTitle: 'Panchayat Post के बारे में',
+      aboutAppSubtitle: 'ऐप संस्करण, जानकारी और अधिक',
+      aboutAppContent: 'Panchayat Post v1.0.0\n\nगाँव समुदायों के लिए सुंदर त्योहार और सरकारी पोस्टर बनाने और साझा करने का मंच.\n\n❤️ भारत के लिए बनाया गया.',
+      accountActionsTitle: 'खाता क्रियाएँ',
+      logoutSettingsSubtitle: 'अपने खाते से साइन आउट करें',
+      deleteAccountTitle: 'खाता हटाएं',
+      deleteAccountSubtitle: 'अपना खाता स्थायी रूप से हटाएं',
+      deleteAccountMessage: 'यह क्रिया आपके खाते, डिज़ाइन और डेटा को स्थायी रूप से हटा देगी। इसे पूर्ववत नहीं किया जा सकता.',
+      deleteAccountAction: 'खाता हटाएं',
     ),
     'en': AppStrings(
       languageName: 'English',
@@ -1454,6 +1872,110 @@ class AppStrings {
       savedInMyDesignsBadge: 'Saved in My Designs',
       sharePosterButton: 'Share Poster',
       duplicateCreatedSuccess: 'Duplicate poster saved successfully!',
+      // Screen 14
+      myDesignsTitle: 'My Designs',
+      myDesignsSubtitle: 'All your creative designs in one place',
+      totalDesignsLabel: 'Total Designs',
+      recentlyCreatedLabel: 'Recently Created',
+      favoritesLabel: 'Favorites',
+      searchYourDesignsHint: 'Search your designs...',
+      categoryAllDesigns: 'All Designs',
+      categoryPanchayat: 'Panchayat',
+      categoryBusiness: 'Business',
+      yourCreationsTitle: 'Your Creations',
+      editDesignMenu: 'Edit Design',
+      previewMenu: 'Preview',
+      duplicateMenu: 'Duplicate',
+      downloadMenu: 'Download',
+      shareMenu: 'Share',
+      deleteMenu: 'Delete',
+      deleteConfirmTitle: 'Delete Design?',
+      deleteConfirmMessage: 'Are you sure you want to permanently delete this poster?',
+      confirmDeleteAction: 'Delete',
+      cancelAction: 'Cancel',
+      noDesignsYetTitle: 'No Designs Yet',
+      noDesignsYetSubtitle: 'Your creations will appear here.',
+      createFirstPosterButton: '+ Create Your First Poster',
+      // Screen 15
+      profileTitle: 'My Profile',
+      profileSubtitle: 'Manage your account and preferences',
+      verifiedAccountBadge: 'Verified Account',
+      personalInfoTitle: 'Personal Information',
+      mobileNumberLabel: 'Mobile Number',
+      emailAddressLabel: 'Email Address',
+      villageCityLabel: 'Village / City',
+      districtLabel: 'District',
+      preferencesTitle: 'Preferences',
+      appLanguageLabel: 'App Language',
+      notificationPrefLabel: 'Notification Preferences',
+      themePrefLabel: 'Theme Preference',
+      lightThemeOption: 'Light Theme',
+      accountSupportTitle: 'Account & Support',
+      accountSecurityLabel: 'Account Security',
+      helpSupportLabel: 'Help & Support',
+      aboutPanchayatPostLabel: 'About Panchayat Post',
+      privacyPolicyLabel: 'Privacy Policy',
+      termsConditionsLabel: 'Terms & Conditions',
+      logoutAction: 'Log Out',
+      logoutConfirmTitle: 'Log Out?',
+      logoutConfirmMessage: 'Are you sure you want to log out of your Panchayat Post account?',
+      // Screen 16
+      settingsTitle: 'Settings & Preferences',
+      settingsSubtitle: 'Manage your app experience.',
+      accountPreferencesTitle: 'Account Preferences',
+      personalInfoSettingsTitle: 'Personal Information',
+      personalInfoSettingsSubtitle: 'View and update your profile details',
+      changePasswordTitle: 'Change Password',
+      changePasswordSubtitle: 'Update your account password',
+      mobileEmailTitle: 'Mobile Number & Email',
+      mobileEmailSubtitle: 'Manage your mobile number and email address',
+      languagePrefTitle: 'Language Preference',
+      languagePrefSubtitle: 'Choose your preferred language',
+      notificationPrefSettingsTitle: 'Notification Preferences',
+      notificationPrefSettingsSubtitle: 'Manage your notification settings',
+      appPreferencesTitle: 'App Preferences',
+      appLanguageSettingsTitle: 'App Language',
+      appLanguageSettingsSubtitle: 'Select your app language',
+      defaultPosterLanguageTitle: 'Default Poster Language',
+      defaultPosterLanguageSubtitle: 'Set default language for new posters',
+      notificationSettingsTitle: 'Notification Settings',
+      notificationSettingsSubtitle: 'Get notified about important updates',
+      festivalRemindersTitle: 'Festival Reminders',
+      festivalRemindersSubtitle: 'Receive festival and event reminders',
+      appThemeTitle: 'App Theme',
+      appThemeSubtitle: 'Choose your preferred theme',
+      privacySecurityTitle: 'Privacy & Security',
+      privacySettingsTitle: 'Privacy Settings',
+      privacySettingsSubtitle: 'Control your data and privacy',
+      privacySettingsContent: 'We respect your privacy. Personal information is stored locally on your device and is not shared with third parties.',
+      accountSecuritySettingsTitle: 'Account Security',
+      accountSecuritySettingsSubtitle: 'Manage security settings',
+      accountSecuritySettingsContent: 'Your account is protected with a secure password.',
+      activeSessionsTitle: 'Active Sessions',
+      activeSessionsSubtitle: 'View your logged in devices',
+      activeSessionsContent: 'Your current session is active on this device.',
+      dataPermissionsTitle: 'Data & Permissions',
+      dataPermissionsSubtitle: 'Manage data access and permissions',
+      dataPermissionsContent: 'App permissions can be managed in your device settings.',
+      supportTitle: 'Support',
+      helpSupportSettingsTitle: 'Help & Support',
+      helpSupportSettingsSubtitle: 'Get help whenever you need',
+      helpSupportSettingsContent: 'For assistance, contact us at support@panchayatpost.in. Our support team is available Monday to Saturday, 9 AM – 6 PM IST.',
+      faqTitle: 'Frequently Asked Questions',
+      faqSubtitle: 'Find answers to common questions',
+      faqContent: 'Here are answers to the most common questions about Panchayat Post.',
+      contactUsTitle: 'Contact Us',
+      contactUsSubtitle: "We're here to help",
+      contactUsContent: '📧 support@panchayatpost.in\n📞 1800-123-7262\n⏰ Mon-Sat, 9:00 AM - 6:00 PM',
+      aboutAppTitle: 'About Panchayat Post',
+      aboutAppSubtitle: 'App version, info and more',
+      aboutAppContent: 'Panchayat Post v1.0.0\n\nA platform for village communities to create and share beautiful festival and government posters.\n\nBuilt with ❤️ for Bharat.',
+      accountActionsTitle: 'Account Actions',
+      logoutSettingsSubtitle: 'Sign out from your account',
+      deleteAccountTitle: 'Delete Account',
+      deleteAccountSubtitle: 'Permanently remove your account',
+      deleteAccountMessage: 'This action will permanently delete your account, designs and data. This action cannot be undone.',
+      deleteAccountAction: 'Delete Account',
     ),
   };
 

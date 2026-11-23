@@ -75,9 +75,17 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
     } else if (index == 2) {
       _showAllTemplatesLibrary(context);
     } else if (index == 3) {
-      _showMyDesignsModal(context);
+      Navigator.of(context).pushNamed(AppRoutes.myDesigns).then((_) {
+        if (mounted) {
+          setState(() => _selectedNavIndex = 1);
+        }
+      });
     } else if (index == 4) {
-      _showProfileDrawer(context);
+      Navigator.of(context).pushNamed(AppRoutes.profile).then((_) {
+        if (mounted) {
+          setState(() => _selectedNavIndex = 1);
+        }
+      });
     }
   }
 
@@ -613,47 +621,6 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  void _showMyDesignsModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
-      ),
-      builder: (ctx) => const Padding(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.photo_library_outlined, color: Color(0xFF6D28D9), size: 22.0),
-                SizedBox(width: 8.0),
-                Expanded(
-                  child: Text(
-                    'My Saved Designs',
-                    style: TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textNavy,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 12.0),
-            Text(
-              'તમે બનાવેલા બધા પોસ્ટર અહીં સાચવવામાં આવશે. તમે તેને ગમે ત્યારે ફરીથી ડાઉનલોડ અથવા શેર કરી શકો છો.',
-              style: TextStyle(fontSize: 13.5, color: Color(0xFF475569), height: 1.4),
-            ),
-            SizedBox(height: 20.0),
-          ],
         ),
       ),
     );
