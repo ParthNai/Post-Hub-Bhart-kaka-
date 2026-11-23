@@ -1285,16 +1285,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     _buildFeaturedHeroBanner(),
                     const SizedBox(height: 16.0),
 
+                    // E. Upcoming Festivals / Posts (Right after Hero)
+                    _buildUpcomingFestivalsSection(strings),
+                    const SizedBox(height: 18.0),
+
                     // C. Create Something New
                     _buildCreateSomethingNewSection(strings),
                     const SizedBox(height: 18.0),
 
                     // D. Popular Templates
                     _buildPopularTemplatesSection(strings),
-                    const SizedBox(height: 18.0),
-
-                    // E. Upcoming Festivals
-                    _buildUpcomingFestivalsSection(strings),
                     const SizedBox(height: 12.0),
 
                     // Bottom Cultural Village Silhouette Watermark

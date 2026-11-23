@@ -105,6 +105,7 @@ class AppAssets {
   static const String screen12Reference = 'assets/images/screen_12_reference.jpg';
   static const String editorCanvasNavratri = 'assets/images/editor_canvas_navratri.png';
   static const String editorDandiyaCouple = 'assets/images/editor_dandiya_couple.png';
+  static const String navratriDandiyaTempleArt = 'assets/images/navratri_dandiya_temple_art.jpg';
 
   /// Approved UI reference for Screen 13 Final Poster Preview, Download & Share.
   static const String screen13Reference = 'assets/images/screen_13_reference.jpg';
