@@ -32,8 +32,6 @@ class AppInitService {
   static const int minSplashDurationMs = 2000;
 
   /// Initializes essential background services and checks user session.
-  /// Always displays the preloader / splash screen for the full configured duration
-  /// whenever the app starts.
   Future<AppInitResult> initialize({int minDurationMs = minSplashDurationMs}) async {
     final stopwatch = Stopwatch()..start();
     SessionState determinedSession = SessionState.firstTime;
@@ -42,6 +40,7 @@ class AppInitService {
     try {
       final futures = <Future<dynamic>>[
         _sessionService.checkSession(),
+        Future<void>.delayed(Duration(milliseconds: minDurationMs)),
         _loadConfiguration(),
       ];
 
@@ -52,14 +51,6 @@ class AppInitService {
 
       final results = await Future.wait<dynamic>(futures);
       determinedSession = results[0] as SessionState;
-
-      // Unconditionally show the preloader on startup for the remote configured duration
-      final remoteDuration = AppConfigService.instance.config.preloaderDurationMs;
-      final targetDuration = remoteDuration > 0 ? remoteDuration : minDurationMs;
-      final elapsed = stopwatch.elapsedMilliseconds;
-      if (elapsed < targetDuration) {
-        await Future<void>.delayed(Duration(milliseconds: targetDuration - elapsed));
-      }
     } catch (e, stack) {
       debugPrint('App initialization error: $e\n$stack');
       initError = e.toString();
