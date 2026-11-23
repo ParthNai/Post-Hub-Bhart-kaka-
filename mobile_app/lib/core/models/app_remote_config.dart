@@ -84,24 +84,41 @@ class AppRemoteConfig {
   }
 
   factory AppRemoteConfig.fromJson(Map<String, dynamic> json) {
-    // 1. App Branding
+    final root = (json['data'] is Map<String, dynamic>)
+        ? json['data'] as Map<String, dynamic>
+        : (json['config'] is Map<String, dynamic> ? json['config'] as Map<String, dynamic> : json);
+
+    // 1. App Branding & Logo
     String? appIcon;
     String? logo;
-    if (json['appBranding'] is Map<String, dynamic>) {
-      final branding = json['appBranding'] as Map<String, dynamic>;
+    if (root['appBranding'] is Map<String, dynamic>) {
+      final branding = root['appBranding'] as Map<String, dynamic>;
       appIcon = branding['appIconUrl'] as String?;
       logo = branding['logoUrl'] as String?;
+    }
+    // Fallback: check preloaderScreen.appIcon from legacy backend
+    if ((appIcon == null || appIcon.isEmpty) && root['preloaderScreen'] is Map<String, dynamic>) {
+      final preScreen = root['preloaderScreen'] as Map<String, dynamic>;
+      if (preScreen['appIcon'] is Map<String, dynamic>) {
+        final iconMap = preScreen['appIcon'] as Map<String, dynamic>;
+        appIcon = iconMap['url'] as String?;
+        logo ??= appIcon;
+      }
     }
 
     // 2. Preloader
     Color preloaderPrimary = const Color(0xFFFE8706);
     Color preloaderSecondary = const Color(0xFF0055B8);
     int preloaderDuration = 2000;
-    if (json['preloader'] is Map<String, dynamic>) {
-      final pre = json['preloader'] as Map<String, dynamic>;
+    if (root['preloader'] is Map<String, dynamic>) {
+      final pre = root['preloader'] as Map<String, dynamic>;
       preloaderPrimary = hexToColor(pre['primaryColor'] as String?, fallback: const Color(0xFFFE8706));
       preloaderSecondary = hexToColor(pre['secondaryColor'] as String?, fallback: const Color(0xFF0055B8));
       preloaderDuration = (pre['durationMs'] as num?)?.toInt() ?? 2000;
+    } else if (root['preloaderScreen'] is Map<String, dynamic>) {
+      final pre = root['preloaderScreen'] as Map<String, dynamic>;
+      final durationSec = (pre['durationSeconds'] as num?)?.toDouble() ?? 2.0;
+      preloaderDuration = (durationSec * 1000).toInt();
     }
 
     // 3. Theme
@@ -109,8 +126,8 @@ class AppRemoteConfig {
     Color primaryAccent = const Color(0xFF0055B8);
     String bg = '#FFFFFF';
     String radius = '14px';
-    if (json['theme'] is Map<String, dynamic>) {
-      final th = json['theme'] as Map<String, dynamic>;
+    if (root['theme'] is Map<String, dynamic>) {
+      final th = root['theme'] as Map<String, dynamic>;
       theme = th['mode'] as String? ?? 'Light';
       primaryAccent = hexToColor(th['primaryAccent'] as String?, fallback: const Color(0xFF0055B8));
       bg = th['backgroundColor'] as String? ?? '#FFFFFF';
@@ -122,18 +139,32 @@ class AppRemoteConfig {
     String badge = '✨ MAGIC STUDIO';
     String headline = 'What will you design today?';
     String subtitle = 'Choose a format below or start from templates.';
-    if (json['heroSection'] is Map<String, dynamic>) {
-      final hero = json['heroSection'] as Map<String, dynamic>;
+    if (root['heroSection'] is Map<String, dynamic>) {
+      final hero = root['heroSection'] as Map<String, dynamic>;
       heroVis = (hero['visible'] as bool? ?? true) && (hero['enabled'] as bool? ?? true);
       badge = hero['badge'] as String? ?? '✨ MAGIC STUDIO';
       headline = hero['headline'] as String? ?? 'What will you design today?';
       subtitle = hero['subtitle'] as String? ?? 'Choose a format below or start from templates.';
+    } else if (root['homeScreen'] is Map<String, dynamic>) {
+      final hs = root['homeScreen'] as Map<String, dynamic>;
+      if (hs['heroTitle'] is String && (hs['heroTitle'] as String).isNotEmpty) {
+        headline = hs['heroTitle'] as String;
+      }
+      if (hs['heroSubtitle'] is String && (hs['heroSubtitle'] as String).isNotEmpty) {
+        subtitle = hs['heroSubtitle'] as String;
+      }
+      if (hs['noticeBanner'] is Map<String, dynamic>) {
+        final nb = hs['noticeBanner'] as Map<String, dynamic>;
+        if (nb['text'] is String && (nb['text'] as String).isNotEmpty) {
+          badge = nb['text'] as String;
+        }
+      }
     }
 
     // Screens map
     final screensMap = <String, RemoteScreenConfig>{};
-    if (json['navigation'] is List) {
-      for (final item in json['navigation'] as List) {
+    if (root['navigation'] is List) {
+      for (final item in root['navigation'] as List) {
         if (item is Map<String, dynamic>) {
           final screen = RemoteScreenConfig.fromJson(item);
           screensMap[screen.key] = screen;

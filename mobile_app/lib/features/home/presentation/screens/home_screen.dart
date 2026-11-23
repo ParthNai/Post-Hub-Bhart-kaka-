@@ -7,6 +7,7 @@ import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
+import 'package:panchayat_post/features/splash/presentation/widgets/brand_logo_widget.dart';
 
 /// Screen 09: Main Home Dashboard Screen
 ///
@@ -911,11 +912,9 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
                 children: [
-                  // Panchayat Post Logo
-                  Image.asset(
-                    AppAssets.panchayatLogo,
+                  // Panchayat Post Logo (Admin controllable)
+                  const BrandLogoWidget(
                     height: 36.0,
-                    fit: BoxFit.contain,
                   ),
                   const SizedBox(width: 6.0),
                   const Column(
