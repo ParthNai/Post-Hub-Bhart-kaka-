@@ -172,6 +172,33 @@ class AppStrings {
     required this.categoryDevelopment,
     required this.categoryFestivals,
     required this.categoryNational,
+    // Screen 09: Main Home Dashboard strings
+    required this.goodMorningGreeting,
+    required this.welcomeUserPrefix,
+    required this.heroBannerCreate,
+    required this.heroBannerFestival,
+    required this.heroBannerSubtitle,
+    required this.heroBannerButton,
+    required this.createSomethingNewTitle,
+    required this.cardFestivalPosters,
+    required this.cardPanchayatPosts,
+    required this.cardAiPoster,
+    required this.popularTemplatesTitle,
+    required this.seeAllAction,
+    required this.upcomingFestivalsTitle,
+    required this.festivalNavratri,
+    required this.festivalDiwali,
+    required this.festivalBhaiBeej,
+    required this.navratriDate,
+    required this.diwaliDate,
+    required this.bhaiBeejDate,
+    required this.navHome,
+    required this.navFestivals,
+    required this.navTemplates,
+    required this.navMyDesigns,
+    required this.navProfile,
+    required this.notificationsTitle,
+    required this.noNewNotifications,
   });
 
   final String languageName;
@@ -353,6 +380,34 @@ class AppStrings {
   final String categoryFestivals;
   final String categoryNational;
 
+  // Screen 09 Strings
+  final String goodMorningGreeting;
+  final String welcomeUserPrefix;
+  final String heroBannerCreate;
+  final String heroBannerFestival;
+  final String heroBannerSubtitle;
+  final String heroBannerButton;
+  final String createSomethingNewTitle;
+  final String cardFestivalPosters;
+  final String cardPanchayatPosts;
+  final String cardAiPoster;
+  final String popularTemplatesTitle;
+  final String seeAllAction;
+  final String upcomingFestivalsTitle;
+  final String festivalNavratri;
+  final String festivalDiwali;
+  final String festivalBhaiBeej;
+  final String navratriDate;
+  final String diwaliDate;
+  final String bhaiBeejDate;
+  final String navHome;
+  final String navFestivals;
+  final String navTemplates;
+  final String navMyDesigns;
+  final String navProfile;
+  final String notificationsTitle;
+  final String noNewNotifications;
+
   static const String defaultLanguageCode = 'gu';
 
   static final Map<String, AppStrings> _localizedValues = {
@@ -528,6 +583,32 @@ class AppStrings {
       categoryDevelopment: 'ગામ વિકાસ',
       categoryFestivals: 'તહેવારો અને ઉત્સવ',
       categoryNational: 'રાષ્ટ્રીય દિવસ',
+      goodMorningGreeting: 'Good Morning!',
+      welcomeUserPrefix: 'Welcome, ',
+      heroBannerCreate: 'Create Beautiful',
+      heroBannerFestival: 'Festival Posts',
+      heroBannerSubtitle: 'Celebrate every occasion with beautiful designs.',
+      heroBannerButton: 'Explore Designs',
+      createSomethingNewTitle: 'Create Something New',
+      cardFestivalPosters: 'Festival\nPosters',
+      cardPanchayatPosts: 'Panchayat\nPosts',
+      cardAiPoster: 'AI Poster',
+      popularTemplatesTitle: 'Popular Templates',
+      seeAllAction: 'See All',
+      upcomingFestivalsTitle: 'Upcoming Festivals',
+      festivalNavratri: 'નવરાત્રી',
+      festivalDiwali: 'દિવાળી',
+      festivalBhaiBeej: 'ભાઈ બીજ',
+      navratriDate: '22 Oct',
+      diwaliDate: '12 Nov',
+      bhaiBeejDate: '23 Nov',
+      navHome: 'Home',
+      navFestivals: 'Festivals',
+      navTemplates: 'Templates',
+      navMyDesigns: 'My Designs',
+      navProfile: 'Profile',
+      notificationsTitle: 'સૂચનાઓ (Notifications)',
+      noNewNotifications: 'કોઈ નવી સૂચના નથી',
     ),
     'hi': AppStrings(
       languageName: 'हिंदी',
@@ -701,6 +782,32 @@ class AppStrings {
       categoryDevelopment: 'गांव विकास',
       categoryFestivals: 'त्योहार और उत्सव',
       categoryNational: 'राष्ट्रीय दिवस',
+      goodMorningGreeting: 'Good Morning!',
+      welcomeUserPrefix: 'Welcome, ',
+      heroBannerCreate: 'Create Beautiful',
+      heroBannerFestival: 'Festival Posts',
+      heroBannerSubtitle: 'Celebrate every occasion with beautiful designs.',
+      heroBannerButton: 'Explore Designs',
+      createSomethingNewTitle: 'Create Something New',
+      cardFestivalPosters: 'Festival\nPosters',
+      cardPanchayatPosts: 'Panchayat\nPosts',
+      cardAiPoster: 'AI Poster',
+      popularTemplatesTitle: 'Popular Templates',
+      seeAllAction: 'See All',
+      upcomingFestivalsTitle: 'Upcoming Festivals',
+      festivalNavratri: 'नवरात्रि',
+      festivalDiwali: 'दिवाली',
+      festivalBhaiBeej: 'भाई दूज',
+      navratriDate: '22 Oct',
+      diwaliDate: '12 Nov',
+      bhaiBeejDate: '23 Nov',
+      navHome: 'Home',
+      navFestivals: 'Festivals',
+      navTemplates: 'Templates',
+      navMyDesigns: 'My Designs',
+      navProfile: 'Profile',
+      notificationsTitle: 'सूचनाएं (Notifications)',
+      noNewNotifications: 'कोई नई सूचना नहीं है',
     ),
     'en': AppStrings(
       languageName: 'English',
@@ -874,6 +981,32 @@ class AppStrings {
       categoryDevelopment: 'Village Development',
       categoryFestivals: 'Festivals & Celebrations',
       categoryNational: 'National Days',
+      goodMorningGreeting: 'Good Morning!',
+      welcomeUserPrefix: 'Welcome, ',
+      heroBannerCreate: 'Create Beautiful',
+      heroBannerFestival: 'Festival Posts',
+      heroBannerSubtitle: 'Celebrate every occasion with beautiful designs.',
+      heroBannerButton: 'Explore Designs',
+      createSomethingNewTitle: 'Create Something New',
+      cardFestivalPosters: 'Festival\nPosters',
+      cardPanchayatPosts: 'Panchayat\nPosts',
+      cardAiPoster: 'AI Poster',
+      popularTemplatesTitle: 'Popular Templates',
+      seeAllAction: 'See All',
+      upcomingFestivalsTitle: 'Upcoming Festivals',
+      festivalNavratri: 'Navratri',
+      festivalDiwali: 'Diwali',
+      festivalBhaiBeej: 'Bhai Beej',
+      navratriDate: '22 Oct',
+      diwaliDate: '12 Nov',
+      bhaiBeejDate: '23 Nov',
+      navHome: 'Home',
+      navFestivals: 'Festivals',
+      navTemplates: 'Templates',
+      navMyDesigns: 'My Designs',
+      navProfile: 'Profile',
+      notificationsTitle: 'Notifications',
+      noNewNotifications: 'No new notifications',
     ),
   };
 

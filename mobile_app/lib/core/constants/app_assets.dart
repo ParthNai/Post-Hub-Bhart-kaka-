@@ -57,4 +57,20 @@ class AppAssets {
 
   /// Hero illustration for Screen 08 Confirmation & Onboarding (ID card, green check badge, and Panchayat Bhawan).
   static const String onboardingConfirmationHero = 'assets/images/onboarding_confirmation_hero.png';
+
+  /// Approved UI reference for Screen 09 Main Home Dashboard Screen.
+  static const String screen09Reference = 'assets/images/screen_09_reference.jpg';
+  static const String homeAvatarRahul = 'assets/images/home_avatar_rahul.png';
+  static const String homeHeroBannerArt = 'assets/images/home_hero_banner_art.png';
+  static const String homeHeroBannerFull = 'assets/images/home_hero_banner_full.png';
+  static const String homeCreateFestival = 'assets/images/home_create_festival.png';
+  static const String homeCreatePanchayat = 'assets/images/home_create_panchayat.png';
+  static const String homeCreateAi = 'assets/images/home_create_ai.png';
+  static const String homeTemplateDiwali = 'assets/images/home_template_diwali.png';
+  static const String homeTemplateVikas = 'assets/images/home_template_vikas.png';
+  static const String homeTemplateSwachh = 'assets/images/home_template_swachh.png';
+  static const String homeTemplateGramSabha = 'assets/images/home_template_gramsabha.png';
+  static const String homeFestivalNavratri = 'assets/images/home_festival_navratri.png';
+  static const String homeFestivalDiwali = 'assets/images/home_festival_diwali.png';
+  static const String homeFestivalBhaiBeej = 'assets/images/home_festival_bhaibeej.png';
 }

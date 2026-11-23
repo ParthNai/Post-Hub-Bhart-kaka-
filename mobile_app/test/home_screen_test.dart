@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
-import 'package:panchayat_post/core/services/session_service.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 import 'package:panchayat_post/features/home/presentation/screens/home_screen.dart';
@@ -22,17 +21,17 @@ void main() {
     await localeController.loadSavedLanguage();
     authService = AuthService(preferences: prefs);
 
-    // Register test user
+    // Register and update test user
     testUser = await authService.registerUser(
-      fullName: 'Rameshbhai Patel',
-      username: 'ramesh_patel',
+      fullName: 'Rahul Sharma',
+      username: 'rahul_panchayat',
       password: 'VillagePass1',
     );
     await authService.updateUserProfile(
       userId: testUser.userId,
-      fullName: 'Rameshbhai Patel',
-      displayName: 'Rameshbhai',
-      villageCity: 'Dharmaj',
+      fullName: 'Rahul Sharma',
+      displayName: 'Rahul',
+      villageCity: 'Palanpur',
       state: 'Gujarat',
       isProfileComplete: true,
     );
@@ -61,8 +60,8 @@ void main() {
     );
   }
 
-  group('Home Dashboard Screen UI & Options Tests', () {
-    testWidgets('Renders all Home Dashboard UI elements and options in Gujarati by default', (tester) async {
+  group('Screen 09: Main Home Dashboard UI & Component Tests', () {
+    testWidgets('Renders all approved Screen 09 UI elements accurately matching reference', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -70,38 +69,49 @@ void main() {
       await tester.pumpWidget(buildTestableScreen());
       await tester.pumpAndSettle();
 
-      // 1. Header elements
+      // A. Top Header
       expect(find.text('Panchayat'), findsOneWidget);
       expect(find.text('Post'), findsOneWidget);
-      expect(find.text('ગુજરાતી'), findsOneWidget);
+      expect(find.text('Good Morning!'), findsOneWidget);
+      expect(find.textContaining('Welcome, Rahul'), findsOneWidget);
+      expect(find.byIcon(Icons.notifications_none_rounded), findsOneWidget);
 
-      // 2. User profile greeting & details
-      expect(find.textContaining('નમસ્તે, Rameshbhai!'), findsOneWidget);
-      expect(find.text('Dharmaj'), findsOneWidget);
-      expect(find.byKey(const Key('edit_profile_action')), findsOneWidget);
+      // B. Featured Festival Hero Banner
+      expect(find.text('Create Beautiful'), findsOneWidget);
+      expect(find.text('Festival Posts'), findsOneWidget);
+      expect(find.textContaining('Celebrate every occasion'), findsOneWidget);
+      expect(find.text('Explore Designs'), findsOneWidget);
 
-      // 3. AI Poster Creation
-      expect(find.text('AI સાથે પોસ્ટર બનાવો'), findsOneWidget);
+      // C. Create Something New
+      expect(find.text('Create Something New'), findsOneWidget);
+      expect(find.textContaining('Festival'), findsWidgets);
+      expect(find.textContaining('Panchayat'), findsWidgets);
+      expect(find.text('AI Poster'), findsOneWidget);
 
-      // 4. Popular categories
-      expect(find.text('લોકપ્રિય કેટેગરીઝ'), findsOneWidget);
-      expect(find.text('પંચાયત મીટિંગ'), findsOneWidget);
-      expect(find.text('ગામ વિકાસ'), findsOneWidget);
-      expect(find.text('તહેવારો અને ઉત્સવ'), findsOneWidget);
-      expect(find.text('રાષ્ટ્રીય દિવસ'), findsOneWidget);
+      // D. Popular Templates
+      expect(find.text('Popular Templates'), findsOneWidget);
+      expect(find.text('See All'), findsOneWidget);
 
-      // 5. Screen Navigator
-      expect(find.text('બધા પેજ ટેસ્ટ કરો (Screen Navigator)'), findsOneWidget);
-      expect(find.text('01: Splash'), findsOneWidget);
-      expect(find.text('02: Welcome'), findsOneWidget);
-      expect(find.text('03: Create Account'), findsOneWidget);
-      expect(find.text('04: Login'), findsOneWidget);
+      // E. Upcoming Festivals
+      expect(find.text('Upcoming Festivals'), findsOneWidget);
+      expect(find.text('નવરાત્રી'), findsOneWidget);
+      expect(find.text('દિવાળી'), findsOneWidget);
+      expect(find.text('ભાઈ બીજ'), findsOneWidget);
+      expect(find.text('22 Oct'), findsOneWidget);
+      expect(find.text('12 Nov'), findsOneWidget);
+      expect(find.text('23 Nov'), findsOneWidget);
 
-      // 6. Logout button
-      expect(find.text('લોગ આઉટ'), findsOneWidget);
+      // F. Bottom Navigation Bar
+      expect(find.text('Home'), findsOneWidget);
+      expect(find.text('Festivals'), findsOneWidget);
+      expect(find.text('Templates'), findsOneWidget);
+      expect(find.text('My Designs'), findsOneWidget);
+      expect(find.text('Profile'), findsOneWidget);
+      expect(find.byIcon(Icons.home_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.grid_view_rounded), findsOneWidget);
     });
 
-    testWidgets('Tapping Edit Profile navigates to Screen 07 Profile Setup', (tester) async {
+    testWidgets('Tapping Notification Bell opens notifications sheet', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -109,16 +119,17 @@ void main() {
       await tester.pumpWidget(buildTestableScreen());
       await tester.pumpAndSettle();
 
-      final editLink = find.byKey(const Key('edit_profile_action'));
-      expect(editLink, findsOneWidget);
+      final bellFinder = find.byIcon(Icons.notifications_none_rounded);
+      expect(bellFinder, findsOneWidget);
 
-      await tester.tap(editLink);
+      await tester.tap(bellFinder);
       await tester.pumpAndSettle();
 
-      expect(find.text('Profile Setup Screen'), findsOneWidget);
+      expect(find.textContaining('Notifications'), findsWidgets);
+      expect(find.text('Mark all read'), findsOneWidget);
     });
 
-    testWidgets('Tapping Screen Navigator chip navigates to that screen', (tester) async {
+    testWidgets('Tapping AI Poster card opens AI poster creation bottom sheet', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -126,17 +137,18 @@ void main() {
       await tester.pumpWidget(buildTestableScreen());
       await tester.pumpAndSettle();
 
-      final createAccountChip = find.text('03: Create Account');
-      expect(createAccountChip, findsOneWidget);
+      final aiCard = find.text('AI Poster');
+      expect(aiCard, findsOneWidget);
 
-      await tester.ensureVisible(createAccountChip);
-      await tester.tap(createAccountChip);
+      await tester.ensureVisible(aiCard);
+      await tester.tap(aiCard);
       await tester.pumpAndSettle();
 
-      expect(find.text('Create Account Screen'), findsOneWidget);
+      expect(find.text('AI Poster Creation'), findsOneWidget);
+      expect(find.text('Generate Poster with AI'), findsOneWidget);
     });
 
-    testWidgets('Tapping AI Poster generate opens bottom sheet with preview', (tester) async {
+    testWidgets('Tapping See All opens full templates library modal', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -144,23 +156,17 @@ void main() {
       await tester.pumpWidget(buildTestableScreen());
       await tester.pumpAndSettle();
 
-      // Enter prompt
-      final promptField = find.byType(TextField);
-      await tester.enterText(promptField, 'ગ્રામ સફાઈ અભિયાન');
+      final seeAll = find.text('See All');
+      expect(seeAll, findsOneWidget);
+
+      await tester.ensureVisible(seeAll);
+      await tester.tap(seeAll);
       await tester.pumpAndSettle();
 
-      // Tap generate button
-      final generateBtn = find.byIcon(Icons.arrow_forward_rounded);
-      await tester.tap(generateBtn);
-      await tester.pumpAndSettle();
-
-      // Modal is visible
-      expect(find.text('AI દ્વારા પોસ્ટર સફળતાપૂર્વક તૈયાર થયું!'), findsOneWidget);
-      expect(find.text('વિષય: "ગ્રામ સફાઈ અભિયાન"'), findsOneWidget);
-      expect(find.text('પોસ્ટર શેર કરો / ડાઉનલોડ કરો'), findsOneWidget);
+      expect(find.text('All Popular Templates'), findsOneWidget);
     });
 
-    testWidgets('Tapping Logout shows confirmation dialog and logs out', (tester) async {
+    testWidgets('Tapping Profile in bottom nav opens profile sheet with edit and test options', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -168,27 +174,17 @@ void main() {
       await tester.pumpWidget(buildTestableScreen());
       await tester.pumpAndSettle();
 
-      // Scroll to logout
-      final logoutBtn = find.widgetWithText(OutlinedButton, 'લોગ આઉટ');
-      await tester.ensureVisible(logoutBtn);
-      await tester.tap(logoutBtn);
+      final profileTab = find.text('Profile');
+      expect(profileTab, findsOneWidget);
+
+      await tester.tap(profileTab);
       await tester.pumpAndSettle();
 
-      // Confirm dialog appears
-      expect(find.text('શું તમે ખરેખર તમારા એકાઉન્ટમાંથી લોગ આઉટ કરવા માંગો છો?'), findsOneWidget);
-      final confirmBtn = find.text('હા, લોગ આઉટ કરો');
-      await tester.tap(confirmBtn);
-      await tester.pumpAndSettle();
-
-      // Navigated to Welcome
-      expect(find.text('Welcome Screen'), findsOneWidget);
-
-      // Session cleared
-      final isAuth = await authService.sessionService.checkSession();
-      expect(isAuth == SessionState.unauthenticatedOrExpired || isAuth == SessionState.firstTime, isTrue);
+      expect(find.text('Edit Profile Details'), findsOneWidget);
+      expect(find.text('Test All Screens (01–08)'), findsOneWidget);
     });
 
-    testWidgets('Language switching updates all Home Dashboard texts', (tester) async {
+    testWidgets('Tapping Explore Designs button opens festival templates modal', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -196,47 +192,40 @@ void main() {
       await tester.pumpWidget(buildTestableScreen());
       await tester.pumpAndSettle();
 
-      // Switch to Hindi
-      await localeController.setLanguage('hi');
+      final exploreBtn = find.text('Explore Designs');
+      expect(exploreBtn, findsOneWidget);
+
+      await tester.ensureVisible(exploreBtn);
+      await tester.tap(exploreBtn);
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('नमस्ते, Rameshbhai!'), findsOneWidget);
-      expect(find.text('प्रोफ़ाइल एडिट करें'), findsOneWidget);
-      expect(find.text('AI से पोस्टर बनाएं'), findsOneWidget);
-      expect(find.text('लोकप्रिय श्रेणियां'), findsOneWidget);
-      expect(find.text('पंचायत मीटिंग'), findsOneWidget);
-
-      // Switch to English
-      await localeController.setLanguage('en');
-      await tester.pumpAndSettle();
-
-      expect(find.textContaining('Hello, Rameshbhai!'), findsOneWidget);
-      expect(find.text('Edit Profile'), findsOneWidget);
-      expect(find.text('Create with AI'), findsOneWidget);
-      expect(find.text('Popular Categories'), findsOneWidget);
-      expect(find.text('Panchayat Meeting'), findsOneWidget);
+      expect(find.textContaining('Festival Templates'), findsOneWidget);
     });
   });
 
-  group('Home Dashboard Responsive Layout Tests', () {
-    final viewports = <String, Size>{
-      'Small Android (360x640)': const Size(360, 640),
-      'Standard Mobile (390x844)': const Size(390, 844),
-      'Large Android (412x915)': const Size(412, 915),
-      'Tablet (768x1024)': const Size(768, 1024),
-    };
+  group('Screen 09: Responsive Layout Across Mobile Screen Sizes', () {
+    const screenSizes = [
+      Size(360, 640),  // Small Android
+      Size(390, 844),  // Standard iPhone
+      Size(412, 915),  // Large Android
+      Size(768, 1024), // Tablet
+    ];
 
-    for (final entry in viewports.entries) {
-      testWidgets('Renders cleanly without overflow on ${entry.key}', (tester) async {
-        tester.view.physicalSize = entry.value;
+    for (final size in screenSizes) {
+      testWidgets('Zero overflow on screen size ${size.width}x${size.height}', (tester) async {
+        tester.view.physicalSize = size;
         tester.view.devicePixelRatio = 1.0;
         addTearDown(tester.view.resetPhysicalSize);
 
-        await tester.pumpWidget(buildTestableScreen());
+        await tester.pumpWidget(buildTestableScreen(size: size));
         await tester.pumpAndSettle();
 
-        expect(find.byType(HomeScreen), findsOneWidget);
         expect(tester.takeException(), isNull);
+        expect(find.text('Panchayat'), findsOneWidget);
+        expect(find.text('Create Beautiful'), findsOneWidget);
+        expect(find.text('Create Something New'), findsOneWidget);
+        expect(find.text('Popular Templates'), findsOneWidget);
+        expect(find.text('Upcoming Festivals'), findsOneWidget);
       });
     }
   });
