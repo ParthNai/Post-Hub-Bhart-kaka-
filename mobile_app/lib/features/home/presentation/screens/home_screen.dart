@@ -1150,12 +1150,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final appTheme = Theme.of(context);
     final primaryColor = appTheme.colorScheme.primary;
     final headerStyle = AppConfigService.instance.config.headerStyle;
-    final brandedHeader = headerStyle != 'white';
-    final headerRadius = AppConfigService.instance.config.cardRadius == '4px'
-        ? 4.0
-        : AppConfigService.instance.config.cardRadius == '8px'
-        ? 8.0
-        : 14.0;
     final userName =
         (_currentUser?.effectiveDisplayName != null &&
             _currentUser!.effectiveDisplayName.isNotEmpty)
@@ -1167,88 +1161,53 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // A. Top Header
-            Container(
-              margin: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12.0,
-                vertical: 8.0,
-              ),
-              decoration: BoxDecoration(
-                color: headerStyle == 'white'
-                    ? appTheme.colorScheme.surface
-                    : null,
-                gradient: headerStyle == 'gradient'
-                    ? LinearGradient(
-                        colors: [
-                          primaryColor,
-                          primaryColor.withValues(alpha: 0.78),
-                        ],
-                      )
-                    : null,
-                borderRadius: BorderRadius.circular(headerRadius),
-              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20.0, 12.0, 20.0, 14.0),
               child: Row(
                 children: [
-                  // Panchayat Post Logo
-                  Image.asset(
-                    AppAssets.panchayatLogo,
-                    height: 36.0,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(width: 6.0),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Panchayat',
-                        style: TextStyle(
-                          fontSize: 13.0,
-                          fontWeight: FontWeight.w900,
-                          color: brandedHeader
-                              ? Colors.white
-                              : appTheme.colorScheme.onSurface,
-                          height: 1.1,
-                        ),
-                      ),
-                      Text(
-                        'Post',
-                        style: TextStyle(
-                          fontSize: 13.0,
-                          fontWeight: FontWeight.w900,
-                          color: brandedHeader ? Colors.white : primaryColor,
-                          height: 1.1,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Vertical divider
                   Container(
-                    height: 28.0,
-                    width: 1.0,
-                    color: const Color(0xFFCBD5E1),
-                    margin: const EdgeInsets.symmetric(horizontal: 10.0),
+                    width: 44.0,
+                    height: 44.0,
+                    decoration: BoxDecoration(
+                      color: headerStyle == 'solid'
+                          ? primaryColor.withValues(alpha: 0.12)
+                          : appTheme.colorScheme.surface,
+                      borderRadius: BorderRadius.circular(14.0),
+                      border: Border.all(
+                        color: appTheme.colorScheme.outlineVariant.withValues(
+                          alpha: 0.45,
+                        ),
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: Image.asset(
+                      AppAssets.panchayatLogo,
+                      height: 34.0,
+                      fit: BoxFit.contain,
+                    ),
                   ),
-
-                  // Greeting Text
+                  const SizedBox(width: 12.0),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
+                          'Panchayat Post',
+                          style: TextStyle(
+                            fontSize: 11.0,
+                            fontWeight: FontWeight.w800,
+                            color: primaryColor,
+                            letterSpacing: 0.25,
+                          ),
+                        ),
+                        const SizedBox(height: 2.0),
+                        Text(
                           strings.goodMorningGreeting,
                           style: TextStyle(
-                            fontSize: 11.5,
+                            fontSize: 11.0,
                             fontWeight: FontWeight.w500,
-                            color: brandedHeader
-                                ? Colors.white.withValues(alpha: 0.8)
-                                : appTheme.colorScheme.onSurfaceVariant,
+                            color: appTheme.colorScheme.onSurfaceVariant,
                             height: 1.1,
                           ),
                         ),
@@ -1257,54 +1216,59 @@ class _HomeScreenState extends State<HomeScreen> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 14.5,
+                            fontSize: 16.0,
                             fontWeight: FontWeight.w800,
-                            color: brandedHeader
-                                ? Colors.white
-                                : appTheme.colorScheme.onSurface,
+                            color: appTheme.colorScheme.onSurface,
                             height: 1.2,
                           ),
                         ),
                       ],
                     ),
                   ),
-
-                  // Notification Bell with red dot
-                  GestureDetector(
-                    onTap: () => _showNotificationsSheet(context),
-                    child: Container(
-                      padding: const EdgeInsets.all(6.0),
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          Icon(
-                            Icons.notifications_none_rounded,
-                            size: 25.0,
-                            color: brandedHeader
-                                ? Colors.white
-                                : appTheme.colorScheme.onSurface,
-                          ),
-                          if (_unreadNotificationsCount > 0)
-                            Positioned(
-                              top: 0,
-                              right: 1,
-                              child: Container(
-                                width: 8.0,
-                                height: 8.0,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFEF4444),
-                                  shape: BoxShape.circle,
+                  const SizedBox(width: 8.0),
+                  Material(
+                    color: appTheme.colorScheme.surface,
+                    shape: CircleBorder(
+                      side: BorderSide(
+                        color: appTheme.colorScheme.outlineVariant.withValues(
+                          alpha: 0.55,
+                        ),
+                      ),
+                    ),
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: () => _showNotificationsSheet(context),
+                      child: SizedBox(
+                        width: 42.0,
+                        height: 42.0,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Icon(
+                              Icons.notifications_none_rounded,
+                              size: 22.0,
+                              color: appTheme.colorScheme.onSurface,
+                            ),
+                            if (_unreadNotificationsCount > 0)
+                              Positioned(
+                                top: 10.0,
+                                right: 10.0,
+                                child: Container(
+                                  width: 8.0,
+                                  height: 8.0,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFEF4444),
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8.0),
-
-                  // Profile Avatar
-                  _buildAvatarWidget(size: 38.0),
+                  const SizedBox(width: 10.0),
+                  _buildAvatarWidget(size: 42.0),
                 ],
               ),
             ),
