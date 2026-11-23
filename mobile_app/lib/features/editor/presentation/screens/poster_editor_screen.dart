@@ -986,16 +986,28 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
           fit: StackFit.expand,
           children: [
             // Background Artwork Layer
-            Image.asset(
-              _project.backgroundAsset,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                color: _project.backgroundColor,
-                child: const Center(
-                  child: Icon(Icons.celebration_rounded, size: 48, color: Colors.white30),
-                ),
-              ),
-            ),
+            _project.backgroundAsset.startsWith('http://') ||
+                    _project.backgroundAsset.startsWith('https://')
+                ? Image.network(
+                    _project.backgroundAsset,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: _project.backgroundColor,
+                      child: const Center(
+                        child: Icon(Icons.celebration_rounded, size: 48, color: Colors.white30),
+                      ),
+                    ),
+                  )
+                : Image.asset(
+                    _project.backgroundAsset,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: _project.backgroundColor,
+                      child: const Center(
+                        child: Icon(Icons.celebration_rounded, size: 48, color: Colors.white30),
+                      ),
+                    ),
+                  ),
 
             // Elements Layer (Text & Image elements)
             for (final element in _project.elements)
@@ -1060,11 +1072,18 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
                   fit: BoxFit.contain,
                 )
               else if (element.imageAsset != null)
-                Image.asset(
-                  element.imageAsset!,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) => const Icon(Icons.image, size: 36, color: Colors.white54),
-                )
+                element.imageAsset!.startsWith('http://') ||
+                        element.imageAsset!.startsWith('https://')
+                    ? Image.network(
+                        element.imageAsset!,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, _, _) => const Icon(Icons.image, size: 36, color: Colors.white54),
+                      )
+                    : Image.asset(
+                        element.imageAsset!,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, _, _) => const Icon(Icons.image, size: 36, color: Colors.white54),
+                      )
               else
                 const Icon(Icons.image_outlined, size: 36, color: Colors.white70),
 
@@ -1835,6 +1854,14 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
                   onPressed: _duplicateSelectedElement,
                 ),
               ),
+              if (_selectedElementId != null && _selectedElementId != 'elem_headline') ...[
+                const SizedBox(width: 8.0),
+                IconButton(
+                  tooltip: 'Delete Element',
+                  icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFDC2626)),
+                  onPressed: _deleteSelectedElement,
+                ),
+              ],
             ],
           ),
           const SizedBox(height: 14.0),

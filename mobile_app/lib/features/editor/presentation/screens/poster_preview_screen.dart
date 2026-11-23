@@ -642,16 +642,28 @@ class _PosterPreviewScreenState extends State<PosterPreviewScreen> {
           fit: StackFit.expand,
           children: [
             // Background Artwork
-            Image.asset(
-              _project.backgroundAsset,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => Container(
-                color: _project.backgroundColor,
-                child: const Center(
-                  child: Icon(Icons.celebration_rounded, size: 48, color: Colors.white30),
-                ),
-              ),
-            ),
+            _project.backgroundAsset.startsWith('http://') ||
+                    _project.backgroundAsset.startsWith('https://')
+                ? Image.network(
+                    _project.backgroundAsset,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => Container(
+                      color: _project.backgroundColor,
+                      child: const Center(
+                        child: Icon(Icons.celebration_rounded, size: 48, color: Colors.white30),
+                      ),
+                    ),
+                  )
+                : Image.asset(
+                    _project.backgroundAsset,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => Container(
+                      color: _project.backgroundColor,
+                      child: const Center(
+                        child: Icon(Icons.celebration_rounded, size: 48, color: Colors.white30),
+                      ),
+                    ),
+                  ),
 
             // Dandiya couple artwork
             Positioned(
