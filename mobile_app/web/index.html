@@ -23,74 +23,14 @@
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="mobile_app">
+  <meta name="apple-mobile-web-app-title" content="panchayat_post">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-  <title>mobile_app</title>
+  <title>panchayat_post</title>
   <link rel="manifest" href="manifest.json">
-
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background-color: #FAF7F2;
-    }
-  </style>
-
-  <script>
-    // Guard against Flutter Web window.dart assertion bug where visualViewport.height > innerHeight
-    // during mobile emulation, keyboard dismissal, or window resize events.
-    (function() {
-      if (typeof window !== 'undefined' && window.visualViewport) {
-        try {
-          var proto = Object.getPrototypeOf(window.visualViewport);
-          var originalHeight = Object.getOwnPropertyDescriptor(proto, 'height');
-          if (originalHeight && originalHeight.get) {
-            Object.defineProperty(proto, 'height', {
-              get: function() {
-                var h = originalHeight.get.call(this);
-                return Math.min(h, window.innerHeight);
-              },
-              configurable: true,
-              enumerable: true
-            });
-          }
-          var originalWidth = Object.getOwnPropertyDescriptor(proto, 'width');
-          if (originalWidth && originalWidth.get) {
-            Object.defineProperty(proto, 'width', {
-              get: function() {
-                var w = originalWidth.get.call(this);
-                return Math.min(w, window.innerWidth);
-              },
-              configurable: true,
-              enumerable: true
-            });
-          }
-          var originalTop = Object.getOwnPropertyDescriptor(proto, 'offsetTop');
-          if (originalTop && originalTop.get) {
-            Object.defineProperty(proto, 'offsetTop', {
-              get: function() {
-                var t = originalTop.get.call(this);
-                return Math.max(0, t);
-              },
-              configurable: true,
-              enumerable: true
-            });
-          }
-        } catch (e) {
-          console.warn('Viewport guard initialized with fallback:', e);
-        }
-      }
-    })();
-  </script>
 </head>
 <body>
   <!--
