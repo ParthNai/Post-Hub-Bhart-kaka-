@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/constants/app_colors.dart';
 import 'package:panchayat_post/core/localization/app_localizations.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
+import 'package:panchayat_post/features/splash/presentation/widgets/brand_logo_widget.dart';
 
 /// Header widget for Screen 02 Welcome Screen:
 /// - Brand logo + stacked "Panchayat Post" name on the left
@@ -119,11 +119,9 @@ class WelcomeHeaderWidget extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset(
-                  AppAssets.panchayatLogo,
+                const BrandLogoWidget(
                   width: 42,
                   height: 36,
-                  fit: BoxFit.contain,
                 ),
                 const SizedBox(width: 8),
                 Flexible(

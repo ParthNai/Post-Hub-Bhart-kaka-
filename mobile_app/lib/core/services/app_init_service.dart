@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../localization/locale_controller.dart';
+import 'app_config_service.dart';
 import 'session_service.dart';
 
 /// Result returned by application startup initialization.
@@ -66,7 +67,11 @@ class AppInitService {
   }
 
   Future<void> _loadConfiguration() async {
-    // Simulates minimum required configuration load (e.g. feature flags, caching)
-    await Future<void>.delayed(const Duration(milliseconds: 150));
+    // Initialize remote configuration service to sync Admin Panel controls
+    try {
+      await AppConfigService.instance.initialize();
+    } catch (e) {
+      debugPrint('Remote config initialization error: $e');
+    }
   }
 }

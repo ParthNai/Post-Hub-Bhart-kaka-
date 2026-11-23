@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:panchayat_post/core/constants/app_colors.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
+import 'package:panchayat_post/core/services/app_config_service.dart';
 import 'package:panchayat_post/core/services/app_init_service.dart';
 import 'package:panchayat_post/core/services/session_service.dart';
 import 'package:panchayat_post/features/splash/presentation/widgets/brand_logo_widget.dart';
@@ -110,10 +111,17 @@ class _SplashScreenState extends State<SplashScreen> {
 
                       const Spacer(),
 
-                      // Dual-arc smooth rotating brand loading indicator
-                      const DualArcLoadingIndicator(
-                        size: 38.0,
-                        strokeWidth: 3.2,
+                      // Dual-arc smooth rotating brand loading indicator with dynamic admin colors
+                      ValueListenableBuilder(
+                        valueListenable: AppConfigService.instance.configNotifier,
+                        builder: (context, config, child) {
+                          return DualArcLoadingIndicator(
+                            size: 38.0,
+                            strokeWidth: 3.2,
+                            primaryColor: config.preloaderPrimaryColor,
+                            secondaryColor: config.preloaderSecondaryColor,
+                          );
+                        },
                       ),
 
                       // Bottom spacing matching visual reference (~16% of height)
