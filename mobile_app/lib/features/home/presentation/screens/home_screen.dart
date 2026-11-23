@@ -4,7 +4,9 @@ import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/constants/app_colors.dart';
 import 'package:panchayat_post/core/localization/app_localizations.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
+import 'package:panchayat_post/core/models/app_remote_config.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
+import 'package:panchayat_post/core/services/app_config_service.dart';
 import 'package:panchayat_post/core/widgets/legal_dialog_helper.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
@@ -284,215 +286,379 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _showServerConfigDialog(BuildContext context) {
+    final textController = TextEditingController(text: AppConfigService.instance.serverBaseUrl);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+        title: const Row(
+          children: [
+            Icon(Icons.dns_rounded, color: AppColors.primaryBlue, size: 22.0),
+            SizedBox(width: 8.0),
+            Text(
+              'Admin Server URL',
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16.0, color: AppColors.textNavy),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Connect your mobile app to the Admin Panel server to dynamically sync theme, hero section, preloader, and app icon.',
+              style: TextStyle(fontSize: 12.5, color: Color(0xFF64748B), height: 1.4),
+            ),
+            const SizedBox(height: 12.0),
+            TextField(
+              controller: textController,
+              decoration: InputDecoration(
+                labelText: 'Server Base URL',
+                hintText: 'http://10.0.2.2:3000 or http://localhost:3000',
+                filled: true,
+                fillColor: const Color(0xFFF8FAFC),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryBlue,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+            ),
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              await AppConfigService.instance.setServerBaseUrl(textController.text.trim());
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Server URL updated! Settings synced.'),
+                  backgroundColor: Color(0xFF16A34A),
+                ),
+              );
+            },
+            child: const Text('Save & Sync'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final strings = LocaleScope.of(context).strings;
-    final displayName = _currentUser?.effectiveDisplayName ?? 'User';
-    final village = _currentUser?.villageCity != null && _currentUser!.villageCity!.isNotEmpty
-        ? _currentUser!.villageCity!
-        : strings.noVillageProvided;
-    final isComplete = _currentUser?.isProfileComplete ?? false;
+    return ValueListenableBuilder<AppRemoteConfig>(
+      valueListenable: AppConfigService.instance.configNotifier,
+      builder: (context, config, child) {
+        final strings = LocaleScope.of(context).strings;
+        final displayName = _currentUser?.effectiveDisplayName ?? 'User';
+        final village = _currentUser?.villageCity != null && _currentUser!.villageCity!.isNotEmpty
+            ? _currentUser!.villageCity!
+            : strings.noVillageProvided;
+        final isComplete = _currentUser?.isProfileComplete ?? false;
+        final primaryAccent = config.primaryAccentColor;
 
-    Widget avatarImage;
-    final photoUrl = _currentUser?.profilePhotoUrl;
-    if (photoUrl != null && photoUrl.isNotEmpty) {
-      if (photoUrl.startsWith('data:image')) {
-        try {
-          final base64Part = photoUrl.split(',').last;
-          avatarImage = ClipOval(
-            child: Image.memory(
-              base64Decode(base64Part),
-              width: 54,
-              height: 54,
-              fit: BoxFit.cover,
-            ),
-          );
-        } catch (_) {
-          avatarImage = const Icon(Icons.person_rounded, size: 32, color: AppColors.primaryBlue);
+        Widget avatarImage;
+        final photoUrl = _currentUser?.profilePhotoUrl;
+        if (photoUrl != null && photoUrl.isNotEmpty) {
+          if (photoUrl.startsWith('data:image')) {
+            try {
+              final base64Part = photoUrl.split(',').last;
+              avatarImage = ClipOval(
+                child: Image.memory(
+                  base64Decode(base64Part),
+                  width: 54,
+                  height: 54,
+                  fit: BoxFit.cover,
+                ),
+              );
+            } catch (_) {
+              avatarImage = Icon(Icons.person_rounded, size: 32, color: primaryAccent);
+            }
+          } else {
+            avatarImage = Icon(Icons.person_rounded, size: 32, color: primaryAccent);
+          }
+        } else {
+          avatarImage = Icon(Icons.person_rounded, size: 32, color: primaryAccent);
         }
-      } else {
-        avatarImage = const Icon(Icons.person_rounded, size: 32, color: AppColors.primaryBlue);
-      }
-    } else {
-      avatarImage = const Icon(Icons.person_rounded, size: 32, color: AppColors.primaryBlue);
-    }
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: CustomPaint(
-        painter: const WelcomeBackgroundPainter(),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // 1. Header with Panchayat Post logo and language selector
-              AuthHeaderWidget(
-                showBackButton: false,
-              ),
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: CustomPaint(
+            painter: const WelcomeBackgroundPainter(),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  // 1. Header with Panchayat Post logo and language selector
+                  const AuthHeaderWidget(
+                    showBackButton: false,
+                  ),
 
-              // 2. Main Scrollable Dashboard Content
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // User Welcome & Profile Card
-                      Container(
-                        padding: const EdgeInsets.all(16.0),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFEFF6FF), Color(0xFFF8FAFC)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                  // 2. Main Scrollable Dashboard Content with Pull-to-Refresh
+                  Expanded(
+                    child: RefreshIndicator(
+                      color: primaryAccent,
+                      onRefresh: () async {
+                        final synced = await AppConfigService.instance.refreshConfig();
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(synced
+                                ? 'એડમિન પેનલ સેટિંગ્સ અપડેટ થઈ ગઈ!'
+                                : 'સર્વર સાથે કનેક્ટ નથી થઈ શક્યું (Offline)'),
+                            backgroundColor: synced ? primaryAccent : const Color(0xFFEF4444),
+                            duration: const Duration(seconds: 2),
                           ),
-                          borderRadius: BorderRadius.circular(18.0),
-                          border: Border.all(color: const Color(0xFFBFDBFE), width: 1.2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.03),
-                              blurRadius: 10.0,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Row(
+                        );
+                      },
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(parent: ClampingScrollPhysics()),
+                        padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            // Avatar with verified badge
-                            Stack(
-                              children: [
-                                Container(
-                                  width: 58,
-                                  height: 58,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFDBEAFE),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white, width: 2.0),
-                                  ),
-                                  child: Center(child: avatarImage),
+                            // User Welcome & Profile Card
+                            Container(
+                              padding: const EdgeInsets.all(16.0),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFFEFF6FF), Color(0xFFF8FAFC)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
-                                Positioned(
-                                  bottom: 0,
-                                  right: 0,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(3.0),
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFF0284C7),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(Icons.check_rounded, color: Colors.white, size: 10.0),
+                                borderRadius: BorderRadius.circular(18.0),
+                                border: Border.all(color: const Color(0xFFBFDBFE), width: 1.2),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.03),
+                                    blurRadius: 10.0,
+                                    offset: const Offset(0, 4),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(width: 14.0),
-
-                            // Details
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                ],
+                              ),
+                              child: Row(
                                 children: [
-                                  Text(
-                                    '${strings.greetingPrefix}, $displayName! 👋',
-                                    style: const TextStyle(
-                                      fontSize: 16.5,
-                                      fontWeight: FontWeight.w800,
-                                      color: AppColors.textNavy,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 3.0),
-                                  Row(
+                                  // Avatar with verified badge
+                                  Stack(
                                     children: [
-                                      const Icon(Icons.location_on_rounded, size: 14.0, color: Color(0xFF64748B)),
-                                      const SizedBox(width: 3.0),
-                                      Expanded(
-                                        child: Text(
-                                          village,
-                                          style: const TextStyle(
-                                            fontSize: 12.5,
-                                            fontWeight: FontWeight.w500,
-                                            color: Color(0xFF64748B),
+                                      Container(
+                                        width: 58,
+                                        height: 58,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFDBEAFE),
+                                          shape: BoxShape.circle,
+                                          border: Border.all(color: Colors.white, width: 2.0),
+                                        ),
+                                        child: Center(child: avatarImage),
+                                      ),
+                                      Positioned(
+                                        bottom: 0,
+                                        right: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(3.0),
+                                          decoration: BoxDecoration(
+                                            color: primaryAccent,
+                                            shape: BoxShape.circle,
                                           ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
+                                          child: const Icon(Icons.check_rounded, color: Colors.white, size: 10.0),
                                         ),
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 5.0),
-                                  FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    alignment: Alignment.centerLeft,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 2.0),
-                                      decoration: BoxDecoration(
-                                        color: isComplete ? const Color(0xFFF0FDF4) : const Color(0xFFFFFBEB),
-                                        borderRadius: BorderRadius.circular(8.0),
-                                        border: Border.all(
-                                          color: isComplete ? const Color(0xFFBBF7D0) : const Color(0xFFFDE68A),
+                                  const SizedBox(width: 14.0),
+
+                                  // Details
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${strings.greetingPrefix}, $displayName! 👋',
+                                          style: const TextStyle(
+                                            fontSize: 16.5,
+                                            fontWeight: FontWeight.w800,
+                                            color: AppColors.textNavy,
+                                          ),
                                         ),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            isComplete ? Icons.check_circle_rounded : Icons.pending_actions_rounded,
-                                            size: 11.0,
-                                            color: isComplete ? const Color(0xFF16A34A) : const Color(0xFFD97706),
-                                          ),
-                                          const SizedBox(width: 4.0),
-                                          Text(
-                                            isComplete
-                                                ? strings.profileStatusCompletedBadge
-                                                : strings.profileStatusPendingBadge,
-                                            style: TextStyle(
-                                              fontSize: 10.5,
-                                              fontWeight: FontWeight.w700,
-                                              color: isComplete ? const Color(0xFF15803D) : const Color(0xFFB45309),
+                                        const SizedBox(height: 3.0),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.location_on_rounded, size: 14.0, color: Color(0xFF64748B)),
+                                            const SizedBox(width: 3.0),
+                                            Expanded(
+                                              child: Text(
+                                                village,
+                                                style: const TextStyle(
+                                                  fontSize: 12.5,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Color(0xFF64748B),
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 5.0),
+                                        FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.centerLeft,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 2.0),
+                                            decoration: BoxDecoration(
+                                              color: isComplete ? const Color(0xFFF0FDF4) : const Color(0xFFFFFBEB),
+                                              borderRadius: BorderRadius.circular(8.0),
+                                              border: Border.all(
+                                                color: isComplete ? const Color(0xFFBBF7D0) : const Color(0xFFFDE68A),
+                                              ),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  isComplete ? Icons.check_circle_rounded : Icons.pending_actions_rounded,
+                                                  size: 11.0,
+                                                  color: isComplete ? const Color(0xFF16A34A) : const Color(0xFFD97706),
+                                                ),
+                                                const SizedBox(width: 4.0),
+                                                Text(
+                                                  isComplete
+                                                      ? strings.profileStatusCompletedBadge
+                                                      : strings.profileStatusPendingBadge,
+                                                  style: TextStyle(
+                                                    fontSize: 10.5,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: isComplete ? const Color(0xFF15803D) : const Color(0xFFB45309),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6.0),
-                                  // Edit profile link
-                                  InkWell(
-                                    key: const Key('edit_profile_action'),
-                                    onTap: () {
-                                      Navigator.of(context).pushNamed(
-                                        AppRoutes.profileSetup,
-                                        arguments: _currentUser,
-                                      );
-                                    },
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      alignment: Alignment.centerLeft,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Icon(Icons.edit_rounded, size: 13.0, color: AppColors.primaryBlue),
-                                          const SizedBox(width: 4.0),
-                                          Text(
-                                            strings.editProfileButton,
-                                            style: const TextStyle(
-                                              fontSize: 12.0,
-                                              fontWeight: FontWeight.w700,
-                                              color: AppColors.primaryBlue,
-                                              decoration: TextDecoration.underline,
+                                        ),
+                                        const SizedBox(height: 6.0),
+                                        // Edit profile link
+                                        InkWell(
+                                          key: const Key('edit_profile_action'),
+                                          onTap: () {
+                                            Navigator.of(context).pushNamed(
+                                              AppRoutes.profileSetup,
+                                              arguments: _currentUser,
+                                            );
+                                          },
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(Icons.edit_rounded, size: 13.0, color: primaryAccent),
+                                                const SizedBox(width: 4.0),
+                                                Text(
+                                                  strings.editProfileButton,
+                                                  style: TextStyle(
+                                                    fontSize: 12.0,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: primaryAccent,
+                                                    decoration: TextDecoration.underline,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 18.0),
+                            const SizedBox(height: 18.0),
+
+                            // ==============================================================
+                            // 4. Hero Section of Home Screen (Admin Controllable)
+                            // ==============================================================
+                            if (config.isHeroVisible) ...[
+                              Container(
+                                padding: const EdgeInsets.all(18.0),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      primaryAccent.withValues(alpha: 0.10),
+                                      const Color(0xFFFFF7ED),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(18.0),
+                                  border: Border.all(
+                                    color: primaryAccent.withValues(alpha: 0.25),
+                                    width: 1.2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: primaryAccent.withValues(alpha: 0.05),
+                                      blurRadius: 10.0,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.centerLeft,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+                                        decoration: BoxDecoration(
+                                          color: primaryAccent,
+                                          borderRadius: BorderRadius.circular(20.0),
+                                        ),
+                                        child: Text(
+                                          config.heroBadge,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 11.0,
+                                            fontWeight: FontWeight.w800,
+                                            letterSpacing: 0.3,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10.0),
+                                    // Headline (Admin Controlled)
+                                    Text(
+                                      config.heroHeadline,
+                                      style: const TextStyle(
+                                        fontSize: 18.0,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.textNavy,
+                                        height: 1.25,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6.0),
+                                    // Subtitle (Admin Controlled)
+                                    Text(
+                                      config.heroSubtitle,
+                                      style: const TextStyle(
+                                        fontSize: 13.0,
+                                        color: Color(0xFF64748B),
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 18.0),
+                            ],
 
                       // AI Poster Creation Card
                       Container(
@@ -681,6 +847,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 _buildNavChip(context, '06: Recovery Status', AppRoutes.recoveryStatus),
                                 _buildNavChip(context, '07: Profile Setup', AppRoutes.profileSetup),
                                 _buildNavChip(context, '08: Onboarding Done', AppRoutes.onboardingConfirmation),
+                                ActionChip(
+                                  avatar: Icon(Icons.settings_ethernet_rounded, size: 14.0, color: primaryAccent),
+                                  backgroundColor: const Color(0xFFEFF6FF),
+                                  side: const BorderSide(color: Color(0xFFBFDBFE)),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+                                  label: const Text('Admin Server URL', style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w700, color: AppColors.textNavy)),
+                                  onPressed: () => _showServerConfigDialog(context),
+                                ),
                               ],
                             ),
                           ],
@@ -748,10 +922,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
+    ),
+  );
+      },
     );
   }
 

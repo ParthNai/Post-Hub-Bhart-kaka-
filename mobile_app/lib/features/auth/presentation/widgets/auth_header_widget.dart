@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/constants/app_colors.dart';
 import 'package:panchayat_post/core/localization/app_localizations.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
+import 'package:panchayat_post/features/splash/presentation/widgets/brand_logo_widget.dart';
 
 /// Top header for Screen 03 Create Account:
 /// - Left: Circular back button (<)
@@ -183,11 +183,9 @@ class AuthHeaderWidget extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Image.asset(
-                          AppAssets.panchayatLogo,
+                        const BrandLogoWidget(
                           width: 38,
                           height: 32,
-                          fit: BoxFit.contain,
                         ),
                         const SizedBox(width: 6),
                         Column(

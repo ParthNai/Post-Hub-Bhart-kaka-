@@ -17,16 +17,48 @@ export async function GET() {
   const designSystem = getDesignSystemConfig();
   const templates = getTemplates().filter((t) => t.status !== "Archived");
 
-  // Client mobile app schema contract
+  const homeScreen = screens.find((s) => s.key === "home" || s.route === "/home");
+  const primaryLogo = designSystem.brandAssets?.find((a) => a.id === "primary-logo" && a.status === "available");
+  const appIcon = designSystem.brandAssets?.find((a) => a.id === "app-icon" && a.status === "available");
+  const primaryAccent = homeScreen?.configData?.primaryAccent || designSystem.colorTokens?.primaryViolet || "#0055B8";
+
+  // Client mobile app schema contract - tailored for the 4 core controls:
+  // 1. App Icon / Logo
+  // 2. Preloader (colors & animation)
+  // 3. Theme & Primary Accent
+  // 4. Hero Section of Home Screen
   const publishedConfig = {
     platform: "Post Hub Mobile Client",
     schemaVersion: "2.1.0",
     publishedAt: new Date().toISOString(),
+    appBranding: {
+      appIconUrl: appIcon?.url || (appIcon?.filename ? `/uploads/brand/${appIcon.filename}` : undefined),
+      logoUrl: primaryLogo?.url || (primaryLogo?.filename ? `/uploads/brand/${primaryLogo.filename}` : undefined),
+    },
+    preloader: {
+      primaryColor: designSystem.colorTokens?.primaryViolet || "#FE8706",
+      secondaryColor: primaryAccent,
+      durationMs: 2000,
+    },
+    theme: {
+      mode: designSystem.guidelines?.theme || "Light",
+      primaryAccent: primaryAccent,
+      backgroundColor: homeScreen?.configData?.backgroundColor || "#FFFFFF",
+      cardRadius: homeScreen?.configData?.cardRadius || "14px",
+    },
+    heroSection: {
+      visible: homeScreen?.configData?.bannerVisible ?? true,
+      badge: homeScreen?.configData?.bannerBadge || "✨ MAGIC STUDIO",
+      headline: homeScreen?.configData?.bannerHeadline || "What will you design today?",
+      subtitle: homeScreen?.configData?.bannerSubtitle || "Choose a format below or start from templates.",
+      enabled: homeScreen?.configData?.sections?.find((s) => s.id === "hero")?.enabled ?? true,
+    },
     designSystem: {
       theme: designSystem.guidelines?.theme || "Light",
       colorTokens: designSystem.colorTokens,
       guidelines: designSystem.guidelines,
       components: designSystem.components,
+      brandAssets: designSystem.brandAssets,
     },
     navigation: screens.map((screen) => ({
       id: screen.id,
