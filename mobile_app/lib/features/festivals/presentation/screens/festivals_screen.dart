@@ -366,7 +366,10 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
                       ),
                       onTap: () {
                         Navigator.of(ctx).pop();
-                        _showFestivalTemplatesModal(context, item);
+                        Navigator.of(context).pushNamed(
+                          AppRoutes.festivalDetail,
+                          arguments: item,
+                        );
                       },
                     );
                   },
@@ -1438,20 +1441,26 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
   }
 
   Widget _buildFestivalGridCard(AppStrings strings, FestivalItem item) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
+    return InkWell(
+      borderRadius: BorderRadius.circular(16.0),
+      onTap: () => Navigator.of(context).pushNamed(
+        AppRoutes.festivalDetail,
+        arguments: item,
       ),
-      child: Column(
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.0),
+          border: Border.all(color: const Color(0xFFF1F5F9)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Top Image with "Upcoming" Badge
@@ -1595,8 +1604,9 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildExploreAllFestivalsSection(
       AppStrings strings, List<FestivalItem> allFestivals) {
@@ -1645,7 +1655,10 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
             itemBuilder: (context, index) {
               final item = allFestivals[index];
               return GestureDetector(
-                onTap: () => _showFestivalTemplatesModal(context, item),
+                onTap: () => Navigator.of(context).pushNamed(
+                  AppRoutes.festivalDetail,
+                  arguments: item,
+                ),
                 child: Container(
                   width: 105.0,
                   decoration: BoxDecoration(

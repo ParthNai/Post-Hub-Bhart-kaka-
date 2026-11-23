@@ -54,4 +54,9 @@ class LocaleScope extends InheritedNotifier<LocaleController> {
     assert(scope != null, 'No LocaleScope found in context');
     return scope!.notifier!;
   }
+
+  static LocaleController? maybeOf(BuildContext context) {
+    final scope = context.dependOnInheritedWidgetOfExactType<LocaleScope>();
+    return scope?.notifier;
+  }
 }

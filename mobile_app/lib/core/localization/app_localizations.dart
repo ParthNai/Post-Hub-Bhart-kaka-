@@ -223,6 +223,29 @@ class AppStrings {
     required this.filterTitle,
     required this.filterAllOption,
     required this.filterUpcomingOnly,
+    // Screen 11: Festival Details & Poster Collection strings
+    required this.festivalDetailsTitle,
+    required this.breadcrumbFestivals,
+    required this.breadcrumbFestivalDetails,
+    required this.celebrateGarbaSubtitle,
+    required this.shareFestivalButton,
+    required this.aboutThisFestivalHeader,
+    required this.aboutFestivalDesc,
+    required this.festivalCategoryLabel,
+    required this.festivalDateLabel,
+    required this.celebrationTypeLabel,
+    required this.categoryCulturalValue,
+    required this.celebrationTypeValue,
+    required this.createFestivalPostsTitle,
+    required this.createFestivalPostsSubtitle,
+    required this.popularDesignStylesTitle,
+    required this.styleTraditionalLabel,
+    required this.styleModernLabel,
+    required this.styleDevotionalLabel,
+    required this.styleEventAnnouncementLabel,
+    required this.createYourOwnTitle,
+    required this.createYourOwnSubtitle,
+    required this.startNowButton,
   });
 
   final String languageName;
@@ -455,6 +478,29 @@ class AppStrings {
   final String filterTitle;
   final String filterAllOption;
   final String filterUpcomingOnly;
+  // Screen 11 Strings
+  final String festivalDetailsTitle;
+  final String breadcrumbFestivals;
+  final String breadcrumbFestivalDetails;
+  final String celebrateGarbaSubtitle;
+  final String shareFestivalButton;
+  final String aboutThisFestivalHeader;
+  final String aboutFestivalDesc;
+  final String festivalCategoryLabel;
+  final String festivalDateLabel;
+  final String celebrationTypeLabel;
+  final String categoryCulturalValue;
+  final String celebrationTypeValue;
+  final String createFestivalPostsTitle;
+  final String createFestivalPostsSubtitle;
+  final String popularDesignStylesTitle;
+  final String styleTraditionalLabel;
+  final String styleModernLabel;
+  final String styleDevotionalLabel;
+  final String styleEventAnnouncementLabel;
+  final String createYourOwnTitle;
+  final String createYourOwnSubtitle;
+  final String startNowButton;
 
   static const String defaultLanguageCode = 'gu';
 
@@ -680,6 +726,29 @@ class AppStrings {
       filterTitle: 'ફિલ્ટર (Filter)',
       filterAllOption: 'બધા તહેવારો (All)',
       filterUpcomingOnly: 'માત્ર આગામી (Upcoming)',
+      // Screen 11
+      festivalDetailsTitle: 'Festival Details',
+      breadcrumbFestivals: 'Festivals',
+      breadcrumbFestivalDetails: 'Festival Details',
+      celebrateGarbaSubtitle: 'Celebrate the joy of Garba and devotion',
+      shareFestivalButton: 'Share Festival',
+      aboutThisFestivalHeader: 'About This Festival',
+      aboutFestivalDesc: 'Celebrate Navratri with devotion, music, traditional Garba and beautiful festive designs.',
+      festivalCategoryLabel: 'Festival Category',
+      festivalDateLabel: 'Festival Date',
+      celebrationTypeLabel: 'Celebration Type',
+      categoryCulturalValue: 'Cultural',
+      celebrationTypeValue: 'Traditional',
+      createFestivalPostsTitle: 'Create Festival Posts',
+      createFestivalPostsSubtitle: 'Choose a beautiful design for your celebration.',
+      popularDesignStylesTitle: 'Popular Design Styles',
+      styleTraditionalLabel: 'Traditional',
+      styleModernLabel: 'Modern',
+      styleDevotionalLabel: 'Devotional',
+      styleEventAnnouncementLabel: 'Event Announcement',
+      createYourOwnTitle: 'Create Your Own Festival Post',
+      createYourOwnSubtitle: 'Customize a design with your own name, photo and message.',
+      startNowButton: 'Start Now',
     ),
     'hi': AppStrings(
       languageName: 'हिंदी',
@@ -902,6 +971,29 @@ class AppStrings {
       filterTitle: 'फ़िल्टर (Filter)',
       filterAllOption: 'सभी त्यौहार (All)',
       filterUpcomingOnly: 'केवल आगामी (Upcoming)',
+      // Screen 11
+      festivalDetailsTitle: 'Festival Details',
+      breadcrumbFestivals: 'Festivals',
+      breadcrumbFestivalDetails: 'Festival Details',
+      celebrateGarbaSubtitle: 'Celebrate the joy of Garba and devotion',
+      shareFestivalButton: 'Share Festival',
+      aboutThisFestivalHeader: 'About This Festival',
+      aboutFestivalDesc: 'Celebrate Navratri with devotion, music, traditional Garba and beautiful festive designs.',
+      festivalCategoryLabel: 'Festival Category',
+      festivalDateLabel: 'Festival Date',
+      celebrationTypeLabel: 'Celebration Type',
+      categoryCulturalValue: 'Cultural',
+      celebrationTypeValue: 'Traditional',
+      createFestivalPostsTitle: 'Create Festival Posts',
+      createFestivalPostsSubtitle: 'Choose a beautiful design for your celebration.',
+      popularDesignStylesTitle: 'Popular Design Styles',
+      styleTraditionalLabel: 'Traditional',
+      styleModernLabel: 'Modern',
+      styleDevotionalLabel: 'Devotional',
+      styleEventAnnouncementLabel: 'Event Announcement',
+      createYourOwnTitle: 'Create Your Own Festival Post',
+      createYourOwnSubtitle: 'Customize a design with your own name, photo and message.',
+      startNowButton: 'Start Now',
     ),
     'en': AppStrings(
       languageName: 'English',
@@ -1124,6 +1216,29 @@ class AppStrings {
       filterTitle: 'Filter',
       filterAllOption: 'All Festivals',
       filterUpcomingOnly: 'Upcoming Only',
+      // Screen 11
+      festivalDetailsTitle: 'Festival Details',
+      breadcrumbFestivals: 'Festivals',
+      breadcrumbFestivalDetails: 'Festival Details',
+      celebrateGarbaSubtitle: 'Celebrate the joy of Garba and devotion',
+      shareFestivalButton: 'Share Festival',
+      aboutThisFestivalHeader: 'About This Festival',
+      aboutFestivalDesc: 'Celebrate Navratri with devotion, music, traditional Garba and beautiful festive designs.',
+      festivalCategoryLabel: 'Festival Category',
+      festivalDateLabel: 'Festival Date',
+      celebrationTypeLabel: 'Celebration Type',
+      categoryCulturalValue: 'Cultural',
+      celebrationTypeValue: 'Traditional',
+      createFestivalPostsTitle: 'Create Festival Posts',
+      createFestivalPostsSubtitle: 'Choose a beautiful design for your celebration.',
+      popularDesignStylesTitle: 'Popular Design Styles',
+      styleTraditionalLabel: 'Traditional',
+      styleModernLabel: 'Modern',
+      styleDevotionalLabel: 'Devotional',
+      styleEventAnnouncementLabel: 'Event Announcement',
+      createYourOwnTitle: 'Create Your Own Festival Post',
+      createYourOwnSubtitle: 'Customize a design with your own name, photo and message.',
+      startNowButton: 'Start Now',
     ),
   };
 

@@ -86,4 +86,18 @@ class AppAssets {
   static const String festivalAllHoli = 'assets/images/festival_all_holi.png';
   static const String festivalAllJanmashtami = 'assets/images/festival_all_janmashtami.png';
   static const String festivalAllGanesh = 'assets/images/festival_all_ganesh.png';
+
+  /// Approved UI reference for Screen 11 Festival Details & Poster Collection.
+  static const String screen11Reference = 'assets/images/screen_11_reference.jpg';
+  static const String festivalDetailHeroBanner = 'assets/images/festival_detail_hero_banner.png';
+  static const String festivalDetailHeroDancers = 'assets/images/festival_detail_hero_dancers.png';
+  static const String festivalPosterShubhNavratri = 'assets/images/festival_poster_shubh_navratri.png';
+  static const String festivalPosterHappyNavratri = 'assets/images/festival_poster_happy_navratri.png';
+  static const String festivalPosterGarbaNight = 'assets/images/festival_poster_garba_night.png';
+  static const String festivalPosterJayMataji = 'assets/images/festival_poster_jay_mataji.png';
+  static const String styleTraditional = 'assets/images/style_traditional.png';
+  static const String styleModern = 'assets/images/style_modern.png';
+  static const String styleDevotional = 'assets/images/style_devotional.png';
+  static const String styleEvent = 'assets/images/style_event.png';
+  static const String createOwnPalette = 'assets/images/create_own_palette.png';
 }

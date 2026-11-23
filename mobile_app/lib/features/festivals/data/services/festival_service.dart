@@ -47,6 +47,60 @@ class FestivalService {
     ];
   }
 
+  /// Popular Design Styles matching Screen 11
+  List<FestivalDesignStyle> getDesignStyles() {
+    return const [
+      FestivalDesignStyle(
+        id: 'traditional',
+        name: 'Traditional',
+        imageAsset: AppAssets.styleTraditional,
+      ),
+      FestivalDesignStyle(
+        id: 'modern',
+        name: 'Modern',
+        imageAsset: AppAssets.styleModern,
+      ),
+      FestivalDesignStyle(
+        id: 'devotional',
+        name: 'Devotional',
+        imageAsset: AppAssets.styleDevotional,
+      ),
+      FestivalDesignStyle(
+        id: 'event',
+        name: 'Event Announcement',
+        imageAsset: AppAssets.styleEvent,
+      ),
+    ];
+  }
+
+  /// Navratri poster templates matching Screen 11 reference exactly
+  static const List<FestivalPosterTemplate> navratriTemplates = [
+    FestivalPosterTemplate(
+      id: 'navratri_shubh',
+      title: 'શુભ નવરાત્રી',
+      imageAsset: AppAssets.festivalPosterShubhNavratri,
+      style: 'traditional',
+    ),
+    FestivalPosterTemplate(
+      id: 'navratri_happy',
+      title: 'Happy Navratri',
+      imageAsset: AppAssets.festivalPosterHappyNavratri,
+      style: 'modern',
+    ),
+    FestivalPosterTemplate(
+      id: 'navratri_garba',
+      title: 'Navratri Garba Night',
+      imageAsset: AppAssets.festivalPosterGarbaNight,
+      style: 'event',
+    ),
+    FestivalPosterTemplate(
+      id: 'navratri_jay_mataji',
+      title: 'જય માતાજી',
+      imageAsset: AppAssets.festivalPosterJayMataji,
+      style: 'devotional',
+    ),
+  ];
+
   /// The Hero Featured Festival shown on the top banner
   FestivalItem getFeaturedFestival() {
     return const FestivalItem(
@@ -55,11 +109,16 @@ class FestivalService {
       nameGu: 'નવરાત્રી',
       nameHi: 'नवरात्रि',
       dateDisplay: '22 Oct – 30 Oct',
-      category: 'hindu',
-      categoryName: 'Hindu Festivals',
+      category: 'cultural',
+      categoryName: 'Cultural',
       imageAsset: AppAssets.festivalHeroDancers,
       isUpcoming: true,
       isFeatured: true,
+      celebrationType: 'Traditional',
+      aboutText:
+          'Celebrate Navratri with devotion, music, traditional Garba and beautiful festive designs.',
+      heroBannerAsset: AppAssets.festivalDetailHeroBanner,
+      posterTemplates: navratriTemplates,
       description: 'Navratri Celebration. Explore beautiful festive designs.',
       keywords: ['navratri', 'garba', 'dandiya', 'celebration', 'નવરાત્રી', 'ગરબા'],
       templateCount: 24,
@@ -75,10 +134,15 @@ class FestivalService {
         nameGu: 'નવરાત્રી',
         nameHi: 'नवरात्रि',
         dateDisplay: '22 Oct – 30 Oct',
-        category: 'hindu',
-        categoryName: 'Hindu Festivals',
+        category: 'cultural',
+        categoryName: 'Cultural',
         imageAsset: AppAssets.festivalNavratriMaa,
         isUpcoming: true,
+        celebrationType: 'Traditional',
+        aboutText:
+            'Celebrate Navratri with devotion, music, traditional Garba and beautiful festive designs.',
+        heroBannerAsset: AppAssets.festivalDetailHeroBanner,
+        posterTemplates: navratriTemplates,
         keywords: ['navratri', 'durga', 'maa', 'garba', 'dandiya', 'નવરાત્રી', 'અંબે મા'],
         templateCount: 18,
       ),
@@ -92,6 +156,36 @@ class FestivalService {
         categoryName: 'Hindu Festivals',
         imageAsset: AppAssets.festivalDiwaliDiyas,
         isUpcoming: true,
+        celebrationType: 'Festival of Lights',
+        aboutText:
+            'Celebrate Diwali with joyful lights, festive greetings, family celebrations and prosperity.',
+        heroBannerAsset: AppAssets.festivalDiwaliDiyas,
+        posterTemplates: [
+          FestivalPosterTemplate(
+            id: 'diwali_happy',
+            title: 'Happy Diwali',
+            imageAsset: AppAssets.homeTemplateDiwali,
+            style: 'traditional',
+          ),
+          FestivalPosterTemplate(
+            id: 'diwali_shubh',
+            title: 'શુભ દીપાવલી',
+            imageAsset: AppAssets.festivalDiwaliDiyas,
+            style: 'devotional',
+          ),
+          FestivalPosterTemplate(
+            id: 'diwali_modern',
+            title: 'Deepotsav 2026',
+            imageAsset: AppAssets.homeTemplateDiwali,
+            style: 'modern',
+          ),
+          FestivalPosterTemplate(
+            id: 'diwali_event',
+            title: 'Diwali Milan Event',
+            imageAsset: AppAssets.festivalDiwaliDiyas,
+            style: 'event',
+          ),
+        ],
         keywords: ['diwali', 'deepotsav', 'diya', 'lights', 'દિવાળી', 'દીવો', 'दिवाली'],
         templateCount: 22,
       ),
@@ -101,10 +195,28 @@ class FestivalService {
         nameGu: 'ભાઈ બીજ',
         nameHi: 'भाई दूज',
         dateDisplay: '16 Nov',
-        category: 'hindu',
-        categoryName: 'Hindu Festivals',
+        category: 'cultural',
+        categoryName: 'Cultural',
         imageAsset: AppAssets.festivalBhaiBeej,
         isUpcoming: true,
+        celebrationType: 'Family Celebration',
+        aboutText:
+            'Celebrate the eternal bond of brothers and sisters with heartfelt blessings and traditions.',
+        heroBannerAsset: AppAssets.festivalBhaiBeej,
+        posterTemplates: [
+          FestivalPosterTemplate(
+            id: 'bhaibeej_shubh',
+            title: 'શુભ ભાઈ બીજ',
+            imageAsset: AppAssets.festivalBhaiBeej,
+            style: 'traditional',
+          ),
+          FestivalPosterTemplate(
+            id: 'bhaibeej_modern',
+            title: 'Happy Bhai Dooj',
+            imageAsset: AppAssets.festivalBhaiBeej,
+            style: 'modern',
+          ),
+        ],
         keywords: ['bhai beej', 'bhai dooj', 'tilak', 'ભાઈ બીજ', 'भाई दूज'],
         templateCount: 10,
       ),
@@ -118,6 +230,24 @@ class FestivalService {
         categoryName: 'Religious Events',
         imageAsset: AppAssets.festivalChristmasSanta,
         isUpcoming: true,
+        celebrationType: 'Joy & Giving',
+        aboutText:
+            'Celebrate the joy of Christmas with peace, cheer, beautiful greetings and warmth.',
+        heroBannerAsset: AppAssets.festivalChristmasSanta,
+        posterTemplates: [
+          FestivalPosterTemplate(
+            id: 'christmas_merry',
+            title: 'Merry Christmas',
+            imageAsset: AppAssets.festivalChristmasSanta,
+            style: 'traditional',
+          ),
+          FestivalPosterTemplate(
+            id: 'christmas_modern',
+            title: 'Season Greetings',
+            imageAsset: AppAssets.festivalChristmasSanta,
+            style: 'modern',
+          ),
+        ],
         keywords: ['christmas', 'santa', 'xmas', 'holiday', 'નાતાલ', 'क्रिसमस'],
         templateCount: 8,
       ),

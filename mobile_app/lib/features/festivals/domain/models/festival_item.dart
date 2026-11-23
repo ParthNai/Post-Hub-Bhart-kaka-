@@ -1,4 +1,34 @@
-/// Festival and event data model for Panchayat Post Screen 10.
+/// Poster template item belonging to a festival.
+class FestivalPosterTemplate {
+  const FestivalPosterTemplate({
+    required this.id,
+    required this.title,
+    required this.imageAsset,
+    this.style = 'traditional',
+    this.tag,
+  });
+
+  final String id;
+  final String title;
+  final String imageAsset;
+  final String style;
+  final String? tag;
+}
+
+/// Popular design style model for festival posters.
+class FestivalDesignStyle {
+  const FestivalDesignStyle({
+    required this.id,
+    required this.name,
+    required this.imageAsset,
+  });
+
+  final String id;
+  final String name;
+  final String imageAsset;
+}
+
+/// Festival and event data model for Panchayat Post Screens 10 and 11.
 class FestivalItem {
   const FestivalItem({
     required this.id,
@@ -14,6 +44,10 @@ class FestivalItem {
     this.description,
     this.keywords = const [],
     this.templateCount = 12,
+    this.celebrationType = 'Traditional',
+    this.aboutText,
+    this.heroBannerAsset,
+    this.posterTemplates = const [],
   });
 
   final String id;
@@ -29,6 +63,10 @@ class FestivalItem {
   final String? description;
   final List<String> keywords;
   final int templateCount;
+  final String celebrationType;
+  final String? aboutText;
+  final String? heroBannerAsset;
+  final List<FestivalPosterTemplate> posterTemplates;
 
   /// Check if this festival matches the search query and filters.
   bool matches({
