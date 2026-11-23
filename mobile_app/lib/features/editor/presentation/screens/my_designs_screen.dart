@@ -881,23 +881,28 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
   }
 
   Widget _buildPosterGridCard(PosterTemplateProject design, AppStrings s) {
-    return Container(
+    return InkWell(
       key: ValueKey('design_card_grid_${design.id}'),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      borderRadius: BorderRadius.circular(16.0),
+      onTap: () {
+        Navigator.of(context).pushNamed(AppRoutes.posterEditor, arguments: design);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.0),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           // Poster Thumbnail with Favorite Heart
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
@@ -1028,8 +1033,9 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   // 6B. Poster List View
   Widget _buildPosterList(List<PosterTemplateProject> designs, AppStrings s) {
@@ -1043,14 +1049,19 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
         itemBuilder: (context, index) {
           final design = designs[index];
 
-          return Container(
+          return InkWell(
             key: ValueKey('design_card_list_${design.id}'),
-            padding: const EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16.0),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
+            borderRadius: BorderRadius.circular(16.0),
+            onTap: () {
+              Navigator.of(context).pushNamed(AppRoutes.posterEditor, arguments: design);
+            },
+            child: Container(
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16.0),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
             child: Row(
               children: [
                 // Thumbnail
@@ -1129,11 +1140,12 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
                 _buildCardContextMenu(design, s),
               ],
             ),
-          );
-        },
-      ),
-    );
-  }
+          ),
+        );
+      },
+    ),
+  );
+}
 
   // 3-Dots Context Menu
   Widget _buildCardContextMenu(PosterTemplateProject design, AppStrings s) {

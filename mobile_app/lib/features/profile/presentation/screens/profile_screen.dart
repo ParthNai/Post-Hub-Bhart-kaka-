@@ -816,44 +816,116 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
         backgroundColor: _kSurface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close_rounded, color: _kTextPrimary),
+          icon: const Icon(Icons.arrow_back_rounded, color: _kTextPrimary),
           onPressed: () => Navigator.of(context).pop(false),
         ),
-        title: const Text('Edit Profile',
-            style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.w800, color: _kTextPrimary)),
+        title: const Text(
+          'Edit Profile',
+          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w800, color: _kTextPrimary),
+        ),
         actions: [
-          TextButton(
-            key: const ValueKey('save_profile_btn'),
-            onPressed: _isSaving ? null : _save,
-            child: _isSaving
-                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: _kPrimary))
-                : const Text('Save', style: TextStyle(color: _kPrimary, fontWeight: FontWeight.w700)),
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: TextButton.icon(
+              key: const ValueKey('save_profile_btn'),
+              style: TextButton.styleFrom(
+                foregroundColor: _kPrimary,
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              ),
+              icon: _isSaving
+                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: _kPrimary))
+                  : const Icon(Icons.check_rounded, size: 18.0),
+              label: const Text('Save', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.0)),
+              onPressed: _isSaving ? null : _save,
+            ),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _buildField(controller: _nameCtrl, label: 'Full Name', icon: Icons.person_outline_rounded,
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Full name is required' : null),
+              // Avatar circle with camera edit badge
+              Center(
+                child: Stack(
+                  children: [
+                    Container(
+                      width: 88.0,
+                      height: 88.0,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: _kPrimaryLight, width: 3.0),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 4)),
+                        ],
+                      ),
+                      child: ClipOval(
+                        child: widget.user?.profilePhotoUrl != null
+                            ? Image.network(
+                                widget.user!.profilePhotoUrl!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) => _DefaultAvatar(name: _nameCtrl.text),
+                              )
+                            : Image.asset(
+                                AppAssets.homeAvatarRahul,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) => _DefaultAvatar(name: _nameCtrl.text),
+                              ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(6.0),
+                        decoration: BoxDecoration(
+                          color: _kPrimary,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2.0),
+                        ),
+                        child: const Icon(Icons.camera_alt_rounded, size: 15.0, color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24.0),
+
+              _buildField(
+                controller: _nameCtrl,
+                label: 'Full Name',
+                icon: Icons.person_outline_rounded,
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'Full name is required' : null,
+              ),
               const SizedBox(height: 16.0),
-              _buildField(controller: _villageCityCtrl, label: 'Village / City', icon: Icons.location_on_outlined),
+              _buildField(
+                controller: _villageCityCtrl,
+                label: 'Village / City',
+                icon: Icons.location_on_outlined,
+              ),
               const SizedBox(height: 16.0),
-              _buildField(controller: _districtCtrl, label: 'District', icon: Icons.account_balance_outlined),
+              _buildField(
+                controller: _districtCtrl,
+                label: 'District',
+                icon: Icons.account_balance_outlined,
+              ),
               const SizedBox(height: 32.0),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _kPrimary,
                   foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 50.0),
+                  elevation: 2.0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.0)),
                 ),
                 onPressed: _isSaving ? null : _save,
-                child: Text(_isSaving ? 'Saving…' : 'Save Changes',
-                    style: const TextStyle(fontSize: 15.0, fontWeight: FontWeight.w700)),
+                child: Text(
+                  _isSaving ? 'Saving…' : 'Save Changes',
+                  style: const TextStyle(fontSize: 15.0, fontWeight: FontWeight.w700),
+                ),
               ),
             ],
           ),

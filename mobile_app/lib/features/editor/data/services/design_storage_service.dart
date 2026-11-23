@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:panchayat_post/features/editor/domain/models/poster_element.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
 
 /// Service managing persistent storage of user customized poster designs.
@@ -135,6 +137,33 @@ class DesignStorageService {
         updatedAt: DateTime(2025, 10, 23),
         userId: userId,
         isFavorite: true,
+        elements: const [
+          PosterElement(
+            id: 'elem_headline',
+            type: PosterElementType.text,
+            text: 'શુભ નવરાત્રી',
+            x: 0.5,
+            y: 0.22,
+            fontSize: 32.0,
+            color: Color(0xFF7654C8),
+            fontFamily: 'Poppins',
+            textAlign: TextAlign.center,
+            isBold: true,
+            isSelected: true,
+          ),
+          PosterElement(
+            id: 'elem_supporting',
+            type: PosterElementType.text,
+            text: 'માતાજીના આશીર્વાદથી તમારું જીવન હંમેશા ખુશીઓથી ભરેલું રહે...',
+            x: 0.5,
+            y: 0.38,
+            fontSize: 13.5,
+            color: Colors.white,
+            fontFamily: 'Poppins',
+            textAlign: TextAlign.center,
+            isBold: false,
+          ),
+        ],
       ),
       PosterTemplateProject(
         id: 'design_village_dev',
@@ -147,6 +176,33 @@ class DesignStorageService {
         updatedAt: DateTime(2025, 10, 20),
         userId: userId,
         isFavorite: false,
+        elements: const [
+          PosterElement(
+            id: 'elem_headline',
+            type: PosterElementType.text,
+            text: 'મારો ગામ મારી જવાબદારી',
+            x: 0.5,
+            y: 0.16,
+            fontSize: 26.0,
+            color: Color(0xFF1E293B),
+            fontFamily: 'Anek Gujarati',
+            textAlign: TextAlign.center,
+            isBold: true,
+            isSelected: true,
+          ),
+          PosterElement(
+            id: 'elem_supporting',
+            type: PosterElementType.text,
+            text: 'સ્વચ્છ ગામ • સુંદર ગામ • સમૃદ્ધ ગામ',
+            x: 0.5,
+            y: 0.28,
+            fontSize: 14.0,
+            color: Color(0xFF15803D),
+            fontFamily: 'Poppins',
+            textAlign: TextAlign.center,
+            isBold: false,
+          ),
+        ],
       ),
       PosterTemplateProject(
         id: 'design_happy_diwali',
@@ -159,6 +215,33 @@ class DesignStorageService {
         updatedAt: DateTime(2025, 10, 10),
         userId: userId,
         isFavorite: true,
+        elements: const [
+          PosterElement(
+            id: 'elem_headline',
+            type: PosterElementType.text,
+            text: 'Happy Diwali',
+            x: 0.5,
+            y: 0.28,
+            fontSize: 34.0,
+            color: Color(0xFFFDE68A),
+            fontFamily: 'Poppins',
+            textAlign: TextAlign.center,
+            isBold: true,
+            isSelected: true,
+          ),
+          PosterElement(
+            id: 'elem_supporting',
+            type: PosterElementType.text,
+            text: 'May the festival of lights bring joy, peace and prosperity to all...',
+            x: 0.5,
+            y: 0.44,
+            fontSize: 13.0,
+            color: Colors.white,
+            fontFamily: 'Poppins',
+            textAlign: TextAlign.center,
+            isBold: false,
+          ),
+        ],
       ),
       PosterTemplateProject(
         id: 'design_gram_sabha',
@@ -171,6 +254,33 @@ class DesignStorageService {
         updatedAt: DateTime(2025, 10, 5),
         userId: userId,
         isFavorite: false,
+        elements: const [
+          PosterElement(
+            id: 'elem_headline',
+            type: PosterElementType.text,
+            text: 'ગ્રામ સભા ની જાહેરાત',
+            x: 0.5,
+            y: 0.18,
+            fontSize: 28.0,
+            color: Color(0xFFDC2626),
+            fontFamily: 'Anek Gujarati',
+            textAlign: TextAlign.center,
+            isBold: true,
+            isSelected: true,
+          ),
+          PosterElement(
+            id: 'elem_supporting',
+            type: PosterElementType.text,
+            text: 'તા. 25 ઓક્ટોબર, 2025\nસ્થળ : ગ્રામ પંચાયત ભવન',
+            x: 0.5,
+            y: 0.32,
+            fontSize: 14.0,
+            color: Color(0xFF1E293B),
+            fontFamily: 'Poppins',
+            textAlign: TextAlign.center,
+            isBold: false,
+          ),
+        ],
       ),
     ];
 

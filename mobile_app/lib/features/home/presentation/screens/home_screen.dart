@@ -11,6 +11,7 @@ import 'package:panchayat_post/core/models/app_remote_config.dart';
 import 'package:panchayat_post/core/services/app_config_service.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
+import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
 import 'package:panchayat_post/features/home/data/home_content_service.dart';
 
 /// Screen 09: Main Home Dashboard Screen
@@ -472,6 +473,17 @@ class _HomeScreenState extends State<HomeScreen> {
     String asset, {
     bool useNetworkImage = false,
   }) {
+    if (!useNetworkImage) {
+      final project = PosterTemplateProject.createDefaultNavratriProject(
+        templateId: 'home_template_${title.toLowerCase().replaceAll(' ', '_')}',
+        imageAsset: asset,
+        title: title,
+      );
+      Navigator.of(context)
+          .pushNamed(AppRoutes.posterEditor, arguments: project);
+      return;
+    }
+
     final nameController = TextEditingController(
       text: _currentUser?.effectiveDisplayName ?? 'Panchayat Post User',
     );
