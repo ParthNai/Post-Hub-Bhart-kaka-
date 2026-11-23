@@ -174,8 +174,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // A. Top Header
-      expect(find.text('Panchayat'), findsOneWidget);
-      expect(find.text('Post'), findsOneWidget);
+      expect(find.text('Panchayat Post'), findsOneWidget);
       expect(find.text('Good Morning!'), findsOneWidget);
       expect(find.textContaining('Welcome, Rahul'), findsOneWidget);
       expect(find.byIcon(Icons.notifications_none_rounded), findsOneWidget);
@@ -333,7 +332,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(tester.takeException(), isNull);
-        expect(find.text('Panchayat'), findsOneWidget);
+        expect(find.text('Panchayat Post'), findsOneWidget);
         expect(find.text('Create Beautiful'), findsNothing);
         expect(find.text('Create Something New'), findsOneWidget);
         expect(find.text('Popular Templates'), findsOneWidget);

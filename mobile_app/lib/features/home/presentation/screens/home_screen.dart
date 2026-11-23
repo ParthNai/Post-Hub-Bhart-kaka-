@@ -1337,8 +1337,8 @@ class _HomeScreenState extends State<HomeScreen> {
         if (heroImageUrls.isEmpty) return const SizedBox.shrink();
 
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16.0),
-          height: 200.0,
+          margin: const EdgeInsets.symmetric(horizontal: 20.0),
+          height: 178.0,
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(22.0),
@@ -1364,7 +1364,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     heroImageUrls[index],
                   ),
                   width: double.infinity,
-                  height: 200.0,
+                  height: 178.0,
                   fit: BoxFit.cover,
                   semanticLabel: 'Government announcement',
                   errorBuilder: (context, error, stackTrace) => Container(
@@ -1410,45 +1410,42 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCreateSomethingNewSection(AppStrings strings) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section Heading
           Row(
             children: [
-              Container(
-                width: 4.0,
-                height: 17.0,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF7C3AED),
-                  borderRadius: BorderRadius.circular(2.0),
-                ),
-              ),
-              const SizedBox(width: 8.0),
               Expanded(
                 child: Text(
                   strings.createSomethingNewTitle,
-                  style: const TextStyle(
-                    fontSize: 16.0,
+                  style: TextStyle(
+                    fontSize: 19.0,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textNavy,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    letterSpacing: -0.3,
                   ),
                 ),
               ),
-              const Icon(
-                Icons.auto_awesome_rounded,
-                size: 18.0,
-                color: Color(0xFF8B5CF6),
+              Container(
+                width: 36.0,
+                height: 36.0,
+                decoration: BoxDecoration(
+                  color: _primaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                child: Icon(
+                  Icons.auto_awesome_rounded,
+                  size: 18.0,
+                  color: _primaryColor,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 12.0),
-
-          // 3 Cards Row
+          const SizedBox(height: 14.0),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Card 1: Festival Posters
               Expanded(
                 child: _buildCreateCard(
                   title: strings.cardFestivalPosters,
@@ -1461,9 +1458,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: () => _showTemplatesModal(context, 'Festival'),
                 ),
               ),
-              const SizedBox(width: 10.0),
-
-              // Card 2: Panchayat Posts
+              const SizedBox(width: 12.0),
               Expanded(
                 child: _buildCreateCard(
                   title: strings.cardPanchayatPosts,
@@ -1476,26 +1471,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: () => _showTemplatesModal(context, 'Panchayat'),
                 ),
               ),
-              const SizedBox(width: 10.0),
-
-              // Card 3: AI Poster
-              Expanded(
-                child: _buildCreateCard(
-                  title: strings.cardAiPoster,
-                  imageAsset: AppAssets.homeCreateAi,
-                  badgeWidget: Text(
-                    'AI',
-                    style: TextStyle(
-                      fontSize: 10.0,
-                      fontWeight: FontWeight.w900,
-                      color: _primaryColor,
-                    ),
-                  ),
-                  onTap: () => _showAiPosterModal(context),
-                ),
-              ),
             ],
           ),
+          const SizedBox(height: 12.0),
+          _buildAiPosterCard(strings),
         ],
       ),
     );
@@ -1507,93 +1486,134 @@ class _HomeScreenState extends State<HomeScreen> {
     required Widget badgeWidget,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 146.0,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.0),
-          border: Border.all(color: const Color(0xFFF1F5F9)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
+    final theme = Theme.of(context);
+    return Material(
+      color: theme.colorScheme.surface,
+      borderRadius: BorderRadius.circular(18.0),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18.0),
+        child: Container(
+          height: 166.0,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18.0),
+            border: Border.all(
+              color: theme.colorScheme.outlineVariant.withValues(alpha: 0.45),
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Top Artwork with Overlapping Icon
-            Stack(
-              clipBehavior: Clip.none,
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(18.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(16.0),
-                  ),
-                  child: Image.asset(
-                    imageAsset,
-                    height: 82.0,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
+                Expanded(
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.asset(imageAsset, fit: BoxFit.cover),
+                      Positioned(
+                        top: 10.0,
+                        right: 10.0,
+                        child: Container(
+                          width: 32.0,
+                          height: 32.0,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.94),
+                            borderRadius: BorderRadius.circular(11.0),
+                          ),
+                          alignment: Alignment.center,
+                          child: badgeWidget,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Positioned(
-                  left: 10.0,
-                  bottom: -12.0,
-                  child: Container(
-                    width: 26.0,
-                    height: 26.0,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEDE9FE),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.08),
-                          blurRadius: 4,
-                          offset: const Offset(0, 1),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12.0, 10.0, 12.0, 11.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13.0,
+                            fontWeight: FontWeight.w800,
+                            color: theme.colorScheme.onSurface,
+                          ),
                         ),
-                      ],
-                    ),
-                    alignment: Alignment.center,
-                    child: badgeWidget,
+                      ),
+                      const SizedBox(width: 6.0),
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        size: 16.0,
+                        color: _primaryColor,
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            const Spacer(),
+          ),
+        ),
+      ),
+    );
+  }
 
-            // Card Bottom (Label + Arrow)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10.0, 4.0, 10.0, 10.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      maxLines: 2,
-                      style: const TextStyle(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textNavy,
-                        height: 1.15,
-                      ),
-                    ),
-                  ),
-                  Icon(
-                    Icons.arrow_forward_rounded,
-                    size: 14.0,
-                    color: _primaryColor,
-                  ),
-                ],
-              ),
+  Widget _buildAiPosterCard(AppStrings strings) {
+    final theme = Theme.of(context);
+    return Material(
+      color: theme.colorScheme.surface,
+      borderRadius: BorderRadius.circular(18.0),
+      child: InkWell(
+        onTap: () => _showAiPosterModal(context),
+        borderRadius: BorderRadius.circular(18.0),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18.0),
+            gradient: LinearGradient(
+              colors: [
+                _primaryColor.withValues(alpha: 0.12),
+                _primaryColor.withValues(alpha: 0.04),
+              ],
             ),
-          ],
+            border: Border.all(color: _primaryColor.withValues(alpha: 0.12)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 42.0,
+                height: 42.0,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(14.0),
+                ),
+                child: Icon(
+                  Icons.auto_awesome_rounded,
+                  color: _primaryColor,
+                  size: 21.0,
+                ),
+              ),
+              const SizedBox(width: 12.0),
+              Expanded(
+                child: Text(
+                  strings.cardAiPoster,
+                  style: TextStyle(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w800,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_rounded,
+                size: 18.0,
+                color: _primaryColor,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1604,60 +1624,57 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section Header
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Container(
-                width: 4.0,
-                height: 17.0,
-                decoration: BoxDecoration(
-                  color: _primaryColor,
-                  borderRadius: BorderRadius.circular(2.0),
-                ),
-              ),
-              const SizedBox(width: 8.0),
               Expanded(
-                child: Text(
-                  strings.popularTemplatesTitle,
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textNavy,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      strings.popularTemplatesTitle,
+                      style: TextStyle(
+                        fontSize: 19.0,
+                        fontWeight: FontWeight.w800,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              GestureDetector(
-                onTap: () => _showAllTemplatesLibrary(context),
+              TextButton(
+                onPressed: () => _showAllTemplatesLibrary(context),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10.0,
+                    vertical: 6.0,
+                  ),
+                  foregroundColor: _primaryColor,
+                ),
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       strings.seeAllAction,
-                      style: TextStyle(
-                        fontSize: 13.0,
+                      style: const TextStyle(
+                        fontSize: 12.0,
                         fontWeight: FontWeight.w700,
-                        color: _primaryColor,
                       ),
                     ),
-                    const SizedBox(width: 2.0),
-                    Icon(
-                      Icons.arrow_forward_rounded,
-                      size: 13.0,
-                      color: _primaryColor,
-                    ),
+                    const SizedBox(width: 3.0),
+                    const Icon(Icons.arrow_forward_rounded, size: 14.0),
                   ],
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 12.0),
+        const SizedBox(height: 14.0),
 
-        // 4 Horizontal Template Cards
         SizedBox(
-          height: 122.0,
+          height: 180.0,
           child: _isHomeContentLoading
               ? const Center(child: CircularProgressIndicator())
               : _homeContentError != null
@@ -1669,11 +1686,11 @@ class _HomeScreenState extends State<HomeScreen> {
               : ListView.separated(
                   controller: _templatesScrollController,
                   scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   physics: const BouncingScrollPhysics(),
                   itemCount: templates.length,
                   separatorBuilder: (context, index) =>
-                      const SizedBox(width: 10.0),
+                      const SizedBox(width: 12.0),
                   itemBuilder: (context, index) =>
                       _buildTemplateCard(templates[index]),
                 ),
@@ -1686,32 +1703,59 @@ class _HomeScreenState extends State<HomeScreen> {
     final imageUrl = AppConfigService.instance.resolveMediaUrl(
       template.imageUrl,
     );
-    return GestureDetector(
-      onTap: () => _showTemplateEditorModal(
-        context,
-        template.title,
-        imageUrl,
-        useNetworkImage: true,
-      ),
-      child: Container(
-        width: 104.0,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
+    final theme = Theme.of(context);
+    return Material(
+      color: theme.colorScheme.surface,
+      borderRadius: BorderRadius.circular(18.0),
+      child: InkWell(
+        onTap: () => _showTemplateEditorModal(
+          context,
+          template.title,
+          imageUrl,
+          useNetworkImage: true,
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(14.0),
-          child: Image.network(
-            imageUrl,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) =>
-                const Center(child: Icon(Icons.image_not_supported_outlined)),
+        borderRadius: BorderRadius.circular(18.0),
+        child: Container(
+          width: 142.0,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18.0),
+            border: Border.all(
+              color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+            ),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(18.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Image.network(
+                    imageUrl,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => ColoredBox(
+                      color: theme.colorScheme.surfaceContainerHighest,
+                      child: const Center(
+                        child: Icon(Icons.image_not_supported_outlined),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 9.0),
+                  child: Text(
+                    template.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12.0,
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -1723,122 +1767,69 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section Header
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Row(
             children: [
-              Container(
-                width: 4.0,
-                height: 17.0,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF7C3AED),
-                  borderRadius: BorderRadius.circular(2.0),
-                ),
-              ),
-              const SizedBox(width: 8.0),
               Expanded(
-                child: Text(
-                  strings.upcomingFestivalsTitle,
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textNavy,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      strings.upcomingFestivalsTitle,
+                      style: TextStyle(
+                        fontSize: 19.0,
+                        fontWeight: FontWeight.w800,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 12.0),
-
-        // Carousel with Floating Next Button
+        const SizedBox(height: 14.0),
         SizedBox(
-          height: 116.0,
-          child: Stack(
-            children: [
-              ListView(
-                controller: _festivalScrollController,
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.only(left: 16.0, right: 36.0),
-                physics: const BouncingScrollPhysics(),
-                children: _isHomeContentLoading
-                    ? [
-                        const SizedBox(
-                          width: 250.0,
-                          child: Center(child: CircularProgressIndicator()),
-                        ),
-                      ]
-                    : _homeContentError != null
-                    ? [
-                        SizedBox(
-                          width: 250.0,
-                          child: _buildHomeContentMessage(
-                            _homeContentError!,
-                            showRetry: true,
-                          ),
-                        ),
-                      ]
-                    : festivals.isEmpty
-                    ? [
-                        SizedBox(
-                          width: 250.0,
-                          child: _buildHomeContentMessage(
-                            'No upcoming festivals have been published by the admin yet.',
-                          ),
-                        ),
-                      ]
-                    : [
-                        for (
-                          var index = 0;
-                          index < festivals.length;
-                          index++
-                        ) ...[
-                          if (index > 0) const SizedBox(width: 10.0),
-                          _buildFestivalCard(festivals[index]),
-                        ],
-                      ],
-              ),
-
-              // Floating Right Chevron Scroll Button
-              Positioned(
-                right: 8.0,
-                top: 0,
-                bottom: 0,
-                child: Center(
-                  child: GestureDetector(
-                    onTap: () {
-                      _festivalScrollController.animateTo(
-                        _festivalScrollController.offset + 130.0,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                    },
-                    child: Container(
-                      width: 26.0,
-                      height: 34.0,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.12),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      alignment: Alignment.center,
-                      child: Icon(
-                        Icons.chevron_right_rounded,
-                        size: 20.0,
-                        color: _primaryColor,
+          height: 164.0,
+          child: ListView(
+            controller: _festivalScrollController,
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            physics: const BouncingScrollPhysics(),
+            children: _isHomeContentLoading
+                ? [
+                    const SizedBox(
+                      width: 250.0,
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  ]
+                : _homeContentError != null
+                ? [
+                    SizedBox(
+                      width: 250.0,
+                      child: _buildHomeContentMessage(
+                        _homeContentError!,
+                        showRetry: true,
                       ),
                     ),
-                  ),
-                ),
-              ),
-            ],
+                  ]
+                : festivals.isEmpty
+                ? [
+                    SizedBox(
+                      width: 250.0,
+                      child: _buildHomeContentMessage(
+                        'No upcoming festivals have been published by the admin yet.',
+                      ),
+                    ),
+                  ]
+                : [
+                    for (var index = 0; index < festivals.length; index++) ...[
+                      if (index > 0) const SizedBox(width: 12.0),
+                      _buildFestivalCard(festivals[index]),
+                    ],
+                  ],
           ),
         ),
       ],
@@ -1846,77 +1837,93 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildFestivalCard(HomeContentFestival festival) {
-    return GestureDetector(
-      onTap: () => _showTemplatesModal(context, festival.title),
-      child: Container(
-        width: 130.0,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.0),
-          border: Border.all(color: const Color(0xFFF1F5F9)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              height: 60.0,
-              width: double.infinity,
-              child: festival.imageUrl == null
-                  ? const ColoredBox(
-                      color: Color(0xFFEFF6FF),
-                      child: Icon(Icons.celebration_outlined),
-                    )
-                  : Image.network(
-                      AppConfigService.instance.resolveMediaUrl(
-                        festival.imageUrl!,
+    final theme = Theme.of(context);
+    final cardShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(18.0),
+      side: BorderSide(
+        color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+      ),
+    );
+    return SizedBox(
+      width: 152.0,
+      child: Material(
+        color: theme.colorScheme.surface,
+        shape: cardShape,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => _showTemplatesModal(context, festival.title),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 88.0,
+                width: double.infinity,
+                child: festival.imageUrl == null
+                    ? ColoredBox(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        child: Icon(
+                          Icons.celebration_outlined,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      )
+                    : Image.network(
+                        AppConfigService.instance.resolveMediaUrl(
+                          festival.imageUrl!,
+                        ),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            ColoredBox(
+                              color: theme.colorScheme.surfaceContainerHighest,
+                              child: Icon(
+                                Icons.celebration_outlined,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
                       ),
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const ColoredBox(
-                            color: Color(0xFFEFF6FF),
-                            child: Icon(Icons.celebration_outlined),
-                          ),
-                    ),
-            ),
-            const SizedBox(height: 6.0),
-            Text(
-              festival.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 13.0,
-                fontWeight: FontWeight.w800,
-                color: AppColors.textNavy,
               ),
-            ),
-            const SizedBox(height: 2.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.calendar_month_outlined,
-                  size: 11.0,
-                  color: Color(0xFF64748B),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10.0, 9.0, 10.0, 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      festival.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12.0,
+                        fontWeight: FontWeight.w800,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 5.0),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_month_outlined,
+                          size: 12.0,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 5.0),
+                        Expanded(
+                          child: Text(
+                            _formatFestivalDate(festival.date),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 4.0),
-                Text(
-                  _formatFestivalDate(festival.date),
-                  style: const TextStyle(
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF64748B),
-                  ),
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1925,57 +1932,64 @@ class _HomeScreenState extends State<HomeScreen> {
   // --- Bottom Navigation Bar ---
 
   Widget _buildBottomNavigationBar(AppStrings strings) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, -3),
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12.0, 6.0, 12.0, 8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(24.0),
+          border: Border.all(
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
           ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 6.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildNavItem(
-              index: 0,
-              label: strings.navHome,
-              icon: Icons.home_rounded,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.07),
+              blurRadius: 20.0,
+              offset: const Offset(0, 6),
             ),
-          ),
-          Expanded(
-            child: _buildNavItem(
-              index: 1,
-              label: strings.navFestivals,
-              icon: Icons.calendar_month_outlined,
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 6.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: _buildNavItem(
+                index: 0,
+                label: strings.navHome,
+                icon: Icons.home_rounded,
+              ),
             ),
-          ),
-          Expanded(
-            child: _buildNavItem(
-              index: 2,
-              label: strings.navTemplates,
-              icon: Icons.grid_view_rounded,
+            Expanded(
+              child: _buildNavItem(
+                index: 1,
+                label: strings.navFestivals,
+                icon: Icons.calendar_month_outlined,
+              ),
             ),
-          ),
-          Expanded(
-            child: _buildNavItem(
-              index: 3,
-              label: strings.navMyDesigns,
-              icon: Icons.photo_library_outlined,
+            Expanded(
+              child: _buildNavItem(
+                index: 2,
+                label: strings.navTemplates,
+                icon: Icons.grid_view_rounded,
+              ),
             ),
-          ),
-          Expanded(
-            child: _buildNavItem(
-              index: 4,
-              label: strings.navProfile,
-              icon: Icons.person_outline_rounded,
+            Expanded(
+              child: _buildNavItem(
+                index: 3,
+                label: strings.navMyDesigns,
+                icon: Icons.photo_library_outlined,
+              ),
             ),
-          ),
-        ],
+            Expanded(
+              child: _buildNavItem(
+                index: 4,
+                label: strings.navProfile,
+                icon: Icons.person_outline_rounded,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1986,24 +2000,27 @@ class _HomeScreenState extends State<HomeScreen> {
     required IconData icon,
   }) {
     final isSelected = _selectedNavIndex == index;
-    final color = isSelected ? _primaryColor : const Color(0xFF64748B);
+    final theme = Theme.of(context);
+    final color = isSelected
+        ? _primaryColor
+        : theme.colorScheme.onSurfaceVariant;
 
     return InkWell(
       onTap: () => _onNavTapped(index),
-      borderRadius: BorderRadius.circular(16.0),
+      borderRadius: BorderRadius.circular(18.0),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 6.0),
+        padding: const EdgeInsets.symmetric(horizontal: 3.0, vertical: 6.0),
         decoration: isSelected
             ? BoxDecoration(
-                color: const Color(0xFFEDE9FE),
-                borderRadius: BorderRadius.circular(20.0),
+                color: _primaryColor.withValues(alpha: 0.11),
+                borderRadius: BorderRadius.circular(18.0),
               )
             : null,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 22.0, color: color),
-            const SizedBox(height: 2.0),
+            const SizedBox(height: 3.0),
             FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
