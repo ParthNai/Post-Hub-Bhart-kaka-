@@ -6,15 +6,17 @@ import { ExternalLink, Shield } from "lucide-react";
 import { AppShowcase } from "@/components/app/AppShowcase";
 import { AppLoginForm } from "@/components/app/AppLoginForm";
 import { MobileAppHomeScreen } from "@/components/mobile/MobileAppHomeScreen";
+import { MobileAppPreloader } from "@/components/mobile/MobileAppPreloader";
 import { AppUser, clearAppUser, PRESET_DEMO_USERS, saveAppUser } from "@/lib/app-auth";
 import { PosterTemplate } from "@/lib/templates";
 
 export default function MobileAppRootPage() {
-  // First page is ALWAYS the Login Page
-  const [currentScreen, setCurrentScreen] = useState<"login" | "home">("login");
+  // First page shows the animated Preloader / Splash Screen, then transitions to Login
+  const [currentScreen, setCurrentScreen] = useState<"preloader" | "login" | "home">("preloader");
   const [activeUser, setActiveUser] = useState<AppUser | null>(null);
   const [templates, setTemplates] = useState<PosterTemplate[]>([]);
   const [homeConfig, setHomeConfig] = useState<Record<string, any>>({});
+  const [appRemoteConfig, setAppRemoteConfig] = useState<Record<string, any> | null>(null);
 
   // Fetch templates and published screen configuration for the studio workspace
   useEffect(() => {
@@ -54,6 +56,7 @@ export default function MobileAppRootPage() {
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (isMounted && data) {
+          setAppRemoteConfig(data);
           if (data.templates && (!templates || templates.length === 0)) {
             setTemplates((prev) => (prev.length > 0 ? prev : data.templates));
           }
@@ -89,6 +92,19 @@ export default function MobileAppRootPage() {
     setActiveUser(null);
     setCurrentScreen("login"); // Returns directly to the login page (the first page)
   };
+
+  if (currentScreen === "preloader") {
+    return (
+      <MobileAppPreloader
+        primaryColor={appRemoteConfig?.preloader?.primaryColor || "#FE8706"}
+        secondaryColor={appRemoteConfig?.preloader?.secondaryColor || "#0055B8"}
+        durationMs={appRemoteConfig?.preloader?.durationMs || 2200}
+        logoUrl={appRemoteConfig?.appBranding?.logoUrl || appRemoteConfig?.appBranding?.appIconUrl}
+        tagline="Create. Celebrate. Share."
+        onComplete={() => setCurrentScreen("login")}
+      />
+    );
+  }
 
   if (currentScreen === "home") {
     return (
