@@ -5,6 +5,7 @@ import 'package:panchayat_post/features/auth/presentation/screens/login_screen.d
 import 'package:panchayat_post/features/auth/presentation/screens/onboarding_confirmation_screen.dart';
 import 'package:panchayat_post/features/auth/presentation/screens/profile_setup_screen.dart';
 import 'package:panchayat_post/features/auth/presentation/screens/recovery_status_screen.dart';
+import 'package:panchayat_post/features/editor/presentation/screens/poster_editor_screen.dart';
 import 'package:panchayat_post/features/festivals/presentation/screens/festival_detail_screen.dart';
 import 'package:panchayat_post/features/festivals/presentation/screens/festivals_screen.dart';
 import 'package:panchayat_post/features/home/presentation/screens/home_screen.dart';
@@ -48,6 +49,9 @@ class AppRoutes {
   /// Screen 11: Festival Details & Poster Collection
   static const String festivalDetail = '/festival-detail';
 
+  /// Screen 12: Poster Template Editor & Customization Studio
+  static const String posterEditor = '/poster-editor';
+
   /// Route generator map
   static Map<String, WidgetBuilder> get routes => {
         splash: (context) => const SplashScreen(),
@@ -61,5 +65,6 @@ class AppRoutes {
         home: (context) => const HomeScreen(),
         festivals: (context) => const FestivalsScreen(),
         festivalDetail: (context) => const FestivalDetailScreen(),
+        posterEditor: (context) => const PosterEditorScreen(),
       };
 }

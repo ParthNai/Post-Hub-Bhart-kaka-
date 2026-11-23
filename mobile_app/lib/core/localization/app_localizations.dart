@@ -246,6 +246,29 @@ class AppStrings {
     required this.createYourOwnTitle,
     required this.createYourOwnSubtitle,
     required this.startNowButton,
+    // Screen 12: Poster Template Editor & Customization Studio strings
+    required this.editYourPosterTitle,
+    required this.editingModeBadge,
+    required this.customizeYourDesignTitle,
+    required this.toolEditText,
+    required this.toolReplaceImage,
+    required this.toolChangeColor,
+    required this.toolPosition,
+    required this.toolDuplicate,
+    required this.tabText,
+    required this.tabImages,
+    required this.tabColors,
+    required this.tabBackground,
+    required this.tabFonts,
+    required this.headlineTextLabel,
+    required this.supportingTextLabel,
+    required this.fontStyleLabel,
+    required this.textAlignmentLabel,
+    required this.textColorLabel,
+    required this.previewPosterButton,
+    required this.saveDesignButton,
+    required this.allChangesSavedLabel,
+    required this.designSavedSuccess,
   });
 
   final String languageName;
@@ -501,6 +524,29 @@ class AppStrings {
   final String createYourOwnTitle;
   final String createYourOwnSubtitle;
   final String startNowButton;
+  // Screen 12 Strings
+  final String editYourPosterTitle;
+  final String editingModeBadge;
+  final String customizeYourDesignTitle;
+  final String toolEditText;
+  final String toolReplaceImage;
+  final String toolChangeColor;
+  final String toolPosition;
+  final String toolDuplicate;
+  final String tabText;
+  final String tabImages;
+  final String tabColors;
+  final String tabBackground;
+  final String tabFonts;
+  final String headlineTextLabel;
+  final String supportingTextLabel;
+  final String fontStyleLabel;
+  final String textAlignmentLabel;
+  final String textColorLabel;
+  final String previewPosterButton;
+  final String saveDesignButton;
+  final String allChangesSavedLabel;
+  final String designSavedSuccess;
 
   static const String defaultLanguageCode = 'gu';
 
@@ -749,6 +795,29 @@ class AppStrings {
       createYourOwnTitle: 'Create Your Own Festival Post',
       createYourOwnSubtitle: 'Customize a design with your own name, photo and message.',
       startNowButton: 'Start Now',
+      // Screen 12
+      editYourPosterTitle: 'Edit Your Poster',
+      editingModeBadge: 'Editing',
+      customizeYourDesignTitle: 'Customize Your Design',
+      toolEditText: 'Edit Text',
+      toolReplaceImage: 'Replace Image',
+      toolChangeColor: 'Change Color',
+      toolPosition: 'Position',
+      toolDuplicate: 'Duplicate',
+      tabText: 'Text',
+      tabImages: 'Images',
+      tabColors: 'Colors',
+      tabBackground: 'Background',
+      tabFonts: 'Fonts',
+      headlineTextLabel: 'Headline Text',
+      supportingTextLabel: 'Supporting Text',
+      fontStyleLabel: 'Font Style',
+      textAlignmentLabel: 'Text Alignment',
+      textColorLabel: 'Text Color',
+      previewPosterButton: 'Preview Poster',
+      saveDesignButton: 'Save Design',
+      allChangesSavedLabel: 'All changes saved',
+      designSavedSuccess: 'પોસ્ટર ડિઝાઇન સફળતાપૂર્વક સાચવવામાં આવી!',
     ),
     'hi': AppStrings(
       languageName: 'हिंदी',
@@ -994,6 +1063,29 @@ class AppStrings {
       createYourOwnTitle: 'Create Your Own Festival Post',
       createYourOwnSubtitle: 'Customize a design with your own name, photo and message.',
       startNowButton: 'Start Now',
+      // Screen 12
+      editYourPosterTitle: 'Edit Your Poster',
+      editingModeBadge: 'Editing',
+      customizeYourDesignTitle: 'Customize Your Design',
+      toolEditText: 'Edit Text',
+      toolReplaceImage: 'Replace Image',
+      toolChangeColor: 'Change Color',
+      toolPosition: 'Position',
+      toolDuplicate: 'Duplicate',
+      tabText: 'Text',
+      tabImages: 'Images',
+      tabColors: 'Colors',
+      tabBackground: 'Background',
+      tabFonts: 'Fonts',
+      headlineTextLabel: 'Headline Text',
+      supportingTextLabel: 'Supporting Text',
+      fontStyleLabel: 'Font Style',
+      textAlignmentLabel: 'Text Alignment',
+      textColorLabel: 'Text Color',
+      previewPosterButton: 'Preview Poster',
+      saveDesignButton: 'Save Design',
+      allChangesSavedLabel: 'All changes saved',
+      designSavedSuccess: 'पोस्टर डिज़ाइन सफलतापूर्वक सहेजा गया!',
     ),
     'en': AppStrings(
       languageName: 'English',
@@ -1239,6 +1331,29 @@ class AppStrings {
       createYourOwnTitle: 'Create Your Own Festival Post',
       createYourOwnSubtitle: 'Customize a design with your own name, photo and message.',
       startNowButton: 'Start Now',
+      // Screen 12
+      editYourPosterTitle: 'Edit Your Poster',
+      editingModeBadge: 'Editing',
+      customizeYourDesignTitle: 'Customize Your Design',
+      toolEditText: 'Edit Text',
+      toolReplaceImage: 'Replace Image',
+      toolChangeColor: 'Change Color',
+      toolPosition: 'Position',
+      toolDuplicate: 'Duplicate',
+      tabText: 'Text',
+      tabImages: 'Images',
+      tabColors: 'Colors',
+      tabBackground: 'Background',
+      tabFonts: 'Fonts',
+      headlineTextLabel: 'Headline Text',
+      supportingTextLabel: 'Supporting Text',
+      fontStyleLabel: 'Font Style',
+      textAlignmentLabel: 'Text Alignment',
+      textColorLabel: 'Text Color',
+      previewPosterButton: 'Preview Poster',
+      saveDesignButton: 'Save Design',
+      allChangesSavedLabel: 'All changes saved',
+      designSavedSuccess: 'Poster design saved successfully!',
     ),
   };
 

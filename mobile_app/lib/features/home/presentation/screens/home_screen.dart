@@ -761,6 +761,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _buildNavTile(ctx, 'Screen 09: Home Dashboard', AppRoutes.home),
             _buildNavTile(ctx, 'Screen 10: Festival Listing', AppRoutes.festivals),
             _buildNavTile(ctx, 'Screen 11: Festival Details', AppRoutes.festivalDetail),
+            _buildNavTile(ctx, 'Screen 12: Poster Editor Studio', AppRoutes.posterEditor),
             const SizedBox(height: 10.0),
           ],
         ),

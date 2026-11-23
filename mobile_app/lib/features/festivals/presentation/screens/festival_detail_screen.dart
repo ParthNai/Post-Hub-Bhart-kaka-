@@ -236,6 +236,30 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                     );
                   },
                 ),
+                const SizedBox(height: 10.0),
+                OutlinedButton.icon(
+                  key: const ValueKey('open_editor_studio_button'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF6D28D9),
+                    side: const BorderSide(color: Color(0xFF6D28D9), width: 1.2),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                  ),
+                  icon: const Icon(Icons.tune_rounded, size: 18.0),
+                  label: const Text(
+                    'Open in Customization Studio',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.0),
+                  ),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    Navigator.of(context).pushNamed(
+                      AppRoutes.posterEditor,
+                      arguments: template,
+                    );
+                  },
+                ),
               ],
             ),
           ),

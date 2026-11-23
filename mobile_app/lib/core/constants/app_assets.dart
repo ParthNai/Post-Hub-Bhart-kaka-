@@ -100,4 +100,9 @@ class AppAssets {
   static const String styleDevotional = 'assets/images/style_devotional.png';
   static const String styleEvent = 'assets/images/style_event.png';
   static const String createOwnPalette = 'assets/images/create_own_palette.png';
+
+  /// Approved UI reference for Screen 12 Poster Template Editor & Customization Studio.
+  static const String screen12Reference = 'assets/images/screen_12_reference.jpg';
+  static const String editorCanvasNavratri = 'assets/images/editor_canvas_navratri.png';
+  static const String editorDandiyaCouple = 'assets/images/editor_dandiya_couple.png';
 }
