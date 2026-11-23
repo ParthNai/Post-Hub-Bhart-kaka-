@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/app_remote_config.dart';
 
 /// Singleton service that manages fetching, caching, and live updates
@@ -26,6 +28,15 @@ class AppConfigService {
   /// Current active config getter
   AppRemoteConfig get config => configNotifier.value;
 
+  String resolveMediaUrl(String path) {
+    final value = path.trim();
+    if (value.isEmpty) return value;
+    final uri = Uri.tryParse(value);
+    if (uri != null && uri.hasScheme) return value;
+    final baseUrl = serverBaseUrl.replaceAll(RegExp(r'/+$'), '');
+    return '$baseUrl/${value.replaceFirst(RegExp(r'^/+'), '')}';
+  }
+
   String? _cachedServerUrl;
   Future<void>? _initializationFuture;
   bool _isLoading = false;
@@ -35,6 +46,7 @@ class AppConfigService {
   bool get isLoading => _isLoading;
   DateTime? get lastSyncedAt => _lastSyncedAt;
   String? get syncError => _syncError;
+  Timer? _pollTimer;
 
   /// Determines the best default server host for the current runtime platform:
   /// - Android Emulator -> http://10.0.2.2:3000
@@ -86,7 +98,9 @@ class AppConfigService {
         try {
           final decoded = jsonDecode(cachedJsonStr) as Map<String, dynamic>;
           configNotifier.value = AppRemoteConfig.fromJson(decoded);
-          debugPrint('[AppConfigService] Restored cached config from ${configNotifier.value.publishedAt}');
+          debugPrint(
+            '[AppConfigService] Restored cached config from ${configNotifier.value.publishedAt}',
+          );
         } catch (e) {
           debugPrint('[AppConfigService] Error reading cached config: $e');
         }
@@ -101,6 +115,10 @@ class AppConfigService {
     } catch (e) {
       debugPrint('[AppConfigService] Remote sync timeout or offline: $e');
     }
+
+    _pollTimer ??= Timer.periodic(const Duration(seconds: 15), (_) {
+      unawaited(refreshConfig());
+    });
   }
 
   /// Fetches published configuration from the Admin Panel (/api/app/config).
@@ -111,7 +129,9 @@ class AppConfigService {
     _syncError = null;
 
     final targetUrl = '$serverBaseUrl$configEndpoint';
-    debugPrint('[AppConfigService] Fetching remote screen config from: $targetUrl');
+    debugPrint(
+      '[AppConfigService] Fetching remote screen config from: $targetUrl',
+    );
 
     try {
       final response = await http
@@ -138,16 +158,22 @@ class AppConfigService {
           await prefs.setString(_cacheKey, response.body);
         } catch (_) {}
 
-        debugPrint('[AppConfigService] Successfully synced ${newConfig.screens.length} screens from admin panel!');
+        debugPrint(
+          '[AppConfigService] Successfully synced ${newConfig.screens.length} screens from admin panel!',
+        );
         _isLoading = false;
         return true;
       } else {
         _syncError = 'Server returned status ${response.statusCode}';
-        debugPrint('[AppConfigService] Server returned error status: ${response.statusCode}');
+        debugPrint(
+          '[AppConfigService] Server returned error status: ${response.statusCode}',
+        );
       }
     } catch (e) {
       _syncError = e.toString();
-      debugPrint('[AppConfigService] Network fetch skipped/failed (will use cached/defaults): $e');
+      debugPrint(
+        '[AppConfigService] Network fetch skipped/failed (will use cached/defaults): $e',
+      );
     } finally {
       _isLoading = false;
     }

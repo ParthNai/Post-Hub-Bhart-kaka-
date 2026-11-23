@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 /// 1. App Icon / Logo
 /// 2. Preloader (Dual-arc spinner colors & duration)
 /// 3. Theme & Primary Accent Color
-/// 4. Hero Section of Home Screen (Visibility, Badge, Headline, Subtitle)
+/// 4. Home hero announcement image and visibility settings
 class AppRemoteConfig {
   const AppRemoteConfig({
     required this.platform,
@@ -32,10 +32,14 @@ class AppRemoteConfig {
     required this.primaryAccentColor,
     this.backgroundColor = '#FFFFFF',
     this.cardRadius = '14px',
+    this.headerStyle = 'gradient',
     required this.isHeroVisible,
     required this.heroBadge,
     required this.heroHeadline,
     required this.heroSubtitle,
+    this.heroImageUrl = '',
+    this.heroImageUrls = const [],
+    this.heroSlideIntervalSeconds = 4,
     required this.screens,
     required this.templates,
   });
@@ -70,12 +74,16 @@ class AppRemoteConfig {
   final Color primaryAccentColor;
   final String backgroundColor;
   final String cardRadius;
+  final String headerStyle;
 
   // 4. Hero Section of Home Screen
   final bool isHeroVisible;
   final String heroBadge;
   final String heroHeadline;
   final String heroSubtitle;
+  final String heroImageUrl;
+  final List<String> heroImageUrls;
+  final int heroSlideIntervalSeconds;
 
   final Map<String, RemoteScreenConfig> screens;
   final List<RemoteTemplate> templates;
@@ -107,10 +115,13 @@ class AppRemoteConfig {
       primaryAccentColor: const Color(0xFF0055B8),
       backgroundColor: '#FFFFFF',
       cardRadius: '14px',
+      headerStyle: 'gradient',
       isHeroVisible: true,
       heroBadge: '✨ MAGIC STUDIO',
       heroHeadline: 'What will you design today?',
       heroSubtitle: 'Choose a format below or start from templates.',
+      heroImageUrl: '',
+      heroImageUrls: const [],
       screens: {
         'home': RemoteScreenConfig.defaultHome(),
         'login': RemoteScreenConfig.defaultLogin(),
@@ -210,6 +221,7 @@ class AppRemoteConfig {
     Color primaryAccent = const Color(0xFF0055B8);
     String bg = '#FFFFFF';
     String radius = '14px';
+    String headerStyle = 'gradient';
     if (root['theme'] is Map<String, dynamic>) {
       final th = root['theme'] as Map<String, dynamic>;
       theme = th['mode'] as String? ?? 'Light';
@@ -219,6 +231,7 @@ class AppRemoteConfig {
       );
       bg = th['backgroundColor'] as String? ?? '#FFFFFF';
       radius = th['cardRadius'] as String? ?? '14px';
+      headerStyle = th['headerStyle'] as String? ?? 'gradient';
     }
 
     // 4. Hero Section
@@ -226,6 +239,9 @@ class AppRemoteConfig {
     String badge = '✨ MAGIC STUDIO';
     String headline = 'What will you design today?';
     String subtitle = 'Choose a format below or start from templates.';
+    var heroImageUrl = '';
+    var heroImageUrls = <String>[];
+    var heroSlideIntervalSeconds = 4;
     if (root['heroSection'] is Map<String, dynamic>) {
       final hero = root['heroSection'] as Map<String, dynamic>;
       heroVis =
@@ -236,7 +252,28 @@ class AppRemoteConfig {
       subtitle =
           hero['subtitle'] as String? ??
           'Choose a format below or start from templates.';
+      heroImageUrl = hero['imageUrl'] as String? ?? '';
+      heroImageUrls = _readStringList(hero['images']);
+      heroSlideIntervalSeconds =
+          (hero['slideIntervalSeconds'] as num?)?.toInt() ?? 4;
     }
+    if (root['homeScreen'] is Map<String, dynamic>) {
+      final home = root['homeScreen'] as Map<String, dynamic>;
+      final homeImageUrls = _readStringList(home['heroImages']);
+      if (homeImageUrls.isNotEmpty) heroImageUrls = homeImageUrls;
+      if (heroImageUrl.isEmpty) {
+        heroImageUrl = home['heroImage'] as String? ?? '';
+      }
+      heroSlideIntervalSeconds =
+          (home['sliderSpeed'] as num?)?.toInt() ?? heroSlideIntervalSeconds;
+    }
+    if (heroImageUrls.isEmpty && heroImageUrl.isNotEmpty) {
+      heroImageUrls = [heroImageUrl];
+    }
+    if (heroImageUrl.isEmpty && heroImageUrls.isNotEmpty) {
+      heroImageUrl = heroImageUrls.first;
+    }
+    heroSlideIntervalSeconds = heroSlideIntervalSeconds.clamp(2, 30).toInt();
 
     // Screens map
     final screensMap = <String, RemoteScreenConfig>{};
@@ -287,10 +324,14 @@ class AppRemoteConfig {
       primaryAccentColor: primaryAccent,
       backgroundColor: bg,
       cardRadius: radius,
+      headerStyle: headerStyle,
       isHeroVisible: heroVis,
       heroBadge: badge,
       heroHeadline: headline,
       heroSubtitle: subtitle,
+      heroImageUrl: heroImageUrl,
+      heroImageUrls: heroImageUrls,
+      heroSlideIntervalSeconds: heroSlideIntervalSeconds,
       screens: screensMap,
       templates: templatesList,
     );
@@ -330,12 +371,16 @@ class AppRemoteConfig {
             '#${primaryAccentColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
         'backgroundColor': backgroundColor,
         'cardRadius': cardRadius,
+        'headerStyle': headerStyle,
       },
       'heroSection': {
         'visible': isHeroVisible,
         'badge': heroBadge,
         'headline': heroHeadline,
         'subtitle': heroSubtitle,
+        'imageUrl': heroImageUrl,
+        'images': heroImageUrls,
+        'slideIntervalSeconds': heroSlideIntervalSeconds,
       },
       'navigation': screens.values.map((s) => s.toJson()).toList(),
       'templates': templates.map((t) => t.toJson()).toList(),
@@ -348,6 +393,15 @@ class AppRemoteConfig {
     final screen = screens[key];
     if (screen == null) return fallback;
     return screen.visibilityEnabled && screen.status != 'archived';
+  }
+
+  static List<String> _readStringList(Object? value) {
+    if (value is! List) return [];
+    return value
+        .whereType<String>()
+        .map((image) => image.trim())
+        .where((image) => image.isNotEmpty)
+        .toList();
   }
 }
 

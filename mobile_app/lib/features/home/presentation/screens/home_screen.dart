@@ -1,40 +1,36 @@
+import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/constants/app_colors.dart';
 import 'package:panchayat_post/core/localization/app_localizations.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
+import 'package:panchayat_post/core/models/app_remote_config.dart';
+import 'package:panchayat_post/core/services/app_config_service.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
+import 'package:panchayat_post/features/home/data/home_content_service.dart';
 
 /// Screen 09: Main Home Dashboard Screen
 ///
 /// Fully functional, pixel-perfect reproduction of approved Screen 09 reference:
 /// - Top Header: Panchayat Post logo, vertical divider, Good Morning greeting,
 ///   personalized user welcome, notification bell with red dot badge, and circular profile avatar.
-/// - Featured Festival Hero Banner: Light blue & cream gradient with authentic temple scenery,
-///   Gujarati Navratri poster preview ("શુભ નવરાત્રી" with dandiya dancers),
-///   bold typography, and "Explore Designs →" CTA.
+/// - Government announcement hero image configured by the admin.
 /// - Create Something New: Three visual cards with overlapping circular badge icons:
 ///   1. Festival Posters (Goddess Lakshmi artwork)
 ///   2. Panchayat Posts (Parliament / Panchayat building with tricolor)
 ///   3. AI Poster (Banyan tree sunrise landscape)
-/// - Popular Templates: Horizontal scrolling list of 4 authentic poster cards:
-///   1. Happy Diwali, 2. Vikas Amari Pratibaddhata, 3. Swachh Bharat, 4. Gram Sabha Meeting.
-/// - Upcoming Festivals: Carousel cards for Navratri (22 Oct), Diwali (12 Nov), and Bhai Beej (23 Nov)
-///   with interactive right-arrow carousel navigation.
+/// - Popular Templates and Upcoming Festivals: Loaded from the admin-backed explore API.
 /// - Bottom Village Silhouette: Warm cultural village watermark illustration.
 /// - Bottom Navigation Bar: Elevated curved bar with 5 items (Home active with lavender pill,
 ///   Festivals, Templates, My Designs, Profile).
 /// - Full interactive workflows: AI poster generation, category templates, template preview,
 ///   notifications bottom sheet, profile navigator, and logout dialog.
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({
-    super.key,
-    this.authService,
-    this.initialTabIndex = 0,
-  });
+  const HomeScreen({super.key, this.authService, this.initialTabIndex = 0});
 
   final AuthService? authService;
   final int initialTabIndex;
@@ -45,21 +41,40 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final AuthService _authService;
+  late final HomeContentService _homeContentService;
   UserProfile? _currentUser;
+  HomeExploreContent? _homeContent;
+  String? _homeContentError;
+  bool _isHomeContentLoading = true;
   late int _selectedNavIndex;
 
   final TextEditingController _aiPromptController = TextEditingController();
   final ScrollController _festivalScrollController = ScrollController();
   final ScrollController _templatesScrollController = ScrollController();
+  final PageController _heroPageController = PageController();
+  Timer? _heroSlideTimer;
+  String _heroCarouselSignature = '';
+  int _heroPageIndex = 0;
 
   int _unreadNotificationsCount = 2;
+
+  Color get _primaryColor => Theme.of(context).colorScheme.primary;
+  Color get _surfaceColor => Theme.of(context).colorScheme.surface;
 
   @override
   void initState() {
     super.initState();
     _authService = widget.authService ?? AuthService();
+    _homeContentService = HomeContentService(
+      sessionService: _authService.sessionService,
+    );
     _selectedNavIndex = widget.initialTabIndex;
+    AppConfigService.instance.configNotifier.addListener(
+      _handleHeroConfigChanged,
+    );
+    _handleHeroConfigChanged();
     _loadUserProfile();
+    _loadHomeContent();
   }
 
   @override
@@ -67,7 +82,44 @@ class _HomeScreenState extends State<HomeScreen> {
     _aiPromptController.dispose();
     _festivalScrollController.dispose();
     _templatesScrollController.dispose();
+    AppConfigService.instance.configNotifier.removeListener(
+      _handleHeroConfigChanged,
+    );
+    _heroSlideTimer?.cancel();
+    _heroPageController.dispose();
+    _homeContentService.dispose();
     super.dispose();
+  }
+
+  void _handleHeroConfigChanged() {
+    final config = AppConfigService.instance.configNotifier.value;
+    final images = config.heroImageUrls
+        .map((image) => image.trim())
+        .where((image) => image.isNotEmpty)
+        .toList();
+    final signature = '${config.heroSlideIntervalSeconds}:${images.join('|')}';
+    if (signature == _heroCarouselSignature) return;
+
+    _heroCarouselSignature = signature;
+    _heroSlideTimer?.cancel();
+    _heroPageIndex = 0;
+    if (_heroPageController.hasClients) {
+      _heroPageController.jumpToPage(0);
+    }
+
+    if (images.length < 2) return;
+    _heroSlideTimer = Timer.periodic(
+      Duration(seconds: config.heroSlideIntervalSeconds),
+      (_) {
+        if (!mounted || !_heroPageController.hasClients) return;
+        final nextPage = (_heroPageIndex + 1) % images.length;
+        _heroPageController.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 450),
+          curve: Curves.easeInOut,
+        );
+      },
+    );
   }
 
   Future<void> _loadUserProfile() async {
@@ -77,6 +129,61 @@ class _HomeScreenState extends State<HomeScreen> {
         _currentUser = user;
       });
     }
+  }
+
+  Future<void> _loadHomeContent() async {
+    setState(() {
+      _isHomeContentLoading = true;
+      _homeContentError = null;
+    });
+    try {
+      final content = await _homeContentService.load();
+      if (!mounted) return;
+      setState(() {
+        _homeContent = content;
+        _isHomeContentLoading = false;
+      });
+    } on HomeContentException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _homeContentError = error.message;
+        _isHomeContentLoading = false;
+      });
+    }
+  }
+
+  Widget _buildHomeContentMessage(String message, {bool showRetry = false}) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF64748B),
+              ),
+            ),
+            if (showRetry)
+              TextButton.icon(
+                onPressed: _loadHomeContent,
+                icon: const Icon(Icons.refresh_rounded, size: 15.0),
+                label: const Text('Retry'),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatFestivalDate(String value) {
+    final date = DateTime.tryParse(value);
+    if (date == null) return 'Date not set';
+    return MaterialLocalizations.of(context).formatShortDate(date.toLocal());
   }
 
   void _onNavTapped(int index) {
@@ -114,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: _surfaceColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
       ),
@@ -130,8 +237,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 Expanded(
                   child: Row(
                     children: [
-                      const Icon(Icons.notifications_active_rounded,
-                          color: Color(0xFF6D28D9), size: 24.0),
+                      Icon(
+                        Icons.notifications_active_rounded,
+                        color: _primaryColor,
+                        size: 24.0,
+                      ),
                       const SizedBox(width: 8.0),
                       Flexible(
                         child: Text(
@@ -153,26 +263,35 @@ class _HomeScreenState extends State<HomeScreen> {
                     setState(() => _unreadNotificationsCount = 0);
                     Navigator.of(ctx).pop();
                   },
-                  child: const Text('Mark all read',
-                      style: TextStyle(
-                          color: Color(0xFF6D28D9),
-                          fontWeight: FontWeight.w600)),
+                  child: Text(
+                    'Mark all read',
+                    style: TextStyle(
+                      color: _primaryColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ],
             ),
             const Divider(),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const CircleAvatar(
+              leading: CircleAvatar(
                 backgroundColor: Color(0xFFEDE9FE),
-                child: Icon(Icons.celebration_rounded, color: Color(0xFF6D28D9)),
+                child: Icon(Icons.celebration_rounded, color: _primaryColor),
               ),
-              title: const Text('નવરાત્રી સ્પેશિયલ પોસ્ટર ટેમ્પલેટ ઉપલબ્ધ છે!',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
-              subtitle: const Text('તમારા ગામ માટે સુંદર દાંડિયા રાસ પોસ્ટર બનાવો.',
-                  style: TextStyle(fontSize: 12.0)),
-              trailing: const Text('10m ago',
-                  style: TextStyle(fontSize: 11.0, color: Color(0xFF94A3B8))),
+              title: const Text(
+                'નવરાત્રી સ્પેશિયલ પોસ્ટર ટેમ્પલેટ ઉપલબ્ધ છે!',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
+              ),
+              subtitle: const Text(
+                'તમારા ગામ માટે સુંદર દાંડિયા રાસ પોસ્ટર બનાવો.',
+                style: TextStyle(fontSize: 12.0),
+              ),
+              trailing: const Text(
+                '10m ago',
+                style: TextStyle(fontSize: 11.0, color: Color(0xFF94A3B8)),
+              ),
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -180,12 +299,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 backgroundColor: Color(0xFFFEF3C7),
                 child: Icon(Icons.campaign_rounded, color: Color(0xFFD97706)),
               ),
-              title: const Text('ગ્રામ સભા મીટિંગ નોટિસ અપડેટ',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
-              subtitle: const Text('નવી ગ્રામ વિકાસ સભા માટે તૈયાર પોસ્ટર જુઓ.',
-                  style: TextStyle(fontSize: 12.0)),
-              trailing: const Text('2h ago',
-                  style: TextStyle(fontSize: 11.0, color: Color(0xFF94A3B8))),
+              title: const Text(
+                'ગ્રામ સભા મીટિંગ નોટિસ અપડેટ',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
+              ),
+              subtitle: const Text(
+                'નવી ગ્રામ વિકાસ સભા માટે તૈયાર પોસ્ટર જુઓ.',
+                style: TextStyle(fontSize: 12.0),
+              ),
+              trailing: const Text(
+                '2h ago',
+                style: TextStyle(fontSize: 11.0, color: Color(0xFF94A3B8)),
+              ),
             ),
             const SizedBox(height: 16.0),
           ],
@@ -198,7 +323,7 @@ class _HomeScreenState extends State<HomeScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: _surfaceColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
       ),
@@ -244,21 +369,31 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 10.0),
               Expanded(
-                child: GridView.count(
-                  controller: scrollController,
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12.0,
-                  mainAxisSpacing: 12.0,
-                  childAspectRatio: 0.85,
-                  children: [
-                    _buildTemplateGridItem('Happy Diwali', AppAssets.homeTemplateDiwali),
-                    _buildTemplateGridItem('Vikas Amari Pratibaddhata', AppAssets.homeTemplateVikas),
-                    _buildTemplateGridItem('Swachh Bharat', AppAssets.homeTemplateSwachh),
-                    _buildTemplateGridItem('Gram Sabha Meeting', AppAssets.homeTemplateGramSabha),
-                    _buildTemplateGridItem('Navratri Utsav', AppAssets.homeFestivalNavratri),
-                    _buildTemplateGridItem('Bhai Beej Mubarak', AppAssets.homeFestivalBhaiBeej),
-                  ],
-                ),
+                child: _isHomeContentLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _homeContentError != null
+                    ? _buildHomeContentMessage(
+                        _homeContentError!,
+                        showRetry: true,
+                      )
+                    : (_homeContent?.templates.isNotEmpty ?? false)
+                    ? GridView.builder(
+                        controller: scrollController,
+                        itemCount: _homeContent!.templates.length,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 12.0,
+                              mainAxisSpacing: 12.0,
+                              childAspectRatio: 0.85,
+                            ),
+                        itemBuilder: (context, index) => _buildTemplateGridItem(
+                          _homeContent!.templates[index],
+                        ),
+                      )
+                    : _buildHomeContentMessage(
+                        'No templates have been published by the admin yet.',
+                      ),
               ),
             ],
           ),
@@ -267,11 +402,19 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildTemplateGridItem(String title, String asset) {
+  Widget _buildTemplateGridItem(HomeContentTemplate template) {
+    final imageUrl = AppConfigService.instance.resolveMediaUrl(
+      template.imageUrl,
+    );
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pop();
-        _showTemplateEditorModal(context, title, asset);
+        _showTemplateEditorModal(
+          context,
+          template.title,
+          imageUrl,
+          useNetworkImage: true,
+        );
       },
       child: Container(
         decoration: BoxDecoration(
@@ -291,16 +434,22 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
-                child: Image.asset(
-                  asset,
+                child: Image.network(
+                  imageUrl,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => const Center(
+                    child: Icon(Icons.image_not_supported_outlined),
+                  ),
                 ),
               ),
               Container(
                 color: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8.0,
+                  vertical: 6.0,
+                ),
                 child: Text(
-                  title,
+                  template.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -317,7 +466,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showTemplateEditorModal(BuildContext context, String title, String asset) {
+  void _showTemplateEditorModal(
+    BuildContext context,
+    String title,
+    String asset, {
+    bool useNetworkImage = false,
+  }) {
     final nameController = TextEditingController(
       text: _currentUser?.effectiveDisplayName ?? 'Panchayat Post User',
     );
@@ -328,7 +482,7 @@ class _HomeScreenState extends State<HomeScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: _surfaceColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
       ),
@@ -368,11 +522,18 @@ class _HomeScreenState extends State<HomeScreen> {
             Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12.0),
-                child: Image.asset(
-                  asset,
-                  height: 140.0,
-                  fit: BoxFit.contain,
-                ),
+                child: useNetworkImage
+                    ? Image.network(
+                        asset,
+                        height: 140.0,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(
+                              Icons.image_not_supported_outlined,
+                              size: 48,
+                            ),
+                      )
+                    : Image.asset(asset, height: 140.0, fit: BoxFit.contain),
               ),
             ),
             const SizedBox(height: 12.0),
@@ -380,8 +541,13 @@ class _HomeScreenState extends State<HomeScreen> {
               controller: nameController,
               decoration: InputDecoration(
                 labelText: 'Your Name on Poster',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                  vertical: 10.0,
+                ),
               ),
             ),
             const SizedBox(height: 10.0),
@@ -389,8 +555,13 @@ class _HomeScreenState extends State<HomeScreen> {
               controller: villageController,
               decoration: InputDecoration(
                 labelText: 'Village / Designation',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                  vertical: 10.0,
+                ),
               ),
             ),
             const SizedBox(height: 14.0),
@@ -399,18 +570,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 Expanded(
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6D28D9),
+                      backgroundColor: _primaryColor,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
                       padding: const EdgeInsets.symmetric(vertical: 12.0),
                     ),
                     icon: const Icon(Icons.download_rounded, size: 18.0),
-                    label: const Text('Save Poster', style: TextStyle(fontWeight: FontWeight.w700)),
+                    label: const Text(
+                      'Save Poster',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
                     onPressed: () {
                       Navigator.of(ctx).pop();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Poster for "$title" saved successfully!'),
+                          content: Text(
+                            'Poster for "$title" saved successfully!',
+                          ),
                           backgroundColor: const Color(0xFF16A34A),
                         ),
                       );
@@ -421,18 +599,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 Expanded(
                   child: OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF6D28D9),
-                      side: const BorderSide(color: Color(0xFF6D28D9)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                      foregroundColor: _primaryColor,
+                      side: BorderSide(color: _primaryColor),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
                       padding: const EdgeInsets.symmetric(vertical: 12.0),
                     ),
                     icon: const Icon(Icons.share_rounded, size: 18.0),
-                    label: const Text('Share', style: TextStyle(fontWeight: FontWeight.w700)),
+                    label: const Text(
+                      'Share',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
                     onPressed: () {
                       Navigator.of(ctx).pop();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Sharing poster to WhatsApp & Social Media...'),
+                          content: Text(
+                            'Sharing poster to WhatsApp & Social Media...',
+                          ),
                           backgroundColor: Color(0xFF0055B8),
                         ),
                       );
@@ -451,7 +636,7 @@ class _HomeScreenState extends State<HomeScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: _surfaceColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
       ),
@@ -474,9 +659,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Color(0xFFEDE9FE),
                     shape: BoxShape.circle,
                   ),
-                  child: const Text('AI',
-                      style: TextStyle(
-                          color: Color(0xFF6D28D9), fontWeight: FontWeight.w900, fontSize: 13)),
+                  child: Text(
+                    'AI',
+                    style: TextStyle(
+                      color: _primaryColor,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 13,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 10.0),
                 const Expanded(
@@ -497,7 +687,10 @@ class _HomeScreenState extends State<HomeScreen> {
               maxLines: 3,
               decoration: InputDecoration(
                 hintText: 'દા.ત. નવરાત્રી માટે અમારા ગામ વતી શુભેચ્છા પાઠવતું સુંદર પોસ્ટર...',
-                hintStyle: const TextStyle(fontSize: 13.0, color: Color(0xFF94A3B8)),
+                hintStyle: const TextStyle(
+                  fontSize: 13.0,
+                  color: Color(0xFF94A3B8),
+                ),
                 filled: true,
                 fillColor: const Color(0xFFF8FAFC),
                 border: OutlineInputBorder(
@@ -509,7 +702,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 14.0),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6D28D9),
+                backgroundColor: _primaryColor,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14.0),
@@ -517,14 +710,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 13.0),
               ),
               icon: const Icon(Icons.auto_awesome_rounded, size: 18.0),
-              label: const Text('Generate Poster with AI',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
+              label: const Text(
+                'Generate Poster with AI',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
               onPressed: () {
                 Navigator.of(ctx).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('AI is generating your custom poster design...'),
-                    backgroundColor: Color(0xFF6D28D9),
+                  SnackBar(
+                    content: Text(
+                      'AI is generating your custom poster design...',
+                    ),
+                    backgroundColor: _primaryColor,
                     duration: Duration(seconds: 3),
                   ),
                 );
@@ -540,7 +737,7 @@ class _HomeScreenState extends State<HomeScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: _surfaceColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
       ),
@@ -552,7 +749,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.palette_outlined, color: Color(0xFF6D28D9)),
+                Icon(Icons.palette_outlined, color: _primaryColor),
                 const SizedBox(width: 8.0),
                 Expanded(
                   child: Text(
@@ -567,18 +764,36 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const SizedBox(height: 16.0),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(14.0),
-              child: Image.asset(
-                AppAssets.welcomeHeroPosters,
-                height: 150.0,
-                fit: BoxFit.contain,
+            if (_isHomeContentLoading)
+              const Padding(
+                padding: EdgeInsets.all(24.0),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (_homeContentError != null)
+              _buildHomeContentMessage(_homeContentError!, showRetry: true)
+            else if (_homeContent?.templates.isEmpty ?? true)
+              _buildHomeContentMessage(
+                'No templates have been published by the admin yet.',
+              )
+            else
+              SizedBox(
+                height: 250.0,
+                child: GridView.builder(
+                  itemCount: _homeContent!.templates.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10.0,
+                    mainAxisSpacing: 10.0,
+                    childAspectRatio: 0.85,
+                  ),
+                  itemBuilder: (context, index) =>
+                      _buildTemplateGridItem(_homeContent!.templates[index]),
+                ),
               ),
-            ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 12.0),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6D28D9),
+                backgroundColor: _primaryColor,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
@@ -589,7 +804,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.of(ctx).pop();
                 _showAllTemplatesLibrary(context);
               },
-              child: const Text('Browse All Designs', style: TextStyle(fontWeight: FontWeight.w700)),
+              child: const Text(
+                'Browse All Designs',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
             ),
           ],
         ),
@@ -602,7 +820,7 @@ class _HomeScreenState extends State<HomeScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: _surfaceColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
       ),
@@ -621,7 +839,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _currentUser?.displayName ?? _currentUser?.fullName ?? 'Rahul',
+                        _currentUser?.displayName ??
+                            _currentUser?.fullName ??
+                            'Rahul',
                         style: const TextStyle(
                           fontSize: 17.0,
                           fontWeight: FontWeight.w800,
@@ -643,20 +863,27 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 16.0),
             const Divider(),
             ListTile(
-              leading: const Icon(Icons.edit_note_rounded, color: Color(0xFF6D28D9)),
-              title: const Text('Edit Profile Details', style: TextStyle(fontWeight: FontWeight.w600)),
+              leading: Icon(Icons.edit_note_rounded, color: _primaryColor),
+              title: const Text(
+                'Edit Profile Details',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
               trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14.0),
               onTap: () {
                 Navigator.of(ctx).pop();
-                Navigator.of(context).pushNamed(
-                  AppRoutes.profileSetup,
-                  arguments: _currentUser,
-                );
+                Navigator.of(context)
+                    .pushNamed(AppRoutes.profileSetup, arguments: _currentUser);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.layers_rounded, color: Color(0xFF0055B8)),
-              title: const Text('Test All Screens (01–08)', style: TextStyle(fontWeight: FontWeight.w600)),
+              leading: const Icon(
+                Icons.layers_rounded,
+                color: Color(0xFF0055B8),
+              ),
+              title: const Text(
+                'Test All Screens (01–08)',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
               trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14.0),
               onTap: () {
                 Navigator.of(ctx).pop();
@@ -664,9 +891,17 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.logout_rounded, color: Color(0xFFDC2626)),
-              title: Text(strings.logoutDialogTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFFDC2626))),
+              leading: const Icon(
+                Icons.logout_rounded,
+                color: Color(0xFFDC2626),
+              ),
+              title: Text(
+                strings.logoutDialogTitle,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFFDC2626),
+                ),
+              ),
               trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14.0),
               onTap: () {
                 Navigator.of(ctx).pop();
@@ -684,7 +919,7 @@ class _HomeScreenState extends State<HomeScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: _surfaceColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
       ),
@@ -705,20 +940,64 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 12.0),
             _buildNavTile(ctx, 'Screen 01: Splash Screen', AppRoutes.splash),
             _buildNavTile(ctx, 'Screen 02: Welcome Screen', AppRoutes.welcome),
-            _buildNavTile(ctx, 'Screen 03: Create Account', AppRoutes.createAccount),
+            _buildNavTile(
+              ctx,
+              'Screen 03: Create Account',
+              AppRoutes.createAccount,
+            ),
             _buildNavTile(ctx, 'Screen 04: User Login', AppRoutes.login),
-            _buildNavTile(ctx, 'Screen 05: Forgot Password', AppRoutes.forgotPassword),
-            _buildNavTile(ctx, 'Screen 06: Recovery Status', AppRoutes.recoveryStatus),
-            _buildNavTile(ctx, 'Screen 07: Profile Setup', AppRoutes.profileSetup),
-            _buildNavTile(ctx, 'Screen 08: Onboarding Confirmation', AppRoutes.onboardingConfirmation),
+            _buildNavTile(
+              ctx,
+              'Screen 05: Forgot Password',
+              AppRoutes.forgotPassword,
+            ),
+            _buildNavTile(
+              ctx,
+              'Screen 06: Recovery Status',
+              AppRoutes.recoveryStatus,
+            ),
+            _buildNavTile(
+              ctx,
+              'Screen 07: Profile Setup',
+              AppRoutes.profileSetup,
+            ),
+            _buildNavTile(
+              ctx,
+              'Screen 08: Onboarding Confirmation',
+              AppRoutes.onboardingConfirmation,
+            ),
             _buildNavTile(ctx, 'Screen 09: Home Dashboard', AppRoutes.home),
-            _buildNavTile(ctx, 'Screen 10: Festival Listing', AppRoutes.festivals),
-            _buildNavTile(ctx, 'Screen 11: Festival Details', AppRoutes.festivalDetail),
-            _buildNavTile(ctx, 'Screen 12: Poster Editor Studio', AppRoutes.posterEditor),
-            _buildNavTile(ctx, 'Screen 13: Final Poster Preview & Share', AppRoutes.posterPreview),
-            _buildNavTile(ctx, 'Screen 14: My Designs Library', AppRoutes.myDesigns),
+            _buildNavTile(
+              ctx,
+              'Screen 10: Festival Listing',
+              AppRoutes.festivals,
+            ),
+            _buildNavTile(
+              ctx,
+              'Screen 11: Festival Details',
+              AppRoutes.festivalDetail,
+            ),
+            _buildNavTile(
+              ctx,
+              'Screen 12: Poster Editor Studio',
+              AppRoutes.posterEditor,
+            ),
+            _buildNavTile(
+              ctx,
+              'Screen 13: Final Poster Preview & Share',
+              AppRoutes.posterPreview,
+            ),
+            _buildNavTile(
+              ctx,
+              'Screen 14: My Designs Library',
+              AppRoutes.myDesigns,
+            ),
             _buildNavTile(ctx, 'Screen 15: User Profile', AppRoutes.profile),
-            _buildNavTile(ctx, 'Screen 16: Settings & Preferences', AppRoutes.settings),
+            _buildNavTile(
+              ctx,
+              'Screen 16: Settings & Preferences',
+              AppRoutes.settings,
+            ),
             const SizedBox(height: 10.0),
           ],
         ),
@@ -730,8 +1009,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
-      leading: const Icon(Icons.circle, size: 8.0, color: Color(0xFF6D28D9)),
-      title: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
+      leading: Icon(Icons.circle, size: 8.0, color: _primaryColor),
+      title: Text(
+        label,
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5),
+      ),
       trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 13.0),
       onTap: () {
         Navigator.of(ctx).pop();
@@ -745,10 +1027,16 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
         title: Row(
           children: [
-            const Icon(Icons.logout_rounded, color: Color(0xFFDC2626), size: 24.0),
+            const Icon(
+              Icons.logout_rounded,
+              color: Color(0xFFDC2626),
+              size: 24.0,
+            ),
             const SizedBox(width: 10.0),
             Text(
               strings.logoutDialogTitle,
@@ -791,10 +1079,8 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.of(ctx).pop();
               await _authService.sessionService.clearSession();
               if (!context.mounted) return;
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                AppRoutes.welcome,
-                (route) => false,
-              );
+              Navigator.of(context)
+                  .pushNamedAndRemoveUntil(AppRoutes.welcome, (route) => false);
             },
             child: Text(
               strings.logoutConfirmButton,
@@ -840,10 +1126,7 @@ class _HomeScreenState extends State<HomeScreen> {
               offset: const Offset(0, 1),
             ),
           ],
-          image: DecorationImage(
-            image: avatarProvider,
-            fit: BoxFit.cover,
-          ),
+          image: DecorationImage(image: avatarProvider, fit: BoxFit.cover),
         ),
       ),
     );
@@ -852,19 +1135,50 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final strings = LocaleScope.of(context).strings;
-    final userName = (_currentUser?.effectiveDisplayName != null &&
+    final appTheme = Theme.of(context);
+    final primaryColor = appTheme.colorScheme.primary;
+    final headerStyle = AppConfigService.instance.config.headerStyle;
+    final brandedHeader = headerStyle != 'white';
+    final headerRadius = AppConfigService.instance.config.cardRadius == '4px'
+        ? 4.0
+        : AppConfigService.instance.config.cardRadius == '8px'
+        ? 8.0
+        : 14.0;
+    final userName =
+        (_currentUser?.effectiveDisplayName != null &&
             _currentUser!.effectiveDisplayName.isNotEmpty)
         ? _currentUser!.effectiveDisplayName.split(' ').first
         : 'Rahul';
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: appTheme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
             // A. Top Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            Container(
+              margin: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12.0,
+                vertical: 8.0,
+              ),
+              decoration: BoxDecoration(
+                color: headerStyle == 'white'
+                    ? appTheme.colorScheme.surface
+                    : null,
+                gradient: headerStyle == 'gradient'
+                    ? LinearGradient(
+                        colors: [
+                          primaryColor,
+                          primaryColor.withValues(alpha: 0.78),
+                        ],
+                      )
+                    : null,
+                borderRadius: BorderRadius.circular(headerRadius),
+              ),
               child: Row(
                 children: [
                   // Panchayat Post Logo
@@ -874,7 +1188,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(width: 6.0),
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -883,7 +1197,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(
                           fontSize: 13.0,
                           fontWeight: FontWeight.w900,
-                          color: AppColors.textNavy,
+                          color: brandedHeader
+                              ? Colors.white
+                              : appTheme.colorScheme.onSurface,
                           height: 1.1,
                         ),
                       ),
@@ -892,7 +1208,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(
                           fontSize: 13.0,
                           fontWeight: FontWeight.w900,
-                          color: AppColors.primaryBlue,
+                          color: brandedHeader ? Colors.white : primaryColor,
                           height: 1.1,
                         ),
                       ),
@@ -915,10 +1231,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Text(
                           strings.goodMorningGreeting,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w500,
-                            color: Color(0xFF64748B),
+                            color: brandedHeader
+                                ? Colors.white.withValues(alpha: 0.8)
+                                : appTheme.colorScheme.onSurfaceVariant,
                             height: 1.1,
                           ),
                         ),
@@ -926,10 +1244,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           '${strings.welcomeUserPrefix}$userName',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14.5,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.textNavy,
+                            color: brandedHeader
+                                ? Colors.white
+                                : appTheme.colorScheme.onSurface,
                             height: 1.2,
                           ),
                         ),
@@ -945,10 +1265,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Stack(
                         clipBehavior: Clip.none,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.notifications_none_rounded,
                             size: 25.0,
-                            color: Color(0xFF1E293B),
+                            color: brandedHeader
+                                ? Colors.white
+                                : appTheme.colorScheme.onSurface,
                           ),
                           if (_unreadNotificationsCount > 0)
                             Positioned(
@@ -984,7 +1306,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // B. Featured Festival Hero Banner
-                    _buildFeaturedHeroBanner(strings),
+                    _buildFeaturedHeroBanner(),
                     const SizedBox(height: 16.0),
 
                     // C. Create Something New
@@ -1025,163 +1347,87 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // --- Sections ---
 
-  Widget _buildFeaturedHeroBanner(AppStrings strings) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0),
-      height: 200.0,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22.0),
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFFE0E7FF),
-            Color(0xFFEDE9FE),
-            Color(0xFFFEF3C7),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF6D28D9).withValues(alpha: 0.10),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          // Background right-side temple and Navratri artwork
-          Positioned(
-            right: 0,
-            top: 0,
-            bottom: 0,
-            width: 220.0,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topRight: Radius.circular(22.0),
-                bottomRight: Radius.circular(22.0),
-              ),
-              child: Image.asset(
-                AppAssets.homeHeroBannerArt,
-                fit: BoxFit.cover,
-                alignment: Alignment.centerLeft,
-              ),
-            ),
-          ),
+  Widget _buildFeaturedHeroBanner() {
+    return ValueListenableBuilder<AppRemoteConfig>(
+      valueListenable: AppConfigService.instance.configNotifier,
+      builder: (context, config, child) {
+        if (!config.isHeroVisible) return const SizedBox.shrink();
 
-          // Purple bottom decorative fluid wave accent
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: 14.0,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    const Color(0xFF6D28D9).withValues(alpha: 0.85),
-                    const Color(0xFF8B5CF6).withValues(alpha: 0.85),
-                    const Color(0xFFA855F7).withValues(alpha: 0.65),
-                  ],
+        final primaryColor = Theme.of(context).colorScheme.primary;
+        final heroImageUrls = config.heroImageUrls
+            .map((image) => image.trim())
+            .where((image) => image.isNotEmpty)
+            .toList();
+        if (heroImageUrls.isEmpty) return const SizedBox.shrink();
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16.0),
+          height: 200.0,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22.0),
+            boxShadow: [
+              BoxShadow(
+                color: primaryColor.withValues(alpha: 0.12),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              PageView.builder(
+                controller: _heroPageController,
+                itemCount: heroImageUrls.length,
+                onPageChanged: (index) {
+                  if (!mounted || _heroPageIndex == index) return;
+                  setState(() => _heroPageIndex = index);
+                },
+                itemBuilder: (context, index) => Image.network(
+                  AppConfigService.instance.resolveMediaUrl(
+                    heroImageUrls[index],
+                  ),
+                  width: double.infinity,
+                  height: 200.0,
+                  fit: BoxFit.cover,
+                  semanticLabel: 'Government announcement',
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: Theme.of(context).colorScheme.surface,
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.image_not_supported_outlined,
+                      color: primaryColor,
+                      size: 36.0,
+                    ),
+                  ),
                 ),
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(22.0)),
               ),
-            ),
-          ),
-
-          // Left Content
-          Positioned(
-            left: 18.0,
-            top: 14.0,
-            bottom: 14.0,
-            width: 200.0,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: SizedBox(
-                width: 200.0,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      strings.heroBannerCreate,
-                      style: const TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textNavy,
-                        letterSpacing: -0.2,
-                      ),
+              if (heroImageUrls.length > 1)
+                Positioned(
+                  right: 12.0,
+                  bottom: 12.0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10.0,
+                      vertical: 5.0,
                     ),
-                    Text(
-                      strings.heroBannerFestival,
-                      style: const TextStyle(
-                        fontSize: 22.0,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF581C87),
-                        height: 1.15,
-                        letterSpacing: -0.4,
-                      ),
-                    ),
-                    const SizedBox(height: 6.0),
-                    Text(
-                      strings.heroBannerSubtitle,
-                      maxLines: 2,
-                      style: const TextStyle(
-                        fontSize: 11.5,
-                        color: Color(0xFF475569),
-                        fontWeight: FontWeight.w500,
-                        height: 1.35,
-                      ),
-                    ),
-                    const SizedBox(height: 12.0),
-                    InkWell(
-                      onTap: () => _showTemplatesModal(context, 'Festival'),
+                    decoration: BoxDecoration(
+                      color: Colors.black54,
                       borderRadius: BorderRadius.circular(20.0),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF581C87),
-                          borderRadius: BorderRadius.circular(20.0),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF581C87).withValues(alpha: 0.35),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                strings.heroBannerButton,
-                                style: const TextStyle(
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(width: 4.0),
-                              const Icon(
-                                Icons.arrow_forward_rounded,
-                                size: 13.0,
-                                color: Colors.white,
-                              ),
-                            ],
-                          ),
-                        ),
+                    ),
+                    child: Text(
+                      '${_heroPageIndex + 1}/${heroImageUrls.length}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11.0,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -1230,8 +1476,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: _buildCreateCard(
                   title: strings.cardFestivalPosters,
                   imageAsset: AppAssets.homeCreateFestival,
-                  badgeWidget: const Icon(Icons.calendar_month_rounded,
-                      size: 14.0, color: Color(0xFF6D28D9)),
+                  badgeWidget: Icon(
+                    Icons.calendar_month_rounded,
+                    size: 14.0,
+                    color: _primaryColor,
+                  ),
                   onTap: () => _showTemplatesModal(context, 'Festival'),
                 ),
               ),
@@ -1242,8 +1491,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: _buildCreateCard(
                   title: strings.cardPanchayatPosts,
                   imageAsset: AppAssets.homeCreatePanchayat,
-                  badgeWidget: const Icon(Icons.campaign_rounded,
-                      size: 14.0, color: Color(0xFF6D28D9)),
+                  badgeWidget: Icon(
+                    Icons.campaign_rounded,
+                    size: 14.0,
+                    color: _primaryColor,
+                  ),
                   onTap: () => _showTemplatesModal(context, 'Panchayat'),
                 ),
               ),
@@ -1254,12 +1506,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: _buildCreateCard(
                   title: strings.cardAiPoster,
                   imageAsset: AppAssets.homeCreateAi,
-                  badgeWidget: const Text(
+                  badgeWidget: Text(
                     'AI',
                     style: TextStyle(
                       fontSize: 10.0,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFF6D28D9),
+                      color: _primaryColor,
                     ),
                   ),
                   onTap: () => _showAiPosterModal(context),
@@ -1302,7 +1554,9 @@ class _HomeScreenState extends State<HomeScreen> {
               clipBehavior: Clip.none,
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16.0),
+                  ),
                   child: Image.asset(
                     imageAsset,
                     height: 82.0,
@@ -1354,10 +1608,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.arrow_forward_rounded,
                     size: 14.0,
-                    color: Color(0xFF6D28D9),
+                    color: _primaryColor,
                   ),
                 ],
               ),
@@ -1369,6 +1623,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildPopularTemplatesSection(AppStrings strings) {
+    final templates = _homeContent?.templates ?? const <HomeContentTemplate>[];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1381,7 +1636,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: 4.0,
                 height: 17.0,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF7C3AED),
+                  color: _primaryColor,
                   borderRadius: BorderRadius.circular(2.0),
                 ),
               ),
@@ -1403,17 +1658,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Text(
                       strings.seeAllAction,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13.0,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF6D28D9),
+                        color: _primaryColor,
                       ),
                     ),
                     const SizedBox(width: 2.0),
-                    const Icon(
+                    Icon(
                       Icons.arrow_forward_rounded,
                       size: 13.0,
-                      color: Color(0xFF6D28D9),
+                      color: _primaryColor,
                     ),
                   ],
                 ),
@@ -1426,44 +1681,41 @@ class _HomeScreenState extends State<HomeScreen> {
         // 4 Horizontal Template Cards
         SizedBox(
           height: 122.0,
-          child: ListView(
-            controller: _templatesScrollController,
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            physics: const BouncingScrollPhysics(),
-            children: [
-              _buildTemplateCard(
-                title: 'Happy Diwali',
-                asset: AppAssets.homeTemplateDiwali,
-              ),
-              const SizedBox(width: 10.0),
-              _buildTemplateCard(
-                title: 'વિકાસ અમારી પ્રતિબદ્ધતા',
-                asset: AppAssets.homeTemplateVikas,
-              ),
-              const SizedBox(width: 10.0),
-              _buildTemplateCard(
-                title: 'સ્વચ્છ ભારત',
-                asset: AppAssets.homeTemplateSwachh,
-              ),
-              const SizedBox(width: 10.0),
-              _buildTemplateCard(
-                title: 'Gram Sabha Meeting',
-                asset: AppAssets.homeTemplateGramSabha,
-              ),
-            ],
-          ),
+          child: _isHomeContentLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _homeContentError != null
+              ? _buildHomeContentMessage(_homeContentError!, showRetry: true)
+              : templates.isEmpty
+              ? _buildHomeContentMessage(
+                  'No templates have been published by the admin yet.',
+                )
+              : ListView.separated(
+                  controller: _templatesScrollController,
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: templates.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 10.0),
+                  itemBuilder: (context, index) =>
+                      _buildTemplateCard(templates[index]),
+                ),
         ),
       ],
     );
   }
 
-  Widget _buildTemplateCard({
-    required String title,
-    required String asset,
-  }) {
+  Widget _buildTemplateCard(HomeContentTemplate template) {
+    final imageUrl = AppConfigService.instance.resolveMediaUrl(
+      template.imageUrl,
+    );
     return GestureDetector(
-      onTap: () => _showTemplateEditorModal(context, title, asset),
+      onTap: () => _showTemplateEditorModal(
+        context,
+        template.title,
+        imageUrl,
+        useNetworkImage: true,
+      ),
       child: Container(
         width: 104.0,
         decoration: BoxDecoration(
@@ -1478,9 +1730,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(14.0),
-          child: Image.asset(
-            asset,
+          child: Image.network(
+            imageUrl,
             fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+                const Center(child: Icon(Icons.image_not_supported_outlined)),
           ),
         ),
       ),
@@ -1488,6 +1742,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildUpcomingFestivalsSection(AppStrings strings) {
+    final festivals = _homeContent?.festivals ?? const <HomeContentFestival>[];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1530,25 +1785,42 @@ class _HomeScreenState extends State<HomeScreen> {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.only(left: 16.0, right: 36.0),
                 physics: const BouncingScrollPhysics(),
-                children: [
-                  _buildFestivalCard(
-                    name: strings.festivalNavratri,
-                    date: strings.navratriDate,
-                    asset: AppAssets.homeFestivalNavratri,
-                  ),
-                  const SizedBox(width: 10.0),
-                  _buildFestivalCard(
-                    name: strings.festivalDiwali,
-                    date: strings.diwaliDate,
-                    asset: AppAssets.homeFestivalDiwali,
-                  ),
-                  const SizedBox(width: 10.0),
-                  _buildFestivalCard(
-                    name: strings.festivalBhaiBeej,
-                    date: strings.bhaiBeejDate,
-                    asset: AppAssets.homeFestivalBhaiBeej,
-                  ),
-                ],
+                children: _isHomeContentLoading
+                    ? [
+                        const SizedBox(
+                          width: 250.0,
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                      ]
+                    : _homeContentError != null
+                    ? [
+                        SizedBox(
+                          width: 250.0,
+                          child: _buildHomeContentMessage(
+                            _homeContentError!,
+                            showRetry: true,
+                          ),
+                        ),
+                      ]
+                    : festivals.isEmpty
+                    ? [
+                        SizedBox(
+                          width: 250.0,
+                          child: _buildHomeContentMessage(
+                            'No upcoming festivals have been published by the admin yet.',
+                          ),
+                        ),
+                      ]
+                    : [
+                        for (
+                          var index = 0;
+                          index < festivals.length;
+                          index++
+                        ) ...[
+                          if (index > 0) const SizedBox(width: 10.0),
+                          _buildFestivalCard(festivals[index]),
+                        ],
+                      ],
               ),
 
               // Floating Right Chevron Scroll Button
@@ -1580,10 +1852,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       alignment: Alignment.center,
-                      child: const Icon(
+                      child: Icon(
                         Icons.chevron_right_rounded,
                         size: 20.0,
-                        color: Color(0xFF6D28D9),
+                        color: _primaryColor,
                       ),
                     ),
                   ),
@@ -1596,13 +1868,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildFestivalCard({
-    required String name,
-    required String date,
-    required String asset,
-  }) {
+  Widget _buildFestivalCard(HomeContentFestival festival) {
     return GestureDetector(
-      onTap: () => _showTemplatesModal(context, name),
+      onTap: () => _showTemplatesModal(context, festival.title),
       child: Container(
         width: 130.0,
         decoration: BoxDecoration(
@@ -1620,18 +1888,29 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
-              child: Image.asset(
-                asset,
-                height: 60.0,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+            SizedBox(
+              height: 60.0,
+              width: double.infinity,
+              child: festival.imageUrl == null
+                  ? const ColoredBox(
+                      color: Color(0xFFEFF6FF),
+                      child: Icon(Icons.celebration_outlined),
+                    )
+                  : Image.network(
+                      AppConfigService.instance.resolveMediaUrl(
+                        festival.imageUrl!,
+                      ),
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const ColoredBox(
+                            color: Color(0xFFEFF6FF),
+                            child: Icon(Icons.celebration_outlined),
+                          ),
+                    ),
             ),
             const SizedBox(height: 6.0),
             Text(
-              name,
+              festival.title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
@@ -1651,7 +1930,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(width: 4.0),
                 Text(
-                  date,
+                  _formatFestivalDate(festival.date),
                   style: const TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w600,
@@ -1730,7 +2009,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required IconData icon,
   }) {
     final isSelected = _selectedNavIndex == index;
-    final color = isSelected ? const Color(0xFF6D28D9) : const Color(0xFF64748B);
+    final color = isSelected ? _primaryColor : const Color(0xFF64748B);
 
     return InkWell(
       onTap: () => _onNavTapped(index),
@@ -1746,11 +2025,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 22.0,
-              color: color,
-            ),
+            Icon(icon, size: 22.0, color: color),
             const SizedBox(height: 2.0),
             FittedBox(
               fit: BoxFit.scaleDown,
