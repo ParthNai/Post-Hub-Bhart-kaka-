@@ -496,6 +496,20 @@ class AppStrings {
     required this.transparentLabel,
     required this.exportPosterButton,
     required this.originalPosterNote,
+    // Screen 21: Export Success & Download History
+    required this.myDownloadsTitle,
+    required this.myDownloadsSubtitle,
+    required this.posterExportedSuccessfully,
+    required this.posterReadyToUse,
+    required this.viewPosterButton,
+    required this.exportAgainButton,
+    required this.recentDownloadsTitle,
+    required this.filterAllLabel,
+    required this.deleteDownloadTitle,
+    required this.deleteDownloadConfirm,
+    required this.noDownloadsYet,
+    required this.noDownloadsSubtitle,
+    required this.createPosterButton,
   });
 
   final String languageName;
@@ -1005,6 +1019,21 @@ class AppStrings {
   final String exportPosterButton;
   final String originalPosterNote;
 
+  // Screen 21 Strings
+  final String myDownloadsTitle;
+  final String myDownloadsSubtitle;
+  final String posterExportedSuccessfully;
+  final String posterReadyToUse;
+  final String viewPosterButton;
+  final String exportAgainButton;
+  final String recentDownloadsTitle;
+  final String filterAllLabel;
+  final String deleteDownloadTitle;
+  final String deleteDownloadConfirm;
+  final String noDownloadsYet;
+  final String noDownloadsSubtitle;
+  final String createPosterButton;
+
   static const String defaultLanguageCode = 'gu';
 
   static final Map<String, AppStrings> _localizedValues = {
@@ -1502,6 +1531,20 @@ class AppStrings {
       transparentLabel: 'પારદર્શક',
       exportPosterButton: 'પોસ્ટર એક્સપોર્ટ કરો',
       originalPosterNote: 'તમારું મૂળ એડિટેબલ પોસ્ટર સુરક્ષિત રહેશે.',
+      // Screen 21
+      myDownloadsTitle: 'મારા ડાઉનલોડ્સ',
+      myDownloadsSubtitle: 'તમારા એક્સપોર્ટ કરેલા પોસ્ટર્સ એક જ જગ્યાએ',
+      posterExportedSuccessfully: 'પોસ્ટર સફળતાપૂર્વક એક્સપોર્ટ થયું!',
+      posterReadyToUse: 'તમારું પોસ્ટર વાપરવા અને શેર કરવા માટે તૈયાર છે.',
+      viewPosterButton: 'પોસ્ટર જુઓ',
+      exportAgainButton: 'ફરીથી એક્સપોર્ટ કરો',
+      recentDownloadsTitle: 'તાજેતરના ડાઉનલોડ્સ',
+      filterAllLabel: 'બધા',
+      deleteDownloadTitle: 'ડાઉનલોડ ડિલીટ કરો',
+      deleteDownloadConfirm: 'શું તમે ખરેખર આ ડાઉનલોડ કરેલ પોસ્ટર ડિલીટ કરવા માંગો છો?',
+      noDownloadsYet: 'હજુ સુધી કોઈ ડાઉનલોડ નથી',
+      noDownloadsSubtitle: 'તમારા એક્સપોર્ટ કરેલા પોસ્ટર્સ અહીં દેખાશે.',
+      createPosterButton: 'પોસ્ટર બનાવો',
     ),
     'hi': AppStrings(
       languageName: 'हिंदी',
@@ -1997,6 +2040,20 @@ class AppStrings {
       transparentLabel: 'पारदर्शी',
       exportPosterButton: 'पोस्टर निर्यात करें',
       originalPosterNote: 'आपका मूल संपादन योग्य पोस्टर सुरक्षित रहेगा।',
+      // Screen 21
+      myDownloadsTitle: 'मेरे डाउनलोड',
+      myDownloadsSubtitle: 'आपके निर्यात किए गए पोस्टर एक ही जगह',
+      posterExportedSuccessfully: 'पोस्टर सफलतापूर्वक निर्यात किया गया!',
+      posterReadyToUse: 'आपका पोस्टर उपयोग और साझा करने के लिए तैयार है।',
+      viewPosterButton: 'पोस्टर देखें',
+      exportAgainButton: 'पुनः निर्यात करें',
+      recentDownloadsTitle: 'हाल के डाउनलोड',
+      filterAllLabel: 'सभी',
+      deleteDownloadTitle: 'डाउनलोड हटाएं',
+      deleteDownloadConfirm: 'क्या आप वाकई इस डाउनलोड किए गए पोस्टर को हटाना चाहते हैं?',
+      noDownloadsYet: 'अभी तक कोई डाउनलोड नहीं',
+      noDownloadsSubtitle: 'आपके निर्यात किए गए पोस्टर यहां दिखाई देंगे।',
+      createPosterButton: 'पोस्टर बनाएं',
     ),
     'en': AppStrings(
       languageName: 'English',
@@ -2492,6 +2549,20 @@ class AppStrings {
       transparentLabel: 'Transparent',
       exportPosterButton: 'Export Poster',
       originalPosterNote: 'Your original editable poster will remain saved.',
+      // Screen 21
+      myDownloadsTitle: 'My Downloads',
+      myDownloadsSubtitle: 'Your exported posters in one place',
+      posterExportedSuccessfully: 'Poster Exported Successfully!',
+      posterReadyToUse: 'Your poster is ready to use and share.',
+      viewPosterButton: 'View Poster',
+      exportAgainButton: 'Export Again',
+      recentDownloadsTitle: 'Recent Downloads',
+      filterAllLabel: 'All',
+      deleteDownloadTitle: 'Delete Download',
+      deleteDownloadConfirm: 'Are you sure you want to delete this downloaded poster?',
+      noDownloadsYet: 'No Downloads Yet',
+      noDownloadsSubtitle: 'Your exported posters will appear here.',
+      createPosterButton: 'Create Poster',
     ),
   };
 

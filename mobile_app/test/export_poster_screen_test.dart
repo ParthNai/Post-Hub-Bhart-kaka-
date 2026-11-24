@@ -6,6 +6,7 @@ import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/features/editor/data/services/poster_export_service.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
 import 'package:panchayat_post/features/editor/presentation/screens/export_poster_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _MockExportService extends PosterExportService {
   @override
@@ -47,6 +48,10 @@ Widget _buildTestApp({
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
 
   group('Screen 20: Export Poster Screen UI & Functionality Tests', () {
     testWidgets('renders all visual sections and defaults accurately',

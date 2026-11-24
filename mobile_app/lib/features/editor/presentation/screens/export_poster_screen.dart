@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/localization/app_localizations.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
+import 'package:panchayat_post/core/routes/app_routes.dart';
+import 'package:panchayat_post/features/editor/data/services/download_history_service.dart';
 import 'package:panchayat_post/features/editor/data/services/poster_export_service.dart';
+import 'package:panchayat_post/features/editor/domain/models/download_history_record.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
 
 /// Screen 20: Export Poster — Format, Resolution & Download Settings
@@ -215,6 +218,26 @@ class _ExportPosterScreenState extends State<ExportPosterScreen> {
 
       final size = bytes.length;
 
+      final record = DownloadHistoryRecord(
+        id: filename,
+        posterId: _project.id,
+        title: _project.title,
+        filePath: file.path,
+        format: extension.toUpperCase(),
+        width: _canvasWidth,
+        height: _canvasHeight,
+        fileSizeBytes: size,
+        exportedAt: DateTime.now(),
+        thumbnailAsset: _project.previewAsset ?? AppAssets.editorCanvasRepublicDay,
+        category: _project.category,
+      );
+
+      try {
+        await DownloadHistoryService()
+            .addRecord(record)
+            .timeout(const Duration(seconds: 2));
+      } catch (_) {}
+
       if (!mounted) return;
       setState(() {
         _isExporting = false;
@@ -222,7 +245,7 @@ class _ExportPosterScreenState extends State<ExportPosterScreen> {
         _exportedFileSize = size;
       });
 
-      _showExportSuccessSheet(file, size, extension.toUpperCase());
+      _showExportSuccessSheet(file, size, extension.toUpperCase(), record, bytes);
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -237,7 +260,13 @@ class _ExportPosterScreenState extends State<ExportPosterScreen> {
     }
   }
 
-  void _showExportSuccessSheet(File file, int sizeBytes, String formatLabel) {
+  void _showExportSuccessSheet(
+    File file,
+    int sizeBytes,
+    String formatLabel,
+    DownloadHistoryRecord record,
+    Uint8List bytes,
+  ) {
     final sizeMb = (sizeBytes / (1024 * 1024)).toStringAsFixed(2);
     final sizeKb = (sizeBytes / 1024).toStringAsFixed(1);
     final sizeDisplay = sizeBytes > 1024 * 1024 ? '$sizeMb MB' : '$sizeKb KB';
@@ -322,6 +351,35 @@ class _ExportPosterScreenState extends State<ExportPosterScreen> {
               ),
               onPressed: () {
                 _exportService.sharePosterFile(file: file);
+              },
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton.icon(
+              key: const Key('btn_view_my_downloads'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF6C5CE7),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                elevation: 0,
+              ),
+              icon: const Icon(Icons.folder_open_rounded, size: 20),
+              label: const Text(
+                'View in My Downloads',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                Navigator.of(context).pushNamed(
+                  AppRoutes.exportSuccess,
+                  arguments: ExportResult(
+                    record: record,
+                    originalProject: _project,
+                    fileBytes: bytes,
+                  ),
+                );
               },
             ),
             const SizedBox(height: 10),

@@ -131,4 +131,10 @@ class AppAssets {
   static const String frameFestiveGold = 'assets/images/frame_festive_gold.png';
   static const String frameTricolorLeader = 'assets/images/frame_tricolor_leader.png';
   static const String framePanchayatVip = 'assets/images/frame_panchayat_vip.png';
+
+  /// Approved UI reference for Screen 20 Export Poster.
+  static const String screen20Reference = 'assets/images/screen_20_reference.jpg';
+
+  /// Approved UI reference for Screen 21 Export Success & Download History.
+  static const String screen21Reference = 'assets/images/screen_21_reference.jpg';
 }
