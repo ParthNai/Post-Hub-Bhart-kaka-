@@ -120,7 +120,13 @@ class AppConfigService {
     }
 
     // Only start background polling timer outside of unit tests to prevent pumpAndSettle timeouts
-    if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+    bool isTest = false;
+    if (!kIsWeb) {
+      try {
+        isTest = Platform.environment.containsKey('FLUTTER_TEST');
+      } catch (_) {}
+    }
+    if (!isTest) {
       _pollTimer ??= Timer.periodic(const Duration(seconds: 15), (_) {
         unawaited(refreshConfig());
       });

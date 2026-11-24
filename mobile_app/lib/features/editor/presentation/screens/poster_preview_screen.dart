@@ -125,7 +125,7 @@ class _PosterPreviewScreenState extends State<PosterPreviewScreen> {
       setState(() => _isDownloading = false);
 
       if (file != null) {
-        final filename = file.path.split(Platform.pathSeparator).last;
+        final filename = file.path.split(RegExp(r'[/\\]')).last;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
