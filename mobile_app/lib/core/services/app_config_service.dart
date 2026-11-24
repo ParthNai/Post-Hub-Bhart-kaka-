@@ -37,24 +37,32 @@ class AppConfigService {
   String? get syncError => _syncError;
 
   /// Candidate server base URLs to test in order of network priority
-  static const List<String> candidateUrls = [
-    'http://192.168.1.8:3000', // Wi-Fi LAN host IP (physical phone on same network)
-    'http://127.0.0.1:3000',   // Physical device via adb reverse
-    'http://10.0.2.2:3000',    // Android Emulator loopback
-    'http://localhost:3000',   // Web & Desktop
-  ];
+  List<String> get candidateUrls {
+    if (kIsWeb) {
+      return const [
+        'http://127.0.0.1:3000',
+        'http://localhost:3000',
+      ];
+    }
+    return const [
+      'http://127.0.0.1:3000',
+      'http://192.168.1.8:3000',
+      'http://10.0.2.2:3000',
+      'http://localhost:3000',
+    ];
+  }
 
   /// Determines the best default server host for the current runtime platform:
-  /// - Physical Phone / Wi-Fi -> http://192.168.1.8:3000
-  /// - Desktop / Web -> http://localhost:3000
+  /// - Web / Desktop -> http://127.0.0.1:3000 (prevents IPv6 localhost resolution hangs)
+  /// - Android Device -> http://192.168.1.8:3000 (or 127.0.0.1 with adb reverse)
   String get defaultServerUrl {
     if (kIsWeb) {
-      return 'http://localhost:3000';
+      return 'http://127.0.0.1:3000';
     }
     if (Platform.isAndroid) {
       return 'http://192.168.1.8:3000';
     }
-    return 'http://localhost:3000';
+    return 'http://127.0.0.1:3000';
   }
 
   /// Get current effective server URL
@@ -162,6 +170,16 @@ class AppConfigService {
 
   /// Helper to get a screen config directly
   RemoteScreenConfig? getScreen(String key) => config.getScreen(key);
+
+  /// Helper to resolve media URLs (handles relative paths from server)
+  String resolveMediaUrl(String? path) {
+    if (path == null || path.isEmpty) return '';
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+    final cleanPath = path.startsWith('/') ? path : '/$path';
+    return '$serverBaseUrl$cleanPath';
+  }
 
   /// Helper to check if a screen is visible
   bool isScreenVisible(String key, {bool fallback = true}) =>

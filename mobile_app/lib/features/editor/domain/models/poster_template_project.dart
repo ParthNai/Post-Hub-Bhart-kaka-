@@ -125,6 +125,21 @@ class PosterTemplateProject {
       PosterTemplateProject.fromMap(jsonDecode(source) as Map<String, dynamic>);
 
   /// Creates a clean festival poster project with the chosen artwork and no unwanted text overlays.
+  static PosterTemplateProject createProjectFromTemplate({
+    required String templateId,
+    required String title,
+    required String imageAsset,
+    String frameId = 'admin_kesariya',
+  }) {
+    return createFromFestivalTemplate(
+      templateId: templateId,
+      title: title,
+      imageAsset: imageAsset,
+      frameId: frameId,
+    );
+  }
+
+  /// Creates a clean festival poster project with the chosen artwork and no unwanted text overlays.
   static PosterTemplateProject createFromFestivalTemplate({
     required String templateId,
     required String title,

@@ -20,7 +20,11 @@ class AppRemoteConfig {
     required this.primaryAccentColor,
     this.backgroundColor = '#FFFFFF',
     this.cardRadius = '14px',
+    this.headerStyle = 'gradient',
     required this.isHeroVisible,
+    this.heroImageUrl,
+    this.heroImageUrls = const [],
+    this.heroSlideIntervalSeconds = 3,
     required this.heroBadge,
     required this.heroHeadline,
     required this.heroSubtitle,
@@ -46,9 +50,13 @@ class AppRemoteConfig {
   final Color primaryAccentColor;
   final String backgroundColor;
   final String cardRadius;
+  final String headerStyle;
 
   // 4. Hero Section of Home Screen
   final bool isHeroVisible;
+  final String? heroImageUrl;
+  final List<String> heroImageUrls;
+  final int heroSlideIntervalSeconds;
   final String heroBadge;
   final String heroHeadline;
   final String heroSubtitle;
@@ -71,7 +79,11 @@ class AppRemoteConfig {
       primaryAccentColor: const Color(0xFF0055B8),
       backgroundColor: '#FFFFFF',
       cardRadius: '14px',
+      headerStyle: 'gradient',
       isHeroVisible: true,
+      heroImageUrl: null,
+      heroImageUrls: const [],
+      heroSlideIntervalSeconds: 3,
       heroBadge: '✨ MAGIC STUDIO',
       heroHeadline: 'What will you design today?',
       heroSubtitle: 'Choose a format below or start from templates.',
@@ -83,7 +95,12 @@ class AppRemoteConfig {
     );
   }
 
-  factory AppRemoteConfig.fromJson(Map<String, dynamic> json) {
+  factory AppRemoteConfig.fromJson(Map<String, dynamic> rawJson) {
+    final Map<String, dynamic> json =
+        (rawJson['data'] is Map<String, dynamic>)
+            ? (rawJson['data'] as Map<String, dynamic>)
+            : rawJson;
+
     // 1. App Branding
     String? appIcon;
     String? logo;
@@ -109,12 +126,14 @@ class AppRemoteConfig {
     Color primaryAccent = const Color(0xFF0055B8);
     String bg = '#FFFFFF';
     String radius = '14px';
+    String headerStyle = 'gradient';
     if (json['theme'] is Map<String, dynamic>) {
       final th = json['theme'] as Map<String, dynamic>;
       theme = th['mode'] as String? ?? 'Light';
       primaryAccent = hexToColor(th['primaryAccent'] as String?, fallback: const Color(0xFF0055B8));
       bg = th['backgroundColor'] as String? ?? '#FFFFFF';
       radius = th['cardRadius'] as String? ?? '14px';
+      headerStyle = th['headerStyle'] as String? ?? 'gradient';
     }
 
     // 4. Hero Section
@@ -122,12 +141,33 @@ class AppRemoteConfig {
     String badge = '✨ MAGIC STUDIO';
     String headline = 'What will you design today?';
     String subtitle = 'Choose a format below or start from templates.';
+    String? singleHeroImage;
+    List<String> heroImages = const [];
+    int heroInterval = 3;
+
     if (json['heroSection'] is Map<String, dynamic>) {
       final hero = json['heroSection'] as Map<String, dynamic>;
       heroVis = (hero['visible'] as bool? ?? true) && (hero['enabled'] as bool? ?? true);
       badge = hero['badge'] as String? ?? '✨ MAGIC STUDIO';
       headline = hero['headline'] as String? ?? 'What will you design today?';
       subtitle = hero['subtitle'] as String? ?? 'Choose a format below or start from templates.';
+      singleHeroImage = hero['imageUrl'] as String?;
+      if (hero['images'] is List) {
+        heroImages = (hero['images'] as List)
+            .map((e) => e.toString().trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
+      }
+      if (hero['slideIntervalSeconds'] is num) {
+        final sec = (hero['slideIntervalSeconds'] as num).toInt();
+        heroInterval = sec < 2 ? 2 : (sec > 60 ? 60 : sec);
+      }
+    }
+    if (heroImages.isEmpty && singleHeroImage != null && singleHeroImage.isNotEmpty) {
+      heroImages = [singleHeroImage];
+    }
+    if (singleHeroImage == null && heroImages.isNotEmpty) {
+      singleHeroImage = heroImages.first;
     }
 
     // Screens map
@@ -167,7 +207,11 @@ class AppRemoteConfig {
       primaryAccentColor: primaryAccent,
       backgroundColor: bg,
       cardRadius: radius,
+      headerStyle: headerStyle,
       isHeroVisible: heroVis,
+      heroImageUrl: singleHeroImage,
+      heroImageUrls: heroImages,
+      heroSlideIntervalSeconds: heroInterval,
       heroBadge: badge,
       heroHeadline: headline,
       heroSubtitle: subtitle,
