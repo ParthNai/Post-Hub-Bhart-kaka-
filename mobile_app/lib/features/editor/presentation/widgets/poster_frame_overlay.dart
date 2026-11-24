@@ -772,20 +772,90 @@ class PosterFrameOverlay extends StatelessWidget {
 
   // Admin image frame overlay
   Widget _buildAdminImageFrame() {
-    return Positioned.fill(
-      child: IgnorePointer(
-        child: adminImageUrl!.startsWith('http')
-            ? Image.network(
-                adminImageUrl!,
-                fit: BoxFit.fill,
-                errorBuilder: (_, _, _) => const SizedBox.shrink(),
-              )
-            : Image.asset(
-                adminImageUrl!,
-                fit: BoxFit.fill,
-                errorBuilder: (_, _, _) => const SizedBox.shrink(),
+    final frameH = (h * 0.16).clamp(42.0, 85.0);
+    final photoSize = (frameH * 1.05).clamp(44.0, 80.0);
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        // 1. The Full Transparent Admin Frame Graphic Overlay
+        Positioned.fill(
+          child: IgnorePointer(
+            child: _buildResolvedImage(
+              adminImageUrl,
+              fit: BoxFit.fill,
+              fallback: const SizedBox.shrink(),
+            ),
+          ),
+        ),
+
+        // 2. Dynamic Leader Info & Photo Overlay at Bottom of Canvas
+        Positioned(
+          bottom: 6.0 * _scale,
+          left: 14.0 * _scale,
+          right: 14.0 * _scale,
+          height: frameH,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildCircularPhoto(photoSize, const Color(0xFFFBBF24)),
+              SizedBox(width: 10.0 * _scale),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _displayName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: (frameH * 0.24).clamp(11.0, 16.0),
+                        fontWeight: FontWeight.w900,
+                        shadows: const [
+                          Shadow(color: Colors.black, blurRadius: 4, offset: Offset(0, 1)),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 2.0 * _scale),
+                    Text(
+                      _designation,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: const Color(0xFFFEF08A),
+                        fontSize: (frameH * 0.18).clamp(9.0, 12.0),
+                        fontWeight: FontWeight.w700,
+                        shadows: const [
+                          Shadow(color: Colors.black, blurRadius: 4, offset: Offset(0, 1)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-      ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 7.0 * _scale, vertical: 3.0 * _scale),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.65),
+                  borderRadius: BorderRadius.circular(6.0),
+                  border: Border.all(color: const Color(0xFFFBBF24), width: 1.0),
+                ),
+                child: Text(
+                  _phone,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: (frameH * 0.16).clamp(8.5, 11.0),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

@@ -833,6 +833,11 @@ class _HomeScreenState extends State<HomeScreen> {
               ctx,
               'Screen 12: Poster Editor Studio',
               AppRoutes.posterEditor,
+              arguments: PosterTemplateProject.createProjectFromTemplate(
+                templateId: 'clean_poster_studio',
+                imageAsset: AppAssets.festivalPosterShubhNavratri,
+                title: 'Poster Editor Studio',
+              ),
             ),
             _buildNavTile(
               ctx,
@@ -857,7 +862,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildNavTile(BuildContext ctx, String label, String route) {
+  Widget _buildNavTile(BuildContext ctx, String label, String route, {Object? arguments}) {
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
@@ -869,7 +874,7 @@ class _HomeScreenState extends State<HomeScreen> {
       trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 13.0),
       onTap: () {
         Navigator.of(ctx).pop();
-        Navigator.of(context).pushNamed(route);
+        Navigator.of(context).pushNamed(route, arguments: arguments);
       },
     );
   }

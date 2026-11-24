@@ -49,8 +49,30 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
 
   late PosterTemplateProject _project;
   UserProfile? _currentUser;
-  String _selectedFrameId = 'gold_vip';
-  List<PosterFrameDef> _adminFrames = [];
+  String _selectedFrameId = 'admin_vip_sarpanch';
+  List<PosterFrameDef> _adminFrames = const [
+    PosterFrameDef(
+      id: 'admin_vip_sarpanch',
+      name: 'Panchayat VIP Sarpanch',
+      previewColor: Color(0xFFD97706),
+      badgeText: 'Admin VIP',
+      imageUrl: 'assets/images/frame_panchayat_vip.png',
+    ),
+    PosterFrameDef(
+      id: 'admin_tricolor_leader',
+      name: 'Tricolor National Leader',
+      previewColor: Color(0xFFFF9933),
+      badgeText: 'National',
+      imageUrl: 'assets/images/frame_tricolor_leader.png',
+    ),
+    PosterFrameDef(
+      id: 'admin_festive_gold',
+      name: 'Festive Kesariya Gold',
+      previewColor: Color(0xFFEA580C),
+      badgeText: 'Festive',
+      imageUrl: 'assets/images/frame_festive_gold.png',
+    ),
+  ];
 
   // Undo / Redo history stacks
   final List<List<PosterElement>> _undoStack = [];
@@ -61,7 +83,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
   late final TextEditingController _supportingController;
 
   // Active Editor State
-  String _selectedTab = 'text'; // 'frames', 'text', 'images', 'colors', 'background', 'fonts'
+  String _selectedTab = 'text'; // Defaults to 'text' for unit tests, switches to 'frames' on template open
   String? _selectedElementId = 'elem_headline';
   double _zoomLevel = 1.0; // 1.0 (100%), 1.25 (125%), 1.5 (150%)
   bool _isSaving = false;
@@ -125,7 +147,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
       _project = PosterTemplateProject.createDefaultNavratriProject();
     }
 
-    _selectedFrameId = _project.frameId ?? 'gold_vip';
+    _selectedFrameId = _project.frameId ?? 'admin_vip_sarpanch';
 
     final hElem = _project.elements.where((e) => e.id == 'elem_headline').firstOrNull;
     final sElem = _project.elements.where((e) => e.id == 'elem_supporting').firstOrNull;
@@ -157,15 +179,18 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
               PosterFrameDef(
                 id: 'admin_$id',
                 name: name,
-                previewColor: const Color(0xFF6D28D9),
+                previewColor: const Color(0xFFD97706),
                 badgeText: 'Admin',
                 imageUrl: imageUrl,
               ),
             );
           }
-          if (mounted) {
+          if (mounted && fetched.isNotEmpty) {
             setState(() {
-              _adminFrames = fetched;
+              _adminFrames = [
+                ...fetched,
+                ..._adminFrames.where((d) => !fetched.any((f) => f.name == d.name)),
+              ];
             });
           }
         }
@@ -218,7 +243,8 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
       if (args is PosterTemplateProject) {
         setState(() {
           _project = args;
-          _selectedFrameId = args.frameId ?? 'gold_vip';
+          _selectedFrameId = args.frameId ?? _selectedFrameId;
+          _selectedTab = 'frames';
           _headlineController.text = _getElementText('elem_headline');
           _supportingController.text = _getElementText('elem_supporting');
         });
@@ -229,14 +255,16 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
             imageAsset: args.imageAsset,
             title: args.title,
           );
-          _selectedFrameId = _project.frameId ?? 'gold_vip';
+          _selectedFrameId = _project.frameId ?? _selectedFrameId;
+          _selectedTab = 'frames';
           _headlineController.text = _getElementText('elem_headline');
           _supportingController.text = _getElementText('elem_supporting');
         });
       } else if (args is Map<String, dynamic>) {
         setState(() {
           _project = PosterTemplateProject.fromMap(args);
-          _selectedFrameId = _project.frameId ?? 'gold_vip';
+          _selectedFrameId = _project.frameId ?? _selectedFrameId;
+          _selectedTab = 'frames';
           _headlineController.text = _getElementText('elem_headline');
           _supportingController.text = _getElementText('elem_supporting');
         });
@@ -1653,7 +1681,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
 
   // Frames Selection Tab Panel (Built-in + Admin Frames)
   Widget _buildFramesTabPanel(AppStrings s) {
-    final allFrames = [...PosterFrames.list, ..._adminFrames];
+    final allFrames = [..._adminFrames, ...PosterFrames.list];
 
     return Container(
       padding: const EdgeInsets.all(14.0),
@@ -1676,15 +1704,19 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
             children: [
               const Icon(Icons.crop_square_rounded, color: Color(0xFF7C3AED), size: 18.0),
               const SizedBox(width: 8.0),
-              const Text(
-                'Digital Frames & Panchayat Identity',
-                style: TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF1E293B),
+              const Expanded(
+                child: Text(
+                  'Digital Frames & Panchayat Identity',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF1E293B),
+                  ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 6.0),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
                 decoration: BoxDecoration(
@@ -1709,7 +1741,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
           ),
           const SizedBox(height: 12.0),
           SizedBox(
-            height: 94.0,
+            height: 106.0,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: allFrames.length,
@@ -1746,9 +1778,10 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
                             ]
                           : null,
                     ),
-                    padding: const EdgeInsets.all(6.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         // Thumbnail Icon/Preview
                         Stack(
@@ -1756,7 +1789,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
                           children: [
                             Container(
                               width: 44.0,
-                              height: 40.0,
+                              height: 36.0,
                               decoration: BoxDecoration(
                                 color: frame.previewColor.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(8.0),
