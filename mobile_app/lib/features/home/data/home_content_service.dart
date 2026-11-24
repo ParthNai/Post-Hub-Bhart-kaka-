@@ -25,10 +25,9 @@ class HomeContentService {
 
   Future<HomeExploreContent> load() async {
     final token = await sessionService.getAuthToken();
-    if (token == null || token.trim().isEmpty) {
-      throw const HomeContentException(
-        'Sign in to load templates and festivals from the admin panel.',
-      );
+    final headers = <String, String>{'Accept': 'application/json'};
+    if (token != null && token.trim().isNotEmpty) {
+      headers['Authorization'] = token;
     }
 
     final baseUrl = AppConfigService.instance.serverBaseUrl.replaceAll(
@@ -41,7 +40,7 @@ class HomeContentService {
       response = await _httpClient
           .get(
             uri,
-            headers: {'Accept': 'application/json', 'Authorization': token},
+            headers: headers,
           )
           .timeout(const Duration(seconds: 15));
     } on TimeoutException {
