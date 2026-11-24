@@ -437,6 +437,31 @@ class AppStrings {
     required this.toolBackgroundLabel,
     required this.toolElementsLabel,
     required this.toolTemplatesLabel,
+    // Screen 19: Final Poster Preview & Quality Check
+    required this.finalPosterPreviewTitle,
+    required this.finalPosterPreviewSubtitle,
+    required this.zoomOutLabel,
+    required this.zoomInLabel,
+    required this.fitToScreenLabel,
+    required this.fullScreenLabel,
+    required this.qualityCheckTitle,
+    required this.textVisibilityCheck,
+    required this.imageQualityCheck,
+    required this.logoPlacementCheck,
+    required this.layoutAlignmentCheck,
+    required this.contactInformationCheck,
+    required this.readyToReviewStatus,
+    required this.notCheckedStatus,
+    required this.passedStatus,
+    required this.needsAttentionStatus,
+    required this.posterInformationTitle,
+    required this.templateNameLabel,
+    required this.dimensionsLabel,
+    required this.formatLabel,
+    required this.lastEditedLabel,
+    required this.editAgainButton,
+    required this.saveDraftButton,
+    required this.continueToExportButton,
   });
 
   final String languageName;
@@ -885,6 +910,31 @@ class AppStrings {
   final String toolBackgroundLabel;
   final String toolElementsLabel;
   final String toolTemplatesLabel;
+  // Screen 19: Final Poster Preview & Quality Check
+  final String finalPosterPreviewTitle;
+  final String finalPosterPreviewSubtitle;
+  final String zoomOutLabel;
+  final String zoomInLabel;
+  final String fitToScreenLabel;
+  final String fullScreenLabel;
+  final String qualityCheckTitle;
+  final String textVisibilityCheck;
+  final String imageQualityCheck;
+  final String logoPlacementCheck;
+  final String layoutAlignmentCheck;
+  final String contactInformationCheck;
+  final String readyToReviewStatus;
+  final String notCheckedStatus;
+  final String passedStatus;
+  final String needsAttentionStatus;
+  final String posterInformationTitle;
+  final String templateNameLabel;
+  final String dimensionsLabel;
+  final String formatLabel;
+  final String lastEditedLabel;
+  final String editAgainButton;
+  final String saveDraftButton;
+  final String continueToExportButton;
 
   static const String defaultLanguageCode = 'gu';
 
@@ -1324,6 +1374,31 @@ class AppStrings {
       toolBackgroundLabel: 'બેકગ્રાઉન્ડ',
       toolElementsLabel: 'એલિમેન્ટ્સ',
       toolTemplatesLabel: 'ટેમ્પલેટ્સ',
+      // Screen 19
+      finalPosterPreviewTitle: 'ફાઇનલ પોસ્ટર પ્રિવ્યૂ',
+      finalPosterPreviewSubtitle: 'એક્સપોર્ટ કરતા પહેલા તમારી ડિઝાઇન તપાસો.',
+      zoomOutLabel: 'ઝૂમ આઉટ',
+      zoomInLabel: 'ઝૂમ ઇન',
+      fitToScreenLabel: 'ફિટ ટુ સ્ક્રીન',
+      fullScreenLabel: 'ફૂલ સ્ક્રીન',
+      qualityCheckTitle: 'ક્વોલિટી ચેક',
+      textVisibilityCheck: 'ટેક્સ્ટ વિઝિબિલિટી',
+      imageQualityCheck: 'ઇમેજ ક્વોલિટી',
+      logoPlacementCheck: 'લોગો પ્લેસમેન્ટ',
+      layoutAlignmentCheck: 'લેઆઉટ એલાઇનમેન્ટ',
+      contactInformationCheck: 'સંપર્ક માહિતી',
+      readyToReviewStatus: 'તપાસવા માટે તૈયાર',
+      notCheckedStatus: 'તપાસેલ નથી',
+      passedStatus: 'પાસ થયું',
+      needsAttentionStatus: 'ધ્યાન આપવાની જરૂર છે',
+      posterInformationTitle: 'પોસ્ટર માહિતી',
+      templateNameLabel: 'ટેમ્પલેટ નામ',
+      dimensionsLabel: 'ડાયમેન્શન્સ',
+      formatLabel: 'ફોર્મેટ',
+      lastEditedLabel: 'છેલ્લે એડિટ કર્યું',
+      editAgainButton: 'ફરીથી એડિટ કરો',
+      saveDraftButton: 'ડ્રાફ્ટ સાચવો',
+      continueToExportButton: 'એક્સપોર્ટ આગળ વધો',
     ),
     'hi': AppStrings(
       languageName: 'हिंदी',
@@ -1760,6 +1835,31 @@ class AppStrings {
       toolBackgroundLabel: 'पृष्ठभूमि',
       toolElementsLabel: 'तत्व',
       toolTemplatesLabel: 'टेम्प्लेट्स',
+      // Screen 19
+      finalPosterPreviewTitle: 'फाइनल पोस्टर पूर्वावलोकन',
+      finalPosterPreviewSubtitle: 'निर्यात करने से पहले अपने डिज़ाइन की समीक्षा करें।',
+      zoomOutLabel: 'ज़ूम आउट',
+      zoomInLabel: 'ज़ूम इन',
+      fitToScreenLabel: 'स्क्रीन पर फिट करें',
+      fullScreenLabel: 'पूर्ण स्क्रीन',
+      qualityCheckTitle: 'गुणवत्ता जांच',
+      textVisibilityCheck: 'टेक्स्ट दृश्यता',
+      imageQualityCheck: 'छवि गुणवत्ता',
+      logoPlacementCheck: 'लोगो प्लेसमेंट',
+      layoutAlignmentCheck: 'लेआउट संरेखण',
+      contactInformationCheck: 'संपर्क जानकारी',
+      readyToReviewStatus: 'समीक्षा के लिए तैयार',
+      notCheckedStatus: 'जांचा नहीं गया',
+      passedStatus: 'सफल',
+      needsAttentionStatus: 'ध्यान देने की आवश्यकता',
+      posterInformationTitle: 'पोस्टर जानकारी',
+      templateNameLabel: 'टेम्पलेट का नाम',
+      dimensionsLabel: 'आयाम',
+      formatLabel: 'प्रारूप',
+      lastEditedLabel: 'अंतिम संपादन',
+      editAgainButton: 'पुनः संपादित करें',
+      saveDraftButton: 'ड्राफ्ट सहेजें',
+      continueToExportButton: 'निर्यात जारी रखें',
     ),
     'en': AppStrings(
       languageName: 'English',
@@ -2196,6 +2296,31 @@ class AppStrings {
       toolBackgroundLabel: 'Background',
       toolElementsLabel: 'Elements',
       toolTemplatesLabel: 'Templates',
+      // Screen 19
+      finalPosterPreviewTitle: 'Final Poster Preview',
+      finalPosterPreviewSubtitle: 'Review your design before exporting.',
+      zoomOutLabel: 'Zoom Out',
+      zoomInLabel: 'Zoom In',
+      fitToScreenLabel: 'Fit to Screen',
+      fullScreenLabel: 'Full Screen',
+      qualityCheckTitle: 'Quality Check',
+      textVisibilityCheck: 'Text Visibility',
+      imageQualityCheck: 'Image Quality',
+      logoPlacementCheck: 'Logo Placement',
+      layoutAlignmentCheck: 'Layout Alignment',
+      contactInformationCheck: 'Contact Information',
+      readyToReviewStatus: 'Ready to review',
+      notCheckedStatus: 'Not checked',
+      passedStatus: 'Passed',
+      needsAttentionStatus: 'Needs attention',
+      posterInformationTitle: 'Poster Information',
+      templateNameLabel: 'Template Name',
+      dimensionsLabel: 'Dimensions',
+      formatLabel: 'Format',
+      lastEditedLabel: 'Last Edited',
+      editAgainButton: 'Edit Again',
+      saveDraftButton: 'Save Draft',
+      continueToExportButton: 'Continue to Export',
     ),
   };
 

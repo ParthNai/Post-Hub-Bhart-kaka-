@@ -236,7 +236,7 @@ class PosterTemplateProject {
     return PosterTemplateProject(
       id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
       templateId: templateId ?? 'republic_day_main',
-      title: title ?? 'Happy Republic Day',
+      title: title ?? 'Republic Day Celebration',
       backgroundAsset: imageAsset ?? AppAssets.editorCanvasRepublicDay,
       backgroundColor: const Color(0xFFF8FAFC),
       updatedAt: DateTime.now(),
