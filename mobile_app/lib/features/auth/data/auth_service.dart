@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
@@ -69,7 +70,47 @@ class AuthService {
     final prefs = await _getPrefs();
     final jsonString = prefs.getString(_usersKey);
     if (jsonString == null || jsonString.isEmpty) {
-      return {};
+      final now = DateTime(2026, 1, 1);
+      final seedUsers = {
+        '7359265501': UserProfile(
+          userId: '6b041fda8101c822e89fb30a',
+          fullName: 'Krushnapalsinh Parmar',
+          username: '7359265501',
+          displayName: 'Krushnapalsinh Parmar (સરપંચ શ્રી)',
+          passwordHash: hashPassword('1234'),
+          villageCity: 'Palanpur',
+          state: 'B.K',
+          isProfileComplete: true,
+          createdAt: now,
+          acceptedLegalTimestamp: now,
+        ),
+        '9624192725': UserProfile(
+          userId: '6b041fda8101c822e89fb30b',
+          fullName: 'Harsh',
+          username: '9624192725',
+          displayName: 'Harsh (સરપંચ શ્રી)',
+          passwordHash: hashPassword('1234'),
+          villageCity: 'Palanpur',
+          state: 'B.K',
+          isProfileComplete: true,
+          createdAt: now,
+          acceptedLegalTimestamp: now,
+        ),
+        '9723365365': UserProfile(
+          userId: '6b041fda8101c822e89fb30c',
+          fullName: 'Bharat Chaudhary',
+          username: '9723365365',
+          displayName: 'Bharat Chaudhary (સરપંચ શ્રી)',
+          passwordHash: hashPassword('1234'),
+          villageCity: 'Palanpur',
+          state: 'B.K',
+          isProfileComplete: true,
+          createdAt: now,
+          acceptedLegalTimestamp: now,
+        ),
+      };
+      await _saveAllUsers(seedUsers);
+      return seedUsers;
     }
 
     try {
@@ -162,71 +203,85 @@ class AuthService {
     final cleanUsername = username.trim();
 
     // 1. Try backend MongoDB authentication first (/api/login)
-    try {
-      final baseUrl = AppConfigService.instance.serverBaseUrl.replaceAll(RegExp(r'/+$'), '');
-      final response = await http
-          .post(
-            Uri.parse('$baseUrl/api/login'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-            body: jsonEncode({
-              'mobile': cleanUsername,
-              'otp': password,
-              'pin': password,
-            }),
-          )
-          .timeout(const Duration(seconds: 5));
+    final activeBase = AppConfigService.instance.serverBaseUrl.replaceAll(RegExp(r'/+$'), '');
+    final candidateBases = <String>{
+      activeBase,
+      'http://192.168.0.121:3000',
+      'http://127.0.0.1:3000',
+      'http://10.0.2.2:3000',
+      'http://192.168.0.121:4000',
+      'http://127.0.0.1:4000',
+    }.toList();
 
-      if (response.statusCode == 200) {
-        final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-        final token = decoded['token'] as String?;
-        final userObj = decoded['user'] as Map<String, dynamic>?;
+    for (final base in candidateBases) {
+      try {
+        final response = await http
+            .post(
+              Uri.parse('$base/api/login'),
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+              },
+              body: jsonEncode({
+                'mobile': cleanUsername,
+                'otp': password,
+                'pin': password,
+              }),
+            )
+            .timeout(const Duration(milliseconds: 2500));
 
-        if (token != null && userObj != null) {
-          final userId = userObj['_id']?.toString() ?? userObj['id']?.toString() ?? cleanUsername;
-          final name = userObj['name']?.toString() ?? userObj['fullName']?.toString() ?? cleanUsername;
-          final village = userObj['village']?.toString() ?? '';
-          final district = userObj['district']?.toString() ?? '';
-          final occupation = userObj['occupation']?.toString() ?? '';
+        if (response.statusCode == 200) {
+          final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+          final token = decoded['token'] as String?;
+          final userObj = decoded['user'] as Map<String, dynamic>?;
 
-          final now = DateTime.now();
-          final expiry = rememberMe ? now.add(const Duration(days: 30)) : now.add(const Duration(days: 1));
-          await _sessionService.saveSession(token: token, userId: userId, expiry: expiry);
+          if (token != null && userObj != null) {
+            final userId = userObj['_id']?.toString() ?? userObj['id']?.toString() ?? cleanUsername;
+            final name = userObj['name']?.toString() ?? userObj['fullName']?.toString() ?? cleanUsername;
+            final village = userObj['village']?.toString() ?? '';
+            final district = userObj['district']?.toString() ?? '';
+            final occupation = userObj['occupation']?.toString() ?? '';
 
-          final profile = UserProfile(
-            userId: userId,
-            fullName: name,
-            username: cleanUsername,
-            displayName: occupation.isNotEmpty ? '$name ($occupation)' : name,
-            passwordHash: hashPassword(password),
-            villageCity: village,
-            state: district,
-            isProfileComplete: true,
-            createdAt: now,
-            acceptedLegalTimestamp: now,
-          );
+            final now = DateTime.now();
+            final expiry = rememberMe ? now.add(const Duration(days: 30)) : now.add(const Duration(days: 1));
+            await _sessionService.saveSession(token: token, userId: userId, expiry: expiry);
 
-          // Cache profile locally
-          final users = await _getAllUsers();
-          users[cleanUsername.toLowerCase()] = profile;
-          await _saveAllUsers(users);
+            final profile = UserProfile(
+              userId: userId,
+              fullName: name,
+              username: cleanUsername,
+              displayName: occupation.isNotEmpty ? '$name ($occupation)' : name,
+              passwordHash: hashPassword(password),
+              villageCity: village,
+              state: district,
+              isProfileComplete: true,
+              createdAt: now,
+              acceptedLegalTimestamp: now,
+            );
 
-          return profile;
-        }
-      } else if (response.statusCode == 400 || response.statusCode == 401 || response.statusCode == 500) {
-        final decoded = jsonDecode(response.body);
-        if (decoded is Map<String, dynamic> && decoded['message'] != null) {
-          final msg = decoded['message'].toString();
-          if (msg.toLowerCase().contains('invalid pin')) {
-            throw AuthException('Invalid password.');
+            // Cache profile locally
+            final users = await _getAllUsers();
+            users[cleanUsername.toLowerCase()] = profile;
+            await _saveAllUsers(users);
+
+            // Lock in working server base URL
+            unawaited(AppConfigService.instance.setServerBaseUrl(base));
+
+            return profile;
+          }
+        } else if (response.statusCode == 400 || response.statusCode == 401) {
+          final decoded = jsonDecode(response.body);
+          if (decoded is Map<String, dynamic> && decoded['message'] != null) {
+            final msg = decoded['message'].toString();
+            if (msg.toLowerCase().contains('invalid pin') || msg.toLowerCase().contains('wrong password')) {
+              throw AuthException('ખોટો પાસવર્ડ દાખલ કર્યો છે.');
+            }
           }
         }
+      } catch (e) {
+        if (e is AuthException) rethrow;
+        debugPrint('[AuthService] Backend login attempt to $base failed: $e');
       }
-    } catch (e) {
-      if (e is AuthException) rethrow;
-      debugPrint('[AuthService] Backend login attempt note: $e');
     }
 
     // 2. Fallback to local accounts
