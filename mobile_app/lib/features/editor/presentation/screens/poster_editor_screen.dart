@@ -54,6 +54,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
   // Active Editor State
   late String _selectedTab; // 'frames', 'text', 'images', 'colors', 'background', 'fonts'
   late String _selectedFrameId;
+  String? _selectedAdminImageUrl;
   String? _selectedElementId = 'elem_headline';
   double _zoomLevel = 1.0; // 1.0 (100%), 1.25 (125%), 1.5 (150%)
   bool _isSaving = false;
@@ -85,6 +86,11 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
 
     _initProject();
     _loadUser();
+
+    // Dynamically load any newly uploaded admin frames from server
+    PosterFrames.loadAdminFrames().then((_) {
+      if (mounted) setState(() {});
+    });
   }
 
   void _initProject() {
@@ -101,10 +107,16 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
     } else {
       // Default Navratri project for standalone launch / unit tests
       _project = PosterTemplateProject.createDefaultNavratriProject();
-      _selectedTab = 'text'; // Default to text tab so test finds input_headline_text directly
+      _selectedTab = 'frames';
     }
 
     _selectedFrameId = _project.frameId;
+    _selectedAdminImageUrl = PosterFrames.list
+        .firstWhere(
+          (f) => f.id == _selectedFrameId,
+          orElse: () => const PosterFrameDef(id: '', name: '', previewColor: Colors.transparent),
+        )
+        .imageUrl;
 
     final headline = _project.elements
         .firstWhere((e) => e.id == 'elem_headline', orElse: () => _project.elements.isNotEmpty ? _project.elements.first : const PosterElement(id: 'elem_headline', type: PosterElementType.text, text: ''))
@@ -129,6 +141,12 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
         setState(() {
           _project = args;
           _selectedFrameId = args.frameId;
+          _selectedAdminImageUrl = PosterFrames.list
+              .firstWhere(
+                (f) => f.id == _selectedFrameId,
+                orElse: () => const PosterFrameDef(id: '', name: '', previewColor: Colors.transparent),
+              )
+              .imageUrl;
           _selectedTab = 'frames';
           _syncControllers();
         });
@@ -140,6 +158,12 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
             title: args.title,
           );
           _selectedFrameId = _project.frameId;
+          _selectedAdminImageUrl = PosterFrames.list
+              .firstWhere(
+                (f) => f.id == _selectedFrameId,
+                orElse: () => const PosterFrameDef(id: '', name: '', previewColor: Colors.transparent),
+              )
+              .imageUrl;
           _selectedTab = 'frames';
           _syncControllers();
         });
@@ -761,6 +785,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
             if (_selectedFrameId != 'none')
               PosterFrameOverlay(
                 frameId: _selectedFrameId,
+                adminImageUrl: _selectedAdminImageUrl,
                 user: _currentUser,
                 w: w,
                 h: h,
@@ -1001,6 +1026,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
           onTap: () {
             setState(() {
               _selectedFrameId = frame.id;
+              _selectedAdminImageUrl = frame.imageUrl;
               _project = _project.copyWith(frameId: frame.id);
             });
           },

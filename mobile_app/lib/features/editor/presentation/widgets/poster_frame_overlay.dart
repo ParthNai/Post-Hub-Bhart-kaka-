@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/services/app_config_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 
@@ -22,50 +24,118 @@ class PosterFrameDef {
 
 /// Available built-in and designer poster frames.
 class PosterFrames {
-  static const List<PosterFrameDef> list = [
-    PosterFrameDef(
+  static List<PosterFrameDef> list = [
+    const PosterFrameDef(
       id: 'none',
       name: 'No Frame',
       previewColor: Color(0xFF94A3B8),
       badgeText: 'Clean',
     ),
-    PosterFrameDef(
+    const PosterFrameDef(
+      id: 'admin_kesariya',
+      name: 'Royal Kesariya',
+      previewColor: Color(0xFFEAB308),
+      badgeText: 'Admin',
+      imageUrl: AppAssets.frameFestiveGold,
+    ),
+    const PosterFrameDef(
+      id: 'admin_tricolor',
+      name: 'Tricolor Leader',
+      previewColor: Color(0xFFFF9933),
+      badgeText: 'National',
+      imageUrl: AppAssets.frameTricolorLeader,
+    ),
+    const PosterFrameDef(
+      id: 'admin_sarpanch',
+      name: 'Gram Panchayat VIP',
+      previewColor: Color(0xFF2563EB),
+      badgeText: 'VIP',
+      imageUrl: AppAssets.framePanchayatVip,
+    ),
+    const PosterFrameDef(
       id: 'cutout_leader',
       name: 'Cutout Leader',
       previewColor: Color(0xFFEA580C),
       badgeText: 'Trending',
     ),
-    PosterFrameDef(
+    const PosterFrameDef(
       id: 'gold_vip',
       name: 'VIP Gold',
       previewColor: Color(0xFFEAB308),
       badgeText: 'Popular',
     ),
-    PosterFrameDef(
+    const PosterFrameDef(
       id: 'tricolor',
       name: 'Tricolor Bharat',
       previewColor: Color(0xFFFF9933),
       badgeText: 'National',
     ),
-    PosterFrameDef(
+    const PosterFrameDef(
       id: 'royal_blue',
       name: 'Royal Executive',
       previewColor: Color(0xFF2563EB),
       badgeText: 'Leader',
     ),
-    PosterFrameDef(
+    const PosterFrameDef(
       id: 'kesariya_ribbon',
       name: 'Kesariya Festive',
       previewColor: Color(0xFFEA580C),
       badgeText: 'Festive',
     ),
-    PosterFrameDef(
+    const PosterFrameDef(
       id: 'dark_glass',
       name: 'Dark Glass',
       previewColor: Color(0xFF0F172A),
       badgeText: 'Modern',
     ),
   ];
+
+  static bool _isLoadingAdminFrames = false;
+
+  /// Dynamically loads new frames uploaded by Admin via backend API
+  static Future<void> loadAdminFrames() async {
+    if (_isLoadingAdminFrames) return;
+    _isLoadingAdminFrames = true;
+
+    try {
+      final baseUrl = AppConfigService.instance.serverBaseUrl;
+      final uri = Uri.parse('$baseUrl/adminapi/frame');
+      final res = await http.get(uri).timeout(const Duration(seconds: 3));
+      if (res.statusCode == 200) {
+        final body = jsonDecode(res.body);
+        final data = body['data'] as List<dynamic>?;
+        if (data != null && data.isNotEmpty) {
+          final fetched = <PosterFrameDef>[];
+          for (final f in data) {
+            final id = f['id']?.toString() ?? '';
+            final name = f['frameName']?.toString() ?? 'Admin Frame';
+            final path = f['path']?.toString() ?? '';
+            if (path.isEmpty) continue;
+            final fullUrl = path.startsWith('http') ? path : '$baseUrl$path';
+            fetched.add(PosterFrameDef(
+              id: 'admin_$id',
+              name: name,
+              previewColor: const Color(0xFFF59E0B),
+              badgeText: 'Admin',
+              imageUrl: fullUrl,
+            ));
+          }
+          if (fetched.isNotEmpty) {
+            final existingIds = list.map((e) => e.id).toSet();
+            for (final f in fetched.reversed) {
+              if (!existingIds.contains(f.id)) {
+                list.insert(1, f);
+              }
+            }
+          }
+        }
+      }
+    } catch (_) {
+      // Offline fallback: built-in asset frames remain active
+    } finally {
+      _isLoadingAdminFrames = false;
+    }
+  }
 }
 
 /// Pixel-perfect visual frame overlay rendering on the poster canvas.
@@ -94,9 +164,17 @@ class PosterFrameOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     if (frameId == 'none') return const SizedBox.shrink();
 
-    // If it's a custom admin uploaded image frame
-    if (adminImageUrl != null && adminImageUrl!.isNotEmpty) {
-      return _buildAdminImageFrame();
+    // Check if this frame is an admin image frame (either via explicit adminImageUrl or lookup in list)
+    final effectiveAdminImage = adminImageUrl ??
+        PosterFrames.list
+            .firstWhere(
+              (f) => f.id == frameId,
+              orElse: () => const PosterFrameDef(id: '', name: '', previewColor: Colors.transparent),
+            )
+            .imageUrl;
+
+    if (effectiveAdminImage != null && effectiveAdminImage.isNotEmpty) {
+      return _buildAdminImageFrame(effectiveAdminImage);
     }
 
     switch (frameId) {
@@ -795,7 +873,8 @@ class PosterFrameOverlay extends StatelessWidget {
   }
 
   // Admin image frame overlay
-  Widget _buildAdminImageFrame() {
+  Widget _buildAdminImageFrame([String? overrideImageUrl]) {
+    final effectiveImage = overrideImageUrl ?? adminImageUrl;
     final frameH = (h * 0.16).clamp(42.0, 85.0);
     final photoSize = (frameH * 1.05).clamp(44.0, 80.0);
 
@@ -806,7 +885,7 @@ class PosterFrameOverlay extends StatelessWidget {
         Positioned.fill(
           child: IgnorePointer(
             child: _buildResolvedImage(
-              adminImageUrl,
+              effectiveImage,
               fit: BoxFit.fill,
               fallback: const SizedBox.shrink(),
             ),

@@ -126,4 +126,9 @@ class AppAssets {
 
   /// Approved UI reference for Screen 19 Final Poster Preview & Quality Check.
   static const String screen19Reference = 'assets/images/screen_19_reference.jpg';
+
+  /// Admin & National Poster Frames
+  static const String frameFestiveGold = 'assets/images/frame_festive_gold.png';
+  static const String frameTricolorLeader = 'assets/images/frame_tricolor_leader.png';
+  static const String framePanchayatVip = 'assets/images/frame_panchayat_vip.png';
 }

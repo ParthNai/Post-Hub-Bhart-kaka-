@@ -129,7 +129,7 @@ class PosterTemplateProject {
     required String templateId,
     required String title,
     required String imageAsset,
-    String frameId = 'gold_vip',
+    String frameId = 'admin_kesariya',
   }) {
     return PosterTemplateProject(
       id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
@@ -156,7 +156,7 @@ class PosterTemplateProject {
       title: title ?? 'Navratri Celebration',
       backgroundAsset: imageAsset ?? AppAssets.festivalPosterShubhNavratri,
       backgroundColor: const Color(0xFF2E0854),
-      frameId: frameId ?? 'gold_vip',
+      frameId: frameId ?? 'admin_kesariya',
       updatedAt: DateTime.now(),
       elements: const [
         PosterElement(

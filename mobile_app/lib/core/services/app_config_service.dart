@@ -36,16 +36,23 @@ class AppConfigService {
   DateTime? get lastSyncedAt => _lastSyncedAt;
   String? get syncError => _syncError;
 
+  /// Candidate server base URLs to test in order of network priority
+  static const List<String> candidateUrls = [
+    'http://192.168.1.8:3000', // Wi-Fi LAN host IP (physical phone on same network)
+    'http://127.0.0.1:3000',   // Physical device via adb reverse
+    'http://10.0.2.2:3000',    // Android Emulator loopback
+    'http://localhost:3000',   // Web & Desktop
+  ];
+
   /// Determines the best default server host for the current runtime platform:
-  /// - Android Emulator -> http://10.0.2.2:3000
-  /// - iOS Simulator / Desktop / Web -> http://localhost:3000
+  /// - Physical Phone / Wi-Fi -> http://192.168.1.8:3000
+  /// - Desktop / Web -> http://localhost:3000
   String get defaultServerUrl {
     if (kIsWeb) {
       return 'http://localhost:3000';
     }
     if (Platform.isAndroid) {
-      // 10.0.2.2 routes to the host computer's localhost from Android emulator
-      return 'http://10.0.2.2:3000';
+      return 'http://192.168.1.8:3000';
     }
     return 'http://localhost:3000';
   }
@@ -105,48 +112,51 @@ class AppConfigService {
     _isLoading = true;
     _syncError = null;
 
-    final targetUrl = '$serverBaseUrl$configEndpoint';
-    debugPrint('[AppConfigService] Fetching remote screen config from: $targetUrl');
+    final urlsToTry = <String>{
+      serverBaseUrl,
+      ...candidateUrls,
+    }.toList();
 
-    try {
-      final response = await http
-          .get(
-            Uri.parse(targetUrl),
-            headers: {
-              'Accept': 'application/json',
-              'Cache-Control': 'no-cache',
-            },
-          )
-          .timeout(const Duration(milliseconds: 3500));
+    for (final base in urlsToTry) {
+      final targetUrl = '$base$configEndpoint';
+      try {
+        final response = await http
+            .get(
+              Uri.parse(targetUrl),
+              headers: {
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache',
+              },
+            )
+            .timeout(const Duration(milliseconds: 2500));
 
-      if (response.statusCode == 200) {
-        final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-        final newConfig = AppRemoteConfig.fromJson(decoded);
+        if (response.statusCode == 200) {
+          final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+          final newConfig = AppRemoteConfig.fromJson(decoded);
 
-        configNotifier.value = newConfig;
-        _lastSyncedAt = DateTime.now();
-        _syncError = null;
+          _cachedServerUrl = base;
+          configNotifier.value = newConfig;
+          _lastSyncedAt = DateTime.now();
+          _syncError = null;
 
-        // Persist to local cache for offline startup
-        try {
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString(_cacheKey, response.body);
-        } catch (_) {}
+          // Persist to local cache for offline startup
+          try {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString(_cacheKey, response.body);
+            await prefs.setString(_customServerUrlKey, base);
+          } catch (_) {}
 
-        debugPrint('[AppConfigService] Successfully synced ${newConfig.screens.length} screens from admin panel!');
-        _isLoading = false;
-        return true;
-      } else {
-        _syncError = 'Server returned status ${response.statusCode}';
-        debugPrint('[AppConfigService] Server returned error status: ${response.statusCode}');
+          debugPrint('[AppConfigService] Successfully synced from $base!');
+          _isLoading = false;
+          return true;
+        }
+      } catch (e) {
+        debugPrint('[AppConfigService] Failed trying $targetUrl: $e');
       }
-    } catch (e) {
-      _syncError = e.toString();
-      debugPrint('[AppConfigService] Network fetch skipped/failed (will use cached/defaults): $e');
-    } finally {
-      _isLoading = false;
     }
 
+    _isLoading = false;
+    _syncError = 'Could not reach server on any candidate URL';
     return false;
   }
 
