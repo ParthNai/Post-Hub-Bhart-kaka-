@@ -9,6 +9,7 @@ import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
 import 'package:panchayat_post/features/festivals/data/services/festival_service.dart';
 import 'package:panchayat_post/features/festivals/domain/models/festival_item.dart';
+import 'package:panchayat_post/features/splash/presentation/widgets/brand_logo_widget.dart';
 
 /// Screen 10: Festival & Upcoming Events Listing
 /// Matching the approved Screen 10 UI reference image with high fidelity.
@@ -823,10 +824,8 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
                   const SizedBox(width: 8.0),
 
                   // Panchayat Post Logo
-                  Image.asset(
-                    AppAssets.panchayatLogo,
+                  const BrandLogoWidget(
                     height: 32.0,
-                    fit: BoxFit.contain,
                   ),
                   const SizedBox(width: 5.0),
                   const Column(

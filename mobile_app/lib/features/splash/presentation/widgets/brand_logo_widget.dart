@@ -18,7 +18,7 @@ class BrandLogoWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // In the reference image, the logo occupies approximately 52% of the screen width
     final screenWidth = MediaQuery.of(context).size.width;
-    final effectiveWidth = width ?? (screenWidth * 0.52).clamp(190.0, 260.0);
+    final effectiveWidth = width ?? (height == null ? (screenWidth * 0.52).clamp(190.0, 260.0) : null);
 
     return ValueListenableBuilder(
       valueListenable: AppConfigService.instance.configNotifier,
@@ -32,6 +32,7 @@ class BrandLogoWidget extends StatelessWidget {
           return Image.network(
             fullUrl,
             width: effectiveWidth,
+            height: height,
             fit: BoxFit.contain,
             filterQuality: FilterQuality.high,
             errorBuilder: (context, error, stackTrace) => _buildLocalFallback(effectiveWidth),
@@ -43,16 +44,18 @@ class BrandLogoWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildLocalFallback(double effectiveWidth) {
+  Widget _buildLocalFallback(double? effectiveWidth) {
     return Image.asset(
       AppAssets.panchayatLogo,
       width: effectiveWidth,
+      height: height,
       fit: BoxFit.contain,
       filterQuality: FilterQuality.high,
       errorBuilder: (context, error, stackTrace) {
         return Image.asset(
           AppAssets.panchayatLogoOriginal,
           width: effectiveWidth,
+          height: height,
           fit: BoxFit.contain,
         );
       },

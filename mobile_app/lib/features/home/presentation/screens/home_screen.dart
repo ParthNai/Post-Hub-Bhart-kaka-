@@ -13,6 +13,7 @@ import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
 import 'package:panchayat_post/features/home/data/home_content_service.dart';
+import 'package:panchayat_post/features/splash/presentation/widgets/brand_logo_widget.dart';
 
 /// Screen 09: Main Home Dashboard Screen
 ///
@@ -1019,10 +1020,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     alignment: Alignment.center,
-                    child: Image.asset(
-                      AppAssets.panchayatLogo,
+                    child: const BrandLogoWidget(
                       height: 34.0,
-                      fit: BoxFit.contain,
                     ),
                   ),
                   const SizedBox(width: 12.0),
