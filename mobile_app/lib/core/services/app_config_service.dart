@@ -51,14 +51,15 @@ class AppConfigService {
   /// Candidate server endpoints to probe on local network & USB
   List<String> get candidateServerUrls {
     return [
-      'http://localhost:3000', // USB adb reverse
+      'http://127.0.0.1:3000', // USB adb reverse (direct IP literal avoids Android DNS localhost failure)
+      'http://localhost:3000',
       'http://10.161.80.70:3000', // Local Wi-Fi network host IP
       'http://10.0.2.2:3000', // Android emulator loopback
     ];
   }
 
   /// Determines the best default server host for the current runtime platform:
-  /// - Android Device -> http://localhost:3000 (via adb reverse tcp:3000 tcp:3000) or Wi-Fi http://10.161.80.70:3000
+  /// - Android Device -> http://127.0.0.1:3000 (via adb reverse tcp:3000 tcp:3000)
   /// - Web / iOS / Desktop -> http://localhost:3000
   String get defaultServerUrl {
     const envUrl = String.fromEnvironment('BACKEND_URL');
@@ -67,7 +68,7 @@ class AppConfigService {
       return 'http://localhost:3000';
     }
     if (Platform.isAndroid) {
-      return 'http://localhost:3000';
+      return 'http://127.0.0.1:3000';
     }
     return 'http://localhost:3000';
   }
