@@ -1185,6 +1185,8 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
                 w: w,
                 h: h,
                 adminImageUrl: _getAdminFrameUrl(_selectedFrameId),
+                customPhotoUrl: _project.frameUserPhoto,
+                onTapPhoto: _pickFramePhotoAction,
               ),
           ],
         );
@@ -1829,9 +1831,242 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
               },
             ),
           ),
+          const SizedBox(height: 16.0),
+          const Divider(height: 1.0, color: Color(0xFFE2E8F0)),
+          const SizedBox(height: 14.0),
+
+          // User Photo Customization for Frames
+          Row(
+            children: [
+              // Photo Thumbnail Preview
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: 48.0,
+                    height: 48.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: const Color(0xFF7C3AED), width: 2.0),
+                      color: const Color(0xFFF1F5F9),
+                    ),
+                    child: ClipOval(
+                      child: _buildFramePhotoThumbnail(),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: -2,
+                    right: -2,
+                    child: Container(
+                      padding: const EdgeInsets.all(3.0),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF7C3AED),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.camera_alt_rounded, size: 10.0, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 12.0),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Your Photo in Frame',
+                      style: TextStyle(
+                        fontSize: 13.0,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1E293B),
+                      ),
+                    ),
+                    const SizedBox(height: 2.0),
+                    Text(
+                      _project.frameUserPhoto != null
+                          ? 'Custom photo applied to frame'
+                          : 'Default profile photo active',
+                      style: const TextStyle(fontSize: 11.0, color: Color(0xFF64748B)),
+                    ),
+                  ],
+                ),
+              ),
+              // Action Button to Choose Photo
+              ElevatedButton.icon(
+                key: const ValueKey('btn_choose_frame_photo'),
+                onPressed: _pickFramePhotoAction,
+                icon: const Icon(Icons.add_photo_alternate_rounded, size: 16.0),
+                label: const Text('Choose Photo'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF7C3AED),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                  textStyle: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                ),
+              ),
+            ],
+          ),
+          if (_project.frameUserPhoto != null) ...[
+            const SizedBox(height: 8.0),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                key: const ValueKey('btn_reset_frame_photo'),
+                onPressed: () {
+                  setState(() {
+                    _project = _project.copyWith(frameUserPhoto: null);
+                    _hasUnsavedChanges = true;
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Frame photo reset to profile photo')),
+                  );
+                },
+                icon: const Icon(Icons.refresh_rounded, size: 14.0, color: Color(0xFFDC2626)),
+                label: const Text(
+                  'Reset to Default Photo',
+                  style: TextStyle(fontSize: 11.0, color: Color(0xFFDC2626), fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  Widget _buildFramePhotoThumbnail() {
+    final photoUrl = _project.frameUserPhoto ?? _currentUser?.profilePhotoUrl;
+    if (photoUrl == null || photoUrl.isEmpty) {
+      return const Icon(Icons.person_rounded, size: 28.0, color: Color(0xFF94A3B8));
+    }
+    if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) {
+      return Image.network(photoUrl, fit: BoxFit.cover, errorBuilder: (_, _, _) => const Icon(Icons.person_rounded, size: 28.0, color: Color(0xFF94A3B8)));
+    }
+    if (photoUrl.startsWith('data:image') || photoUrl.length > 200) {
+      try {
+        final clean = photoUrl.contains(',') ? photoUrl.split(',').last : photoUrl;
+        return Image.memory(base64Decode(clean), fit: BoxFit.cover, errorBuilder: (_, _, _) => const Icon(Icons.person_rounded, size: 28.0, color: Color(0xFF94A3B8)));
+      } catch (_) {}
+    }
+    return Image.asset(photoUrl, fit: BoxFit.cover, errorBuilder: (_, _, _) => const Icon(Icons.person_rounded, size: 28.0, color: Color(0xFF94A3B8)));
+  }
+
+  void _pickFramePhotoAction() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40.0,
+                  height: 4.0,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFCBD5E1),
+                    borderRadius: BorderRadius.circular(2.0),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              const Text(
+                'Choose Frame Photo / Cutout',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+              const SizedBox(height: 4.0),
+              const Text(
+                'Select your photo or transparent cutout to stamp inside the frame.',
+                style: TextStyle(fontSize: 12.0, color: Color(0xFF64748B)),
+              ),
+              const SizedBox(height: 14.0),
+
+              // Gallery Option
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEDE9FE),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: const Icon(Icons.photo_library_rounded, color: Color(0xFF7C3AED)),
+                ),
+                title: const Text('Choose from Device Gallery', style: TextStyle(fontWeight: FontWeight.w700)),
+                subtitle: const Text('Pick your portrait or background-removed cutout photo'),
+                onTap: () async {
+                  Navigator.of(ctx).pop();
+                  await _pickFramePhotoFromSource(ImageSource.gallery);
+                },
+              ),
+
+              // Camera Option
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF3C7),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: const Icon(Icons.camera_alt_rounded, color: Color(0xFFD97706)),
+                ),
+                title: const Text('Take Photo with Camera', style: TextStyle(fontWeight: FontWeight.w700)),
+                subtitle: const Text('Capture direct leader portrait with device camera'),
+                onTap: () async {
+                  Navigator.of(ctx).pop();
+                  await _pickFramePhotoFromSource(ImageSource.camera);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickFramePhotoFromSource(ImageSource source) async {
+    try {
+      final XFile? file = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 90,
+      );
+      if (file == null) return;
+
+      final bytes = await file.readAsBytes();
+      final base64String = base64Encode(bytes);
+
+      setState(() {
+        _project = _project.copyWith(frameUserPhoto: base64String);
+        _hasUnsavedChanges = true;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Frame photo updated successfully!'),
+            backgroundColor: Color(0xFF16A34A),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error picking frame photo: $e')),
+        );
+      }
+    }
   }
 
   Widget _buildTextTabPanel(AppStrings s) {

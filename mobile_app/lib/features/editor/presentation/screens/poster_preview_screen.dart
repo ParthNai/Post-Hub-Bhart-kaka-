@@ -719,6 +719,7 @@ class _PosterPreviewScreenState extends State<PosterPreviewScreen> {
                 w: w,
                 h: h,
                 adminImageUrl: _project.frameImageUrl,
+                customPhotoUrl: _project.frameUserPhoto,
               ),
           ],
         );

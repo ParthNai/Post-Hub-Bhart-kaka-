@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 
@@ -76,6 +77,8 @@ class PosterFrameOverlay extends StatelessWidget {
     required this.w,
     required this.h,
     this.adminImageUrl,
+    this.customPhotoUrl,
+    this.onTapPhoto,
   });
 
   final String frameId;
@@ -83,6 +86,8 @@ class PosterFrameOverlay extends StatelessWidget {
   final double w;
   final double h;
   final String? adminImageUrl;
+  final String? customPhotoUrl;
+  final VoidCallback? onTapPhoto;
 
   @override
   Widget build(BuildContext context) {
@@ -132,6 +137,53 @@ class PosterFrameOverlay extends StatelessWidget {
   }
 
   double get _scale => (w / 340.0).clamp(0.6, 1.8);
+
+  String? get _effectivePhotoUrl {
+    if (customPhotoUrl != null && customPhotoUrl!.isNotEmpty) {
+      return customPhotoUrl;
+    }
+    return user?.profilePhotoUrl;
+  }
+
+  Widget _buildResolvedImage(
+    String? url, {
+    required BoxFit fit,
+    required Widget fallback,
+    Alignment alignment = Alignment.center,
+  }) {
+    if (url == null || url.isEmpty) return fallback;
+
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return Image.network(
+        url,
+        fit: fit,
+        alignment: alignment,
+        errorBuilder: (_, _, _) => fallback,
+      );
+    }
+
+    if (url.startsWith('data:image') || url.length > 200) {
+      try {
+        final cleanBase64 = url.contains(',') ? url.split(',').last : url;
+        final bytes = base64Decode(cleanBase64);
+        return Image.memory(
+          bytes,
+          fit: fit,
+          alignment: alignment,
+          errorBuilder: (_, _, _) => fallback,
+        );
+      } catch (_) {
+        return fallback;
+      }
+    }
+
+    return Image.asset(
+      url,
+      fit: fit,
+      alignment: alignment,
+      errorBuilder: (_, _, _) => fallback,
+    );
+  }
 
   // 0. Transparent Background Cutout Leader Frame (Signature Indian Panchayat / Sarpanch Style)
   Widget _buildCutoutLeaderFrame() {
@@ -245,7 +297,7 @@ class PosterFrameOverlay extends StatelessWidget {
   }
 
   Widget _buildCutoutPhoto(double w, double h) {
-    return ShaderMask(
+    final photo = ShaderMask(
       shaderCallback: (Rect bounds) {
         return const LinearGradient(
           begin: Alignment.topCenter,
@@ -257,23 +309,44 @@ class PosterFrameOverlay extends StatelessWidget {
       blendMode: BlendMode.dstIn,
       child: Container(
         alignment: Alignment.bottomCenter,
-        child: user?.profilePhotoUrl != null && user!.profilePhotoUrl!.isNotEmpty
-            ? (user!.profilePhotoUrl!.startsWith('http')
-                ? Image.network(
-                    user!.profilePhotoUrl!,
-                    fit: BoxFit.contain,
-                    alignment: Alignment.bottomCenter,
-                    errorBuilder: (_, _, _) => _fallbackCutoutAvatar(h),
-                  )
-                : Image.asset(
-                    user!.profilePhotoUrl!,
-                    fit: BoxFit.contain,
-                    alignment: Alignment.bottomCenter,
-                    errorBuilder: (_, _, _) => _fallbackCutoutAvatar(h),
-                  ))
-            : _fallbackCutoutAvatar(h),
+        child: _buildResolvedImage(
+          _effectivePhotoUrl,
+          fit: BoxFit.contain,
+          alignment: Alignment.bottomCenter,
+          fallback: _fallbackCutoutAvatar(h),
+        ),
       ),
     );
+
+    if (onTapPhoto != null) {
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTapPhoto,
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            photo,
+            Positioned(
+              top: 6,
+              right: 6,
+              child: Container(
+                padding: const EdgeInsets.all(4.0),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFEA580C),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 1)),
+                  ],
+                ),
+                child: const Icon(Icons.camera_alt_rounded, size: 12.0, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return photo;
   }
 
   Widget _fallbackCutoutAvatar(double h) {
@@ -717,7 +790,7 @@ class PosterFrameOverlay extends StatelessWidget {
   }
 
   Widget _buildCircularPhoto(double size, Color ringColor) {
-    return Container(
+    final photo = Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
@@ -732,21 +805,43 @@ class PosterFrameOverlay extends StatelessWidget {
         ],
       ),
       child: ClipOval(
-        child: user?.profilePhotoUrl != null && user!.profilePhotoUrl!.isNotEmpty
-            ? (user!.profilePhotoUrl!.startsWith('http')
-                ? Image.network(
-                    user!.profilePhotoUrl!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => _fallbackAvatar(),
-                  )
-                : Image.asset(
-                    user!.profilePhotoUrl!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => _fallbackAvatar(),
-                  ))
-            : _fallbackAvatar(),
+        child: _buildResolvedImage(
+          _effectivePhotoUrl,
+          fit: BoxFit.cover,
+          fallback: _fallbackAvatar(),
+        ),
       ),
     );
+
+    if (onTapPhoto != null) {
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTapPhoto,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            photo,
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.all(3.0),
+                decoration: BoxDecoration(
+                  color: ringColor,
+                  shape: BoxShape.circle,
+                  boxShadow: const [
+                    BoxShadow(color: Colors.black26, blurRadius: 3),
+                  ],
+                ),
+                child: const Icon(Icons.camera_alt_rounded, size: 10.0, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return photo;
   }
 
   Widget _fallbackAvatar() {

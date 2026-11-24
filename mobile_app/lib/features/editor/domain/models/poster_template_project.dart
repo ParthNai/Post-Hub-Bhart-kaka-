@@ -20,6 +20,7 @@ class PosterTemplateProject {
     this.previewAsset,
     this.frameId = 'gold_vip',
     this.frameImageUrl,
+    this.frameUserPhoto,
   }) : createdAt = createdAt ?? updatedAt;
 
   final String id;
@@ -36,6 +37,7 @@ class PosterTemplateProject {
   final String? previewAsset;
   final String? frameId;
   final String? frameImageUrl;
+  final String? frameUserPhoto;
 
   PosterTemplateProject copyWith({
     String? id,
@@ -52,6 +54,7 @@ class PosterTemplateProject {
     String? previewAsset,
     String? frameId,
     String? frameImageUrl,
+    String? frameUserPhoto,
   }) {
     return PosterTemplateProject(
       id: id ?? this.id,
@@ -68,6 +71,7 @@ class PosterTemplateProject {
       previewAsset: previewAsset ?? this.previewAsset,
       frameId: frameId ?? this.frameId,
       frameImageUrl: frameImageUrl ?? this.frameImageUrl,
+      frameUserPhoto: frameUserPhoto ?? this.frameUserPhoto,
     );
   }
 
@@ -97,6 +101,7 @@ class PosterTemplateProject {
         'previewAsset': previewAsset,
         'frameId': frameId,
         'frameImageUrl': frameImageUrl,
+        'frameUserPhoto': frameUserPhoto,
       };
 
   factory PosterTemplateProject.fromMap(Map<String, dynamic> map) {
@@ -121,6 +126,7 @@ class PosterTemplateProject {
       previewAsset: map['previewAsset'] as String?,
       frameId: map['frameId'] as String? ?? 'gold_vip',
       frameImageUrl: map['frameImageUrl'] as String?,
+      frameUserPhoto: map['frameUserPhoto'] as String?,
     );
   }
 
