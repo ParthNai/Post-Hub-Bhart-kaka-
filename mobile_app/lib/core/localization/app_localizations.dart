@@ -462,6 +462,40 @@ class AppStrings {
     required this.editAgainButton,
     required this.saveDraftButton,
     required this.continueToExportButton,
+    // Screen 20: Export Poster
+    required this.exportPosterTitle,
+    required this.exportPosterSubtitle,
+    required this.previewButton,
+    required this.fileFormatTitle,
+    required this.pngLabel,
+    required this.pngSubtitle,
+    required this.jpgLabel,
+    required this.jpgSubtitle,
+    required this.pdfLabel,
+    required this.pdfSubtitle,
+    required this.imageQualityTitle,
+    required this.qualityStandardLabel,
+    required this.qualityStandardSubtitle,
+    required this.qualityHighLabel,
+    required this.qualityHighSubtitle,
+    required this.qualityUltraLabel,
+    required this.qualityUltraSubtitle,
+    required this.resolutionTitle,
+    required this.resStandardLabel,
+    required this.resHighLabel,
+    required this.resOriginalLabel,
+    required this.additionalOptionsTitle,
+    required this.transparentBackgroundLabel,
+    required this.transparentBackgroundSubtitle,
+    required this.maintainAspectRatioLabel,
+    required this.maintainAspectRatioSubtitle,
+    required this.exportSummaryTitle,
+    required this.calculatingAfterExport,
+    required this.backgroundLabel,
+    required this.opaqueLabel,
+    required this.transparentLabel,
+    required this.exportPosterButton,
+    required this.originalPosterNote,
   });
 
   final String languageName;
@@ -936,6 +970,41 @@ class AppStrings {
   final String saveDraftButton;
   final String continueToExportButton;
 
+  // Screen 20 Strings
+  final String exportPosterTitle;
+  final String exportPosterSubtitle;
+  final String previewButton;
+  final String fileFormatTitle;
+  final String pngLabel;
+  final String pngSubtitle;
+  final String jpgLabel;
+  final String jpgSubtitle;
+  final String pdfLabel;
+  final String pdfSubtitle;
+  final String imageQualityTitle;
+  final String qualityStandardLabel;
+  final String qualityStandardSubtitle;
+  final String qualityHighLabel;
+  final String qualityHighSubtitle;
+  final String qualityUltraLabel;
+  final String qualityUltraSubtitle;
+  final String resolutionTitle;
+  final String resStandardLabel;
+  final String resHighLabel;
+  final String resOriginalLabel;
+  final String additionalOptionsTitle;
+  final String transparentBackgroundLabel;
+  final String transparentBackgroundSubtitle;
+  final String maintainAspectRatioLabel;
+  final String maintainAspectRatioSubtitle;
+  final String exportSummaryTitle;
+  final String calculatingAfterExport;
+  final String backgroundLabel;
+  final String opaqueLabel;
+  final String transparentLabel;
+  final String exportPosterButton;
+  final String originalPosterNote;
+
   static const String defaultLanguageCode = 'gu';
 
   static final Map<String, AppStrings> _localizedValues = {
@@ -1399,6 +1468,40 @@ class AppStrings {
       editAgainButton: 'ફરીથી એડિટ કરો',
       saveDraftButton: 'ડ્રાફ્ટ સાચવો',
       continueToExportButton: 'એક્સપોર્ટ આગળ વધો',
+      // Screen 20
+      exportPosterTitle: 'પોસ્ટર એક્સપોર્ટ કરો',
+      exportPosterSubtitle: 'તમારી પસંદગીના ડાઉનલોડ સેટિંગ્સ પસંદ કરો',
+      previewButton: 'પ્રિવ્યૂ',
+      fileFormatTitle: 'ફાઇલ ફોર્મેટ',
+      pngLabel: 'PNG',
+      pngSubtitle: 'ઉચ્ચ ગુણવત્તાવાળી ઇમેજ',
+      jpgLabel: 'JPG',
+      jpgSubtitle: 'નાની સાઇઝની ઇમેજ ફાઇલ',
+      pdfLabel: 'PDF',
+      pdfSubtitle: 'દસ્તાવેજ માટે તૈયાર ફોર્મેટ',
+      imageQualityTitle: 'ઇમેજ ગુણવત્તા',
+      qualityStandardLabel: 'સામાન્ય',
+      qualityStandardSubtitle: 'સારી ગુણવત્તા',
+      qualityHighLabel: 'ઉચ્ચ',
+      qualityHighSubtitle: 'શ્રેષ્ઠ ગુણવત્તા',
+      qualityUltraLabel: 'અલ્ટ્રા',
+      qualityUltraSubtitle: 'મહત્તમ ગુણવત્તા',
+      resolutionTitle: 'રિઝોલ્યુશન',
+      resStandardLabel: 'સામાન્ય રિઝોલ્યુશન',
+      resHighLabel: 'ઉચ્ચ રિઝોલ્યુશન',
+      resOriginalLabel: 'મૂળ પરિમાણ',
+      additionalOptionsTitle: 'વધારાના વિકલ્પો',
+      transparentBackgroundLabel: 'પારદર્શક બેકગ્રાઉન્ડ',
+      transparentBackgroundSubtitle: 'પારદર્શક બેકગ્રાઉન્ડ સાથે એક્સપોર્ટ કરો',
+      maintainAspectRatioLabel: 'મૂળ એસ્પેક્ટ રેશિયો જાળવો',
+      maintainAspectRatioSubtitle: 'મૂળ માપ જાળવી રાખો',
+      exportSummaryTitle: 'એક્સપોર્ટ સારાંશ',
+      calculatingAfterExport: 'એક્સપોર્ટ પછી ગણતરી થશે',
+      backgroundLabel: 'બેકગ્રાઉન્ડ',
+      opaqueLabel: 'અપારદર્શક',
+      transparentLabel: 'પારદર્શક',
+      exportPosterButton: 'પોસ્ટર એક્સપોર્ટ કરો',
+      originalPosterNote: 'તમારું મૂળ એડિટેબલ પોસ્ટર સુરક્ષિત રહેશે.',
     ),
     'hi': AppStrings(
       languageName: 'हिंदी',
@@ -1860,6 +1963,40 @@ class AppStrings {
       editAgainButton: 'पुनः संपादित करें',
       saveDraftButton: 'ड्राफ्ट सहेजें',
       continueToExportButton: 'निर्यात जारी रखें',
+      // Screen 20
+      exportPosterTitle: 'पोस्टर निर्यात करें',
+      exportPosterSubtitle: 'अपनी पसंदीदा डाउनलोड सेटिंग्स चुनें',
+      previewButton: 'पूर्वावलोकन',
+      fileFormatTitle: 'फ़ाइल प्रारूप',
+      pngLabel: 'PNG',
+      pngSubtitle: 'उच्च गुणवत्ता वाली छवि',
+      jpgLabel: 'JPG',
+      jpgSubtitle: 'छोटी फ़ाइल छवि',
+      pdfLabel: 'PDF',
+      pdfSubtitle: 'दस्तावेज़ तैयार प्रारूप',
+      imageQualityTitle: 'छवि गुणवत्ता',
+      qualityStandardLabel: 'मानक',
+      qualityStandardSubtitle: 'अच्छी गुणवत्ता',
+      qualityHighLabel: 'उच्च',
+      qualityHighSubtitle: 'सर्वश्रेष्ठ गुणवत्ता',
+      qualityUltraLabel: 'अल्ट्रा',
+      qualityUltraSubtitle: 'अधिकतम गुणवत्ता',
+      resolutionTitle: 'रिज़ॉल्यूशन',
+      resStandardLabel: 'मानक रिज़ॉल्यूशन',
+      resHighLabel: 'उच्च रिज़ॉल्यूशन',
+      resOriginalLabel: 'मूल आयाम',
+      additionalOptionsTitle: 'अतिरिक्त विकल्प',
+      transparentBackgroundLabel: 'पारदर्शी पृष्ठभूमि',
+      transparentBackgroundSubtitle: 'पारदर्शी पृष्ठभूमि के साथ निर्यात करें',
+      maintainAspectRatioLabel: 'मूल पहलू अनुपात बनाए रखें',
+      maintainAspectRatioSubtitle: 'मूल आयाम बनाए रखें',
+      exportSummaryTitle: 'निर्यात सारांश',
+      calculatingAfterExport: 'निर्यात के बाद गणना होगी',
+      backgroundLabel: 'पृष्ठभूमि',
+      opaqueLabel: 'अपारदर्शी',
+      transparentLabel: 'पारदर्शी',
+      exportPosterButton: 'पोस्टर निर्यात करें',
+      originalPosterNote: 'आपका मूल संपादन योग्य पोस्टर सुरक्षित रहेगा।',
     ),
     'en': AppStrings(
       languageName: 'English',
@@ -2321,6 +2458,40 @@ class AppStrings {
       editAgainButton: 'Edit Again',
       saveDraftButton: 'Save Draft',
       continueToExportButton: 'Continue to Export',
+      // Screen 20
+      exportPosterTitle: 'Export Poster',
+      exportPosterSubtitle: 'Choose your preferred download settings',
+      previewButton: 'Preview',
+      fileFormatTitle: 'File Format',
+      pngLabel: 'PNG',
+      pngSubtitle: 'High-quality image',
+      jpgLabel: 'JPG',
+      jpgSubtitle: 'Smaller image file',
+      pdfLabel: 'PDF',
+      pdfSubtitle: 'Document-ready format',
+      imageQualityTitle: 'Image Quality',
+      qualityStandardLabel: 'Standard',
+      qualityStandardSubtitle: 'Good quality',
+      qualityHighLabel: 'High',
+      qualityHighSubtitle: 'Best quality',
+      qualityUltraLabel: 'Ultra',
+      qualityUltraSubtitle: 'Maximum quality',
+      resolutionTitle: 'Resolution',
+      resStandardLabel: 'Standard Resolution',
+      resHighLabel: 'High Resolution',
+      resOriginalLabel: 'Original Dimensions',
+      additionalOptionsTitle: 'Additional Options',
+      transparentBackgroundLabel: 'Transparent Background',
+      transparentBackgroundSubtitle: 'Export with transparent background',
+      maintainAspectRatioLabel: 'Maintain Original Aspect Ratio',
+      maintainAspectRatioSubtitle: 'Keep the original dimensions',
+      exportSummaryTitle: 'Export Summary',
+      calculatingAfterExport: 'Calculating after export',
+      backgroundLabel: 'Background',
+      opaqueLabel: 'Opaque',
+      transparentLabel: 'Transparent',
+      exportPosterButton: 'Export Poster',
+      originalPosterNote: 'Your original editable poster will remain saved.',
     ),
   };
 

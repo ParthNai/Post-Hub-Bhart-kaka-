@@ -236,8 +236,8 @@ class _FinalPosterPreviewScreenState extends State<FinalPosterPreviewScreen> {
 
   // ─── CONTINUE TO EXPORT ───────────────────────────────────────────────────
   void _continueToExport() {
-    // Navigate to Screen 13/20 Poster Preview & Export workflow
-    Navigator.of(context).pushNamed(AppRoutes.posterPreview, arguments: _project);
+    // Navigate to Screen 20 Export Poster settings workflow
+    Navigator.of(context).pushNamed(AppRoutes.exportPoster, arguments: _project);
   }
 
   @override
