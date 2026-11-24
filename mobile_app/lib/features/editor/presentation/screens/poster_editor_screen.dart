@@ -109,7 +109,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
     if (widget.initialProject != null) {
       _project = widget.initialProject!;
     } else if (widget.festivalPosterTemplate != null) {
-      _project = PosterTemplateProject.createDefaultNavratriProject(
+      _project = PosterTemplateProject.createProjectFromTemplate(
         templateId: widget.festivalPosterTemplate!.id,
         imageAsset: widget.festivalPosterTemplate!.imageAsset,
         title: widget.festivalPosterTemplate!.title,
@@ -146,7 +146,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
         });
       } else if (args is FestivalPosterTemplate) {
         setState(() {
-          _project = PosterTemplateProject.createDefaultNavratriProject(
+          _project = PosterTemplateProject.createProjectFromTemplate(
             templateId: args.id,
             imageAsset: args.imageAsset,
             title: args.title,

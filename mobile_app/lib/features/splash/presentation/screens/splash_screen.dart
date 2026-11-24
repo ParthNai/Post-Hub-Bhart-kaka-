@@ -35,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
   bool _isVideoInitialized = false;
   bool _isVideoError = false;
   bool _needsUserGesture = false;
-  bool _isConfigReady = false;
+  bool _isConfigReady = true;
   bool _hasNavigated = false;
   String _targetRoute = AppRoutes.welcome;
   Timer? _fallbackTimer;
@@ -55,16 +55,9 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _startPreloaderLifecycle() async {
-    // Start config loading first so both callers await the same remote sync.
-    final configFuture = AppConfigService.instance.initialize();
-    final initFuture = _initService.initialize();
-    await configFuture;
-    if (!mounted) return;
-    setState(() {
-      _isConfigReady = true;
-    });
+    // Initiate remote sync without blocking session initialization
+    unawaited(AppConfigService.instance.initialize());
 
-    // Read config only after the remote sync has had a chance to update it.
     final config = AppConfigService.instance.config;
     debugPrint(
       '[SplashScreen] Preloader config: mediaType=${config.preloaderMediaType}, '
@@ -73,7 +66,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Check if preloader screen is disabled by admin
     if (!config.isPreloaderEnabled) {
-      final result = await initFuture;
+      final result = await _initService.initialize();
       _navigateToRoute(_determineTargetRoute(result.sessionState));
       return;
     }
@@ -88,15 +81,12 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     // 4. Await session determination
-    final result = await initFuture;
+    final result = await _initService.initialize();
     _targetRoute = _determineTargetRoute(result.sessionState);
 
-    // 5. If animation mode, wait for configured duration then proceed
+    // 5. If animation mode, navigate once initialization is complete
     if (!isVideoMode) {
-      final durationMs = config.preloaderDurationMs > 0 ? config.preloaderDurationMs : 2500;
-      _fallbackTimer = Timer(Duration(milliseconds: durationMs), () {
-        _navigateToRoute(_targetRoute);
-      });
+      _navigateToRoute(_targetRoute);
     }
   }
 
@@ -452,7 +442,11 @@ class _SplashScreenState extends State<SplashScreen> {
       );
     }
 
-    // Curated Preset Emblem (🏛️, 🇮🇳, 🦁, 🌾, 👑, etc.)
+    // Official brand logo fallback or Curated Preset Emblem
+    if (config.appIconPreset.isEmpty || config.appIconPreset == '🇮🇳' || config.appIconPreset == 'logo') {
+      return const BrandLogoWidget(width: 82.0);
+    }
+
     final bgGradient = _resolveIconBgGradient(config.appIconBgColor);
     return Container(
       width: 82.0,

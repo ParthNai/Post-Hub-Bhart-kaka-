@@ -117,6 +117,55 @@ class PosterTemplateProject {
   factory PosterTemplateProject.fromJson(String source) =>
       PosterTemplateProject.fromMap(jsonDecode(source) as Map<String, dynamic>);
 
+  /// Creates a dynamic design project from any festival, panchayat, or admin poster template.
+  /// If the template is Navratri-specific, bundles the Navratri Garba elements.
+  /// Otherwise, keeps the canvas focused on the template's background artwork and headline.
+  static PosterTemplateProject createProjectFromTemplate({
+    required String templateId,
+    required String imageAsset,
+    required String title,
+    String? category,
+  }) {
+    final lowerTitle = title.toLowerCase();
+    final lowerId = templateId.toLowerCase();
+    final isNavratri = lowerTitle.contains('navratri') ||
+        lowerTitle.contains('નવરાત્રી') ||
+        lowerId.contains('navratri');
+
+    if (isNavratri) {
+      return createDefaultNavratriProject(
+        templateId: templateId,
+        imageAsset: imageAsset,
+        title: title,
+      );
+    }
+
+    return PosterTemplateProject(
+      id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
+      templateId: templateId,
+      title: title,
+      backgroundAsset: imageAsset,
+      backgroundColor: const Color(0xFF1E293B),
+      category: category ?? 'General',
+      updatedAt: DateTime.now(),
+      elements: [
+        PosterElement(
+          id: 'elem_headline',
+          type: PosterElementType.text,
+          text: title,
+          x: 0.5,
+          y: 0.18,
+          fontSize: 28.0,
+          color: const Color(0xFFFDE68A),
+          fontFamily: 'Poppins',
+          textAlign: TextAlign.center,
+          isBold: true,
+          isSelected: true,
+        ),
+      ],
+    );
+  }
+
   /// Creates default project for Screen 12 matching the reference image exactly.
   static PosterTemplateProject createDefaultNavratriProject({
     String? templateId,

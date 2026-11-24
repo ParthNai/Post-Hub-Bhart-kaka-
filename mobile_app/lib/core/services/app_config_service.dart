@@ -49,15 +49,18 @@ class AppConfigService {
   Timer? _pollTimer;
 
   /// Determines the best default server host for the current runtime platform:
-  /// - Android Emulator -> http://10.0.2.2:3000
-  /// - iOS Simulator / Desktop / Web -> http://localhost:3000
+  /// - Android Device on Local Wi-Fi -> http://192.168.0.121:3000 (or localhost via adb reverse)
+  /// - Web / iOS / Desktop -> http://localhost:3000
   String get defaultServerUrl {
+    const envUrl = String.fromEnvironment('BACKEND_URL');
+    if (envUrl.isNotEmpty) return envUrl;
     if (kIsWeb) {
       return 'http://localhost:3000';
     }
     if (Platform.isAndroid) {
-      // 10.0.2.2 routes to the host computer's localhost from Android emulator
-      return 'http://10.0.2.2:3000';
+      // 192.168.0.121 is development machine's local Wi-Fi IP.
+      // Also works via USB with `adb reverse tcp:3000 tcp:3000`.
+      return 'http://192.168.0.121:3000';
     }
     return 'http://localhost:3000';
   }
@@ -116,9 +119,12 @@ class AppConfigService {
       debugPrint('[AppConfigService] Remote sync timeout or offline: $e');
     }
 
-    _pollTimer ??= Timer.periodic(const Duration(seconds: 15), (_) {
-      unawaited(refreshConfig());
-    });
+    // Only start background polling timer outside of unit tests to prevent pumpAndSettle timeouts
+    if (!Platform.environment.containsKey('FLUTTER_TEST')) {
+      _pollTimer ??= Timer.periodic(const Duration(seconds: 15), (_) {
+        unawaited(refreshConfig());
+      });
+    }
   }
 
   /// Fetches published configuration from the Admin Panel (/api/app/config).

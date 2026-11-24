@@ -250,7 +250,7 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                   ),
                   onPressed: () {
                     Navigator.of(ctx).pop();
-                    final project = PosterTemplateProject.createDefaultNavratriProject(
+                    final project = PosterTemplateProject.createProjectFromTemplate(
                       templateId: template?.id ?? 'festival_${_currentFestival.id}',
                       imageAsset: template?.imageAsset ?? _currentFestival.imageAsset,
                       title: template?.title ?? _currentFestival.name,
@@ -1453,7 +1453,7 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
               ),
             ),
             onPressed: () {
-              final project = PosterTemplateProject.createDefaultNavratriProject(
+              final project = PosterTemplateProject.createProjectFromTemplate(
                 templateId: 'festival_${_currentFestival.id}',
                 imageAsset: _currentFestival.imageAsset,
                 title: _currentFestival.name,

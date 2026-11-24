@@ -474,7 +474,7 @@ class _HomeScreenState extends State<HomeScreen> {
     bool useNetworkImage = false,
   }) {
     // When opening any poster template from Home, directly open Screen 12 (Poster Template Editor Studio)
-    final project = PosterTemplateProject.createDefaultNavratriProject(
+    final project = PosterTemplateProject.createProjectFromTemplate(
       templateId: 'home_template_${title.toLowerCase().replaceAll(' ', '_')}',
       imageAsset: asset,
       title: title,
