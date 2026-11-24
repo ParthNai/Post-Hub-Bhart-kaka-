@@ -476,7 +476,9 @@ class PosterFrameOverlay extends StatelessWidget {
                       final config = AppConfigService.instance.config;
                       final logoUrl = config.logoUrl ?? config.appIconUrl;
                       if (logoUrl != null && logoUrl.isNotEmpty) {
-                        final fullUrl = AppConfigService.instance.resolveMediaUrl(logoUrl);
+                        final fullUrl = logoUrl.startsWith('http')
+                            ? logoUrl
+                            : '${AppConfigService.instance.serverBaseUrl}$logoUrl';
                         return Image.network(
                           fullUrl,
                           fit: BoxFit.contain,

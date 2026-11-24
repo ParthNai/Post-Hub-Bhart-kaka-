@@ -18,6 +18,7 @@ class PosterTemplateProject {
     this.category = 'Festivals',
     this.isFavorite = false,
     this.previewAsset,
+    this.frameId = 'gold_vip',
   }) : createdAt = createdAt ?? updatedAt;
 
   final String id;
@@ -32,6 +33,7 @@ class PosterTemplateProject {
   final String category;
   final bool isFavorite;
   final String? previewAsset;
+  final String frameId;
 
   PosterTemplateProject copyWith({
     String? id,
@@ -46,6 +48,7 @@ class PosterTemplateProject {
     String? category,
     bool? isFavorite,
     String? previewAsset,
+    String? frameId,
   }) {
     return PosterTemplateProject(
       id: id ?? this.id,
@@ -60,6 +63,7 @@ class PosterTemplateProject {
       category: category ?? this.category,
       isFavorite: isFavorite ?? this.isFavorite,
       previewAsset: previewAsset ?? this.previewAsset,
+      frameId: frameId ?? this.frameId,
     );
   }
 
@@ -71,6 +75,7 @@ class PosterTemplateProject {
       title: newTitle ?? '$title (Copy)',
       updatedAt: now,
       createdAt: now,
+      frameId: frameId,
     );
   }
 
@@ -87,6 +92,7 @@ class PosterTemplateProject {
         'category': category,
         'isFavorite': isFavorite,
         'previewAsset': previewAsset,
+        'frameId': frameId,
       };
 
   factory PosterTemplateProject.fromMap(Map<String, dynamic> map) {
@@ -109,6 +115,7 @@ class PosterTemplateProject {
       category: map['category'] as String? ?? 'Festivals',
       isFavorite: map['isFavorite'] as bool? ?? false,
       previewAsset: map['previewAsset'] as String?,
+      frameId: map['frameId'] as String? ?? 'gold_vip',
     );
   }
 
@@ -117,18 +124,39 @@ class PosterTemplateProject {
   factory PosterTemplateProject.fromJson(String source) =>
       PosterTemplateProject.fromMap(jsonDecode(source) as Map<String, dynamic>);
 
+  /// Creates a clean festival poster project with the chosen artwork and no unwanted text overlays.
+  static PosterTemplateProject createFromFestivalTemplate({
+    required String templateId,
+    required String title,
+    required String imageAsset,
+    String frameId = 'gold_vip',
+  }) {
+    return PosterTemplateProject(
+      id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
+      templateId: templateId,
+      title: title,
+      backgroundAsset: imageAsset,
+      backgroundColor: const Color(0xFF1E293B),
+      frameId: frameId,
+      updatedAt: DateTime.now(),
+      elements: const [],
+    );
+  }
+
   /// Creates default project for Screen 12 matching the reference image exactly.
   static PosterTemplateProject createDefaultNavratriProject({
     String? templateId,
     String? imageAsset,
     String? title,
+    String? frameId,
   }) {
     return PosterTemplateProject(
       id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
       templateId: templateId ?? 'navratri_shubh',
       title: title ?? 'Navratri Celebration',
-      backgroundAsset: imageAsset ?? AppAssets.editorCanvasNavratri,
+      backgroundAsset: imageAsset ?? AppAssets.festivalPosterShubhNavratri,
       backgroundColor: const Color(0xFF2E0854),
+      frameId: frameId ?? 'gold_vip',
       updatedAt: DateTime.now(),
       elements: const [
         PosterElement(

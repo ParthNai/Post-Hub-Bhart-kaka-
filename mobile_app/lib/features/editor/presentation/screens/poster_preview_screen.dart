@@ -10,6 +10,7 @@ import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 import 'package:panchayat_post/features/editor/data/services/design_storage_service.dart';
 import 'package:panchayat_post/features/editor/data/services/poster_export_service.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
+import 'package:panchayat_post/features/editor/presentation/widgets/poster_frame_overlay.dart';
 
 /// Screen 13: Final Poster Preview, Download & Share
 /// Recreated with pixel-perfect reference fidelity from media_1795419839318_59d13792.jpg.
@@ -653,17 +654,14 @@ class _PosterPreviewScreenState extends State<PosterPreviewScreen> {
               ),
             ),
 
-            // Dandiya couple artwork
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Image.asset(
-                AppAssets.editorDandiyaCouple,
-                fit: BoxFit.contain,
-                errorBuilder: (_, _, _) => const SizedBox.shrink(),
+            // Active Frame Overlay
+            if (_project.frameId != 'none')
+              PosterFrameOverlay(
+                frameId: _project.frameId,
+                user: _currentUser,
+                w: w,
+                h: h,
               ),
-            ),
 
             // Text and layer elements
             for (final element in _project.elements)

@@ -319,7 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showTemplateEditorModal(BuildContext context, String title, String asset) {
-    final defaultProject = PosterTemplateProject.createDefaultNavratriProject(
+    final defaultProject = PosterTemplateProject.createFromFestivalTemplate(
       templateId: 'home_template_${title.toLowerCase().replaceAll(' ', '_')}',
       imageAsset: asset,
       title: title,
