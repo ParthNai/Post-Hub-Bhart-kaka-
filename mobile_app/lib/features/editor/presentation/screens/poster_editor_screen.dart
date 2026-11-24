@@ -1,15 +1,18 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/localization/app_localizations.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
+import 'package:panchayat_post/core/services/app_config_service.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 import 'package:panchayat_post/features/editor/data/services/design_storage_service.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_element.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
+import 'package:panchayat_post/features/editor/presentation/widgets/poster_frame_overlay.dart';
 import 'package:panchayat_post/features/festivals/domain/models/festival_item.dart';
 
 /// Screen 12: Poster Template Editor & Customization Studio
@@ -45,6 +48,8 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
 
   late PosterTemplateProject _project;
   UserProfile? _currentUser;
+  String _selectedFrameId = 'gold_vip';
+  List<PosterFrameDef> _adminFrames = [];
 
   // Undo / Redo history stacks
   final List<List<PosterElement>> _undoStack = [];
@@ -55,7 +60,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
   late final TextEditingController _supportingController;
 
   // Active Editor State
-  String _selectedTab = 'text'; // 'text', 'images', 'colors', 'background', 'fonts'
+  String _selectedTab = 'text'; // 'frames', 'text', 'images', 'colors', 'background', 'fonts'
   String? _selectedElementId = 'elem_headline';
   double _zoomLevel = 1.0; // 1.0 (100%), 1.25 (125%), 1.5 (150%)
   bool _isSaving = false;
@@ -103,6 +108,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
 
     _initProject();
     _loadUser();
+    _fetchAdminFrames();
   }
 
   void _initProject() {
@@ -118,18 +124,88 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
       _project = PosterTemplateProject.createDefaultNavratriProject();
     }
 
-    final headline = _project.elements
-        .firstWhere((e) => e.id == 'elem_headline', orElse: () => _project.elements.first)
-        .text;
-    final supporting = _project.elements
-        .firstWhere(
-          (e) => e.id == 'elem_supporting',
-          orElse: () => _project.elements.length > 1 ? _project.elements[1] : _project.elements.first,
-        )
-        .text;
+    _selectedFrameId = _project.frameId ?? 'gold_vip';
 
-    _headlineController = TextEditingController(text: headline);
-    _supportingController = TextEditingController(text: supporting);
+    final hElem = _project.elements.where((e) => e.id == 'elem_headline').firstOrNull;
+    final sElem = _project.elements.where((e) => e.id == 'elem_supporting').firstOrNull;
+
+    _headlineController = TextEditingController(text: hElem?.text ?? '');
+    _supportingController = TextEditingController(text: sElem?.text ?? '');
+  }
+
+  Future<void> _fetchAdminFrames() async {
+    try {
+      final baseUrl = AppConfigService.instance.serverBaseUrl;
+      final uri = Uri.parse('$baseUrl/adminapi/frame');
+      final resp = await http.get(uri).timeout(const Duration(seconds: 4));
+      if (resp.statusCode == 200) {
+        final decoded = jsonDecode(resp.body);
+        final list = decoded['data'] as List<dynamic>?;
+        if (list != null && list.isNotEmpty) {
+          final List<PosterFrameDef> fetched = [];
+          for (final item in list) {
+            final id = item['_id']?.toString() ?? 'admin_${DateTime.now().millisecondsSinceEpoch}';
+            final name = item['frameName']?.toString() ?? 'Admin Frame';
+            String rawPath = item['path']?.toString() ?? '';
+            String imageUrl = rawPath;
+            if (rawPath.isNotEmpty && !rawPath.startsWith('http://') && !rawPath.startsWith('https://')) {
+              final cleanPath = rawPath.startsWith('/') ? rawPath.substring(1) : rawPath;
+              imageUrl = '$baseUrl/$cleanPath';
+            }
+            fetched.add(
+              PosterFrameDef(
+                id: 'admin_$id',
+                name: name,
+                previewColor: const Color(0xFF6D28D9),
+                badgeText: 'Admin',
+                imageUrl: imageUrl,
+              ),
+            );
+          }
+          if (mounted) {
+            setState(() {
+              _adminFrames = fetched;
+            });
+          }
+        }
+      }
+    } catch (_) {
+      // Keep offline defaults
+    }
+  }
+
+  String? _getAdminFrameUrl(String frameId) {
+    for (final f in _adminFrames) {
+      if (f.id == frameId) {
+        return f.imageUrl;
+      }
+    }
+    if (_project.frameImageUrl != null && _project.frameImageUrl!.isNotEmpty) {
+      return _project.frameImageUrl;
+    }
+    return null;
+  }
+
+  PosterElement get _effectiveSelectedElement {
+    if (_selectedElementId != null) {
+      final match = _project.elements.where((e) => e.id == _selectedElementId).firstOrNull;
+      if (match != null) return match;
+    }
+    if (_project.elements.isNotEmpty) {
+      return _project.elements.first;
+    }
+    return const PosterElement(
+      id: 'elem_headline',
+      type: PosterElementType.text,
+      text: '',
+      x: 0.5,
+      y: 0.20,
+      fontSize: 28.0,
+      color: Color(0xFFFDE68A),
+      fontFamily: 'Poppins',
+      textAlign: TextAlign.center,
+      isBold: true,
+    );
   }
 
   @override
@@ -141,6 +217,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
       if (args is PosterTemplateProject) {
         setState(() {
           _project = args;
+          _selectedFrameId = args.frameId ?? 'gold_vip';
           _headlineController.text = _getElementText('elem_headline');
           _supportingController.text = _getElementText('elem_supporting');
         });
@@ -151,12 +228,14 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
             imageAsset: args.imageAsset,
             title: args.title,
           );
+          _selectedFrameId = _project.frameId ?? 'gold_vip';
           _headlineController.text = _getElementText('elem_headline');
           _supportingController.text = _getElementText('elem_supporting');
         });
       } else if (args is Map<String, dynamic>) {
         setState(() {
           _project = PosterTemplateProject.fromMap(args);
+          _selectedFrameId = _project.frameId ?? 'gold_vip';
           _headlineController.text = _getElementText('elem_headline');
           _supportingController.text = _getElementText('elem_supporting');
         });
@@ -225,26 +304,74 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
   void _updateHeadline(String newText) {
     _recordHistory();
     setState(() {
-      final updated = _project.elements.map((e) {
-        if (e.id == 'elem_headline') {
-          return e.copyWith(text: newText);
+      final exists = _project.elements.any((e) => e.id == 'elem_headline');
+      if (exists) {
+        if (newText.isEmpty) {
+          _project = _project.copyWith(
+            elements: _project.elements.where((e) => e.id != 'elem_headline').toList(),
+          );
+        } else {
+          final updated = _project.elements.map((e) {
+            if (e.id == 'elem_headline') {
+              return e.copyWith(text: newText);
+            }
+            return e;
+          }).toList();
+          _project = _project.copyWith(elements: updated);
         }
-        return e;
-      }).toList();
-      _project = _project.copyWith(elements: updated);
+      } else if (newText.isNotEmpty) {
+        final newElem = PosterElement(
+          id: 'elem_headline',
+          type: PosterElementType.text,
+          text: newText,
+          x: 0.5,
+          y: 0.20,
+          fontSize: 28.0,
+          color: const Color(0xFFFDE68A),
+          fontFamily: 'Poppins',
+          textAlign: TextAlign.center,
+          isBold: true,
+          isSelected: true,
+        );
+        _project = _project.copyWith(elements: [..._project.elements, newElem]);
+        _selectedElementId = 'elem_headline';
+      }
     });
   }
 
   void _updateSupporting(String newText) {
     _recordHistory();
     setState(() {
-      final updated = _project.elements.map((e) {
-        if (e.id == 'elem_supporting') {
-          return e.copyWith(text: newText);
+      final exists = _project.elements.any((e) => e.id == 'elem_supporting');
+      if (exists) {
+        if (newText.isEmpty) {
+          _project = _project.copyWith(
+            elements: _project.elements.where((e) => e.id != 'elem_supporting').toList(),
+          );
+        } else {
+          final updated = _project.elements.map((e) {
+            if (e.id == 'elem_supporting') {
+              return e.copyWith(text: newText);
+            }
+            return e;
+          }).toList();
+          _project = _project.copyWith(elements: updated);
         }
-        return e;
-      }).toList();
-      _project = _project.copyWith(elements: updated);
+      } else if (newText.isNotEmpty) {
+        final newElem = PosterElement(
+          id: 'elem_supporting',
+          type: PosterElementType.text,
+          text: newText,
+          x: 0.5,
+          y: 0.32,
+          fontSize: 13.0,
+          color: Colors.white,
+          fontFamily: 'Poppins',
+          textAlign: TextAlign.center,
+          isBold: false,
+        );
+        _project = _project.copyWith(elements: [..._project.elements, newElem]);
+      }
     });
   }
 
@@ -301,6 +428,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
   }
 
   void _duplicateSelectedElement() {
+    if (_project.elements.isEmpty) return;
     final target = _project.elements.firstWhere(
       (e) => e.id == _selectedElementId,
       orElse: () => _project.elements.first,
@@ -546,8 +674,13 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
   Future<void> _saveDesign() async {
     setState(() => _isSaving = true);
 
+    final projectToSave = _project.copyWith(
+      frameId: _selectedFrameId,
+      frameImageUrl: _getAdminFrameUrl(_selectedFrameId),
+    );
+
     final success = await _storageService.saveDesign(
-      _project,
+      projectToSave,
       userId: _currentUser?.username ?? 'default_user',
     );
 
@@ -557,6 +690,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
       _isSaving = false;
       if (success) {
         _hasUnsavedChanges = false;
+        _project = projectToSave;
       }
     });
 
@@ -581,7 +715,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
     if (success) {
       Navigator.of(context).pushNamed(
         AppRoutes.posterPreview,
-        arguments: _project,
+        arguments: projectToSave,
       );
     }
   }
@@ -667,75 +801,102 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
         AppStrings.of(AppStrings.defaultLanguageCode);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF1F5F9),
       body: SafeArea(
         child: Column(
           children: [
-            // 1. Top Header
+            // 1. Pinned Top Header
             _buildTopHeader(s),
 
-            // Scrollable Workspace Content
+            // 2. Fixed Center Live Canvas Area (Pinned in place, not scrollable!)
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 480.0),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // 2. Poster Canvas with Zoom Controls
-                          _buildPosterCanvas(),
-
-                          const SizedBox(height: 14.0),
-
-                          // 3. Contextual Action Toolbar
-                          _buildContextualToolbar(s),
-
-                          const SizedBox(height: 20.0),
-
-                          // 4. Customize Your Design Section & Tabs
-                          _buildCustomizeSectionHeader(s),
-
-                          const SizedBox(height: 10.0),
-
-                          // 5. Active Editing Controls Panel (Contextual to selected tab)
-                          _buildEditingControlsPanel(s),
-
-                          const SizedBox(height: 18.0),
-
-                          // 6. Preview Poster & Save Design Action Buttons
-                          _buildBottomActionButtons(s),
-
-                          const SizedBox(height: 12.0),
-
-                          // 7. All changes saved badge & Bottom decorative footer
-                          _buildSaveStatusBadge(s),
-
-                          const SizedBox(height: 16.0),
-
-                          // Bottom silhouette watermark
-                          Center(
-                            child: Image.asset(
-                              AppAssets.villageSilhouette,
-                              height: 38.0,
-                              fit: BoxFit.contain,
-                              opacity: const AlwaysStoppedAnimation(0.24),
-                            ),
-                          ),
-
-                          const SizedBox(height: 12.0),
-                        ],
-                      ),
-                    ),
+              flex: 5,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: AspectRatio(
+                    aspectRatio: 1.0,
+                    child: _buildPosterCanvas(),
                   ),
                 ),
               ),
             ),
+
+            // 3. Bottom Studio Dock (Contains contextual tools, tabs, and editing panels)
+            Expanded(
+              flex: 6,
+              child: _buildBottomStudioDock(s),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  // Pinned Bottom Studio Dock with smooth scrollable editing controls
+  Widget _buildBottomStudioDock(AppStrings s) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 16.0,
+            offset: Offset(0, -4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Drag handle pill
+          Center(
+            child: Container(
+              margin: const EdgeInsets.only(top: 8.0, bottom: 6.0),
+              width: 36.0,
+              height: 4.0,
+              decoration: BoxDecoration(
+                color: const Color(0xFFCBD5E1),
+                borderRadius: BorderRadius.circular(2.0),
+              ),
+            ),
+          ),
+
+          // Scrollable Controls Content Inside Studio Dock
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 4.0),
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // 1. Contextual Action Toolbar
+                    _buildContextualToolbar(s),
+                    const SizedBox(height: 12.0),
+
+                    // 2. Customize Section Header & Category Tabs
+                    _buildCustomizeSectionHeader(s),
+                    const SizedBox(height: 10.0),
+
+                    // 3. Active Tab Panel
+                    _buildEditingControlsPanel(s),
+                    const SizedBox(height: 14.0),
+
+                    // 4. Action Buttons (Preview & Save)
+                    _buildBottomActionButtons(s),
+                    const SizedBox(height: 8.0),
+
+                    // 5. Save Status Badge
+                    _buildSaveStatusBadge(s),
+                    const SizedBox(height: 8.0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1015,6 +1176,16 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
                 _buildImageElement(element, w, h, isInteractive)
               else
                 _buildTextElement(element, w, h, isInteractive),
+
+            // Frame Layer Overlay (Shows Sarpanch/user photo, name, designation, phone, or admin frame)
+            if (_selectedFrameId != 'none')
+              PosterFrameOverlay(
+                frameId: _selectedFrameId,
+                user: _currentUser,
+                w: w,
+                h: h,
+                adminImageUrl: _getAdminFrameUrl(_selectedFrameId),
+              ),
           ],
         );
       },
@@ -1202,6 +1373,14 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildToolButton(
+            key: 'tool_frames',
+            icon: Icons.crop_square_rounded,
+            label: 'Frames',
+            onTap: () {
+              setState(() => _selectedTab = 'frames');
+            },
+          ),
+          _buildToolButton(
             key: 'tool_edit_text',
             iconText: 'T',
             label: s.toolEditText,
@@ -1336,42 +1515,53 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
         ),
         const SizedBox(height: 10.0),
 
-        // 5 Category Tabs
-        Container(
-          height: 40.0,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14.0),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-          ),
-          child: Row(
-            children: [
-              _buildCategoryTab(
-                id: 'text',
-                label: s.tabText,
-                iconText: 'T',
-              ),
-              _buildCategoryTab(
-                id: 'images',
-                label: s.tabImages,
-                icon: Icons.image_outlined,
-              ),
-              _buildCategoryTab(
-                id: 'colors',
-                label: s.tabColors,
-                icon: Icons.palette_outlined,
-              ),
-              _buildCategoryTab(
-                id: 'background',
-                label: s.tabBackground,
-                icon: Icons.texture_rounded,
-              ),
-              _buildCategoryTab(
-                id: 'fonts',
-                label: s.tabFonts,
-                iconText: 'Aa',
-              ),
-            ],
+        // Category Tabs: Frames, Text, Images, Colors, Background, Fonts
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Container(
+            height: 40.0,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14.0),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.5),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildCategoryTab(
+                  id: 'frames',
+                  label: 'Frames',
+                  icon: Icons.crop_square_rounded,
+                ),
+                _buildCategoryTab(
+                  id: 'text',
+                  label: s.tabText,
+                  iconText: 'T',
+                ),
+                _buildCategoryTab(
+                  id: 'images',
+                  label: s.tabImages,
+                  icon: Icons.image_outlined,
+                ),
+                _buildCategoryTab(
+                  id: 'colors',
+                  label: s.tabColors,
+                  icon: Icons.palette_outlined,
+                ),
+                _buildCategoryTab(
+                  id: 'background',
+                  label: s.tabBackground,
+                  icon: Icons.texture_rounded,
+                ),
+                _buildCategoryTab(
+                  id: 'fonts',
+                  label: s.tabFonts,
+                  iconText: 'Aa',
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -1386,7 +1576,8 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
   }) {
     final isActive = _selectedTab == id;
 
-    return Expanded(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2.0),
       child: InkWell(
         key: ValueKey('tab_$id'),
         borderRadius: BorderRadius.circular(12.0),
@@ -1396,11 +1587,13 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
           decoration: BoxDecoration(
             color: isActive ? const Color(0xFF6D28D9) : Colors.transparent,
             borderRadius: BorderRadius.circular(12.0),
           ),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (iconText != null)
@@ -1419,16 +1612,14 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
                   color: isActive ? Colors.white : const Color(0xFF64748B),
                 ),
               const SizedBox(width: 4.0),
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11.0,
-                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                    color: isActive ? Colors.white : const Color(0xFF64748B),
-                  ),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11.0,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                  color: isActive ? Colors.white : const Color(0xFF64748B),
                 ),
               ),
             ],
@@ -1441,6 +1632,8 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
   // 5. Active Editing Controls Panel (Contextual)
   Widget _buildEditingControlsPanel(AppStrings s) {
     switch (_selectedTab) {
+      case 'frames':
+        return _buildFramesTabPanel(s);
       case 'images':
         return _buildImagesTabPanel(s);
       case 'colors':
@@ -1455,11 +1648,194 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
     }
   }
 
-  Widget _buildTextTabPanel(AppStrings s) {
-    final selectedElement = _project.elements.firstWhere(
-      (e) => e.id == _selectedElementId,
-      orElse: () => _project.elements.first,
+  // Frames Selection Tab Panel (Built-in + Admin Frames)
+  Widget _buildFramesTabPanel(AppStrings s) {
+    final allFrames = [...PosterFrames.list, ..._adminFrames];
+
+    return Container(
+      padding: const EdgeInsets.all(14.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10.0,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.crop_square_rounded, color: Color(0xFF7C3AED), size: 18.0),
+              const SizedBox(width: 8.0),
+              const Text(
+                'Digital Frames & Panchayat Identity',
+                style: TextStyle(
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3E8FF),
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Text(
+                  '${allFrames.length} Frames',
+                  style: const TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF7C3AED),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6.0),
+          const Text(
+            'Select a frame to automatically stamp your photo, name, designation, and mobile number.',
+            style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
+          ),
+          const SizedBox(height: 12.0),
+          SizedBox(
+            height: 94.0,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: allFrames.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 10.0),
+              itemBuilder: (context, idx) {
+                final frame = allFrames[idx];
+                final isSelected = _selectedFrameId == frame.id;
+
+                return InkWell(
+                  key: ValueKey('frame_option_${frame.id}'),
+                  borderRadius: BorderRadius.circular(12.0),
+                  onTap: () {
+                    setState(() {
+                      _selectedFrameId = frame.id;
+                      _hasUnsavedChanges = true;
+                    });
+                  },
+                  child: Container(
+                    width: 86.0,
+                    decoration: BoxDecoration(
+                      color: isSelected ? const Color(0xFFF5F3FF) : const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(12.0),
+                      border: Border.all(
+                        color: isSelected ? const Color(0xFF7C3AED) : const Color(0xFFE2E8F0),
+                        width: isSelected ? 2.0 : 1.0,
+                      ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: const Color(0xFF7C3AED).withValues(alpha: 0.18),
+                                blurRadius: 6.0,
+                                offset: const Offset(0, 2),
+                              ),
+                            ]
+                          : null,
+                    ),
+                    padding: const EdgeInsets.all(6.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Thumbnail Icon/Preview
+                        Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              width: 44.0,
+                              height: 40.0,
+                              decoration: BoxDecoration(
+                                color: frame.previewColor.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8.0),
+                                border: Border.all(color: frame.previewColor, width: 1.5),
+                              ),
+                              child: frame.id == 'none'
+                                  ? const Icon(Icons.block_rounded, size: 20.0, color: Color(0xFF94A3B8))
+                                  : frame.imageUrl != null
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(6.0),
+                                          child: frame.imageUrl!.startsWith('http')
+                                              ? Image.network(
+                                                  frame.imageUrl!,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (_, _, _) => Icon(
+                                                    Icons.broken_image_rounded,
+                                                    size: 20.0,
+                                                    color: frame.previewColor,
+                                                  ),
+                                                )
+                                              : Image.asset(
+                                                  frame.imageUrl!,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (_, _, _) => Icon(
+                                                    Icons.broken_image_rounded,
+                                                    size: 20.0,
+                                                    color: frame.previewColor,
+                                                  ),
+                                                ),
+                                        )
+                                      : Icon(Icons.badge_rounded, size: 22.0, color: frame.previewColor),
+                            ),
+                            if (isSelected)
+                              Positioned(
+                                top: -4,
+                                right: -4,
+                                child: Container(
+                                  padding: const EdgeInsets.all(2.0),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF7C3AED),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.check, size: 10.0, color: Colors.white),
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 6.0),
+                        Text(
+                          frame.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                            color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFF1E293B),
+                          ),
+                        ),
+                        if (frame.badgeText != null)
+                          Text(
+                            frame.badgeText!,
+                            style: TextStyle(
+                              fontSize: 9.0,
+                              fontWeight: FontWeight.w700,
+                              color: frame.previewColor,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  Widget _buildTextTabPanel(AppStrings s) {
+    final selectedElement = _effectiveSelectedElement;
 
     return Container(
       padding: const EdgeInsets.all(14.0),
@@ -1665,10 +2041,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
   }
 
   Widget _buildColorsTabPanel(AppStrings s) {
-    final selectedElement = _project.elements.firstWhere(
-      (e) => e.id == _selectedElementId,
-      orElse: () => _project.elements.first,
-    );
+    final selectedElement = _effectiveSelectedElement;
 
     return Container(
       padding: const EdgeInsets.all(14.0),
@@ -1719,10 +2092,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
   }
 
   Widget _buildFontsTabPanel(AppStrings s) {
-    final selectedElement = _project.elements.firstWhere(
-      (e) => e.id == _selectedElementId,
-      orElse: () => _project.elements.first,
-    );
+    final selectedElement = _effectiveSelectedElement;
 
     return Container(
       padding: const EdgeInsets.all(14.0),
@@ -1903,7 +2273,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
 
   Widget _buildBackgroundTabPanel(AppStrings s) {
     final backgrounds = [
-      {'title': 'Navratri Canvas', 'asset': AppAssets.editorCanvasNavratri},
+      {'title': 'Shubh Navratri', 'asset': AppAssets.festivalPosterShubhNavratri},
       {'title': 'Temple Garba', 'asset': AppAssets.navratriDandiyaTempleArt},
       {'title': 'Diwali Lights', 'asset': AppAssets.festivalDiwaliDiyas},
       {'title': 'Maa Durga', 'asset': AppAssets.festivalNavratriMaa},

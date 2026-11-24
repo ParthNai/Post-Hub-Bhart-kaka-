@@ -35,7 +35,6 @@ class _SplashScreenState extends State<SplashScreen> {
   bool _isVideoInitialized = false;
   bool _isVideoError = false;
   bool _needsUserGesture = false;
-  bool _isConfigReady = true;
   bool _hasNavigated = false;
   String _targetRoute = AppRoutes.welcome;
   Timer? _fallbackTimer;
@@ -204,10 +203,6 @@ class _SplashScreenState extends State<SplashScreen> {
         body: ValueListenableBuilder<AppRemoteConfig>(
           valueListenable: AppConfigService.instance.configNotifier,
           builder: (context, config, child) {
-            if (!_isConfigReady) {
-              return _buildVideoLoadingView();
-            }
-
             final isVideo = config.preloaderMediaType == 'video' &&
                 config.preloaderVideoUrl != null &&
                 config.preloaderVideoUrl!.trim().isNotEmpty &&

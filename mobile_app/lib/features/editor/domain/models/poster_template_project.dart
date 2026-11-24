@@ -18,6 +18,8 @@ class PosterTemplateProject {
     this.category = 'Festivals',
     this.isFavorite = false,
     this.previewAsset,
+    this.frameId = 'gold_vip',
+    this.frameImageUrl,
   }) : createdAt = createdAt ?? updatedAt;
 
   final String id;
@@ -32,6 +34,8 @@ class PosterTemplateProject {
   final String category;
   final bool isFavorite;
   final String? previewAsset;
+  final String? frameId;
+  final String? frameImageUrl;
 
   PosterTemplateProject copyWith({
     String? id,
@@ -46,6 +50,8 @@ class PosterTemplateProject {
     String? category,
     bool? isFavorite,
     String? previewAsset,
+    String? frameId,
+    String? frameImageUrl,
   }) {
     return PosterTemplateProject(
       id: id ?? this.id,
@@ -60,6 +66,8 @@ class PosterTemplateProject {
       category: category ?? this.category,
       isFavorite: isFavorite ?? this.isFavorite,
       previewAsset: previewAsset ?? this.previewAsset,
+      frameId: frameId ?? this.frameId,
+      frameImageUrl: frameImageUrl ?? this.frameImageUrl,
     );
   }
 
@@ -87,6 +95,8 @@ class PosterTemplateProject {
         'category': category,
         'isFavorite': isFavorite,
         'previewAsset': previewAsset,
+        'frameId': frameId,
+        'frameImageUrl': frameImageUrl,
       };
 
   factory PosterTemplateProject.fromMap(Map<String, dynamic> map) {
@@ -109,6 +119,8 @@ class PosterTemplateProject {
       category: map['category'] as String? ?? 'Festivals',
       isFavorite: map['isFavorite'] as bool? ?? false,
       previewAsset: map['previewAsset'] as String?,
+      frameId: map['frameId'] as String? ?? 'gold_vip',
+      frameImageUrl: map['frameImageUrl'] as String?,
     );
   }
 
@@ -118,28 +130,16 @@ class PosterTemplateProject {
       PosterTemplateProject.fromMap(jsonDecode(source) as Map<String, dynamic>);
 
   /// Creates a dynamic design project from any festival, panchayat, or admin poster template.
-  /// If the template is Navratri-specific, bundles the Navratri Garba elements.
-  /// Otherwise, keeps the canvas focused on the template's background artwork and headline.
+  /// Keeps the canvas clean with the template's background artwork and default VIP frame,
+  /// without forcing template names or unwanted image overlays on the poster.
   static PosterTemplateProject createProjectFromTemplate({
     required String templateId,
     required String imageAsset,
     required String title,
     String? category,
+    String? frameId = 'gold_vip',
+    String? frameImageUrl,
   }) {
-    final lowerTitle = title.toLowerCase();
-    final lowerId = templateId.toLowerCase();
-    final isNavratri = lowerTitle.contains('navratri') ||
-        lowerTitle.contains('નવરાત્રી') ||
-        lowerId.contains('navratri');
-
-    if (isNavratri) {
-      return createDefaultNavratriProject(
-        templateId: templateId,
-        imageAsset: imageAsset,
-        title: title,
-      );
-    }
-
     return PosterTemplateProject(
       id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
       templateId: templateId,
@@ -147,37 +147,29 @@ class PosterTemplateProject {
       backgroundAsset: imageAsset,
       backgroundColor: const Color(0xFF1E293B),
       category: category ?? 'General',
+      frameId: frameId,
+      frameImageUrl: frameImageUrl,
       updatedAt: DateTime.now(),
-      elements: [
-        PosterElement(
-          id: 'elem_headline',
-          type: PosterElementType.text,
-          text: title,
-          x: 0.5,
-          y: 0.18,
-          fontSize: 28.0,
-          color: const Color(0xFFFDE68A),
-          fontFamily: 'Poppins',
-          textAlign: TextAlign.center,
-          isBold: true,
-          isSelected: true,
-        ),
-      ],
+      elements: const [], // Clean canvas! No unwanted title text or stickers!
     );
   }
 
-  /// Creates default project for Screen 12 matching the reference image exactly.
+  /// Creates default project for Screen 12 matching the reference image.
   static PosterTemplateProject createDefaultNavratriProject({
     String? templateId,
     String? imageAsset,
     String? title,
+    String? frameId = 'gold_vip',
+    String? frameImageUrl,
   }) {
     return PosterTemplateProject(
       id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
       templateId: templateId ?? 'navratri_shubh',
       title: title ?? 'Navratri Celebration',
-      backgroundAsset: imageAsset ?? AppAssets.editorCanvasNavratri,
+      backgroundAsset: imageAsset ?? AppAssets.festivalPosterShubhNavratri,
       backgroundColor: const Color(0xFF2E0854),
+      frameId: frameId,
+      frameImageUrl: frameImageUrl,
       updatedAt: DateTime.now(),
       elements: const [
         PosterElement(
@@ -185,8 +177,8 @@ class PosterTemplateProject {
           type: PosterElementType.text,
           text: 'શુભ નવરાત્રી',
           x: 0.5,
-          y: 0.18,
-          fontSize: 32.0,
+          y: 0.20,
+          fontSize: 28.0,
           color: Color(0xFFFDE68A), // Golden Yellow
           fontFamily: 'Poppins',
           textAlign: TextAlign.center,
@@ -198,21 +190,12 @@ class PosterTemplateProject {
           type: PosterElementType.text,
           text: 'માતાજીના આશીર્વાદથી\nતમારું જીવન હંમેશા ખુશીઓથી ભરેલું રહે...',
           x: 0.5,
-          y: 0.30,
-          fontSize: 13.5,
+          y: 0.32,
+          fontSize: 13.0,
           color: Colors.white,
           fontFamily: 'Poppins',
           textAlign: TextAlign.center,
           isBold: false,
-        ),
-        PosterElement(
-          id: 'elem_dandiya_art',
-          type: PosterElementType.image,
-          imageAsset: AppAssets.editorDandiyaCouple,
-          x: 0.5,
-          y: 0.68,
-          width: 0.9,
-          height: 0.58,
         ),
       ],
     );
