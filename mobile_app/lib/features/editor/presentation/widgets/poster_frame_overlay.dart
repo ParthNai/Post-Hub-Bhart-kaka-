@@ -28,6 +28,12 @@ class PosterFrames {
       badgeText: 'Clean',
     ),
     PosterFrameDef(
+      id: 'cutout_leader',
+      name: 'Cutout Leader',
+      previewColor: Color(0xFFEA580C),
+      badgeText: 'Trending',
+    ),
+    PosterFrameDef(
       id: 'gold_vip',
       name: 'VIP Gold',
       previewColor: Color(0xFFEAB308),
@@ -88,6 +94,8 @@ class PosterFrameOverlay extends StatelessWidget {
     }
 
     switch (frameId) {
+      case 'cutout_leader':
+        return _buildCutoutLeaderFrame();
       case 'gold_vip':
         return _buildGoldVipFrame();
       case 'tricolor':
@@ -124,6 +132,164 @@ class PosterFrameOverlay extends StatelessWidget {
   }
 
   double get _scale => (w / 340.0).clamp(0.6, 1.8);
+
+  // 0. Transparent Background Cutout Leader Frame (Signature Indian Panchayat / Sarpanch Style)
+  Widget _buildCutoutLeaderFrame() {
+    final frameH = (h * 0.18).clamp(44.0, 95.0);
+    final cutoutH = (frameH * 1.5).clamp(65.0, 140.0);
+    final cutoutW = cutoutH * 0.75;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        // Bottom Frame Banner
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: frameH,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [Color(0xFFEA580C), Color(0xFF9A3412), Color(0xFF7C2D12)],
+              ),
+              border: const Border(
+                top: BorderSide(color: Color(0xFFFDE047), width: 2.5),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.45),
+                  blurRadius: 8.0,
+                  offset: const Offset(0, -3),
+                ),
+              ],
+            ),
+            padding: EdgeInsets.only(
+              left: cutoutW + 10.0 * _scale,
+              right: 12.0 * _scale,
+              top: 4.0 * _scale,
+              bottom: 4.0 * _scale,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        _displayName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: (frameH * 0.23).clamp(11.0, 15.5),
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.2,
+                          shadows: const [
+                            Shadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 1)),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 4.0 * _scale),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 1.5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFDE047),
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: const Text(
+                        'સરપંચ',
+                        style: TextStyle(color: Color(0xFF7C2D12), fontWeight: FontWeight.w800, fontSize: 8.5),
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  _designation,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: const Color(0xFFFEF08A),
+                    fontSize: (frameH * 0.17).clamp(8.5, 12.0),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Text(
+                  _phone,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: (frameH * 0.16).clamp(8.0, 11.0),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Transparent Background Cutout User Portrait rising above the banner
+        Positioned(
+          bottom: 0,
+          left: 10.0 * _scale,
+          width: cutoutW,
+          height: cutoutH,
+          child: _buildCutoutPhoto(cutoutW, cutoutH),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCutoutPhoto(double w, double h) {
+    return ShaderMask(
+      shaderCallback: (Rect bounds) {
+        return const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.black, Colors.black, Colors.black, Colors.transparent],
+          stops: [0.0, 0.70, 0.90, 1.0],
+        ).createShader(bounds);
+      },
+      blendMode: BlendMode.dstIn,
+      child: Container(
+        alignment: Alignment.bottomCenter,
+        child: user?.profilePhotoUrl != null && user!.profilePhotoUrl!.isNotEmpty
+            ? (user!.profilePhotoUrl!.startsWith('http')
+                ? Image.network(
+                    user!.profilePhotoUrl!,
+                    fit: BoxFit.contain,
+                    alignment: Alignment.bottomCenter,
+                    errorBuilder: (_, _, _) => _fallbackCutoutAvatar(h),
+                  )
+                : Image.asset(
+                    user!.profilePhotoUrl!,
+                    fit: BoxFit.contain,
+                    alignment: Alignment.bottomCenter,
+                    errorBuilder: (_, _, _) => _fallbackCutoutAvatar(h),
+                  ))
+            : _fallbackCutoutAvatar(h),
+      ),
+    );
+  }
+
+  Widget _fallbackCutoutAvatar(double h) {
+    return Container(
+      width: h * 0.65,
+      height: h * 0.85,
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: const Color(0xFFFDE047), width: 1.5),
+      ),
+      child: Center(
+        child: Icon(Icons.person_rounded, size: h * 0.45, color: Colors.white70),
+      ),
+    );
+  }
 
   // 1. VIP Gold Panchayat Frame
   Widget _buildGoldVipFrame() {
