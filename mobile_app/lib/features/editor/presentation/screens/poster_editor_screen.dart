@@ -7,6 +7,7 @@ import 'package:panchayat_post/core/localization/app_localizations.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
 import 'package:panchayat_post/core/services/app_config_service.dart';
+import 'package:panchayat_post/core/services/background_remover_service.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 import 'package:panchayat_post/features/editor/data/services/design_storage_service.dart';
@@ -2045,18 +2046,51 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
       if (file == null) return;
 
       final bytes = await file.readAsBytes();
-      final base64String = base64Encode(bytes);
+      String finalPhotoData = base64Encode(bytes);
+      bool isCutoutApplied = false;
+
+      // On-device AI background removal with Google ML Kit Selfie Segmentation
+      if (BackgroundRemoverService.instance.isSupported) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Row(
+                children: [
+                  SizedBox(
+                    width: 16.0,
+                    height: 16.0,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  ),
+                  SizedBox(width: 10.0),
+                  Text('✨ Google ML Kit: Removing background...'),
+                ],
+              ),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+
+        final cutoutBase64 = await BackgroundRemoverService.instance.removeBackground(file.path);
+        if (cutoutBase64 != null && cutoutBase64.isNotEmpty) {
+          finalPhotoData = cutoutBase64;
+          isCutoutApplied = true;
+        }
+      }
 
       setState(() {
-        _project = _project.copyWith(frameUserPhoto: base64String);
+        _project = _project.copyWith(frameUserPhoto: finalPhotoData);
         _hasUnsavedChanges = true;
       });
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Frame photo updated successfully!'),
-            backgroundColor: Color(0xFF16A34A),
+          SnackBar(
+            content: Text(
+              isCutoutApplied
+                  ? '✨ Cutout applied with Google ML Kit AI!'
+                  : 'Frame photo updated successfully!',
+            ),
+            backgroundColor: const Color(0xFF16A34A),
           ),
         );
       }
