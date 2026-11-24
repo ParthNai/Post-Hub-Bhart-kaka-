@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:panchayat_post/core/services/app_config_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 
 /// Reusable poster frame definition metadata.
@@ -458,20 +459,41 @@ class PosterFrameOverlay extends StatelessWidget {
               ),
             ),
 
-            // Panchayat Emblem Icon
+            // Panchayat Emblem Icon / Dynamic Admin Logo
             Padding(
               padding: EdgeInsets.only(left: 4.0 * _scale),
               child: Container(
-                padding: EdgeInsets.all(4.0 * _scale),
+                width: (frameH * 0.38).clamp(24.0, 36.0),
+                height: (frameH * 0.38).clamp(24.0, 36.0),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: const Color(0xFFF59E0B).withValues(alpha: 0.18),
                   border: Border.all(color: const Color(0xFFF59E0B), width: 1.2),
                 ),
-                child: Icon(
-                  Icons.account_balance_rounded,
-                  color: const Color(0xFFFDE047),
-                  size: (frameH * 0.26).clamp(14.0, 22.0),
+                child: ClipOval(
+                  child: Builder(
+                    builder: (context) {
+                      final config = AppConfigService.instance.config;
+                      final logoUrl = config.logoUrl ?? config.appIconUrl;
+                      if (logoUrl != null && logoUrl.isNotEmpty) {
+                        final fullUrl = AppConfigService.instance.resolveMediaUrl(logoUrl);
+                        return Image.network(
+                          fullUrl,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) => Icon(
+                            Icons.account_balance_rounded,
+                            color: const Color(0xFFFDE047),
+                            size: (frameH * 0.24).clamp(14.0, 22.0),
+                          ),
+                        );
+                      }
+                      return Icon(
+                        Icons.account_balance_rounded,
+                        color: const Color(0xFFFDE047),
+                        size: (frameH * 0.24).clamp(14.0, 22.0),
+                      );
+                    },
+                  ),
                 ),
               ),
             ),

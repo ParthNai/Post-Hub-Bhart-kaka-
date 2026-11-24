@@ -25,12 +25,11 @@ class BrandLogoWidget extends StatelessWidget {
       builder: (context, config, child) {
         final logoUrl = config.logoUrl ?? config.appIconUrl;
         if (logoUrl != null && logoUrl.isNotEmpty) {
-          final fullUrl = logoUrl.startsWith('http')
-              ? logoUrl
-              : '${AppConfigService.instance.serverBaseUrl}$logoUrl';
+          final fullUrl = AppConfigService.instance.resolveMediaUrl(logoUrl);
 
           return Image.network(
             fullUrl,
+            key: ValueKey('$fullUrl-${config.publishedAt}'),
             width: effectiveWidth,
             height: height,
             fit: BoxFit.contain,

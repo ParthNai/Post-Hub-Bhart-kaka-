@@ -48,8 +48,17 @@ class AppConfigService {
   String? get syncError => _syncError;
   Timer? _pollTimer;
 
+  /// Candidate server endpoints to probe on local network & USB
+  List<String> get candidateServerUrls {
+    return [
+      'http://localhost:3000', // USB adb reverse
+      'http://10.161.80.70:3000', // Local Wi-Fi network host IP
+      'http://10.0.2.2:3000', // Android emulator loopback
+    ];
+  }
+
   /// Determines the best default server host for the current runtime platform:
-  /// - Android Device on Local Wi-Fi -> http://192.168.0.121:3000 (or localhost via adb reverse)
+  /// - Android Device -> http://localhost:3000 (via adb reverse tcp:3000 tcp:3000) or Wi-Fi http://10.161.80.70:3000
   /// - Web / iOS / Desktop -> http://localhost:3000
   String get defaultServerUrl {
     const envUrl = String.fromEnvironment('BACKEND_URL');
@@ -58,9 +67,7 @@ class AppConfigService {
       return 'http://localhost:3000';
     }
     if (Platform.isAndroid) {
-      // 192.168.0.121 is development machine's local Wi-Fi IP.
-      // Also works via USB with `adb reverse tcp:3000 tcp:3000`.
-      return 'http://192.168.0.121:3000';
+      return 'http://localhost:3000';
     }
     return 'http://localhost:3000';
   }
@@ -89,10 +96,13 @@ class AppConfigService {
     try {
       final prefs = await SharedPreferences.getInstance();
 
-      // Restore custom server URL if previously set
+      // Restore custom server URL if previously set (ignore obsolete dead IPs)
       final savedUrl = prefs.getString(_customServerUrlKey);
-      if (savedUrl != null && savedUrl.isNotEmpty) {
+      if (savedUrl != null && savedUrl.isNotEmpty && !savedUrl.contains('192.168.0.121')) {
         _cachedServerUrl = savedUrl;
+      } else if (savedUrl != null && savedUrl.contains('192.168.0.121')) {
+        await prefs.remove(_customServerUrlKey);
+        _cachedServerUrl = null;
       }
 
       // Restore cached config
@@ -134,62 +144,67 @@ class AppConfigService {
   }
 
   /// Fetches published configuration from the Admin Panel (/api/app/config).
-  /// Updates local cache and notifies all listening UI widgets.
+  /// Tries the active server URL first, and if unavailable, automatically discovers
+  /// candidate network endpoints (USB reverse or Wi-Fi).
   Future<bool> refreshConfig() async {
     if (_isLoading) return false;
     _isLoading = true;
     _syncError = null;
 
-    final targetUrl = '$serverBaseUrl$configEndpoint';
-    debugPrint(
-      '[AppConfigService] Fetching remote screen config from: $targetUrl',
-    );
+    final urlsToTry = <String>[
+      serverBaseUrl,
+      ...candidateServerUrls.where((u) => u != serverBaseUrl),
+    ];
 
-    try {
-      final response = await http
-          .get(
-            Uri.parse(targetUrl),
-            headers: {
-              'Accept': 'application/json',
-              'Cache-Control': 'no-cache',
-            },
-          )
-          .timeout(const Duration(milliseconds: 3500));
+    for (final base in urlsToTry) {
+      final targetUrl = '$base$configEndpoint';
+      debugPrint('[AppConfigService] Probing remote screen config from: $targetUrl');
 
-      if (response.statusCode == 200) {
-        final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-        final newConfig = AppRemoteConfig.fromJson(decoded);
+      try {
+        final response = await http
+            .get(
+              Uri.parse(targetUrl),
+              headers: {
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache',
+              },
+            )
+            .timeout(const Duration(milliseconds: 2500));
 
-        configNotifier.value = newConfig;
-        _lastSyncedAt = DateTime.now();
-        _syncError = null;
+        if (response.statusCode == 200) {
+          final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+          final newConfig = AppRemoteConfig.fromJson(decoded);
 
-        // Persist to local cache for offline startup
-        try {
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString(_cacheKey, response.body);
-        } catch (_) {}
+          _cachedServerUrl = base;
+          configNotifier.value = newConfig;
+          _lastSyncedAt = DateTime.now();
+          _syncError = null;
 
-        debugPrint(
-          '[AppConfigService] Successfully synced ${newConfig.screens.length} screens from admin panel!',
-        );
-        _isLoading = false;
-        return true;
-      } else {
-        _syncError = 'Server returned status ${response.statusCode}';
-        debugPrint(
-          '[AppConfigService] Server returned error status: ${response.statusCode}',
-        );
+          // Persist to local cache and save verified working endpoint
+          try {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString(_customServerUrlKey, base);
+            await prefs.setString(_cacheKey, response.body);
+          } catch (_) {}
+
+          debugPrint(
+            '[AppConfigService] Successfully synced ${newConfig.screens.length} screens from $base!',
+          );
+          _isLoading = false;
+          return true;
+        } else {
+          _syncError = 'Server returned status ${response.statusCode}';
+          debugPrint(
+            '[AppConfigService] Server returned error status: ${response.statusCode} from $base',
+          );
+        }
+      } catch (e) {
+        _syncError = e.toString();
+        debugPrint('[AppConfigService] Probing $base failed: $e');
       }
-    } catch (e) {
-      _syncError = e.toString();
-      debugPrint(
-        '[AppConfigService] Network fetch skipped/failed (will use cached/defaults): $e',
-      );
-    } finally {
-      _isLoading = false;
     }
 
+    _isLoading = false;
     return false;
   }
 
