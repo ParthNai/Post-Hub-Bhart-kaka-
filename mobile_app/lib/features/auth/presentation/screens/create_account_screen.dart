@@ -388,8 +388,8 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                                 setState(() => _obscurePassword = !_obscurePassword),
                           ),
                           validator: (val) {
-                            if (val == null || !AuthService.isPasswordValid(val)) {
-                              return strings.passwordWeakError;
+                            if (val == null || val.trim().isEmpty) {
+                              return strings.loginPasswordRequiredError;
                             }
                             return null;
                           },

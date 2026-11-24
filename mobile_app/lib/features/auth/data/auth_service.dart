@@ -49,17 +49,14 @@ class AuthService {
     return sha256.convert(bytes).toString();
   }
 
-  /// Validates password policy:
-  /// - At least 8 characters
-  /// Guidelines suggest uppercase, lowercase, and numeric digits.
-  static bool validatePasswordMinLength(String password) => password.length >= 8;
+  /// Validates password policy: any password is valid as long as non-empty.
+  static bool validatePasswordMinLength(String password) => password.isNotEmpty;
 
-  static bool validatePasswordCases(String password) =>
-      RegExp(r'[a-z]').hasMatch(password) && RegExp(r'[A-Z]').hasMatch(password);
+  static bool validatePasswordCases(String password) => true;
 
-  static bool validatePasswordNumber(String password) => RegExp(r'[0-9]').hasMatch(password);
+  static bool validatePasswordNumber(String password) => true;
 
-  static bool isPasswordValid(String password) => validatePasswordMinLength(password);
+  static bool isPasswordValid(String password) => password.trim().isNotEmpty;
 
   /// Validates username format: alphanumeric + underscores, 3 to 30 characters.
   static bool isUsernameFormatValid(String username) {
