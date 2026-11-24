@@ -6,6 +6,7 @@ export interface BrandLogoProps {
   withIcon?: boolean;
   variant?: "light" | "dark";
   iconOnly?: boolean;
+  logoUrl?: string;
 }
 
 export const BrandLogo: React.FC<BrandLogoProps> = ({
@@ -14,6 +15,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   withIcon = true,
   variant = "light",
   iconOnly = false,
+  logoUrl,
 }) => {
   const isDark = variant === "dark";
 
@@ -38,28 +40,45 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
         userSelect: "none",
       }}
     >
-      {/* Brand Icon Badge */}
+      {/* Brand Icon Badge or Custom Logo */}
       {withIcon && (
-        <div
-          style={{
-            width: `${dimensions.icon}px`,
-            height: `${dimensions.icon}px`,
-            borderRadius: dimensions.radius,
-            backgroundColor: isDark && iconOnly ? "#7956C9" : "#7956C9",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#FFFFFF",
-            fontFamily: "var(--font-family-sans)",
-            fontWeight: 800,
-            fontSize: dimensions.fontSize,
-            lineHeight: 1,
-            flexShrink: 0,
-            boxShadow: "0 2px 6px rgba(121, 86, 201, 0.25)",
-          }}
-        >
-          P
-        </div>
+        logoUrl ? (
+          <img
+            src={logoUrl}
+            alt="Logo"
+            style={{
+              width: `${dimensions.icon}px`,
+              height: `${dimensions.icon}px`,
+              objectFit: "contain",
+              borderRadius: dimensions.radius,
+              flexShrink: 0,
+            }}
+            onError={(e) => {
+              (e.target as HTMLElement).style.display = "none";
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              width: `${dimensions.icon}px`,
+              height: `${dimensions.icon}px`,
+              borderRadius: dimensions.radius,
+              backgroundColor: isDark && iconOnly ? "#7956C9" : "#7956C9",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#FFFFFF",
+              fontFamily: "var(--font-family-sans)",
+              fontWeight: 800,
+              fontSize: dimensions.fontSize,
+              lineHeight: 1,
+              flexShrink: 0,
+              boxShadow: "0 2px 6px rgba(121, 86, 201, 0.25)",
+            }}
+          >
+            P
+          </div>
+        )
       )}
 
       {/* Brand Text */}

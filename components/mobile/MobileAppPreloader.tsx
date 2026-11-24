@@ -179,33 +179,21 @@ export function MobileAppPreloader({
               border: "1px solid rgba(226, 232, 240, 0.8)",
             }}
           >
-            {logoUrl && logoUrl.trim().length > 0 ? (
-              <img
-                src={logoUrl}
-                alt="App Logo"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "contain",
-                }}
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = "none";
-                }}
-              />
-            ) : (
-              <img
-                src="/logo192.png"
-                alt="Panchayat Post Logo"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "contain",
-                }}
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = "none";
-                }}
-              />
-            )}
+            <img
+              src={logoUrl && logoUrl.trim().length > 0 ? logoUrl : "/logo192.png"}
+              alt="App Logo"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+              }}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                if (!target.src.endsWith("/logo192.png") && !target.src.endsWith("/panchayat_logo.png")) {
+                  target.src = "/logo192.png";
+                }
+              }}
+            />
           </div>
 
           {/* Admin Provided Title */}

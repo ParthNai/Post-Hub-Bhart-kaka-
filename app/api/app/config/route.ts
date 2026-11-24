@@ -22,6 +22,17 @@ export async function GET() {
   const appIcon = designSystem.brandAssets?.find((a) => a.id === "app-icon" && a.status === "available");
   const primaryAccent = homeScreen?.configData?.primaryAccent || designSystem.colorTokens?.primaryViolet || "#0055B8";
 
+  const resolvedLogoUrl =
+    primaryLogo?.url ||
+    appIcon?.url ||
+    (primaryLogo?.filename && !primaryLogo.filename.includes("brand") ? `/assets/uploads/${primaryLogo.filename}` : undefined) ||
+    "/logo192.png";
+
+  const resolvedIconUrl =
+    appIcon?.url ||
+    primaryLogo?.url ||
+    "/logo192.png";
+
   // Client mobile app schema contract - tailored for the 4 core controls:
   // 1. App Icon / Logo
   // 2. Preloader (colors & animation)
@@ -32,13 +43,20 @@ export async function GET() {
     schemaVersion: "2.1.0",
     publishedAt: new Date().toISOString(),
     appBranding: {
-      appIconUrl: appIcon?.url || (appIcon?.filename ? `/uploads/brand/${appIcon.filename}` : undefined),
-      logoUrl: primaryLogo?.url || (primaryLogo?.filename ? `/uploads/brand/${primaryLogo.filename}` : undefined),
+      appIconUrl: resolvedIconUrl,
+      logoUrl: resolvedLogoUrl,
+      preset: "🇮🇳",
+      shape: "rounded_square",
+      bgColor: "blue",
     },
     preloader: {
       primaryColor: designSystem.colorTokens?.primaryViolet || "#FE8706",
       secondaryColor: primaryAccent,
-      durationMs: 2000,
+      durationMs: 2200,
+      mediaType: "animation",
+      tagline: "તમારા ગામનું પોતાનું ડિજિટલ પોસ્ટર",
+      title: "Panchayat Post",
+      logoUrl: resolvedLogoUrl,
     },
     theme: {
       mode: designSystem.guidelines?.theme || "Light",

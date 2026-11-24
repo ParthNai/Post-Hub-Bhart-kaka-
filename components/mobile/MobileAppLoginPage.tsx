@@ -21,11 +21,13 @@ import { AppUser, simulateLogin, saveAppUser } from "@/lib/app-auth";
 interface MobileAppLoginPageProps {
   onSuccess: (user: AppUser) => void;
   onExploreGuest: () => void;
+  logoUrl?: string;
 }
 
 export const MobileAppLoginPage: React.FC<MobileAppLoginPageProps> = ({
   onSuccess,
   onExploreGuest,
+  logoUrl,
 }) => {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
@@ -163,7 +165,7 @@ export const MobileAppLoginPage: React.FC<MobileAppLoginPageProps> = ({
           boxSizing: "border-box",
         }}
       >
-        <BrandLogo size="md" />
+        <BrandLogo size="md" logoUrl={logoUrl} />
         <Link
           href="/admin/dashboard"
           style={{

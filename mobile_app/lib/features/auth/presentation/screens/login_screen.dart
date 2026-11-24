@@ -7,6 +7,7 @@ import 'package:panchayat_post/core/routes/app_routes.dart';
 import 'package:panchayat_post/core/services/session_service.dart';
 import 'package:panchayat_post/core/widgets/legal_dialog_helper.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
+import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 import 'package:panchayat_post/features/auth/presentation/widgets/auth_header_widget.dart';
 import 'package:panchayat_post/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:panchayat_post/features/welcome/presentation/widgets/welcome_background_painter.dart';
@@ -67,11 +68,21 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final user = await _authService.loginWithPin(
-        mobile: _mobileController.text.trim(),
-        pin: _pinController.text.trim(),
-        rememberMe: _rememberMe,
-      );
+      UserProfile user;
+      try {
+        user = await _authService.loginWithPin(
+          mobile: _mobileController.text.trim(),
+          pin: _pinController.text.trim(),
+          rememberMe: _rememberMe,
+        );
+      } catch (pinErr) {
+        // Fallback to username/password login (e.g. for registered test users or local offline accounts)
+        user = await _authService.login(
+          username: _mobileController.text.trim(),
+          password: _pinController.text.trim(),
+          rememberMe: _rememberMe,
+        );
+      }
 
       if (!mounted) return;
       setState(() => _isLoading = false);
@@ -206,14 +217,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           prefixWidget: const Icon(Icons.phone_android_rounded, color: AppColors.textNavy),
                           inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(10),
+                            LengthLimitingTextInputFormatter(30),
                           ],
                           validator: (val) {
                             if (val == null || val.trim().isEmpty) return strings.mobileRequiredError;
-                            return RegExp(r'^\d{10}$').hasMatch(val.trim())
-                                ? null
-                                : strings.mobileInvalidError;
+                            final clean = val.trim();
+                            if (RegExp(r'^\d{10}$').hasMatch(clean) || clean.length >= 3) {
+                              return null;
+                            }
+                            return strings.mobileInvalidError;
                           },
                         ),
                         const SizedBox(height: 16.0),
@@ -224,11 +236,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           hintText: strings.pinHint,
                           controller: _pinController,
                           obscureText: _obscurePin,
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.text,
                           textInputAction: TextInputAction.done,
                           inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(4),
+                            LengthLimitingTextInputFormatter(32),
                           ],
                           labelIcon: const Icon(
                             Icons.lock_rounded,
@@ -252,7 +263,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           validator: (val) {
                             if (val == null || val.isEmpty) return strings.pinRequiredError;
-                            return RegExp(r'^\d{4}$').hasMatch(val) ? null : strings.pinRequiredError;
+                            if (val.length >= 4) return null;
+                            return strings.pinRequiredError;
                           },
                         ),
                         const SizedBox(height: 12.0),
