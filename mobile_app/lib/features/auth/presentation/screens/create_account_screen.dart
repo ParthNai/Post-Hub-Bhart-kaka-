@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/constants/app_colors.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
@@ -8,6 +8,7 @@ import 'package:panchayat_post/core/widgets/legal_dialog_helper.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/presentation/widgets/auth_header_widget.dart';
 import 'package:panchayat_post/features/auth/presentation/widgets/auth_text_field.dart';
+import 'package:panchayat_post/features/auth/presentation/widgets/password_guidelines_widget.dart';
 import 'package:panchayat_post/features/welcome/presentation/widgets/welcome_background_painter.dart';
 
 /// Screen 03: Create Account / Registration Screen.
@@ -32,36 +33,91 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final _fullNameController = TextEditingController();
-  final _mobileController = TextEditingController();
-  final _pinController = TextEditingController();
-  final _occupationController = TextEditingController();
-  final _villageController = TextEditingController();
-  final _talukaController = TextEditingController();
-  final _districtController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   late final AuthService _authService;
 
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
   bool _termsAccepted = false;
   bool _showTermsError = false;
 
   bool _isLoading = false;
+  bool _isCheckingUsername = false;
+  bool? _isUsernameAvailable;
+  String? _usernameFeedback;
+  Timer? _debounceTimer;
 
   @override
   void initState() {
     super.initState();
     _authService = widget.authService ?? AuthService();
+    _usernameController.addListener(_onUsernameChanged);
   }
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
+    _usernameController.removeListener(_onUsernameChanged);
     _fullNameController.dispose();
-    _mobileController.dispose();
-    _pinController.dispose();
-    _occupationController.dispose();
-    _villageController.dispose();
-    _talukaController.dispose();
-    _districtController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  void _onUsernameChanged() {
+    final text = _usernameController.text.trim();
+    _debounceTimer?.cancel();
+
+    if (text.isEmpty) {
+      if (mounted) {
+        setState(() {
+          _isCheckingUsername = false;
+          _isUsernameAvailable = null;
+          _usernameFeedback = null;
+        });
+      }
+      return;
+    }
+
+    if (!AuthService.isUsernameFormatValid(text)) {
+      if (mounted) {
+        setState(() {
+          _isCheckingUsername = false;
+          _isUsernameAvailable = false;
+          _usernameFeedback = null;
+        });
+      }
+      return;
+    }
+
+    setState(() {
+      _isCheckingUsername = true;
+      _usernameFeedback = null;
+    });
+
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () async {
+      try {
+        final available = await _authService.checkUsernameAvailability(text);
+        if (mounted) {
+          final strings = LocaleScope.of(context).strings;
+          setState(() {
+            _isCheckingUsername = false;
+            _isUsernameAvailable = available;
+            _usernameFeedback = available ? strings.usernameAvailable : strings.usernameTakenError;
+          });
+        }
+      } catch (_) {
+        if (mounted) {
+          setState(() {
+            _isCheckingUsername = false;
+          });
+        }
+      }
+    });
   }
 
   Future<void> _handleRegistration() async {
@@ -84,17 +140,24 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       return;
     }
 
+    // Check username availability if not yet confirmed
+    if (_isUsernameAvailable == false) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(strings.usernameTakenError),
+          backgroundColor: const Color(0xFFEF4444),
+        ),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {
-      final message = await _authService.registerWithBackend(
+      final user = await _authService.registerUser(
         fullName: _fullNameController.text.trim(),
-        mobile: _mobileController.text.trim(),
-        pin: _pinController.text.trim(),
-        occupation: _occupationController.text.trim(),
-        village: _villageController.text,
-        taluka: _talukaController.text,
-        district: _districtController.text,
+        username: _usernameController.text.trim(),
+        password: _passwordController.text,
       );
 
       if (!mounted) return;
@@ -104,25 +167,31 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       // Show success feedback
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(message.isNotEmpty ? message : strings.registrationSuccess),
+          content: Text(strings.registrationSuccess),
           backgroundColor: const Color(0xFF16A34A),
           duration: const Duration(seconds: 2),
         ),
       );
 
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        AppRoutes.login,
-        (route) => false,
-      );
+      // Navigate to Screen 07 Profile Setup if configured and profile incomplete; else Home
+      if (widget.navigateToProfileSetup && !user.isProfileComplete) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          AppRoutes.profileSetup,
+          (route) => false,
+          arguments: user,
+        );
+      } else {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          AppRoutes.home,
+          (route) => false,
+        );
+      }
     } on AuthException catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      final message = e.message.toLowerCase().contains('already exist')
-          ? strings.mobileAlreadyRegisteredError
-          : e.message;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(message),
+          content: Text(e.message),
           backgroundColor: const Color(0xFFEF4444),
         ),
       );
@@ -228,105 +297,148 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                         ),
                         const SizedBox(height: 14.0),
 
-                        // Field 2: Mobile number
+                        // Field 2: Username
                         AuthTextField(
-                          label: '${strings.mobileNumberLabel} *',
-                          hintText: strings.mobileNumberHint,
-                          controller: _mobileController,
-                          keyboardType: TextInputType.phone,
+                          label: strings.usernameLabel,
+                          hintText: strings.usernameHint,
+                          controller: _usernameController,
                           textInputAction: TextInputAction.next,
-                          labelIcon: const Icon(
-                            Icons.phone_android_rounded,
-                            size: 16.0,
-                            color: AppColors.textNavy,
+                          labelIcon: const Text(
+                            '@',
+                            style: TextStyle(
+                              fontSize: 15.0,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.textNavy,
+                            ),
                           ),
-                          prefixWidget: const Icon(Icons.phone_android_rounded, color: AppColors.textNavy),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(10),
-                          ],
-                          validator: (val) {
-                            if (val == null || val.trim().isEmpty) return strings.mobileRequiredError;
-                            return RegExp(r'^\d{10}$').hasMatch(val.trim())
-                                ? null
-                                : strings.mobileInvalidError;
-                          },
-                        ),
-                        const SizedBox(height: 14.0),
-
-                        // Field 3: PIN
-                        AuthTextField(
-                          label: strings.pinLabel,
-                          hintText: strings.pinHint,
-                          controller: _pinController,
-                          obscureText: true,
-                          keyboardType: TextInputType.number,
-                          textInputAction: TextInputAction.next,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(4),
-                          ],
-                          labelIcon: const Icon(
-                            Icons.lock_rounded,
-                            size: 15.0,
-                            color: AppColors.textNavy,
+                          prefixWidget: const Text(
+                            '@',
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textNavy,
+                            ),
                           ),
-                          prefixWidget: const Icon(Icons.lock_outline_rounded, color: AppColors.textNavy),
+                          suffixWidget: _isCheckingUsername
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.0,
+                                    color: AppColors.primaryBlue,
+                                  ),
+                                )
+                              : _isUsernameAvailable == true
+                                  ? const Icon(
+                                      Icons.check_circle_rounded,
+                                      color: Color(0xFF16A34A),
+                                      size: 20.0,
+                                    )
+                                  : _isUsernameAvailable == false
+                                      ? const Icon(
+                                          Icons.cancel_rounded,
+                                          color: Color(0xFFEF4444),
+                                          size: 20.0,
+                                        )
+                                      : null,
+                          helperText: _usernameFeedback ?? strings.usernameHelper,
                           validator: (val) {
-                            if (val == null || val.isEmpty) return strings.pinRequiredError;
-                            return RegExp(r'^\d{4}$').hasMatch(val) ? null : strings.pinRequiredError;
-                          },
-                        ),
-                        const SizedBox(height: 14.0),
-
-                        // Field 4: Occupation
-                        AuthTextField(
-                          label: '${strings.occupationLabel} *',
-                          hintText: strings.occupationHint,
-                          controller: _occupationController,
-                          textInputAction: TextInputAction.next,
-                          labelIcon: const Icon(
-                            Icons.work_outline_rounded,
-                            size: 15.0,
-                            color: AppColors.textNavy,
-                          ),
-                          prefixWidget: const Icon(Icons.work_outline_rounded, color: AppColors.textNavy),
-                          validator: (val) {
-                            if (val == null || val.trim().isEmpty) return strings.occupationRequiredError;
+                            if (val == null || val.trim().isEmpty) {
+                              return strings.usernameLengthError;
+                            }
+                            final clean = val.trim();
+                            if (clean.length < 3) {
+                              return strings.usernameLengthError;
+                            }
+                            if (!AuthService.isUsernameFormatValid(clean)) {
+                              return strings.usernameInvalidFormatError;
+                            }
                             return null;
                           },
                         ),
                         const SizedBox(height: 14.0),
 
+                        // Field 3: Password
                         AuthTextField(
-                          label: strings.villageCityFieldLabel,
-                          hintText: strings.villageCityFieldHint,
-                          controller: _villageController,
+                          label: strings.passwordLabel,
+                          hintText: strings.passwordHint,
+                          controller: _passwordController,
+                          obscureText: _obscurePassword,
                           textInputAction: TextInputAction.next,
-                          labelIcon: const Icon(Icons.location_city_rounded, size: 16.0, color: AppColors.textNavy),
-                          prefixWidget: const Icon(Icons.location_on_outlined, color: AppColors.textNavy),
+                          onChanged: (_) => setState(() {}),
+                          labelIcon: const Icon(
+                            Icons.lock_rounded,
+                            size: 15.0,
+                            color: AppColors.textNavy,
+                          ),
+                          prefixWidget: const Icon(
+                            Icons.lock_outline_rounded,
+                            color: AppColors.textNavy,
+                            size: 20.0,
+                          ),
+                          suffixWidget: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              color: const Color(0xFF64748B),
+                              size: 20.0,
+                            ),
+                            onPressed: () =>
+                                setState(() => _obscurePassword = !_obscurePassword),
+                          ),
+                          validator: (val) {
+                            if (val == null || !AuthService.isPasswordValid(val)) {
+                              return strings.passwordWeakError;
+                            }
+                            return null;
+                          },
                         ),
                         const SizedBox(height: 14.0),
 
+                        // Field 4: Confirm Password
                         AuthTextField(
-                          label: strings.talukaLabel,
-                          hintText: strings.talukaLabel,
-                          controller: _talukaController,
-                          textInputAction: TextInputAction.next,
-                          labelIcon: const Icon(Icons.map_outlined, size: 16.0, color: AppColors.textNavy),
-                          prefixWidget: const Icon(Icons.map_outlined, color: AppColors.textNavy),
-                        ),
-                        const SizedBox(height: 14.0),
-
-                        AuthTextField(
-                          label: strings.districtLabel,
-                          hintText: strings.districtLabel,
-                          controller: _districtController,
+                          label: strings.confirmPasswordLabel,
+                          hintText: strings.confirmPasswordHint,
+                          controller: _confirmPasswordController,
+                          obscureText: _obscureConfirmPassword,
                           textInputAction: TextInputAction.done,
-                          labelIcon: const Icon(Icons.public_rounded, size: 16.0, color: AppColors.textNavy),
-                          prefixWidget: const Icon(Icons.public_rounded, color: AppColors.textNavy),
+                          labelIcon: const Icon(
+                            Icons.lock_rounded,
+                            size: 15.0,
+                            color: AppColors.textNavy,
+                          ),
+                          prefixWidget: const Icon(
+                            Icons.lock_outline_rounded,
+                            color: AppColors.textNavy,
+                            size: 20.0,
+                          ),
+                          suffixWidget: IconButton(
+                            icon: Icon(
+                              _obscureConfirmPassword
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              color: const Color(0xFF64748B),
+                              size: 20.0,
+                            ),
+                            onPressed: () => setState(
+                                () => _obscureConfirmPassword = !_obscureConfirmPassword),
+                          ),
+                          validator: (val) {
+                            if (val == null || val.isEmpty) {
+                              return strings.passwordMismatchError;
+                            }
+                            if (val != _passwordController.text) {
+                              return strings.passwordMismatchError;
+                            }
+                            return null;
+                          },
                         ),
                         const SizedBox(height: 14.0),
+
+                        // Password Guidelines Card
+                        PasswordGuidelinesWidget(password: _passwordController.text),
+                        const SizedBox(height: 12.0),
 
                         // Terms & Conditions Checkbox
                         Row(

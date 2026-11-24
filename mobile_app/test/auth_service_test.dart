@@ -1,8 +1,4 @@
-import 'dart:convert';
-
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
 import 'package:panchayat_post/core/services/session_service.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,13 +8,12 @@ void main() {
 
   late AuthService authService;
   late SessionService sessionService;
-  late SharedPreferences preferences;
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
-    preferences = await SharedPreferences.getInstance();
-    sessionService = SessionService(preferences: preferences);
-    authService = AuthService(preferences: preferences, sessionService: sessionService);
+    final prefs = await SharedPreferences.getInstance();
+    sessionService = SessionService(preferences: prefs);
+    authService = AuthService(preferences: prefs, sessionService: sessionService);
   });
 
   group('AuthService Unit Tests', () {
@@ -146,86 +141,6 @@ void main() {
         ),
         throwsA(isA<AuthException>()),
       );
-    });
-
-    test('Backend registration sends the profile and leaves server-controlled fields out', () async {
-      late http.Request request;
-      final service = AuthService(
-        preferences: preferences,
-        sessionService: sessionService,
-        httpClient: MockClient((receivedRequest) async {
-          request = receivedRequest;
-          return http.Response(
-            jsonEncode({'message': 'User registered successfully'}),
-            200,
-            headers: {'content-type': 'application/json'},
-          );
-        }),
-      );
-
-      final message = await service.registerWithBackend(
-        fullName: 'Akash P',
-        mobile: '7801985214',
-        pin: '4567',
-        occupation: 'Sarpanch',
-        village: 'Palanpur',
-        taluka: 'Palanpur',
-        district: 'Bk',
-      );
-
-      expect(message, 'User registered successfully');
-      expect(request.url.path, endsWith('/api/register'));
-      expect(jsonDecode(request.body), {
-        'name': 'Akash P',
-        'mobile': '7801985214',
-        'pin': '4567',
-        'occupation': 'Sarpanch',
-        'village': 'Palanpur',
-        'taluka': 'Palanpur',
-        'district': 'Bk',
-      });
-    });
-
-    test('PIN login sends the PIN as otp and persists the backend session', () async {
-      late http.Request request;
-      final service = AuthService(
-        preferences: preferences,
-        sessionService: sessionService,
-        httpClient: MockClient((receivedRequest) async {
-          request = receivedRequest;
-          return http.Response(
-            jsonEncode({
-              'token': 'backend-token',
-              'user': {
-                '_id': 'user-123',
-                'name': 'Akash P',
-                'mobile': 7801985214,
-                'occupation': 'Sarpanch',
-                'village': 'Palanpur',
-                'taluka': 'Palanpur',
-                'district': 'Bk',
-                'status': true,
-                'createdAt': '2026-01-01T00:00:00.000Z',
-              },
-            }),
-            200,
-            headers: {'content-type': 'application/json'},
-          );
-        }),
-      );
-
-      final profile = await service.loginWithPin(
-        mobile: '7801985214',
-        pin: '4567',
-        rememberMe: false,
-      );
-
-      expect(request.url.path, endsWith('/api/login'));
-      expect(jsonDecode(request.body), {'mobile': '7801985214', 'otp': '4567'});
-      expect(profile.userId, 'user-123');
-      expect(profile.status, 'active');
-      expect(profile.villageCity, 'Palanpur');
-      expect(await sessionService.checkSession(), SessionState.authenticated);
     });
   });
 }

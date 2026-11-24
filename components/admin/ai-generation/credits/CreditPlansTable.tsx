@@ -232,20 +232,20 @@ export function CreditPlansTable({
                 plan.status === "Active"
                   ? "#ECFDF5"
                   : plan.status === "Draft"
-                  ? "#FEF3C7"
-                  : "#F3F4F6";
+                    ? "#FEF3C7"
+                    : "#F3F4F6";
               const statusColor =
                 plan.status === "Active"
                   ? "#10B981"
                   : plan.status === "Draft"
-                  ? "#D97706"
-                  : "#6B7280";
+                    ? "#D97706"
+                    : "#6B7280";
               const statusBorder =
                 plan.status === "Active"
                   ? "#A7F3D0"
                   : plan.status === "Draft"
-                  ? "#FDE68A"
-                  : "#E5E7EB";
+                    ? "#FDE68A"
+                    : "#E5E7EB";
 
               return (
                 <tr
@@ -260,13 +260,13 @@ export function CreditPlansTable({
                     {plan.name}
                   </td>
                   <td style={{ padding: "14px 16px", fontWeight: 600 }}>
-                    {formatCredits(plan.creditQuantity)}
+                    {formatCredits(plan.credits)}
                   </td>
                   <td style={{ padding: "14px 16px", color: "#645D73" }}>
                     {plan.validityDays ? `${plan.validityDays} Days` : "Lifetime"}
                   </td>
                   <td style={{ padding: "14px 16px", color: "#645D73" }}>
-                    {plan.planType}
+                    {plan.type}
                   </td>
                   <td style={{ padding: "14px 16px" }}>
                     <span

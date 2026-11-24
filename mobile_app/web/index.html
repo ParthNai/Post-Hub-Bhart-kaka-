@@ -31,20 +31,6 @@
 
   <title>panchayat_post</title>
   <link rel="manifest" href="manifest.json">
-  <script>
-    // Safeguard Flutter Web engine against negative viewInsets assertion on browser resize/zoom
-    if (window.visualViewport) {
-      const origHeightDesc = Object.getOwnPropertyDescriptor(VisualViewport.prototype, 'height');
-      if (origHeightDesc && origHeightDesc.get) {
-        Object.defineProperty(window.visualViewport, 'height', {
-          get() {
-            const h = origHeightDesc.get.call(this);
-            return Math.min(h, window.innerHeight);
-          }
-        });
-      }
-    }
-  </script>
 </head>
 <body>
   <!--

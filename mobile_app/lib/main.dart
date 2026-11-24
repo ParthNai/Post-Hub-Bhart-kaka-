@@ -3,8 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
 import 'package:panchayat_post/core/services/app_init_service.dart';
-import 'package:panchayat_post/core/services/app_config_service.dart';
-import 'package:panchayat_post/core/models/app_remote_config.dart';
 import 'package:panchayat_post/core/theme/app_theme.dart';
 import 'package:panchayat_post/features/splash/presentation/screens/splash_screen.dart';
 
@@ -26,7 +24,11 @@ void main() {
 }
 
 class PanchayatPostApp extends StatefulWidget {
-  const PanchayatPostApp({super.key, this.initService, this.localeController});
+  const PanchayatPostApp({
+    super.key,
+    this.initService,
+    this.localeController,
+  });
 
   final AppInitService? initService;
   final LocaleController? localeController;
@@ -48,39 +50,26 @@ class _PanchayatPostAppState extends State<PanchayatPostApp> {
   Widget build(BuildContext context) {
     return LocaleScope(
       controller: _localeController,
-      child: ValueListenableBuilder<AppRemoteConfig>(
-        valueListenable: AppConfigService.instance.configNotifier,
-        builder: (context, config, child) {
-          final theme = AppTheme.fromRemote(
-            themeMode: config.themeMode,
-            primaryAccent: config.primaryAccentColor,
-            backgroundColor: config.backgroundColor,
-            headerStyle: config.headerStyle,
-            cardRadius: config.cardRadius,
-          );
-          return MaterialApp(
-            title: 'Panchayat Post',
-            debugShowCheckedModeBanner: false,
-            theme: theme,
-            initialRoute: AppRoutes.splash,
-            onGenerateRoute: (settings) {
-              if (settings.name == AppRoutes.splash) {
-                return MaterialPageRoute<void>(
-                  builder: (context) =>
-                      SplashScreen(initService: widget.initService),
-                  settings: settings,
-                );
-              }
-              final builder = AppRoutes.routes[settings.name];
-              if (builder != null) {
-                return MaterialPageRoute<void>(
-                  builder: builder,
-                  settings: settings,
-                );
-              }
-              return null;
-            },
-          );
+      child: MaterialApp(
+        title: 'Panchayat Post',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        initialRoute: AppRoutes.splash,
+        onGenerateRoute: (settings) {
+          if (settings.name == AppRoutes.splash) {
+            return MaterialPageRoute<void>(
+              builder: (context) => SplashScreen(initService: widget.initService),
+              settings: settings,
+            );
+          }
+          final builder = AppRoutes.routes[settings.name];
+          if (builder != null) {
+            return MaterialPageRoute<void>(
+              builder: builder,
+              settings: settings,
+            );
+          }
+          return null;
         },
       ),
     );

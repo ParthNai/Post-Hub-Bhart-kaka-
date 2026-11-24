@@ -8,6 +8,7 @@ import 'package:panchayat_post/features/auth/presentation/screens/recovery_statu
 import 'package:panchayat_post/features/editor/presentation/screens/my_designs_screen.dart';
 import 'package:panchayat_post/features/editor/presentation/screens/poster_editor_screen.dart';
 import 'package:panchayat_post/features/editor/presentation/screens/poster_preview_screen.dart';
+import 'package:panchayat_post/features/editor/presentation/screens/quick_customize_screen.dart';
 import 'package:panchayat_post/features/festivals/presentation/screens/festival_detail_screen.dart';
 import 'package:panchayat_post/features/festivals/presentation/screens/festivals_screen.dart';
 import 'package:panchayat_post/features/home/presentation/screens/home_screen.dart';
@@ -68,6 +69,9 @@ class AppRoutes {
   /// Screen 16: Settings & Preferences
   static const String settings = '/settings';
 
+  /// Screen 17: Quick Customize
+  static const String quickCustomize = '/quick-customize';
+
   /// Route generator map
   static Map<String, WidgetBuilder> get routes => {
         splash: (context) => const SplashScreen(),
@@ -86,5 +90,6 @@ class AppRoutes {
         myDesigns: (context) => const MyDesignsScreen(),
         profile: (context) => const ProfileScreen(),
         settings: (context) => const SettingsScreen(),
+        quickCustomize: (context) => const QuickCustomizeScreen(),
       };
 }

@@ -113,13 +113,13 @@ export function RecentTransactionsTable({
           </thead>
           <tbody>
             {recent.map((tx) => {
-              const isPositive = tx.creditChange > 0;
+              const isPositive = tx.amount > 0;
               const statusColor =
                 tx.status === "Completed" || tx.status === "Success"
                   ? "#10B981"
                   : tx.status === "Failed"
-                  ? "#EF4444"
-                  : "#F59E0B";
+                    ? "#EF4444"
+                    : "#F59E0B";
 
               return (
                 <tr
@@ -137,7 +137,7 @@ export function RecentTransactionsTable({
                     {tx.userName}
                   </td>
                   <td style={{ padding: "14px 16px", color: "#645D73" }}>
-                    {tx.transactionType}
+                    {tx.type}
                   </td>
                   <td
                     style={{
@@ -146,13 +146,13 @@ export function RecentTransactionsTable({
                       color: isPositive ? "#10B981" : "#EF4444",
                     }}
                   >
-                    {isPositive ? `+${formatCredits(tx.creditChange)}` : formatCredits(tx.creditChange)}
+                    {isPositive ? `+${formatCredits(tx.amount)}` : formatCredits(tx.amount)}
                   </td>
                   <td style={{ padding: "14px 16px", color: "#645D73" }}>
                     {tx.source}
                   </td>
                   <td style={{ padding: "14px 16px", color: "#777184", fontSize: "12px" }}>
-                    {tx.date}
+                    {tx.timestamp}
                   </td>
                   <td style={{ padding: "14px 18px", textAlign: "right" }}>
                     <span

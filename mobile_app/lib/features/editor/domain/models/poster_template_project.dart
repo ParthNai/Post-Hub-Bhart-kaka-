@@ -18,9 +18,6 @@ class PosterTemplateProject {
     this.category = 'Festivals',
     this.isFavorite = false,
     this.previewAsset,
-    this.frameId = 'gold_vip',
-    this.frameImageUrl,
-    this.frameUserPhoto,
   }) : createdAt = createdAt ?? updatedAt;
 
   final String id;
@@ -35,9 +32,6 @@ class PosterTemplateProject {
   final String category;
   final bool isFavorite;
   final String? previewAsset;
-  final String? frameId;
-  final String? frameImageUrl;
-  final String? frameUserPhoto;
 
   PosterTemplateProject copyWith({
     String? id,
@@ -52,9 +46,6 @@ class PosterTemplateProject {
     String? category,
     bool? isFavorite,
     String? previewAsset,
-    String? frameId,
-    String? frameImageUrl,
-    String? frameUserPhoto,
   }) {
     return PosterTemplateProject(
       id: id ?? this.id,
@@ -69,9 +60,6 @@ class PosterTemplateProject {
       category: category ?? this.category,
       isFavorite: isFavorite ?? this.isFavorite,
       previewAsset: previewAsset ?? this.previewAsset,
-      frameId: frameId ?? this.frameId,
-      frameImageUrl: frameImageUrl ?? this.frameImageUrl,
-      frameUserPhoto: frameUserPhoto ?? this.frameUserPhoto,
     );
   }
 
@@ -99,9 +87,6 @@ class PosterTemplateProject {
         'category': category,
         'isFavorite': isFavorite,
         'previewAsset': previewAsset,
-        'frameId': frameId,
-        'frameImageUrl': frameImageUrl,
-        'frameUserPhoto': frameUserPhoto,
       };
 
   factory PosterTemplateProject.fromMap(Map<String, dynamic> map) {
@@ -124,9 +109,6 @@ class PosterTemplateProject {
       category: map['category'] as String? ?? 'Festivals',
       isFavorite: map['isFavorite'] as bool? ?? false,
       previewAsset: map['previewAsset'] as String?,
-      frameId: map['frameId'] as String? ?? 'gold_vip',
-      frameImageUrl: map['frameImageUrl'] as String?,
-      frameUserPhoto: map['frameUserPhoto'] as String?,
     );
   }
 
@@ -135,47 +117,18 @@ class PosterTemplateProject {
   factory PosterTemplateProject.fromJson(String source) =>
       PosterTemplateProject.fromMap(jsonDecode(source) as Map<String, dynamic>);
 
-  /// Creates a dynamic design project from any festival, panchayat, or admin poster template.
-  /// Keeps the canvas clean with the template's background artwork and default VIP frame,
-  /// without forcing template names or unwanted image overlays on the poster.
-  static PosterTemplateProject createProjectFromTemplate({
-    required String templateId,
-    required String imageAsset,
-    required String title,
-    String? category,
-    String? frameId = 'gold_vip',
-    String? frameImageUrl,
-  }) {
-    return PosterTemplateProject(
-      id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
-      templateId: templateId,
-      title: title,
-      backgroundAsset: imageAsset,
-      backgroundColor: const Color(0xFF1E293B),
-      category: category ?? 'General',
-      frameId: frameId,
-      frameImageUrl: frameImageUrl,
-      updatedAt: DateTime.now(),
-      elements: const [], // Clean canvas! No unwanted title text or stickers!
-    );
-  }
-
-  /// Creates default project for Screen 12 matching the reference image.
+  /// Creates default project for Screen 12 matching the reference image exactly.
   static PosterTemplateProject createDefaultNavratriProject({
     String? templateId,
     String? imageAsset,
     String? title,
-    String? frameId = 'gold_vip',
-    String? frameImageUrl,
   }) {
     return PosterTemplateProject(
       id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
       templateId: templateId ?? 'navratri_shubh',
       title: title ?? 'Navratri Celebration',
-      backgroundAsset: imageAsset ?? AppAssets.festivalPosterShubhNavratri,
+      backgroundAsset: imageAsset ?? AppAssets.editorCanvasNavratri,
       backgroundColor: const Color(0xFF2E0854),
-      frameId: frameId,
-      frameImageUrl: frameImageUrl,
       updatedAt: DateTime.now(),
       elements: const [
         PosterElement(
@@ -183,8 +136,8 @@ class PosterTemplateProject {
           type: PosterElementType.text,
           text: 'શુભ નવરાત્રી',
           x: 0.5,
-          y: 0.20,
-          fontSize: 28.0,
+          y: 0.22,
+          fontSize: 32.0,
           color: Color(0xFFFDE68A), // Golden Yellow
           fontFamily: 'Poppins',
           textAlign: TextAlign.center,
@@ -196,9 +149,76 @@ class PosterTemplateProject {
           type: PosterElementType.text,
           text: 'માતાજીના આશીર્વાદથી\nતમારું જીવન હંમેશા ખુશીઓથી ભરેલું રહે...',
           x: 0.5,
-          y: 0.32,
-          fontSize: 13.0,
+          y: 0.38,
+          fontSize: 13.5,
           color: Colors.white,
+          fontFamily: 'Poppins',
+          textAlign: TextAlign.center,
+          isBold: false,
+        ),
+      ],
+    );
+  }
+
+  /// Creates default project for Screen 17 Quick Customize matching the reference image exactly.
+  static PosterTemplateProject createDefaultQuickCustomizeProject({
+    String? templateId,
+    String? imageAsset,
+    String? title,
+  }) {
+    return PosterTemplateProject(
+      id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
+      templateId: templateId ?? 'quick_customize_navratri',
+      title: title ?? 'Navratri Celebration',
+      backgroundAsset: imageAsset ?? AppAssets.quickCustomizeNavratri,
+      backgroundColor: const Color(0xFFFDF7EE),
+      updatedAt: DateTime.now(),
+      elements: const [
+        PosterElement(
+          id: 'elem_main_heading',
+          type: PosterElementType.text,
+          text: 'Happy Navratri',
+          x: 0.76,
+          y: 0.16,
+          fontSize: 28.0,
+          color: Color(0xFF6B1D2F),
+          fontFamily: 'Poppins',
+          textAlign: TextAlign.center,
+          isBold: true,
+          isSelected: true,
+        ),
+        PosterElement(
+          id: 'elem_subheading',
+          type: PosterElementType.text,
+          text: 'May Maa Amba remove all the negativity and fill our lives with happiness.',
+          x: 0.76,
+          y: 0.32,
+          fontSize: 11.5,
+          color: Color(0xFF4A3E3D),
+          fontFamily: 'Poppins',
+          textAlign: TextAlign.center,
+          isBold: false,
+        ),
+        PosterElement(
+          id: 'elem_user_name',
+          type: PosterElementType.text,
+          text: 'Rajan Patel',
+          x: 0.82,
+          y: 0.88,
+          fontSize: 12.0,
+          color: Color(0xFF252238),
+          fontFamily: 'Poppins',
+          textAlign: TextAlign.right,
+          isBold: true,
+        ),
+        PosterElement(
+          id: 'elem_business_details',
+          type: PosterElementType.text,
+          text: 'Panchayat Post • +91 98765 43210',
+          x: 0.50,
+          y: 0.94,
+          fontSize: 10.0,
+          color: Color(0xFF475569),
           fontFamily: 'Poppins',
           textAlign: TextAlign.center,
           isBold: false,

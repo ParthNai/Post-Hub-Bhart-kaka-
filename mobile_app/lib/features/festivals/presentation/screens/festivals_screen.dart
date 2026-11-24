@@ -9,7 +9,6 @@ import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
 import 'package:panchayat_post/features/festivals/data/services/festival_service.dart';
 import 'package:panchayat_post/features/festivals/domain/models/festival_item.dart';
-import 'package:panchayat_post/features/splash/presentation/widgets/brand_logo_widget.dart';
 
 /// Screen 10: Festival & Upcoming Events Listing
 /// Matching the approved Screen 10 UI reference image with high fidelity.
@@ -491,7 +490,7 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
                         style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
                     onPressed: () {
                       Navigator.of(ctx).pop();
-                      final project = PosterTemplateProject.createProjectFromTemplate(
+                      final project = PosterTemplateProject.createDefaultNavratriProject(
                         templateId: 'festival_${festival.id}',
                         imageAsset: festival.imageAsset,
                         title: festival.name,
@@ -612,7 +611,7 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pop();
-        final project = PosterTemplateProject.createProjectFromTemplate(
+        final project = PosterTemplateProject.createDefaultNavratriProject(
           templateId: 'tpl_${title.toLowerCase().replaceAll(' ', '_')}',
           imageAsset: asset,
           title: title,
@@ -824,8 +823,10 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
                   const SizedBox(width: 8.0),
 
                   // Panchayat Post Logo
-                  const BrandLogoWidget(
+                  Image.asset(
+                    AppAssets.panchayatLogo,
                     height: 32.0,
+                    fit: BoxFit.contain,
                   ),
                   const SizedBox(width: 5.0),
                   const Column(

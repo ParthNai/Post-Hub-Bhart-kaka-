@@ -6,7 +6,6 @@ import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
-import 'package:panchayat_post/features/splash/presentation/widgets/brand_logo_widget.dart';
 
 // ─── Design tokens ───────────────────────────────────────────────────────────
 const _kBg = Color(0xFFFAF9FC);
@@ -226,8 +225,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6, offset: const Offset(0, 2)),
               ],
             ),
-            child: const BrandLogoWidget(
-              height: 30.0,
+            child: Image.asset(
+              AppAssets.panchayatLogo,
+              fit: BoxFit.contain,
+              errorBuilder: (_, _, _) => const Icon(Icons.account_balance_rounded, color: Color(0xFFEA580C), size: 22.0),
             ),
           ),
           const SizedBox(width: 10.0),

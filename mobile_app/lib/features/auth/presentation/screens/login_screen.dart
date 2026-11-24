@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/constants/app_colors.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
@@ -7,14 +6,14 @@ import 'package:panchayat_post/core/routes/app_routes.dart';
 import 'package:panchayat_post/core/services/session_service.dart';
 import 'package:panchayat_post/core/widgets/legal_dialog_helper.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
-import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 import 'package:panchayat_post/features/auth/presentation/widgets/auth_header_widget.dart';
 import 'package:panchayat_post/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:panchayat_post/features/welcome/presentation/widgets/welcome_background_painter.dart';
 
 /// Screen 04: User Login Screen.
-/// Authenticates users with their registered mobile number and PIN.
-/// Supports configurable session persistence and live multi-language switching.
+/// Implements Username + Password authentication exclusively.
+/// Features secure salted SHA-256 password verification, configurable session persistence
+/// (Remember Me), account recovery dialog, and live multi-language switching.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({
     super.key,
@@ -33,13 +32,13 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _mobileController = TextEditingController();
-  final _pinController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   late final AuthService _authService;
   late final SessionService _sessionService;
 
-  bool _obscurePin = true;
+  bool _obscurePassword = true;
   bool _rememberMe = true;
   bool _isLoading = false;
 
@@ -52,8 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    _mobileController.dispose();
-    _pinController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -68,21 +67,11 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      UserProfile user;
-      try {
-        user = await _authService.loginWithPin(
-          mobile: _mobileController.text.trim(),
-          pin: _pinController.text.trim(),
-          rememberMe: _rememberMe,
-        );
-      } catch (pinErr) {
-        // Fallback to username/password login (e.g. for registered test users or local offline accounts)
-        user = await _authService.login(
-          username: _mobileController.text.trim(),
-          password: _pinController.text.trim(),
-          rememberMe: _rememberMe,
-        );
-      }
+      final user = await _authService.login(
+        username: _usernameController.text.trim(),
+        password: _passwordController.text,
+        rememberMe: _rememberMe,
+      );
 
       if (!mounted) return;
       setState(() => _isLoading = false);
@@ -113,12 +102,12 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
       setState(() => _isLoading = false);
 
+      // Map backend error messages to localized strings where appropriate
       String displayMsg = e.message;
-      final errorMessage = e.message.toLowerCase();
-      if (errorMessage.contains('inactive')) {
-        displayMsg = strings.accountInactiveError;
-      } else if (errorMessage.contains('pin') || errorMessage.contains('does not exist')) {
-        displayMsg = strings.pinInvalidError;
+      if (e.message.contains('does not exist')) {
+        displayMsg = strings.accountNotFoundError;
+      } else if (e.message.contains('Invalid password')) {
+        displayMsg = strings.invalidPasswordError;
       }
 
       ScaffoldMessenger.of(context).removeCurrentSnackBar();
@@ -203,44 +192,38 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 24.0),
 
-                        // Field 1: Mobile number
+                        // Field 1: Username
                         AuthTextField(
-                          label: strings.mobileNumberLabel,
-                          hintText: strings.mobileNumberHint,
-                          controller: _mobileController,
-                          keyboardType: TextInputType.phone,
+                          label: strings.loginUsernameLabel,
+                          hintText: strings.loginUsernameHint,
+                          controller: _usernameController,
                           textInputAction: TextInputAction.next,
                           labelIcon: const Icon(
-                            Icons.phone_android_rounded,
+                            Icons.person_rounded,
                             size: 16.0,
                             color: AppColors.textNavy,
                           ),
-                          prefixWidget: const Icon(Icons.phone_android_rounded, color: AppColors.textNavy),
-                          inputFormatters: [
-                            LengthLimitingTextInputFormatter(30),
-                          ],
+                          prefixWidget: const Icon(
+                            Icons.person_outline_rounded,
+                            color: AppColors.textNavy,
+                            size: 20.0,
+                          ),
                           validator: (val) {
-                            if (val == null || val.trim().isEmpty) return strings.mobileRequiredError;
-                            final clean = val.trim();
-                            if (RegExp(r'^\d{10}$').hasMatch(clean) || clean.length >= 3) {
-                              return null;
+                            if (val == null || val.trim().isEmpty) {
+                              return strings.loginUsernameRequiredError;
                             }
-                            return strings.mobileInvalidError;
+                            return null;
                           },
                         ),
                         const SizedBox(height: 16.0),
 
-                        // Field 2: PIN
+                        // Field 2: Password
                         AuthTextField(
-                          label: strings.pinLabel,
-                          hintText: strings.pinHint,
-                          controller: _pinController,
-                          obscureText: _obscurePin,
-                          keyboardType: TextInputType.text,
+                          label: strings.loginPasswordLabel,
+                          hintText: strings.loginPasswordHint,
+                          controller: _passwordController,
+                          obscureText: _obscurePassword,
                           textInputAction: TextInputAction.done,
-                          inputFormatters: [
-                            LengthLimitingTextInputFormatter(32),
-                          ],
                           labelIcon: const Icon(
                             Icons.lock_rounded,
                             size: 15.0,
@@ -253,42 +236,93 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           suffixWidget: IconButton(
                             icon: Icon(
-                              _obscurePin
+                              _obscurePassword
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
                               color: const Color(0xFF64748B),
                               size: 20.0,
                             ),
-                            onPressed: () => setState(() => _obscurePin = !_obscurePin),
+                            onPressed: () =>
+                                setState(() => _obscurePassword = !_obscurePassword),
                           ),
                           validator: (val) {
-                            if (val == null || val.isEmpty) return strings.pinRequiredError;
-                            if (val.length >= 4) return null;
-                            return strings.pinRequiredError;
+                            if (val == null || val.isEmpty) {
+                              return strings.loginPasswordRequiredError;
+                            }
+                            return null;
                           },
                         ),
                         const SizedBox(height: 12.0),
 
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Checkbox(
-                                value: _rememberMe,
-                                activeColor: AppColors.primaryBlue,
-                                onChanged: (val) => setState(() => _rememberMe = val ?? true),
-                              ),
-                              Text(
-                                strings.rememberMeLabel,
-                                style: const TextStyle(
-                                  fontSize: 13.0,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF334155),
+                        // Remember Me and Forgot Password Row
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Remember Me Checkbox
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: Checkbox(
+                                        value: _rememberMe,
+                                        activeColor: AppColors.primaryBlue,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(4.0),
+                                        ),
+                                        onChanged: (val) {
+                                          setState(() => _rememberMe = val ?? true);
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8.0),
+                                    Text(
+                                      strings.rememberMeLabel,
+                                      style: const TextStyle(
+                                        fontSize: 13.0,
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xFF334155),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(width: 8.0),
+
+                            // Forgot Password Link
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerRight,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).pushNamed(AppRoutes.forgotPassword);
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4.0,
+                                      vertical: 4.0,
+                                    ),
+                                    child: Text(
+                                      strings.forgotPasswordLabel,
+                                      style: const TextStyle(
+                                        fontSize: 13.0,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.primaryBlue,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 22.0),
 

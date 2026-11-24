@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:http/http.dart' as http;
-import 'package:panchayat_post/core/services/app_config_service.dart';
 import 'package:panchayat_post/core/services/session_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/recovery_request.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
@@ -23,14 +21,11 @@ class AuthService {
   AuthService({
     SharedPreferences? preferences,
     SessionService? sessionService,
-    http.Client? httpClient,
   })  : _prefs = preferences,
-        _sessionService = sessionService ?? SessionService(preferences: preferences),
-        _httpClient = httpClient ?? http.Client();
+        _sessionService = sessionService ?? SessionService(preferences: preferences);
 
   SharedPreferences? _prefs;
   final SessionService _sessionService;
-  final http.Client _httpClient;
 
   /// Session service instance
   SessionService get sessionService => _sessionService;
@@ -156,122 +151,6 @@ class AuthService {
     await _sessionService.saveSession(token: token, userId: userId, expiry: expiry);
 
     return newProfile;
-  }
-
-  Future<String> registerWithBackend({
-    required String fullName,
-    required String mobile,
-    required String pin,
-    required String occupation,
-    String? village,
-    String? taluka,
-    String? district,
-  }) async {
-    final response = await _httpClient
-        .post(
-          _apiUri('/register'),
-          headers: const {'Accept': 'application/json', 'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'name': fullName.trim(),
-            'mobile': mobile.trim(),
-            'pin': pin,
-            'occupation': occupation.trim(),
-            if (village != null && village.trim().isNotEmpty) 'village': village.trim(),
-            if (taluka != null && taluka.trim().isNotEmpty) 'taluka': taluka.trim(),
-            if (district != null && district.trim().isNotEmpty) 'district': district.trim(),
-          }),
-        )
-        .timeout(const Duration(seconds: 15));
-
-    final body = _decodeApiResponse(response);
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw AuthException(_apiErrorMessage(body, response.statusCode));
-    }
-
-    return _apiErrorMessage(body, response.statusCode);
-  }
-
-  Future<UserProfile> loginWithPin({
-    required String mobile,
-    required String pin,
-    bool rememberMe = true,
-  }) async {
-    final response = await _httpClient
-        .post(
-          _apiUri('/login'),
-          headers: const {'Accept': 'application/json', 'Content-Type': 'application/json'},
-          body: jsonEncode({'mobile': mobile.trim(), 'otp': pin}),
-        )
-        .timeout(const Duration(seconds: 15));
-
-    final body = _decodeApiResponse(response);
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw AuthException(_apiErrorMessage(body, response.statusCode));
-    }
-
-    final userData = body['user'];
-    final token = body['token'];
-    if (userData is! Map<String, dynamic> || token is! String || token.isEmpty) {
-      throw AuthException('The server returned an incomplete login response.');
-    }
-
-    final userId = (userData['_id'] ?? userData['id'])?.toString();
-    if (userId == null || userId.isEmpty) {
-      throw AuthException('The server did not return a user ID.');
-    }
-
-    final createdAt = DateTime.tryParse(userData['createdAt']?.toString() ?? '') ?? DateTime.now();
-    final fullName = userData['name']?.toString() ?? '';
-    final profile = UserProfile(
-      userId: userId,
-      fullName: fullName,
-      username: mobile.trim(),
-      passwordHash: hashPassword(pin),
-      createdAt: createdAt,
-      profilePhotoUrl: userData['profileImage']?.toString(),
-      villageCity: userData['village']?.toString(),
-      state: userData['district']?.toString(),
-      isProfileComplete: fullName.isNotEmpty,
-      status: userData['status'] == true ? 'active' : 'inactive',
-      acceptedLegalTimestamp: createdAt,
-    );
-
-    final users = await _getAllUsers();
-    users[mobile.trim()] = profile;
-    await _saveAllUsers(users);
-
-    final sessionExpiry = rememberMe
-        ? DateTime.now().add(const Duration(days: 30))
-        : DateTime.now().add(const Duration(days: 1));
-    await _sessionService.saveSession(
-      token: token,
-      userId: userId,
-      expiry: sessionExpiry,
-    );
-
-    return profile;
-  }
-
-  Uri _apiUri(String path) {
-    final baseUrl = AppConfigService.instance.serverBaseUrl.replaceAll(RegExp(r'/+$'), '');
-    return Uri.parse('$baseUrl/api$path');
-  }
-
-  Map<String, dynamic> _decodeApiResponse(http.Response response) {
-    try {
-      final decoded = jsonDecode(response.body);
-      if (decoded is Map<String, dynamic>) return decoded;
-    } on FormatException {
-      final message = response.body.trim();
-      if (message.isNotEmpty) throw AuthException(message);
-    }
-    throw AuthException('The server returned an invalid response.');
-  }
-
-  String _apiErrorMessage(Map<String, dynamic> body, int statusCode) {
-    final message = body['message'];
-    if (message is String && message.trim().isNotEmpty) return message.trim();
-    return 'Request failed (HTTP $statusCode).';
   }
 
   /// Logs in a user with username and password.

@@ -9,7 +9,6 @@ import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 import 'package:panchayat_post/features/editor/data/services/design_storage_service.dart';
 import 'package:panchayat_post/features/editor/data/services/poster_export_service.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
-import 'package:panchayat_post/features/splash/presentation/widgets/brand_logo_widget.dart';
 
 /// Screen 14: My Designs — Saved Posters Library
 /// Recreated with pixel-perfect reference fidelity from media_1795420106947_2b17f99e.jpg.
@@ -404,8 +403,14 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
                 ),
               ],
             ),
-            child: const BrandLogoWidget(
-              height: 32.0,
+            child: Image.asset(
+              AppAssets.panchayatLogo,
+              fit: BoxFit.contain,
+              errorBuilder: (_, _, _) => const Icon(
+                Icons.account_balance_rounded,
+                color: Color(0xFFEA580C),
+                size: 24.0,
+              ),
             ),
           ),
           const SizedBox(width: 12.0),

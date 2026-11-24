@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:panchayat_post/core/constants/app_colors.dart';
 
 /// Reusable input field matching the Panchayat Post authentication screens:
@@ -23,7 +22,6 @@ class AuthTextField extends StatelessWidget {
     this.helperText,
     this.errorText,
     this.autofillHints,
-    this.inputFormatters,
   });
 
   final String label;
@@ -40,7 +38,6 @@ class AuthTextField extends StatelessWidget {
   final String? helperText;
   final String? errorText;
   final Iterable<String>? autofillHints;
-  final List<TextInputFormatter>? inputFormatters;
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +77,6 @@ class AuthTextField extends StatelessWidget {
           validator: validator,
           onChanged: onChanged,
           autofillHints: autofillHints,
-          inputFormatters: inputFormatters,
           style: const TextStyle(
             fontSize: 15.0,
             fontWeight: FontWeight.w500,

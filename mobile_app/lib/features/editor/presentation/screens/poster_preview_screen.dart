@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -10,9 +9,7 @@ import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 import 'package:panchayat_post/features/editor/data/services/design_storage_service.dart';
 import 'package:panchayat_post/features/editor/data/services/poster_export_service.dart';
-import 'package:panchayat_post/features/editor/domain/models/poster_element.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
-import 'package:panchayat_post/features/editor/presentation/widgets/poster_frame_overlay.dart';
 
 /// Screen 13: Final Poster Preview, Download & Share
 /// Recreated with pixel-perfect reference fidelity from media_1795419839318_59d13792.jpg.
@@ -130,7 +127,7 @@ class _PosterPreviewScreenState extends State<PosterPreviewScreen> {
       setState(() => _isDownloading = false);
 
       if (file != null) {
-        final filename = file.path.split(RegExp(r'[/\\]')).last;
+        final filename = file.path.split(Platform.pathSeparator).last;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -650,81 +647,55 @@ class _PosterPreviewScreenState extends State<PosterPreviewScreen> {
           fit: StackFit.expand,
           children: [
             // Background Artwork
-            _project.backgroundAsset.startsWith('http://') ||
-                    _project.backgroundAsset.startsWith('https://')
-                ? Image.network(
-                    _project.backgroundAsset,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
-                      color: _project.backgroundColor,
-                      child: const Center(
-                        child: Icon(Icons.celebration_rounded, size: 48, color: Colors.white30),
-                      ),
-                    ),
-                  )
-                : Image.asset(
-                    _project.backgroundAsset,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
-                      color: _project.backgroundColor,
-                      child: const Center(
-                        child: Icon(Icons.celebration_rounded, size: 48, color: Colors.white30),
-                      ),
-                    ),
-                  ),
+            Image.asset(
+              _project.backgroundAsset,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => Container(
+                color: _project.backgroundColor,
+                child: const Center(
+                  child: Icon(Icons.celebration_rounded, size: 48, color: Colors.white30),
+                ),
+              ),
+            ),
+
+            // Dandiya couple artwork
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Image.asset(
+                AppAssets.editorDandiyaCouple,
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) => const SizedBox.shrink(),
+              ),
+            ),
 
             // Text and layer elements
             for (final element in _project.elements)
-              if (element.type == PosterElementType.image)
-                Positioned(
-                  left: (element.x * w) - ((element.width ?? 0.65) * w / 2),
-                  top: (element.y * h) - ((element.height ?? 0.45) * h / 2),
-                  width: (element.width ?? 0.65) * w,
-                  height: (element.height ?? 0.45) * h,
-                  child: element.imageData != null
-                      ? Image.memory(base64Decode(element.imageData!), fit: BoxFit.contain)
-                      : element.imageAsset != null
-                          ? (element.imageAsset!.startsWith('http')
-                              ? Image.network(element.imageAsset!, fit: BoxFit.contain)
-                              : Image.asset(element.imageAsset!, fit: BoxFit.contain))
-                          : const SizedBox.shrink(),
-                )
-              else
-                Positioned(
-                  left: (element.x * w) - (w * 0.45),
-                  top: element.y * h,
-                  width: w * 0.9,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text(
-                      element.text,
-                      textAlign: element.textAlign,
-                      style: TextStyle(
-                        fontFamily: element.fontFamily,
-                        fontSize: element.fontSize * (w / 340.0),
-                        fontWeight: element.isBold ? FontWeight.w800 : FontWeight.w600,
-                        color: element.color,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.6),
-                            blurRadius: 6.0,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
+              Positioned(
+                left: (element.x * w) - (w * 0.45),
+                top: element.y * h,
+                width: w * 0.9,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    element.text,
+                    textAlign: element.textAlign,
+                    style: TextStyle(
+                      fontFamily: element.fontFamily,
+                      fontSize: element.fontSize * (w / 340.0),
+                      fontWeight: element.isBold ? FontWeight.w800 : FontWeight.w600,
+                      color: element.color,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withValues(alpha: 0.6),
+                          blurRadius: 6.0,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-
-            // Frame Layer Overlay
-            if ((_project.frameId ?? 'gold_vip') != 'none')
-              PosterFrameOverlay(
-                frameId: _project.frameId ?? 'gold_vip',
-                user: _currentUser,
-                w: w,
-                h: h,
-                adminImageUrl: _project.frameImageUrl,
-                customPhotoUrl: _project.frameUserPhoto,
               ),
           ],
         );

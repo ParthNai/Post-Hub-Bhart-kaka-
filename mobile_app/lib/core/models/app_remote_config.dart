@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 /// 1. App Icon / Logo
 /// 2. Preloader (Dual-arc spinner colors & duration)
 /// 3. Theme & Primary Accent Color
-/// 4. Home hero announcement image and visibility settings
+/// 4. Hero Section of Home Screen (Visibility, Badge, Headline, Subtitle)
 class AppRemoteConfig {
   const AppRemoteConfig({
     required this.platform,
@@ -13,33 +13,17 @@ class AppRemoteConfig {
     required this.publishedAt,
     this.appIconUrl,
     this.logoUrl,
-    this.appIconPreset = '🇮🇳',
-    this.appIconShape = 'rounded_square',
-    this.appIconBgColor = 'blue',
-    this.isPreloaderEnabled = true,
     required this.preloaderPrimaryColor,
     required this.preloaderSecondaryColor,
     this.preloaderDurationMs = 2000,
-    this.preloaderMediaType = 'animation',
-    this.preloaderVideoUrl,
-    this.preloaderVideoMuted = true,
-    this.preloaderVideoLoop = true,
-    this.preloaderVideoFit = 'cover',
-    this.preloaderSkipButtonEnabled = true,
-    this.preloaderTagline = 'તમારા ગામનું પોતાનું ડિજિટલ પોસ્ટર',
-    this.preloaderBgGradient = 'gradient_blue',
     required this.themeMode,
     required this.primaryAccentColor,
     this.backgroundColor = '#FFFFFF',
     this.cardRadius = '14px',
-    this.headerStyle = 'gradient',
     required this.isHeroVisible,
     required this.heroBadge,
     required this.heroHeadline,
     required this.heroSubtitle,
-    this.heroImageUrl = '',
-    this.heroImageUrls = const [],
-    this.heroSlideIntervalSeconds = 4,
     required this.screens,
     required this.templates,
   });
@@ -51,39 +35,23 @@ class AppRemoteConfig {
   // 1. App Icon / Logo
   final String? appIconUrl;
   final String? logoUrl;
-  final String appIconPreset;
-  final String appIconShape;
-  final String appIconBgColor;
 
   // 2. Preloader
-  final bool isPreloaderEnabled;
   final Color preloaderPrimaryColor;
   final Color preloaderSecondaryColor;
   final int preloaderDurationMs;
-  final String preloaderMediaType; // "video" | "animation"
-  final String? preloaderVideoUrl;
-  final bool preloaderVideoMuted;
-  final bool preloaderVideoLoop;
-  final String preloaderVideoFit;
-  final bool preloaderSkipButtonEnabled;
-  final String preloaderTagline;
-  final String preloaderBgGradient;
 
   // 3. Theme
   final String themeMode; // "Light" | "Dark"
   final Color primaryAccentColor;
   final String backgroundColor;
   final String cardRadius;
-  final String headerStyle;
 
   // 4. Hero Section of Home Screen
   final bool isHeroVisible;
   final String heroBadge;
   final String heroHeadline;
   final String heroSubtitle;
-  final String heroImageUrl;
-  final List<String> heroImageUrls;
-  final int heroSlideIntervalSeconds;
 
   final Map<String, RemoteScreenConfig> screens;
   final List<RemoteTemplate> templates;
@@ -96,32 +64,17 @@ class AppRemoteConfig {
       publishedAt: DateTime.now().toIso8601String(),
       appIconUrl: null,
       logoUrl: null,
-      appIconPreset: '🇮🇳',
-      appIconShape: 'rounded_square',
-      appIconBgColor: 'blue',
-      isPreloaderEnabled: true,
       preloaderPrimaryColor: const Color(0xFFFE8706),
       preloaderSecondaryColor: const Color(0xFF0055B8),
       preloaderDurationMs: 2000,
-      preloaderMediaType: 'animation',
-      preloaderVideoUrl: null,
-      preloaderVideoMuted: true,
-      preloaderVideoLoop: true,
-      preloaderVideoFit: 'cover',
-      preloaderSkipButtonEnabled: true,
-      preloaderTagline: 'Create. Celebrate. Share.',
-      preloaderBgGradient: 'gradient_blue',
       themeMode: 'Light',
       primaryAccentColor: const Color(0xFF0055B8),
       backgroundColor: '#FFFFFF',
       cardRadius: '14px',
-      headerStyle: 'gradient',
       isHeroVisible: true,
       heroBadge: '✨ MAGIC STUDIO',
       heroHeadline: 'What will you design today?',
       heroSubtitle: 'Choose a format below or start from templates.',
-      heroImageUrl: '',
-      heroImageUrls: const [],
       screens: {
         'home': RemoteScreenConfig.defaultHome(),
         'login': RemoteScreenConfig.defaultLogin(),
@@ -131,89 +84,24 @@ class AppRemoteConfig {
   }
 
   factory AppRemoteConfig.fromJson(Map<String, dynamic> json) {
-    final root = (json['data'] is Map<String, dynamic>)
-        ? json['data'] as Map<String, dynamic>
-        : (json['config'] is Map<String, dynamic>
-              ? json['config'] as Map<String, dynamic>
-              : json);
-
     // 1. App Branding
     String? appIcon;
     String? logo;
-    String iconPreset = '🇮🇳';
-    String iconShape = 'rounded_square';
-    String iconBgColor = 'blue';
-
-    if (root['appBranding'] is Map<String, dynamic>) {
-      final branding = root['appBranding'] as Map<String, dynamic>;
+    if (json['appBranding'] is Map<String, dynamic>) {
+      final branding = json['appBranding'] as Map<String, dynamic>;
       appIcon = branding['appIconUrl'] as String?;
       logo = branding['logoUrl'] as String?;
-      iconPreset = branding['preset'] as String? ?? '🇮🇳';
-      iconShape = branding['shape'] as String? ?? 'rounded_square';
-      iconBgColor = branding['bgColor'] as String? ?? 'blue';
-    }
-    // Fallback: check preloaderScreen.appIcon from legacy backend
-    if (root['preloaderScreen'] is Map<String, dynamic>) {
-      final preScreen = root['preloaderScreen'] as Map<String, dynamic>;
-      if (preScreen['appIcon'] is Map<String, dynamic>) {
-        final iconMap = preScreen['appIcon'] as Map<String, dynamic>;
-        if (appIcon == null || appIcon.isEmpty) {
-          appIcon = iconMap['url'] as String?;
-          logo ??= appIcon;
-        }
-        iconPreset = iconMap['preset'] as String? ?? iconPreset;
-        iconShape = iconMap['shape'] as String? ?? iconShape;
-        iconBgColor = iconMap['bgColor'] as String? ?? iconBgColor;
-      }
     }
 
     // 2. Preloader
-    bool preloaderEnabled = true;
     Color preloaderPrimary = const Color(0xFFFE8706);
     Color preloaderSecondary = const Color(0xFF0055B8);
     int preloaderDuration = 2000;
-    String preloaderMedia = 'animation';
-    String? preloaderVideo;
-    bool preloaderMuted = true;
-    bool preloaderLoop = true;
-    String preloaderFit = 'cover';
-    bool preloaderSkip = true;
-    String preloaderTagline = 'તમારા ગામનું પોતાનું ડિજિટલ પોસ્ટર';
-    String preloaderBg = 'gradient_blue';
-
-    if (root['preloader'] is Map<String, dynamic>) {
-      final pre = root['preloader'] as Map<String, dynamic>;
-      preloaderEnabled = pre['enabled'] as bool? ?? true;
-      preloaderPrimary = hexToColor(
-        pre['primaryColor'] as String?,
-        fallback: const Color(0xFFFE8706),
-      );
-      preloaderSecondary = hexToColor(
-        pre['secondaryColor'] as String?,
-        fallback: const Color(0xFF0055B8),
-      );
+    if (json['preloader'] is Map<String, dynamic>) {
+      final pre = json['preloader'] as Map<String, dynamic>;
+      preloaderPrimary = hexToColor(pre['primaryColor'] as String?, fallback: const Color(0xFFFE8706));
+      preloaderSecondary = hexToColor(pre['secondaryColor'] as String?, fallback: const Color(0xFF0055B8));
       preloaderDuration = (pre['durationMs'] as num?)?.toInt() ?? 2000;
-      preloaderMedia = pre['mediaType'] as String? ?? 'animation';
-      preloaderVideo = pre['videoUrl'] as String?;
-      preloaderMuted = pre['videoMuted'] as bool? ?? true;
-      preloaderLoop = pre['videoLoop'] as bool? ?? true;
-      preloaderFit = pre['videoFit'] as String? ?? 'cover';
-      preloaderSkip = pre['skipButtonEnabled'] as bool? ?? true;
-      preloaderTagline = pre['tagline'] as String? ?? preloaderTagline;
-      preloaderBg = pre['bgGradient'] as String? ?? 'gradient_blue';
-    } else if (root['preloaderScreen'] is Map<String, dynamic>) {
-      final pre = root['preloaderScreen'] as Map<String, dynamic>;
-      preloaderEnabled = pre['enabled'] as bool? ?? true;
-      final durationSec = (pre['durationSeconds'] as num?)?.toDouble() ?? 2.0;
-      preloaderDuration = (durationSec * 1000).toInt();
-      preloaderMedia = pre['mediaType'] as String? ?? 'animation';
-      preloaderVideo = pre['videoUrl'] as String?;
-      preloaderMuted = pre['videoMuted'] as bool? ?? true;
-      preloaderLoop = pre['videoLoop'] as bool? ?? true;
-      preloaderFit = pre['videoFit'] as String? ?? 'cover';
-      preloaderSkip = pre['skipButtonEnabled'] as bool? ?? true;
-      preloaderTagline = pre['tagline'] as String? ?? preloaderTagline;
-      preloaderBg = pre['bgGradient'] as String? ?? 'gradient_blue';
     }
 
     // 3. Theme
@@ -221,17 +109,12 @@ class AppRemoteConfig {
     Color primaryAccent = const Color(0xFF0055B8);
     String bg = '#FFFFFF';
     String radius = '14px';
-    String headerStyle = 'gradient';
-    if (root['theme'] is Map<String, dynamic>) {
-      final th = root['theme'] as Map<String, dynamic>;
+    if (json['theme'] is Map<String, dynamic>) {
+      final th = json['theme'] as Map<String, dynamic>;
       theme = th['mode'] as String? ?? 'Light';
-      primaryAccent = hexToColor(
-        th['primaryAccent'] as String?,
-        fallback: const Color(0xFF0055B8),
-      );
+      primaryAccent = hexToColor(th['primaryAccent'] as String?, fallback: const Color(0xFF0055B8));
       bg = th['backgroundColor'] as String? ?? '#FFFFFF';
       radius = th['cardRadius'] as String? ?? '14px';
-      headerStyle = th['headerStyle'] as String? ?? 'gradient';
     }
 
     // 4. Hero Section
@@ -239,46 +122,18 @@ class AppRemoteConfig {
     String badge = '✨ MAGIC STUDIO';
     String headline = 'What will you design today?';
     String subtitle = 'Choose a format below or start from templates.';
-    var heroImageUrl = '';
-    var heroImageUrls = <String>[];
-    var heroSlideIntervalSeconds = 4;
-    if (root['heroSection'] is Map<String, dynamic>) {
-      final hero = root['heroSection'] as Map<String, dynamic>;
-      heroVis =
-          (hero['visible'] as bool? ?? true) &&
-          (hero['enabled'] as bool? ?? true);
+    if (json['heroSection'] is Map<String, dynamic>) {
+      final hero = json['heroSection'] as Map<String, dynamic>;
+      heroVis = (hero['visible'] as bool? ?? true) && (hero['enabled'] as bool? ?? true);
       badge = hero['badge'] as String? ?? '✨ MAGIC STUDIO';
       headline = hero['headline'] as String? ?? 'What will you design today?';
-      subtitle =
-          hero['subtitle'] as String? ??
-          'Choose a format below or start from templates.';
-      heroImageUrl = hero['imageUrl'] as String? ?? '';
-      heroImageUrls = _readStringList(hero['images']);
-      heroSlideIntervalSeconds =
-          (hero['slideIntervalSeconds'] as num?)?.toInt() ?? 4;
+      subtitle = hero['subtitle'] as String? ?? 'Choose a format below or start from templates.';
     }
-    if (root['homeScreen'] is Map<String, dynamic>) {
-      final home = root['homeScreen'] as Map<String, dynamic>;
-      final homeImageUrls = _readStringList(home['heroImages']);
-      if (homeImageUrls.isNotEmpty) heroImageUrls = homeImageUrls;
-      if (heroImageUrl.isEmpty) {
-        heroImageUrl = home['heroImage'] as String? ?? '';
-      }
-      heroSlideIntervalSeconds =
-          (home['sliderSpeed'] as num?)?.toInt() ?? heroSlideIntervalSeconds;
-    }
-    if (heroImageUrls.isEmpty && heroImageUrl.isNotEmpty) {
-      heroImageUrls = [heroImageUrl];
-    }
-    if (heroImageUrl.isEmpty && heroImageUrls.isNotEmpty) {
-      heroImageUrl = heroImageUrls.first;
-    }
-    heroSlideIntervalSeconds = heroSlideIntervalSeconds.clamp(2, 30).toInt();
 
     // Screens map
     final screensMap = <String, RemoteScreenConfig>{};
-    if (root['navigation'] is List) {
-      for (final item in root['navigation'] as List) {
+    if (json['navigation'] is List) {
+      for (final item in json['navigation'] as List) {
         if (item is Map<String, dynamic>) {
           final screen = RemoteScreenConfig.fromJson(item);
           screensMap[screen.key] = screen;
@@ -291,8 +146,8 @@ class AppRemoteConfig {
 
     // Templates list
     final templatesList = <RemoteTemplate>[];
-    if (root['templates'] is List) {
-      for (final item in root['templates'] as List) {
+    if (json['templates'] is List) {
+      for (final item in json['templates'] as List) {
         if (item is Map<String, dynamic>) {
           templatesList.add(RemoteTemplate.fromJson(item));
         }
@@ -300,38 +155,22 @@ class AppRemoteConfig {
     }
 
     return AppRemoteConfig(
-      platform: root['platform'] as String? ?? 'Post Hub Mobile Client',
-      schemaVersion: root['schemaVersion'] as String? ?? '2.1.0',
-      publishedAt: root['publishedAt'] as String? ?? '',
+      platform: json['platform'] as String? ?? 'Post Hub Mobile Client',
+      schemaVersion: json['schemaVersion'] as String? ?? '2.1.0',
+      publishedAt: json['publishedAt'] as String? ?? '',
       appIconUrl: appIcon,
       logoUrl: logo,
-      appIconPreset: iconPreset,
-      appIconShape: iconShape,
-      appIconBgColor: iconBgColor,
-      isPreloaderEnabled: preloaderEnabled,
       preloaderPrimaryColor: preloaderPrimary,
       preloaderSecondaryColor: preloaderSecondary,
       preloaderDurationMs: preloaderDuration,
-      preloaderMediaType: preloaderMedia,
-      preloaderVideoUrl: preloaderVideo,
-      preloaderVideoMuted: preloaderMuted,
-      preloaderVideoLoop: preloaderLoop,
-      preloaderVideoFit: preloaderFit,
-      preloaderSkipButtonEnabled: preloaderSkip,
-      preloaderTagline: preloaderTagline,
-      preloaderBgGradient: preloaderBg,
       themeMode: theme,
       primaryAccentColor: primaryAccent,
       backgroundColor: bg,
       cardRadius: radius,
-      headerStyle: headerStyle,
       isHeroVisible: heroVis,
       heroBadge: badge,
       heroHeadline: headline,
       heroSubtitle: subtitle,
-      heroImageUrl: heroImageUrl,
-      heroImageUrls: heroImageUrls,
-      heroSlideIntervalSeconds: heroSlideIntervalSeconds,
       screens: screensMap,
       templates: templatesList,
     );
@@ -345,42 +184,23 @@ class AppRemoteConfig {
       'appBranding': {
         'appIconUrl': appIconUrl,
         'logoUrl': logoUrl,
-        'preset': appIconPreset,
-        'shape': appIconShape,
-        'bgColor': appIconBgColor,
       },
       'preloader': {
-        'enabled': isPreloaderEnabled,
-        'primaryColor':
-            '#${preloaderPrimaryColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
-        'secondaryColor':
-            '#${preloaderSecondaryColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
+        'primaryColor': '#${preloaderPrimaryColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
+        'secondaryColor': '#${preloaderSecondaryColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
         'durationMs': preloaderDurationMs,
-        'mediaType': preloaderMediaType,
-        'videoUrl': preloaderVideoUrl,
-        'videoMuted': preloaderVideoMuted,
-        'videoLoop': preloaderVideoLoop,
-        'videoFit': preloaderVideoFit,
-        'skipButtonEnabled': preloaderSkipButtonEnabled,
-        'tagline': preloaderTagline,
-        'bgGradient': preloaderBgGradient,
       },
       'theme': {
         'mode': themeMode,
-        'primaryAccent':
-            '#${primaryAccentColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
+        'primaryAccent': '#${primaryAccentColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
         'backgroundColor': backgroundColor,
         'cardRadius': cardRadius,
-        'headerStyle': headerStyle,
       },
       'heroSection': {
         'visible': isHeroVisible,
         'badge': heroBadge,
         'headline': heroHeadline,
         'subtitle': heroSubtitle,
-        'imageUrl': heroImageUrl,
-        'images': heroImageUrls,
-        'slideIntervalSeconds': heroSlideIntervalSeconds,
       },
       'navigation': screens.values.map((s) => s.toJson()).toList(),
       'templates': templates.map((t) => t.toJson()).toList(),
@@ -393,15 +213,6 @@ class AppRemoteConfig {
     final screen = screens[key];
     if (screen == null) return fallback;
     return screen.visibilityEnabled && screen.status != 'archived';
-  }
-
-  static List<String> _readStringList(Object? value) {
-    if (value is! List) return [];
-    return value
-        .whereType<String>()
-        .map((image) => image.trim())
-        .where((image) => image.isNotEmpty)
-        .toList();
   }
 }
 
@@ -442,8 +253,7 @@ class RemoteScreenConfig {
       id: 'scr_home_001',
       key: 'home',
       name: 'Home',
-      description:
-          'Discover templates, create AI images, and explore festival designs.',
+      description: 'Discover templates, create AI images, and explore festival designs.',
       route: '/home',
       icon: 'Home',
       category: 'Navigation',
@@ -451,11 +261,7 @@ class RemoteScreenConfig {
       version: 1,
       visibilityEnabled: true,
       minAppVersion: '1.0.0',
-      capabilities: const [
-        'hero_banner',
-        'category_rail',
-        'trending_templates',
-      ],
+      capabilities: const ['hero_banner', 'category_rail', 'trending_templates'],
       layoutConfig: ScreenLayoutConfig.defaultHomeLayout(),
     );
   }
@@ -473,11 +279,7 @@ class RemoteScreenConfig {
       version: 1,
       visibilityEnabled: true,
       minAppVersion: '1.0.0',
-      capabilities: const [
-        'email_password_auth',
-        'remember_me',
-        'password_recovery',
-      ],
+      capabilities: const ['email_password_auth', 'remember_me', 'password_recovery'],
       layoutConfig: const ScreenLayoutConfig(),
     );
   }
@@ -495,15 +297,12 @@ class RemoteScreenConfig {
       version: (json['version'] as num?)?.toInt() ?? 1,
       visibilityEnabled: json['visibilityEnabled'] as bool? ?? true,
       minAppVersion: json['minAppVersion'] as String? ?? '1.0.0',
-      capabilities:
-          (json['capabilities'] as List<dynamic>?)
+      capabilities: (json['capabilities'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],
       layoutConfig: json['layoutConfig'] is Map<String, dynamic>
-          ? ScreenLayoutConfig.fromJson(
-              json['layoutConfig'] as Map<String, dynamic>,
-            )
+          ? ScreenLayoutConfig.fromJson(json['layoutConfig'] as Map<String, dynamic>)
           : ScreenLayoutConfig.defaultHomeLayout(),
     );
   }
@@ -564,36 +363,11 @@ class ScreenLayoutConfig {
       primaryAccent: '#0055B8',
       cardRadius: '14px',
       sections: [
-        ScreenSectionConfig(
-          id: 'hero',
-          title: 'Hero Banner',
-          enabled: true,
-          order: 1,
-        ),
-        ScreenSectionConfig(
-          id: 'categories',
-          title: 'Category Rail',
-          enabled: true,
-          order: 2,
-        ),
-        ScreenSectionConfig(
-          id: 'ai_studio',
-          title: 'AI Studio',
-          enabled: true,
-          order: 3,
-        ),
-        ScreenSectionConfig(
-          id: 'featured_templates',
-          title: 'Featured Templates',
-          enabled: true,
-          order: 4,
-        ),
-        ScreenSectionConfig(
-          id: 'screen_navigator',
-          title: 'Screen Navigator',
-          enabled: true,
-          order: 5,
-        ),
+        ScreenSectionConfig(id: 'hero', title: 'Hero Banner', enabled: true, order: 1),
+        ScreenSectionConfig(id: 'categories', title: 'Category Rail', enabled: true, order: 2),
+        ScreenSectionConfig(id: 'ai_studio', title: 'AI Studio', enabled: true, order: 3),
+        ScreenSectionConfig(id: 'featured_templates', title: 'Featured Templates', enabled: true, order: 4),
+        ScreenSectionConfig(id: 'screen_navigator', title: 'Screen Navigator', enabled: true, order: 5),
       ],
     );
   }
@@ -666,7 +440,12 @@ class ScreenSectionConfig {
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'title': title, 'enabled': enabled, 'order': order};
+    return {
+      'id': id,
+      'title': title,
+      'enabled': enabled,
+      'order': order,
+    };
   }
 }
 
@@ -715,9 +494,7 @@ class RemoteTemplate {
       aspectRatio: json['aspectRatio'] as String? ?? '3:4',
       thumbnailUrl: json['thumbnailUrl'] as String?,
       backgroundImageUrl: json['backgroundImageUrl'] as String?,
-      tags:
-          (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
-          const [],
+      tags: (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
     );
   }
 
@@ -741,10 +518,7 @@ class RemoteTemplate {
 }
 
 /// Helper to convert hex string (#RRGGBB or #AARRGGBB) to Flutter Color
-Color hexToColor(
-  String? hexString, {
-  Color fallback = const Color(0xFF0055B8),
-}) {
+Color hexToColor(String? hexString, {Color fallback = const Color(0xFF0055B8)}) {
   if (hexString == null || hexString.isEmpty) return fallback;
   var hex = hexString.replaceAll('#', '').trim();
   if (hex.length == 6) {

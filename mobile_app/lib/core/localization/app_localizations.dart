@@ -21,19 +21,6 @@ class AppStrings {
     required this.fullNameLabel,
     required this.fullNameHint,
     required this.fullNameRequiredError,
-    required this.mobileNumberHint,
-    required this.mobileRequiredError,
-    required this.mobileInvalidError,
-    required this.pinLabel,
-    required this.pinHint,
-    required this.pinRequiredError,
-    required this.pinInvalidError,
-    required this.accountInactiveError,
-    required this.mobileAlreadyRegisteredError,
-    required this.occupationLabel,
-    required this.occupationHint,
-    required this.occupationRequiredError,
-    required this.talukaLabel,
     required this.usernameLabel,
     required this.usernameHint,
     required this.usernameHelper,
@@ -406,6 +393,34 @@ class AppStrings {
     required this.deleteAccountSubtitle,
     required this.deleteAccountMessage,
     required this.deleteAccountAction,
+    // Screen 17: Quick Customize
+    required this.quickCustomizeTitle,
+    required this.quickCustomizeSubtitle,
+    required this.stepIndicatorLabel,
+    required this.customizeLabel,
+    required this.editPreviewButton,
+    required this.personalizePosterTitle,
+    required this.yourNameLabel,
+    required this.enterYourNameHint,
+    required this.addYourPhotoLabel,
+    required this.addBusinessLogoLabel,
+    required this.businessDetailsLabel,
+    required this.businessNameLabel,
+    required this.addressOptionalLabel,
+    required this.websiteOptionalLabel,
+    required this.posterTextOptionsTitle,
+    required this.mainHeadingLabel,
+    required this.subheadingLabel,
+    required this.contactDetailsLabel,
+    required this.showContactInfoLabel,
+    required this.showHideNameLabel,
+    required this.showNameLabel,
+    required this.showHideLogoLabel,
+    required this.showLogoLabel,
+    required this.resetChangesButton,
+    required this.continueToEditorButton,
+    required this.uploadButton,
+    required this.changeButton,
   });
 
   final String languageName;
@@ -429,19 +444,6 @@ class AppStrings {
   final String fullNameLabel;
   final String fullNameHint;
   final String fullNameRequiredError;
-  final String mobileNumberHint;
-  final String mobileRequiredError;
-  final String mobileInvalidError;
-  final String pinLabel;
-  final String pinHint;
-  final String pinRequiredError;
-  final String pinInvalidError;
-  final String accountInactiveError;
-  final String mobileAlreadyRegisteredError;
-  final String occupationLabel;
-  final String occupationHint;
-  final String occupationRequiredError;
-  final String talukaLabel;
   final String usernameLabel;
   final String usernameHint;
   final String usernameHelper;
@@ -823,6 +825,34 @@ class AppStrings {
   final String deleteAccountSubtitle;
   final String deleteAccountMessage;
   final String deleteAccountAction;
+  // Screen 17: Quick Customize
+  final String quickCustomizeTitle;
+  final String quickCustomizeSubtitle;
+  final String stepIndicatorLabel;
+  final String customizeLabel;
+  final String editPreviewButton;
+  final String personalizePosterTitle;
+  final String yourNameLabel;
+  final String enterYourNameHint;
+  final String addYourPhotoLabel;
+  final String addBusinessLogoLabel;
+  final String businessDetailsLabel;
+  final String businessNameLabel;
+  final String addressOptionalLabel;
+  final String websiteOptionalLabel;
+  final String posterTextOptionsTitle;
+  final String mainHeadingLabel;
+  final String subheadingLabel;
+  final String contactDetailsLabel;
+  final String showContactInfoLabel;
+  final String showHideNameLabel;
+  final String showNameLabel;
+  final String showHideLogoLabel;
+  final String showLogoLabel;
+  final String resetChangesButton;
+  final String continueToEditorButton;
+  final String uploadButton;
+  final String changeButton;
 
   static const String defaultLanguageCode = 'gu';
 
@@ -848,19 +878,6 @@ class AppStrings {
       fullNameLabel: 'તમારું પૂરું નામ લખો',
       fullNameHint: 'તમારું પૂરું નામ લખો',
       fullNameRequiredError: 'કૃપા કરીને તમારું પૂરું નામ લખો',
-      mobileNumberHint: '10 અંકનો મોબાઇલ નંબર',
-      mobileRequiredError: 'કૃપા કરીને મોબાઇલ નંબર લખો',
-      mobileInvalidError: '10 અંકનો માન્ય મોબાઇલ નંબર લખો',
-      pinLabel: '4 અંકનો PIN',
-      pinHint: 'તમારો PIN લખો',
-      pinRequiredError: 'કૃપા કરીને 4 અંકનો PIN લખો',
-      pinInvalidError: 'મોબાઇલ નંબર અથવા PIN ખોટો છે',
-      accountInactiveError: 'તમારું એકાઉન્ટ નિષ્ક્રિય છે. કૃપા કરીને એડમિનનો સંપર્ક કરો.',
-      mobileAlreadyRegisteredError: 'આ મોબાઇલ નંબર પહેલેથી નોંધાયેલ છે',
-      occupationLabel: 'વ્યવસાય',
-      occupationHint: 'તમારો વ્યવસાય લખો',
-      occupationRequiredError: 'કૃપા કરીને વ્યવસાય લખો',
-      talukaLabel: 'તાલુકો',
       usernameLabel: 'તમારું યુઝરનેમ બનાવો',
       usernameHint: 'તમારું યુઝરનેમ બનાવો',
       usernameHelper: 'આ યુઝરનેમથી તમે લોગિન કરી શકશો.',
@@ -1231,6 +1248,34 @@ class AppStrings {
       deleteAccountSubtitle: 'તમારું ખાતું કાયમ માટે દૂર કરો',
       deleteAccountMessage: 'આ ક્રિયા તમારા ખાતા, ડિઝાઇન અને ડેટાને કાયમ માટે કાઢી નાખશે. આ ક્રિયા પૂર્વવત્ કરી શકાતી નથી.',
       deleteAccountAction: 'ખાતું કાઢી નાખો',
+      // Screen 17: Quick Customize
+      quickCustomizeTitle: 'ઝડપી કસ્ટમાઇઝ (Quick Customize)',
+      quickCustomizeSubtitle: 'આ ટેમ્પલેટને તમારું બનાવો.',
+      stepIndicatorLabel: '1 / 2',
+      customizeLabel: 'કસ્ટમાઇઝ',
+      editPreviewButton: 'પ્રિવ્યૂ એડિટ કરો',
+      personalizePosterTitle: 'તમારું પોસ્ટર પર્સનલાઇઝ કરો',
+      yourNameLabel: 'તમારું નામ (Your Name)',
+      enterYourNameHint: 'તમારું નામ દાખલ કરો',
+      addYourPhotoLabel: 'તમારો ફોટો ઉમેરો',
+      addBusinessLogoLabel: 'તમારો બિઝનેસ લોગો ઉમેરો',
+      businessDetailsLabel: 'બિઝનેસ વિગતો',
+      businessNameLabel: 'બિઝનેસ નામ',
+      addressOptionalLabel: 'સરનામું (વૈકલ્પિક)',
+      websiteOptionalLabel: 'વેબસાઇટ (વૈકલ્પિક)',
+      posterTextOptionsTitle: 'પોસ્ટર ટેક્સ્ટ વિકલ્પો',
+      mainHeadingLabel: 'મુખ્ય શીર્ષક (Main Heading)',
+      subheadingLabel: 'ઉપશીર્ષક (Subheading)',
+      contactDetailsLabel: 'સંપર્ક વિગતો',
+      showContactInfoLabel: 'સંપર્ક માહિતી બતાવો',
+      showHideNameLabel: 'નામ બતાવો / છુપાવો',
+      showNameLabel: 'નામ બતાવો',
+      showHideLogoLabel: 'લોગો બતાવો / છુપાવો',
+      showLogoLabel: 'લોગો બતાવો',
+      resetChangesButton: 'ફેરફારો રીસેટ કરો',
+      continueToEditorButton: 'એડિટરમાં આગળ વધો',
+      uploadButton: 'અપલોડ',
+      changeButton: 'બદલો',
     ),
     'hi': AppStrings(
       languageName: 'हिंदी',
@@ -1253,19 +1298,6 @@ class AppStrings {
       fullNameLabel: 'अपना पूरा नाम लिखें',
       fullNameHint: 'अपना पूरा नाम लिखें',
       fullNameRequiredError: 'कृपया अपना पूरा नाम लिखें',
-      mobileNumberHint: '10 अंकों का मोबाइल नंबर',
-      mobileRequiredError: 'कृपया मोबाइल नंबर दर्ज करें',
-      mobileInvalidError: 'कृपया 10 अंकों का मान्य मोबाइल नंबर दर्ज करें',
-      pinLabel: '4 अंकों का PIN',
-      pinHint: 'अपना PIN दर्ज करें',
-      pinRequiredError: 'कृपया 4 अंकों का PIN दर्ज करें',
-      pinInvalidError: 'मोबाइल नंबर या PIN गलत है',
-      accountInactiveError: 'आपका खाता निष्क्रिय है। कृपया व्यवस्थापक से संपर्क करें।',
-      mobileAlreadyRegisteredError: 'यह मोबाइल नंबर पहले से पंजीकृत है',
-      occupationLabel: 'व्यवसाय',
-      occupationHint: 'अपना व्यवसाय दर्ज करें',
-      occupationRequiredError: 'कृपया अपना व्यवसाय दर्ज करें',
-      talukaLabel: 'तालुका',
       usernameLabel: 'अपना यूज़रनेम बनाएं',
       usernameHint: 'अपना यूज़रनेम बनाएं',
       usernameHelper: 'इस यूज़रनेम से आप लॉगिन कर सकेंगे।',
@@ -1636,6 +1668,34 @@ class AppStrings {
       deleteAccountSubtitle: 'अपना खाता स्थायी रूप से हटाएं',
       deleteAccountMessage: 'यह क्रिया आपके खाते, डिज़ाइन और डेटा को स्थायी रूप से हटा देगी। इसे पूर्ववत नहीं किया जा सकता.',
       deleteAccountAction: 'खाता हटाएं',
+      // Screen 17: Quick Customize
+      quickCustomizeTitle: 'त्वरित कस्टमाइज़ (Quick Customize)',
+      quickCustomizeSubtitle: 'इस टेम्पलेट को अपना बनाएं।',
+      stepIndicatorLabel: '1 / 2',
+      customizeLabel: 'कस्टमाइज़',
+      editPreviewButton: 'पूर्वावलोकन संपादित करें',
+      personalizePosterTitle: 'अपना पोस्टर निजीकृत करें',
+      yourNameLabel: 'आपका नाम (Your Name)',
+      enterYourNameHint: 'अपना नाम दर्ज करें',
+      addYourPhotoLabel: 'अपनी फोटो जोड़ें',
+      addBusinessLogoLabel: 'अपना व्यवसाय लोगो जोड़ें',
+      businessDetailsLabel: 'व्यावसायिक विवरण',
+      businessNameLabel: 'व्यवसाय का नाम',
+      addressOptionalLabel: 'पता (वैकल्पिक)',
+      websiteOptionalLabel: 'वेबसाइट (वैकल्पिक)',
+      posterTextOptionsTitle: 'पोस्टर टेक्स्ट विकल्प',
+      mainHeadingLabel: 'मुख्य शीर्षक (Main Heading)',
+      subheadingLabel: 'उपशीर्षक (Subheading)',
+      contactDetailsLabel: 'संपर्क विवरण',
+      showContactInfoLabel: 'संपर्क जानकारी दिखाएं',
+      showHideNameLabel: 'नाम दिखाएं / छिपाएं',
+      showNameLabel: 'नाम दिखाएं',
+      showHideLogoLabel: 'लोगो दिखाएं / छिपाएं',
+      showLogoLabel: 'लोगो दिखाएं',
+      resetChangesButton: 'बदलाव रीसेट करें',
+      continueToEditorButton: 'संपादक में आगे बढ़ें',
+      uploadButton: 'अपलोड',
+      changeButton: 'बदलें',
     ),
     'en': AppStrings(
       languageName: 'English',
@@ -1658,19 +1718,6 @@ class AppStrings {
       fullNameLabel: 'Enter your full name',
       fullNameHint: 'Enter your full name',
       fullNameRequiredError: 'Please enter your full name',
-      mobileNumberHint: '10-digit mobile number',
-      mobileRequiredError: 'Please enter your mobile number',
-      mobileInvalidError: 'Enter a valid 10-digit mobile number',
-      pinLabel: '4-digit PIN',
-      pinHint: 'Enter your PIN',
-      pinRequiredError: 'Please enter a 4-digit PIN',
-      pinInvalidError: 'The mobile number or PIN is incorrect',
-      accountInactiveError: 'Your account is inactive. Please contact your administrator.',
-      mobileAlreadyRegisteredError: 'This mobile number is already registered',
-      occupationLabel: 'Occupation',
-      occupationHint: 'Enter your occupation',
-      occupationRequiredError: 'Please enter your occupation',
-      talukaLabel: 'Taluka',
       usernameLabel: 'Create your username',
       usernameHint: 'Create your username',
       usernameHelper: 'You will be able to log in with this username.',
@@ -2041,6 +2088,34 @@ class AppStrings {
       deleteAccountSubtitle: 'Permanently remove your account',
       deleteAccountMessage: 'This action will permanently delete your account, designs and data. This action cannot be undone.',
       deleteAccountAction: 'Delete Account',
+      // Screen 17: Quick Customize
+      quickCustomizeTitle: 'Quick Customize',
+      quickCustomizeSubtitle: 'Make this template yours.',
+      stepIndicatorLabel: '1 / 2',
+      customizeLabel: 'Customize',
+      editPreviewButton: 'Edit Preview',
+      personalizePosterTitle: 'Personalize Your Poster',
+      yourNameLabel: 'Your Name',
+      enterYourNameHint: 'Enter your name',
+      addYourPhotoLabel: 'Add Your Photo',
+      addBusinessLogoLabel: 'Add Your Business Logo',
+      businessDetailsLabel: 'Business Details',
+      businessNameLabel: 'Business Name',
+      addressOptionalLabel: 'Address (Optional)',
+      websiteOptionalLabel: 'Website (Optional)',
+      posterTextOptionsTitle: 'Poster Text Options',
+      mainHeadingLabel: 'Main Heading',
+      subheadingLabel: 'Subheading',
+      contactDetailsLabel: 'Contact Details',
+      showContactInfoLabel: 'Show Contact Info',
+      showHideNameLabel: 'Show/Hide Name',
+      showNameLabel: 'Show Name',
+      showHideLogoLabel: 'Show/Hide Logo',
+      showLogoLabel: 'Show Logo',
+      resetChangesButton: 'Reset Changes',
+      continueToEditorButton: 'Continue to Editor',
+      uploadButton: 'Upload',
+      changeButton: 'Change',
     ),
   };
 
