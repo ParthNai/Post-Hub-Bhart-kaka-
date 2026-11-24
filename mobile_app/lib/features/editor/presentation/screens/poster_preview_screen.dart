@@ -57,7 +57,7 @@ class _PosterPreviewScreenState extends State<PosterPreviewScreen> {
     _authService = widget.authService ?? AuthService();
 
     _project = widget.initialProject ?? PosterTemplateProject.createDefaultNavratriProject();
-    _loadUser();
+    _loadUserAndSave();
   }
 
   @override
@@ -68,20 +68,15 @@ class _PosterPreviewScreenState extends State<PosterPreviewScreen> {
       setState(() {
         _project = args;
       });
-      _persistCurrentDesign();
     }
   }
 
-  Future<void> _loadUser() async {
+  Future<void> _loadUserAndSave() async {
     final user = await _authService.getCurrentUser();
     if (mounted) {
       setState(() => _currentUser = user);
     }
-    _persistCurrentDesign();
-  }
-
-  Future<void> _persistCurrentDesign() async {
-    final user = _currentUser ?? await _authService.getCurrentUser();
+    // Automatically ensure the finalized design is saved in My Designs
     await _storageService.saveDesign(
       _project,
       userId: user?.username ?? _project.userId,

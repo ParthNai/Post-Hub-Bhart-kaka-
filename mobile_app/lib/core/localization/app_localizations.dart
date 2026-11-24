@@ -421,6 +421,22 @@ class AppStrings {
     required this.continueToEditorButton,
     required this.uploadButton,
     required this.changeButton,
+    // Screen 18: Main Poster Editor
+    required this.textPropertiesTitle,
+    required this.quickActionsTitle,
+    required this.editTextButton,
+    required this.duplicateButton,
+    required this.deleteButton,
+    required this.addTextButton,
+    required this.addImageButton,
+    required this.changeBackgroundButton,
+    required this.layerPositionButton,
+    required this.toolTextLabel,
+    required this.toolImagesLabel,
+    required this.toolLogoLabel,
+    required this.toolBackgroundLabel,
+    required this.toolElementsLabel,
+    required this.toolTemplatesLabel,
   });
 
   final String languageName;
@@ -853,6 +869,22 @@ class AppStrings {
   final String continueToEditorButton;
   final String uploadButton;
   final String changeButton;
+  // Screen 18: Main Poster Editor
+  final String textPropertiesTitle;
+  final String quickActionsTitle;
+  final String editTextButton;
+  final String duplicateButton;
+  final String deleteButton;
+  final String addTextButton;
+  final String addImageButton;
+  final String changeBackgroundButton;
+  final String layerPositionButton;
+  final String toolTextLabel;
+  final String toolImagesLabel;
+  final String toolLogoLabel;
+  final String toolBackgroundLabel;
+  final String toolElementsLabel;
+  final String toolTemplatesLabel;
 
   static const String defaultLanguageCode = 'gu';
 
@@ -1276,6 +1308,22 @@ class AppStrings {
       continueToEditorButton: 'એડિટરમાં આગળ વધો',
       uploadButton: 'અપલોડ',
       changeButton: 'બદલો',
+      // Screen 18
+      textPropertiesTitle: 'ટેક્સ્ટ પ્રોપર્ટીઝ',
+      quickActionsTitle: 'ક્વિક એક્શન્સ',
+      editTextButton: 'ટેક્સ્ટ એડિટ કરો',
+      duplicateButton: 'ડુપ્લિકેટ',
+      deleteButton: 'ડિલીટ',
+      addTextButton: 'ટેક્સ્ટ ઉમેરો',
+      addImageButton: 'ઇમેજ ઉમેરો',
+      changeBackgroundButton: 'બેકગ્રાઉન્ડ બદલો',
+      layerPositionButton: 'લેયર પોઝિશન',
+      toolTextLabel: 'ટેક્સ્ટ',
+      toolImagesLabel: 'ઇમેજિસ',
+      toolLogoLabel: 'લોગો',
+      toolBackgroundLabel: 'બેકગ્રાઉન્ડ',
+      toolElementsLabel: 'એલિમેન્ટ્સ',
+      toolTemplatesLabel: 'ટેમ્પલેટ્સ',
     ),
     'hi': AppStrings(
       languageName: 'हिंदी',
@@ -1696,6 +1744,22 @@ class AppStrings {
       continueToEditorButton: 'संपादक में आगे बढ़ें',
       uploadButton: 'अपलोड',
       changeButton: 'बदलें',
+      // Screen 18
+      textPropertiesTitle: 'टेक्स्ट प्रॉपर्टीज़',
+      quickActionsTitle: 'त्वरित क्रियाएं',
+      editTextButton: 'टेक्स्ट संपादित करें',
+      duplicateButton: 'डुप्लिकेट',
+      deleteButton: 'हटाएं',
+      addTextButton: 'टेक्स्ट जोड़ें',
+      addImageButton: 'छवि जोड़ें',
+      changeBackgroundButton: 'पृष्ठभूमि बदलें',
+      layerPositionButton: 'लेयर स्थिति',
+      toolTextLabel: 'टेक्स्ट',
+      toolImagesLabel: 'छवियां',
+      toolLogoLabel: 'लोगो',
+      toolBackgroundLabel: 'पृष्ठभूमि',
+      toolElementsLabel: 'तत्व',
+      toolTemplatesLabel: 'टेम्प्लेट्स',
     ),
     'en': AppStrings(
       languageName: 'English',
@@ -2116,6 +2180,22 @@ class AppStrings {
       continueToEditorButton: 'Continue to Editor',
       uploadButton: 'Upload',
       changeButton: 'Change',
+      // Screen 18
+      textPropertiesTitle: 'Text Properties',
+      quickActionsTitle: 'Quick Actions',
+      editTextButton: 'Edit Text',
+      duplicateButton: 'Duplicate',
+      deleteButton: 'Delete',
+      addTextButton: 'Add Text',
+      addImageButton: 'Add Image',
+      changeBackgroundButton: 'Change Background',
+      layerPositionButton: 'Layer Position',
+      toolTextLabel: 'Text',
+      toolImagesLabel: 'Images',
+      toolLogoLabel: 'Logo',
+      toolBackgroundLabel: 'Background',
+      toolElementsLabel: 'Elements',
+      toolTemplatesLabel: 'Templates',
     ),
   };
 

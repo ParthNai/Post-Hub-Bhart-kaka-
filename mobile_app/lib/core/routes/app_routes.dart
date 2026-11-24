@@ -7,6 +7,7 @@ import 'package:panchayat_post/features/auth/presentation/screens/profile_setup_
 import 'package:panchayat_post/features/auth/presentation/screens/recovery_status_screen.dart';
 import 'package:panchayat_post/features/editor/presentation/screens/my_designs_screen.dart';
 import 'package:panchayat_post/features/editor/presentation/screens/poster_editor_screen.dart';
+import 'package:panchayat_post/features/editor/presentation/screens/main_poster_editor_screen.dart';
 import 'package:panchayat_post/features/editor/presentation/screens/poster_preview_screen.dart';
 import 'package:panchayat_post/features/editor/presentation/screens/quick_customize_screen.dart';
 import 'package:panchayat_post/features/festivals/presentation/screens/festival_detail_screen.dart';
@@ -72,6 +73,9 @@ class AppRoutes {
   /// Screen 17: Quick Customize
   static const String quickCustomize = '/quick-customize';
 
+  /// Screen 18: Main Poster Editor
+  static const String mainPosterEditor = '/main-poster-editor';
+
   /// Route generator map
   static Map<String, WidgetBuilder> get routes => {
         splash: (context) => const SplashScreen(),
@@ -86,6 +90,7 @@ class AppRoutes {
         festivals: (context) => const FestivalsScreen(),
         festivalDetail: (context) => const FestivalDetailScreen(),
         posterEditor: (context) => const PosterEditorScreen(),
+        mainPosterEditor: (context) => const MainPosterEditorScreen(),
         posterPreview: (context) => const PosterPreviewScreen(),
         myDesigns: (context) => const MyDesignsScreen(),
         profile: (context) => const ProfileScreen(),

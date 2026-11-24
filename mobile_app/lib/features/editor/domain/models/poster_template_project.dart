@@ -226,4 +226,86 @@ class PosterTemplateProject {
       ],
     );
   }
+
+  /// Creates default project for Screen 18 Main Poster Editor matching reference image exactly.
+  static PosterTemplateProject createDefaultRepublicDayProject({
+    String? templateId,
+    String? imageAsset,
+    String? title,
+  }) {
+    return PosterTemplateProject(
+      id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
+      templateId: templateId ?? 'republic_day_main',
+      title: title ?? 'Happy Republic Day',
+      backgroundAsset: imageAsset ?? AppAssets.editorCanvasRepublicDay,
+      backgroundColor: const Color(0xFFF8FAFC),
+      updatedAt: DateTime.now(),
+      elements: const [
+        PosterElement(
+          id: 'elem_headline',
+          type: PosterElementType.text,
+          text: 'Happy\nRepublic Day',
+          x: 0.50,
+          y: 0.24,
+          fontSize: 32.0,
+          color: Color(0xFF0F172A),
+          secondaryText: 'Day',
+          secondaryColor: Color(0xFFEA580C),
+          fontFamily: 'Poppins',
+          textAlign: TextAlign.center,
+          isBold: true,
+          isSelected: true,
+        ),
+        PosterElement(
+          id: 'elem_subheading',
+          type: PosterElementType.text,
+          text: "Let's celebrate the spirit\nof freedom and unity.",
+          x: 0.50,
+          y: 0.35,
+          fontSize: 13.0,
+          color: Color(0xFF1E293B),
+          fontFamily: 'Poppins',
+          textAlign: TextAlign.center,
+          isBold: false,
+          isItalic: true,
+        ),
+        PosterElement(
+          id: 'elem_org_title',
+          type: PosterElementType.text,
+          text: 'Panchayat Post\nConnect • Share • Grow',
+          x: 0.50,
+          y: 0.12,
+          fontSize: 15.0,
+          color: Color(0xFF1E293B),
+          fontFamily: 'Poppins',
+          textAlign: TextAlign.center,
+          isBold: true,
+        ),
+        PosterElement(
+          id: 'elem_author',
+          type: PosterElementType.text,
+          text: 'By: Mayank Prajapati',
+          x: 0.26,
+          y: 0.86,
+          fontSize: 11.0,
+          color: Colors.white,
+          fontFamily: 'Poppins',
+          textAlign: TextAlign.left,
+          isBold: true,
+        ),
+        PosterElement(
+          id: 'elem_contact',
+          type: PosterElementType.text,
+          text: '+91 96248 18530  |  info@myyunora.com',
+          x: 0.50,
+          y: 0.94,
+          fontSize: 10.5,
+          color: Colors.white,
+          fontFamily: 'Poppins',
+          textAlign: TextAlign.center,
+          isBold: false,
+        ),
+      ],
+    );
+  }
 }

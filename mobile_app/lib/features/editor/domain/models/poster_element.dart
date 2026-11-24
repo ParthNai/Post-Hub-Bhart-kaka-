@@ -19,7 +19,15 @@ class PosterElement {
     this.fontFamily = 'Poppins',
     this.textAlign = TextAlign.center,
     this.isBold = true,
+    this.isItalic = false,
     this.isSelected = false,
+    this.rotation = 0.0,
+    this.width,
+    this.height,
+    this.isVisible = true,
+    this.backgroundColor,
+    this.secondaryText,
+    this.secondaryColor,
   });
 
   final String id;
@@ -33,7 +41,15 @@ class PosterElement {
   final String fontFamily;
   final TextAlign textAlign;
   final bool isBold;
+  final bool isItalic;
   final bool isSelected;
+  final double rotation;
+  final double? width;
+  final double? height;
+  final bool isVisible;
+  final Color? backgroundColor;
+  final String? secondaryText;
+  final Color? secondaryColor;
 
   PosterElement copyWith({
     String? id,
@@ -47,7 +63,16 @@ class PosterElement {
     String? fontFamily,
     TextAlign? textAlign,
     bool? isBold,
+    bool? isItalic,
     bool? isSelected,
+    double? rotation,
+    double? width,
+    double? height,
+    bool? isVisible,
+    Color? backgroundColor,
+    String? secondaryText,
+    Color? secondaryColor,
+    bool clearSecondaryText = false,
   }) {
     return PosterElement(
       id: id ?? this.id,
@@ -61,7 +86,15 @@ class PosterElement {
       fontFamily: fontFamily ?? this.fontFamily,
       textAlign: textAlign ?? this.textAlign,
       isBold: isBold ?? this.isBold,
+      isItalic: isItalic ?? this.isItalic,
       isSelected: isSelected ?? this.isSelected,
+      rotation: rotation ?? this.rotation,
+      width: width ?? this.width,
+      height: height ?? this.height,
+      isVisible: isVisible ?? this.isVisible,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      secondaryText: clearSecondaryText ? null : (secondaryText ?? this.secondaryText),
+      secondaryColor: clearSecondaryText ? null : (secondaryColor ?? this.secondaryColor),
     );
   }
 
@@ -77,6 +110,14 @@ class PosterElement {
         'fontFamily': fontFamily,
         'textAlign': textAlign.index,
         'isBold': isBold,
+        'isItalic': isItalic,
+        'rotation': rotation,
+        'width': width,
+        'height': height,
+        'isVisible': isVisible,
+        if (backgroundColor != null) 'backgroundColor': backgroundColor!.toARGB32(),
+        if (secondaryText != null) 'secondaryText': secondaryText,
+        if (secondaryColor != null) 'secondaryColor': secondaryColor!.toARGB32(),
       };
 
   factory PosterElement.fromJson(Map<String, dynamic> json) {
@@ -94,6 +135,18 @@ class PosterElement {
       fontFamily: json['fontFamily'] as String? ?? 'Poppins',
       textAlign: TextAlign.values[(json['textAlign'] as int?) ?? 2],
       isBold: json['isBold'] as bool? ?? true,
+      isItalic: json['isItalic'] as bool? ?? false,
+      rotation: (json['rotation'] as num?)?.toDouble() ?? 0.0,
+      width: (json['width'] as num?)?.toDouble(),
+      height: (json['height'] as num?)?.toDouble(),
+      isVisible: json['isVisible'] as bool? ?? true,
+      backgroundColor: json['backgroundColor'] != null
+          ? Color(json['backgroundColor'] as int)
+          : null,
+      secondaryText: json['secondaryText'] as String?,
+      secondaryColor: json['secondaryColor'] != null
+          ? Color(json['secondaryColor'] as int)
+          : null,
     );
   }
 }

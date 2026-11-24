@@ -119,4 +119,8 @@ class AppAssets {
 
   /// Approved UI reference and canvas for Screen 17 Quick Customize.
   static const String quickCustomizeNavratri = 'assets/images/quick_customize_navratri.png';
+
+  /// Approved UI reference and canvas for Screen 18 Main Poster Editor.
+  static const String screen18Reference = 'assets/images/screen_18_reference.jpg';
+  static const String editorCanvasRepublicDay = 'assets/images/editor_canvas_republic_day.png';
 }
