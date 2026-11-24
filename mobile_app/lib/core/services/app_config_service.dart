@@ -41,14 +41,12 @@ class AppConfigService {
     if (kIsWeb) {
       return const [
         'http://127.0.0.1:3000',
-        'http://localhost:3000',
       ];
     }
     return const [
       'http://127.0.0.1:3000',
       'http://192.168.1.8:3000',
       'http://10.0.2.2:3000',
-      'http://localhost:3000',
     ];
   }
 
@@ -65,8 +63,14 @@ class AppConfigService {
     return 'http://127.0.0.1:3000';
   }
 
-  /// Get current effective server URL
-  String get serverBaseUrl => _cachedServerUrl ?? defaultServerUrl;
+  /// Get current effective server URL (normalizes localhost to 127.0.0.1 on web)
+  String get serverBaseUrl {
+    final raw = _cachedServerUrl ?? defaultServerUrl;
+    if (kIsWeb) {
+      return raw.replaceFirst('://localhost:', '://127.0.0.1:');
+    }
+    return raw;
+  }
 
   /// Updates and persists custom server base URL (e.g. for testing with local IP or production domain)
   Future<void> setServerBaseUrl(String url) async {
@@ -123,7 +127,7 @@ class AppConfigService {
     final urlsToTry = <String>{
       serverBaseUrl,
       ...candidateUrls,
-    }.toList();
+    }.map((u) => kIsWeb ? u.replaceFirst('://localhost:', '://127.0.0.1:') : u).toSet().toList();
 
     for (final base in urlsToTry) {
       final targetUrl = '$base$configEndpoint';

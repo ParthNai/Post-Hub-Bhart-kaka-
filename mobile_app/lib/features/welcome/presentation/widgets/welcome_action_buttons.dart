@@ -131,6 +131,24 @@ class _WelcomeActionButtonsState extends State<WelcomeActionButtons> {
               ),
             ),
           ),
+
+          const SizedBox(height: 10.0),
+
+          // 3. Skip & Explore as Guest Link
+          TextButton.icon(
+            onPressed: () {
+              Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+            },
+            icon: const Icon(Icons.explore_outlined, size: 18.0, color: AppColors.accentOrange),
+            label: const Text(
+              'Skip & Explore as Guest →',
+              style: TextStyle(
+                color: AppColors.accentOrange,
+                fontSize: 14.5,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
         ],
       ),
     );

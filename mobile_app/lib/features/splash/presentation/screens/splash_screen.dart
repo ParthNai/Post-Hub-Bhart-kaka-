@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:panchayat_post/core/constants/app_colors.dart';
@@ -52,6 +53,11 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   String _determineTargetRoute(SessionState sessionState) {
+    if (kIsWeb) {
+      // In web preview / testing, land directly on Home so all admin content & templates are immediately visible
+      return AppRoutes.home;
+    }
+
     switch (sessionState) {
       case SessionState.firstTime:
         // First-time user without an account -> Welcome Screen (Screen 02)
