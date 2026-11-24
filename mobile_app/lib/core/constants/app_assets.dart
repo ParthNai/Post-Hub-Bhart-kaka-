@@ -123,4 +123,7 @@ class AppAssets {
   /// Approved UI reference and canvas for Screen 18 Main Poster Editor.
   static const String screen18Reference = 'assets/images/screen_18_reference.jpg';
   static const String editorCanvasRepublicDay = 'assets/images/editor_canvas_republic_day.png';
+
+  /// Approved UI reference for Screen 19 Final Poster Preview & Quality Check.
+  static const String screen19Reference = 'assets/images/screen_19_reference.jpg';
 }

@@ -774,7 +774,7 @@ class _MainPosterEditorScreenState extends State<MainPosterEditorScreen> {
                       label: const Text('Share Poster', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12.0)),
                       onPressed: () {
                         Navigator.of(ctx).pop();
-                        Navigator.of(context).pushNamed(AppRoutes.posterPreview, arguments: _project);
+                        Navigator.of(context).pushNamed(AppRoutes.finalPosterPreview, arguments: _project);
                       },
                     ),
                   ),
