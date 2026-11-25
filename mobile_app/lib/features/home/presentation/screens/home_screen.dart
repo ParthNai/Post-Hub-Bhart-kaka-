@@ -75,26 +75,26 @@ class _HomeScreenState extends State<HomeScreen> {
     {
       'title': 'Diwali Celebration',
       'subtitle': 'Celebrate the festival of lights with prosperity & joyous blessings.',
-      'asset': AppAssets.homeFestivalDiwali,
-      'fallback': AppAssets.festivalDiwaliDiyas,
+      'asset': AppAssets.homeBannerDiwaliHero,
+      'fallback': AppAssets.homeFestivalDiwali,
     },
     {
-      'title': 'Independence Day',
+      'title': 'Independence & Republic Day',
       'subtitle': 'Saluting our brave heroes & celebrating freedom and unity.',
-      'asset': AppAssets.editorCanvasRepublicDay,
-      'fallback': AppAssets.screen18Reference,
+      'asset': AppAssets.homeBannerRepublicHero,
+      'fallback': AppAssets.editorCanvasRepublicDay,
     },
     {
       'title': 'Ganesh Chaturthi',
       'subtitle': 'May Lord Ganesha bless your family with joy, peace, and good health.',
-      'asset': AppAssets.festivalAllGanesh,
-      'fallback': AppAssets.homeFestivalNavratri,
+      'asset': AppAssets.homeBannerGaneshHero,
+      'fallback': AppAssets.festivalAllGanesh,
     },
     {
-      'title': 'Republic Day',
-      'subtitle': 'Let us celebrate the spirit of unity, constitution, and progress.',
-      'asset': AppAssets.editorCanvasRepublicDay,
-      'fallback': AppAssets.homeTemplateVikas,
+      'title': 'Shubh Navratri',
+      'subtitle': 'Celebrate divine music, dance, and festive joy with community.',
+      'asset': AppAssets.homeBannerNavratriHero,
+      'fallback': AppAssets.homeHeroBannerArt,
     },
   ];
 
