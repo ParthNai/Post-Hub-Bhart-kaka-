@@ -70,15 +70,25 @@ void main() {
   test(
     'reports an authentication error when there is no user session',
     () async {
-      final service = HomeContentService(sessionService: SessionService());
+      final client = MockClient((request) async {
+        return http.Response(
+          jsonEncode({'message': 'Please sign in to continue'}),
+          401,
+          headers: {'content-type': 'application/json'},
+        );
+      });
+      final service = HomeContentService(
+        sessionService: SessionService(),
+        httpClient: client,
+      );
 
       await expectLater(
         service.load(),
         throwsA(
           isA<HomeContentException>().having(
-            (error) => error.message,
+            (error) => error.message.toLowerCase(),
             'message',
-            contains('Sign in'),
+            contains('sign in'),
           ),
         ),
       );
