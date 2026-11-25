@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:panchayat_post/core/constants/app_assets.dart';
+import 'package:panchayat_post/core/services/app_config_service.dart';
 import 'package:panchayat_post/features/festivals/domain/models/festival_item.dart';
 
 class FestivalCategory {
@@ -16,11 +16,92 @@ class FestivalCategory {
   final String? emoji;
 }
 
-/// Service providing festival listings, categories, and search/filtering logic.
+/// Service providing live festival listings imported from the Admin Panel,
+/// plus category chips and search/filtering logic. No demo data is hardcoded.
 class FestivalService {
   FestivalService();
 
-  /// Default category chips matching Screen 10
+  static const List<FestivalPosterTemplate> navratriTemplates = [];
+
+  List<FestivalItem> _cachedAdminFestivals = const [];
+
+  /// Fetches live festivals and their poster images from the Admin Panel (/adminapi/festival).
+  Future<List<FestivalItem>> fetchAdminFestivals() async {
+    final rawList = await AppConfigService.instance.fetchAdminFestivals();
+    final items = <FestivalItem>[];
+
+    for (final raw in rawList) {
+      final base = raw['_resolvedBase']?.toString();
+      final id = raw['_id']?.toString() ?? raw['id']?.toString() ?? '';
+      final name = raw['festivalName']?.toString().trim() ??
+          raw['name']?.toString().trim() ??
+          '';
+      if (name.isEmpty) continue;
+
+      final rawMainImg = raw['festivalImage']?.toString() ?? '';
+      final mainImg = AppConfigService.instance.resolveMediaUrl(
+        rawMainImg,
+        baseUrlOverride: base,
+      );
+
+      final rawGallery = (raw['festivalImages'] as List<dynamic>? ?? const [])
+          .map((e) => AppConfigService.instance.resolveMediaUrl(
+                e?.toString(),
+                baseUrlOverride: base,
+              ))
+          .where((url) => url.isNotEmpty)
+          .toList();
+
+      final posterTemplates = <FestivalPosterTemplate>[
+        if (mainImg.isNotEmpty)
+          FestivalPosterTemplate(
+            id: '${id}_cover',
+            title: name,
+            imageAsset: mainImg,
+            style: 'traditional',
+          ),
+        for (int i = 0; i < rawGallery.length; i++)
+          FestivalPosterTemplate(
+            id: '${id}_img_$i',
+            title: name,
+            imageAsset: rawGallery[i],
+            style: 'traditional',
+          ),
+      ];
+
+      final rawDate = raw['festivalDate']?.toString() ?? '';
+      final dateDisplay = rawDate.isNotEmpty
+          ? rawDate.split('T').first
+          : (raw['dateDisplay']?.toString() ?? '');
+
+      items.add(
+        FestivalItem(
+          id: id.isNotEmpty ? id : name.toLowerCase().replaceAll(' ', '_'),
+          name: name,
+          nameGu: name,
+          nameHi: name,
+          dateDisplay: dateDisplay,
+          category: (raw['category']?.toString() ?? 'cultural').toLowerCase(),
+          categoryName: raw['categoryName']?.toString() ?? 'Festival',
+          imageAsset: mainImg.isNotEmpty
+              ? mainImg
+              : (rawGallery.isNotEmpty ? rawGallery.first : ''),
+          isUpcoming: true,
+          isFeatured: items.isEmpty,
+          heroBannerAsset: mainImg.isNotEmpty
+              ? mainImg
+              : (rawGallery.isNotEmpty ? rawGallery.first : ''),
+          posterTemplates: posterTemplates,
+          templateCount: posterTemplates.length,
+        ),
+      );
+    }
+
+    _cachedAdminFestivals = items;
+    return items;
+  }
+
+  /// Default category chips
   List<FestivalCategory> getCategories() {
     return const [
       FestivalCategory(id: 'all', name: 'All'),
@@ -47,288 +128,50 @@ class FestivalService {
     ];
   }
 
-  /// Popular Design Styles matching Screen 11
+  /// Design style filters (UI metadata only, no demo image assets)
   List<FestivalDesignStyle> getDesignStyles() {
     return const [
-      FestivalDesignStyle(
-        id: 'traditional',
-        name: 'Traditional',
-        imageAsset: AppAssets.styleTraditional,
-      ),
-      FestivalDesignStyle(
-        id: 'modern',
-        name: 'Modern',
-        imageAsset: AppAssets.styleModern,
-      ),
-      FestivalDesignStyle(
-        id: 'devotional',
-        name: 'Devotional',
-        imageAsset: AppAssets.styleDevotional,
-      ),
-      FestivalDesignStyle(
-        id: 'event',
-        name: 'Event Announcement',
-        imageAsset: AppAssets.styleEvent,
-      ),
+      FestivalDesignStyle(id: 'traditional', name: 'Traditional', imageAsset: ''),
+      FestivalDesignStyle(id: 'modern', name: 'Modern', imageAsset: ''),
+      FestivalDesignStyle(id: 'devotional', name: 'Devotional', imageAsset: ''),
+      FestivalDesignStyle(id: 'event', name: 'Event Announcement', imageAsset: ''),
     ];
   }
 
-  /// Navratri poster templates matching Screen 11 reference exactly
-  static const List<FestivalPosterTemplate> navratriTemplates = [
-    FestivalPosterTemplate(
-      id: 'navratri_shubh',
-      title: 'શુભ નવરાત્રી',
-      imageAsset: AppAssets.festivalPosterShubhNavratri,
-      style: 'traditional',
-    ),
-    FestivalPosterTemplate(
-      id: 'navratri_happy',
-      title: 'Happy Navratri',
-      imageAsset: AppAssets.festivalPosterHappyNavratri,
-      style: 'modern',
-    ),
-    FestivalPosterTemplate(
-      id: 'navratri_garba',
-      title: 'Navratri Garba Night',
-      imageAsset: AppAssets.festivalPosterGarbaNight,
-      style: 'event',
-    ),
-    FestivalPosterTemplate(
-      id: 'navratri_jay_mataji',
-      title: 'જય માતાજી',
-      imageAsset: AppAssets.festivalPosterJayMataji,
-      style: 'devotional',
-    ),
-  ];
-
-  /// The Hero Featured Festival shown on the top banner
+  /// Returns the first admin-uploaded festival if available, or an empty placeholder.
   FestivalItem getFeaturedFestival() {
+    if (_cachedAdminFestivals.isNotEmpty) {
+      return _cachedAdminFestivals.first;
+    }
     return const FestivalItem(
-      id: 'fest_featured_navratri',
-      name: 'Navratri',
-      nameGu: 'નવરાત્રી',
-      nameHi: 'नवरात्रि',
-      dateDisplay: '22 Oct – 30 Oct',
-      category: 'cultural',
-      categoryName: 'Cultural',
-      imageAsset: AppAssets.festivalHeroDancers,
+      id: 'empty_featured',
+      name: 'Festivals',
+      nameGu: 'તહેવારો',
+      nameHi: 'त्यौहार',
+      dateDisplay: '',
+      category: 'all',
+      categoryName: 'Festival',
+      imageAsset: '',
       isUpcoming: true,
       isFeatured: true,
-      celebrationType: 'Traditional',
-      aboutText:
-          'Celebrate Navratri with devotion, music, traditional Garba and beautiful festive designs.',
-      heroBannerAsset: AppAssets.festivalDetailHeroBanner,
-      posterTemplates: navratriTemplates,
-      description: 'Navratri Celebration. Explore beautiful festive designs.',
-      keywords: ['navratri', 'garba', 'dandiya', 'celebration', 'નવરાત્રી', 'ગરબા'],
-      templateCount: 24,
+      posterTemplates: [],
+      templateCount: 0,
     );
   }
 
-  /// 4 Primary Upcoming Festivals for the 2-Column Grid
-  List<FestivalItem> getUpcomingFestivals() {
-    return const [
-      FestivalItem(
-        id: 'fest_navratri',
-        name: 'Navratri',
-        nameGu: 'નવરાત્રી',
-        nameHi: 'नवरात्रि',
-        dateDisplay: '22 Oct – 30 Oct',
-        category: 'cultural',
-        categoryName: 'Cultural',
-        imageAsset: AppAssets.festivalNavratriMaa,
-        isUpcoming: true,
-        celebrationType: 'Traditional',
-        aboutText:
-            'Celebrate Navratri with devotion, music, traditional Garba and beautiful festive designs.',
-        heroBannerAsset: AppAssets.festivalDetailHeroBanner,
-        posterTemplates: navratriTemplates,
-        keywords: ['navratri', 'durga', 'maa', 'garba', 'dandiya', 'નવરાત્રી', 'અંબે મા'],
-        templateCount: 18,
-      ),
-      FestivalItem(
-        id: 'fest_diwali',
-        name: 'Diwali',
-        nameGu: 'દિવાળી',
-        nameHi: 'दिवाली',
-        dateDisplay: '12 Nov – 20 Nov',
-        category: 'hindu',
-        categoryName: 'Hindu Festivals',
-        imageAsset: AppAssets.festivalDiwaliDiyas,
-        isUpcoming: true,
-        celebrationType: 'Festival of Lights',
-        aboutText:
-            'Celebrate Diwali with joyful lights, festive greetings, family celebrations and prosperity.',
-        heroBannerAsset: AppAssets.festivalDiwaliDiyas,
-        posterTemplates: [
-          FestivalPosterTemplate(
-            id: 'diwali_happy',
-            title: 'Happy Diwali',
-            imageAsset: AppAssets.homeTemplateDiwali,
-            style: 'traditional',
-          ),
-          FestivalPosterTemplate(
-            id: 'diwali_shubh',
-            title: 'શુભ દીપાવલી',
-            imageAsset: AppAssets.festivalDiwaliDiyas,
-            style: 'devotional',
-          ),
-          FestivalPosterTemplate(
-            id: 'diwali_modern',
-            title: 'Deepotsav 2026',
-            imageAsset: AppAssets.homeTemplateDiwali,
-            style: 'modern',
-          ),
-          FestivalPosterTemplate(
-            id: 'diwali_event',
-            title: 'Diwali Milan Event',
-            imageAsset: AppAssets.festivalDiwaliDiyas,
-            style: 'event',
-          ),
-        ],
-        keywords: ['diwali', 'deepotsav', 'diya', 'lights', 'દિવાળી', 'દીવો', 'दिवाली'],
-        templateCount: 22,
-      ),
-      FestivalItem(
-        id: 'fest_bhai_beej',
-        name: 'Bhai Beej',
-        nameGu: 'ભાઈ બીજ',
-        nameHi: 'भाई दूज',
-        dateDisplay: '16 Nov',
-        category: 'cultural',
-        categoryName: 'Cultural',
-        imageAsset: AppAssets.festivalBhaiBeej,
-        isUpcoming: true,
-        celebrationType: 'Family Celebration',
-        aboutText:
-            'Celebrate the eternal bond of brothers and sisters with heartfelt blessings and traditions.',
-        heroBannerAsset: AppAssets.festivalBhaiBeej,
-        posterTemplates: [
-          FestivalPosterTemplate(
-            id: 'bhaibeej_shubh',
-            title: 'શુભ ભાઈ બીજ',
-            imageAsset: AppAssets.festivalBhaiBeej,
-            style: 'traditional',
-          ),
-          FestivalPosterTemplate(
-            id: 'bhaibeej_modern',
-            title: 'Happy Bhai Dooj',
-            imageAsset: AppAssets.festivalBhaiBeej,
-            style: 'modern',
-          ),
-        ],
-        keywords: ['bhai beej', 'bhai dooj', 'tilak', 'ભાઈ બીજ', 'भाई दूज'],
-        templateCount: 10,
-      ),
-      FestivalItem(
-        id: 'fest_christmas',
-        name: 'Christmas',
-        nameGu: 'નાતાલ (Christmas)',
-        nameHi: 'क्रिसमस',
-        dateDisplay: '25 Dec',
-        category: 'religious',
-        categoryName: 'Religious Events',
-        imageAsset: AppAssets.festivalChristmasSanta,
-        isUpcoming: true,
-        celebrationType: 'Joy & Giving',
-        aboutText:
-            'Celebrate the joy of Christmas with peace, cheer, beautiful greetings and warmth.',
-        heroBannerAsset: AppAssets.festivalChristmasSanta,
-        posterTemplates: [
-          FestivalPosterTemplate(
-            id: 'christmas_merry',
-            title: 'Merry Christmas',
-            imageAsset: AppAssets.festivalChristmasSanta,
-            style: 'traditional',
-          ),
-          FestivalPosterTemplate(
-            id: 'christmas_modern',
-            title: 'Season Greetings',
-            imageAsset: AppAssets.festivalChristmasSanta,
-            style: 'modern',
-          ),
-        ],
-        keywords: ['christmas', 'santa', 'xmas', 'holiday', 'નાતાલ', 'क्रिसमस'],
-        templateCount: 8,
-      ),
-    ];
-  }
+  /// Returns only live admin-imported upcoming festivals.
+  List<FestivalItem> getUpcomingFestivals() => _cachedAdminFestivals;
 
-  /// All Festivals for carousel and full directory
-  List<FestivalItem> getExploreAllFestivals() {
-    return const [
-      FestivalItem(
-        id: 'fest_makar_sankranti',
-        name: 'Makar Sankranti',
-        nameGu: 'ઉત્તરાયણ / મકર સંક્રાંતિ',
-        nameHi: 'मकर संक्रांति',
-        dateDisplay: '14 Jan',
-        category: 'cultural',
-        categoryName: 'Cultural Events',
-        imageAsset: AppAssets.festivalAllMakarSankranti,
-        keywords: ['makar sankranti', 'kite', 'uttarayan', 'પતંગ', 'ઉત્તરાયણ'],
-        templateCount: 14,
-      ),
-      FestivalItem(
-        id: 'fest_holi',
-        name: 'Holi',
-        nameGu: 'હોળી ધુળેટી',
-        nameHi: 'होली',
-        dateDisplay: '25 Mar',
-        category: 'cultural',
-        categoryName: 'Cultural Events',
-        imageAsset: AppAssets.festivalAllHoli,
-        keywords: ['holi', 'dhuleti', 'colors', 'gulal', 'હોળી', 'ધુળેટી'],
-        templateCount: 16,
-      ),
-      FestivalItem(
-        id: 'fest_janmashtami',
-        name: 'Janmashtami',
-        nameGu: 'જન્માષ્ટમી',
-        nameHi: 'जन्माष्टमी',
-        dateDisplay: '26 Aug',
-        category: 'hindu',
-        categoryName: 'Hindu Festivals',
-        imageAsset: AppAssets.festivalAllJanmashtami,
-        keywords: ['janmashtami', 'krishna', 'kanha', 'matki', 'જન્માષ્ટમી', 'કાનજી'],
-        templateCount: 15,
-      ),
-      FestivalItem(
-        id: 'fest_ganesh_chaturthi',
-        name: 'Ganesh Chaturthi',
-        nameGu: 'ગણેશ ચતુર્થી',
-        nameHi: 'गणेश चतुर्थी',
-        dateDisplay: '07 Sep',
-        category: 'hindu',
-        categoryName: 'Hindu Festivals',
-        imageAsset: AppAssets.festivalAllGanesh,
-        keywords: ['ganesh', 'chaturthi', 'bappa', 'modak', 'ગણેશ', 'વિનાયક'],
-        templateCount: 20,
-      ),
-    ];
-  }
+  /// Returns only live admin-imported festivals.
+  List<FestivalItem> getExploreAllFestivals() => _cachedAdminFestivals;
 
-  /// Filter and search across all festivals
+  /// Filter and search across admin-imported festivals.
   List<FestivalItem> searchFestivals({
     String query = '',
     String? categoryFilter,
     bool? upcomingOnly,
   }) {
-    final allList = [
-      ...getUpcomingFestivals(),
-      ...getExploreAllFestivals(),
-    ];
-
-    // Deduplicate by ID
-    final seenIds = <String>{};
-    final unique = <FestivalItem>[];
-    for (final f in allList) {
-      if (seenIds.add(f.id)) {
-        unique.add(f);
-      }
-    }
-
-    return unique.where((f) {
+    return _cachedAdminFestivals.where((f) {
       return f.matches(
         query: query,
         categoryFilter: categoryFilter,

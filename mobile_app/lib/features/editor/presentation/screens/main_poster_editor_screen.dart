@@ -594,7 +594,7 @@ class _MainPosterEditorScreenState extends State<MainPosterEditorScreen> {
                           _pushHistory();
                           setState(() {
                             _project = _project.copyWith(
-                              backgroundAsset: AppAssets.editorCanvasRepublicDay,
+                              backgroundAsset: '',
                               backgroundColor: const Color(0xFFF8FAFC),
                             );
                           });
@@ -603,19 +603,16 @@ class _MainPosterEditorScreenState extends State<MainPosterEditorScreen> {
                         child: Container(
                           height: 70.0,
                           decoration: BoxDecoration(
+                            color: const Color(0xFFF8FAFC),
                             border: Border.all(color: _kPrimaryOrange, width: 2.0),
                             borderRadius: BorderRadius.circular(12.0),
-                            image: const DecorationImage(
-                              image: AssetImage(AppAssets.editorCanvasRepublicDay),
-                              fit: BoxFit.cover,
-                            ),
                           ),
                           alignment: Alignment.bottomCenter,
                           padding: const EdgeInsets.all(4.0),
                           child: Container(
                             color: Colors.black54,
                             padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                            child: const Text('Republic Day', style: TextStyle(color: Colors.white, fontSize: 10.0)),
+                            child: const Text('Light Canvas', style: TextStyle(color: Colors.white, fontSize: 10.0)),
                           ),
                         ),
                       ),
@@ -628,7 +625,7 @@ class _MainPosterEditorScreenState extends State<MainPosterEditorScreen> {
                           _pushHistory();
                           setState(() {
                             _project = _project.copyWith(
-                              backgroundAsset: AppAssets.editorCanvasNavratri,
+                              backgroundAsset: '',
                               backgroundColor: const Color(0xFF2E0854),
                             );
                           });
@@ -637,12 +634,9 @@ class _MainPosterEditorScreenState extends State<MainPosterEditorScreen> {
                         child: Container(
                           height: 70.0,
                           decoration: BoxDecoration(
+                            color: const Color(0xFF2E0854),
                             border: Border.all(color: _kBorder),
                             borderRadius: BorderRadius.circular(12.0),
-                            image: const DecorationImage(
-                              image: AssetImage(AppAssets.editorCanvasNavratri),
-                              fit: BoxFit.cover,
-                            ),
                           ),
                           alignment: Alignment.bottomCenter,
                           padding: const EdgeInsets.all(4.0),

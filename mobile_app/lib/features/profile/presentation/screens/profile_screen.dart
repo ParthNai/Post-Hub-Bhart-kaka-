@@ -870,17 +870,14 @@ class _EditProfileSheetState extends State<_EditProfileSheet> {
                         ],
                       ),
                       child: ClipOval(
-                        child: widget.user?.profilePhotoUrl != null
+                        child: widget.user?.profilePhotoUrl != null &&
+                                widget.user!.profilePhotoUrl!.isNotEmpty
                             ? Image.network(
                                 widget.user!.profilePhotoUrl!,
                                 fit: BoxFit.cover,
                                 errorBuilder: (_, _, _) => _DefaultAvatar(name: _nameCtrl.text),
                               )
-                            : Image.asset(
-                                AppAssets.homeAvatarRahul,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) => _DefaultAvatar(name: _nameCtrl.text),
-                              ),
+                            : _DefaultAvatar(name: _nameCtrl.text),
                       ),
                     ),
                     Positioned(

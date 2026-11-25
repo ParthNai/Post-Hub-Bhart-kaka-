@@ -5,10 +5,14 @@ import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/constants/app_colors.dart';
 import 'package:panchayat_post/core/localization/app_localizations.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
+import 'package:panchayat_post/core/models/app_remote_config.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
+import 'package:panchayat_post/core/services/app_config_service.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
+import 'package:panchayat_post/features/festivals/data/services/festival_service.dart';
+import 'package:panchayat_post/features/festivals/domain/models/festival_item.dart';
 
 /// Screen 09: Main Home Dashboard Screen (Redesigned)
 ///
@@ -63,40 +67,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int _heroCurrentPage = 0;
   Timer? _heroTimer;
-  int _unreadNotificationsCount = 2;
+  int _unreadNotificationsCount = 0;
 
-  final List<Map<String, String>> _heroBanners = [
-    {
-      'title': 'Happy Navratri',
-      'subtitle': 'May Maa Durga remove all negativity and fill our lives with happiness.',
-      'asset': AppAssets.homeBannerNavratriHero,
-      'fallback': AppAssets.homeHeroBannerFull,
-    },
-    {
-      'title': 'Diwali Celebration',
-      'subtitle': 'Celebrate the festival of lights with prosperity & joyous blessings.',
-      'asset': AppAssets.homeBannerDiwaliHero,
-      'fallback': AppAssets.homeFestivalDiwali,
-    },
-    {
-      'title': 'Independence & Republic Day',
-      'subtitle': 'Saluting our brave heroes & celebrating freedom and unity.',
-      'asset': AppAssets.homeBannerRepublicHero,
-      'fallback': AppAssets.editorCanvasRepublicDay,
-    },
-    {
-      'title': 'Ganesh Chaturthi',
-      'subtitle': 'May Lord Ganesha bless your family with joy, peace, and good health.',
-      'asset': AppAssets.homeBannerGaneshHero,
-      'fallback': AppAssets.festivalAllGanesh,
-    },
-    {
-      'title': 'Shubh Navratri',
-      'subtitle': 'Celebrate divine music, dance, and festive joy with community.',
-      'asset': AppAssets.homeBannerNavratriHero,
-      'fallback': AppAssets.homeHeroBannerArt,
-    },
-  ];
+  final FestivalService _festivalService = FestivalService();
+  List<Map<String, String>> _adminSliders = const [];
+  List<FestivalItem> _adminFestivals = const [];
 
   @override
   void initState() {
@@ -104,7 +79,35 @@ class _HomeScreenState extends State<HomeScreen> {
     _authService = widget.authService ?? AuthService();
     _selectedNavIndex = widget.initialTabIndex;
     _loadUserProfile();
+    _loadAdminContent();
     _startHeroAutoScroll();
+  }
+
+  Future<void> _loadAdminContent() async {
+    await AppConfigService.instance.refreshConfig();
+    final slidersRaw = await AppConfigService.instance.fetchAdminSliders();
+    final festivals = await _festivalService.fetchAdminFestivals();
+
+    final mappedSliders = <Map<String, String>>[];
+    for (final s in slidersRaw) {
+      final base = s['_resolvedBase']?.toString();
+      final img = AppConfigService.instance.resolveMediaUrl(
+        s['sliderImage']?.toString() ?? s['image']?.toString(),
+        baseUrlOverride: base,
+      );
+      if (img.isNotEmpty) {
+        mappedSliders.add({
+          'title': s['title']?.toString() ?? '',
+          'imageUrl': img,
+        });
+      }
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _adminSliders = mappedSliders;
+      _adminFestivals = festivals;
+    });
   }
 
   @override
@@ -119,8 +122,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _startHeroAutoScroll() {
     _heroTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      if (_heroPageController.hasClients) {
-        final nextPage = (_heroCurrentPage + 1) % _heroBanners.length;
+      if (_heroPageController.hasClients && _adminSliders.length > 1) {
+        final nextPage = (_heroCurrentPage + 1) % _adminSliders.length;
         _heroPageController.animateToPage(
           nextPage,
           duration: const Duration(milliseconds: 500),
@@ -318,20 +321,32 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 10.0),
               Expanded(
-                child: GridView.count(
-                  controller: scrollController,
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12.0,
-                  mainAxisSpacing: 12.0,
-                  childAspectRatio: 0.85,
-                  children: [
-                    _buildTemplateGridItem('Sarkari Yojana', AppAssets.homeTemplateSarkariYojana),
-                    _buildTemplateGridItem('Suvichar', AppAssets.homeTemplateSuvichar),
-                    _buildTemplateGridItem('Atmanirbhar Bharat', AppAssets.homeTemplateAtmanirbhar),
-                    _buildTemplateGridItem('Good Morning', AppAssets.homeTemplateGoodMorning),
-                    _buildTemplateGridItem('Good Night', AppAssets.homeTemplateGoodNight),
-                    _buildTemplateGridItem('Happy Diwali', AppAssets.homeTemplateDiwali),
-                  ],
+                child: ValueListenableBuilder<AppRemoteConfig>(
+                  valueListenable: AppConfigService.instance.configNotifier,
+                  builder: (context, config, _) {
+                    final templates = config.templates;
+                    if (templates.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          'No templates uploaded from Admin yet.',
+                          style: TextStyle(color: Color(0xFF64748B)),
+                        ),
+                      );
+                    }
+                    return GridView.count(
+                      controller: scrollController,
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12.0,
+                      mainAxisSpacing: 12.0,
+                      childAspectRatio: 0.85,
+                      children: templates.map((tpl) {
+                        final imageUrl = AppConfigService.instance.resolveMediaUrl(
+                          tpl.thumbnailUrl ?? tpl.backgroundImageUrl,
+                        );
+                        return _buildTemplateGridItem(tpl.name, imageUrl);
+                      }).toList(),
+                    );
+                  },
                 ),
               ),
             ],
@@ -341,11 +356,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildTemplateGridItem(String title, String asset) {
+  Widget _buildTemplateGridItem(String title, String imageUrl) {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pop();
-        _openTemplateInEditor(title, asset);
+        _openTemplateInEditor(title, imageUrl);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -365,14 +380,17 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
-                child: Image.asset(
-                  asset,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, error, stackTrace) => Container(
-                    color: const Color(0xFFEDE9FE),
-                    child: const Icon(Icons.image_outlined, color: Color(0xFF6C5CE7)),
-                  ),
-                ),
+                child: imageUrl.isNotEmpty
+                    ? Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => const Center(
+                          child: Icon(Icons.image_outlined, color: Color(0xFF94A3B8)),
+                        ),
+                      )
+                    : const Center(
+                        child: Icon(Icons.image_outlined, color: Color(0xFF94A3B8)),
+                      ),
               ),
               Container(
                 color: Colors.white,
@@ -527,12 +545,18 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const SizedBox(height: 16.0),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(14.0),
-              child: Image.asset(
-                AppAssets.welcomeHeroPosters,
-                height: 150.0,
-                fit: BoxFit.contain,
+            Container(
+              height: 110.0,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F3FF),
+                borderRadius: BorderRadius.circular(14.0),
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.auto_awesome_rounded,
+                  size: 48.0,
+                  color: Color(0xFF6C5CE7),
+                ),
               ),
             ),
             const SizedBox(height: 16.0),
@@ -771,20 +795,20 @@ class _HomeScreenState extends State<HomeScreen> {
   // --- UI Components ---
 
   Widget _buildAvatarWidget({double size = 38.0}) {
-    ImageProvider avatarProvider;
-    if (_currentUser?.profilePhotoUrl != null &&
-        _currentUser!.profilePhotoUrl!.startsWith('data:image')) {
+    ImageProvider? avatarProvider;
+    final photoUrl = _currentUser?.profilePhotoUrl;
+    if (photoUrl != null && photoUrl.startsWith('data:image')) {
       try {
-        final commaIdx = _currentUser!.profilePhotoUrl!.indexOf(',');
-        final base64Str = commaIdx != -1
-            ? _currentUser!.profilePhotoUrl!.substring(commaIdx + 1)
-            : _currentUser!.profilePhotoUrl!;
+        final commaIdx = photoUrl.indexOf(',');
+        final base64Str =
+            commaIdx != -1 ? photoUrl.substring(commaIdx + 1) : photoUrl;
         avatarProvider = MemoryImage(base64Decode(base64Str));
-      } catch (_) {
-        avatarProvider = const AssetImage(AppAssets.homeAvatarRahul);
+      } catch (_) {}
+    } else if (photoUrl != null && photoUrl.isNotEmpty) {
+      final resolved = AppConfigService.instance.resolveMediaUrl(photoUrl);
+      if (resolved.startsWith('http')) {
+        avatarProvider = NetworkImage(resolved);
       }
-    } else {
-      avatarProvider = const AssetImage(AppAssets.homeAvatarRahul);
     }
 
     return GestureDetector(
@@ -795,6 +819,7 @@ class _HomeScreenState extends State<HomeScreen> {
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
+          color: const Color(0xFFEDE9FE),
           border: Border.all(color: Colors.white, width: 2.0),
           boxShadow: [
             BoxShadow(
@@ -803,11 +828,17 @@ class _HomeScreenState extends State<HomeScreen> {
               offset: const Offset(0, 1),
             ),
           ],
-          image: DecorationImage(
-            image: avatarProvider,
-            fit: BoxFit.cover,
-          ),
+          image: avatarProvider != null
+              ? DecorationImage(image: avatarProvider, fit: BoxFit.cover)
+              : null,
         ),
+        child: avatarProvider == null
+            ? Icon(
+                Icons.person_rounded,
+                size: size * 0.56,
+                color: const Color(0xFF6C5CE7),
+              )
+            : null,
       ),
     );
   }
@@ -1011,102 +1042,159 @@ class _HomeScreenState extends State<HomeScreen> {
   // --- Hero Carousel Section ---
 
   Widget _buildHeroCarouselSection() {
-    return Column(
-      children: [
-        SizedBox(
-          height: 195.0,
-          child: PageView.builder(
-            controller: _heroPageController,
-            itemCount: _heroBanners.length,
-            onPageChanged: (index) {
-              setState(() => _heroCurrentPage = index);
-            },
-            itemBuilder: (context, index) {
-              final banner = _heroBanners[index];
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: GestureDetector(
-                  onTap: () => _showTemplatesModal(context, banner['title']!),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(22.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF6C5CE7).withValues(alpha: 0.12),
-                          blurRadius: 14,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
+    return ValueListenableBuilder<AppRemoteConfig>(
+      valueListenable: AppConfigService.instance.configNotifier,
+      builder: (context, config, _) {
+        if (!config.isHeroVisible) {
+          return const SizedBox.shrink();
+        }
+
+        if (_adminSliders.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: GestureDetector(
+              onTap: () => _showAllTemplatesLibrary(context),
+              child: Container(
+                height: 170.0,
+                width: double.infinity,
+                padding: const EdgeInsets.all(20.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(22.0),
+                  gradient: LinearGradient(
+                    colors: [
+                      config.primaryAccentColor,
+                      const Color(0xFF6C5CE7),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF6C5CE7).withValues(alpha: 0.15),
+                      blurRadius: 14,
+                      offset: const Offset(0, 6),
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(22.0),
-                      child: Image.asset(
-                        banner['asset']!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, error, stackTrace) => Image.asset(
-                          banner['fallback']!,
-                          fit: BoxFit.cover,
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      config.heroBadge,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11.0,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 6.0),
+                    Text(
+                      config.heroHeadline,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 6.0),
+                    Text(
+                      config.heroSubtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        return Column(
+          children: [
+            SizedBox(
+              height: 195.0,
+              child: PageView.builder(
+                controller: _heroPageController,
+                itemCount: _adminSliders.length,
+                onPageChanged: (index) {
+                  setState(() => _heroCurrentPage = index);
+                },
+                itemBuilder: (context, index) {
+                  final banner = _adminSliders[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: GestureDetector(
+                      onTap: () => _showAllTemplatesLibrary(context),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(22.0),
+                          color: const Color(0xFFF1F5F9),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF6C5CE7).withValues(alpha: 0.12),
+                              blurRadius: 14,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(22.0),
+                          child: Image.network(
+                            banner['imageUrl']!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) => const Center(
+                              child: Icon(
+                                Icons.image_outlined,
+                                size: 40,
+                                color: Color(0xFF94A3B8),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 10.0),
-
-        // 5 Dot Page Indicators (Active is elongated purple pill)
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(_heroBanners.length, (index) {
-            final isActive = _heroCurrentPage == index;
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              margin: const EdgeInsets.symmetric(horizontal: 2.5),
-              height: 6.0,
-              width: isActive ? 22.0 : 6.0,
-              decoration: BoxDecoration(
-                color: isActive ? const Color(0xFF6C5CE7) : const Color(0xFFDDD6FE),
-                borderRadius: BorderRadius.circular(3.0),
+                  );
+                },
               ),
-            );
-          }),
-        ),
-      ],
+            ),
+            if (_adminSliders.length > 1) ...[
+              const SizedBox(height: 10.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(_adminSliders.length, (index) {
+                  final isActive = _heroCurrentPage == index;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.symmetric(horizontal: 2.5),
+                    height: 6.0,
+                    width: isActive ? 22.0 : 6.0,
+                    decoration: BoxDecoration(
+                      color: isActive
+                          ? const Color(0xFF6C5CE7)
+                          : const Color(0xFFDDD6FE),
+                      borderRadius: BorderRadius.circular(3.0),
+                    ),
+                  );
+                }),
+              ),
+            ],
+          ],
+        );
+      },
     );
   }
 
   // --- Upcoming Festivals Section ---
 
   Widget _buildUpcomingFestivalsSection() {
-    final festivals = [
-      {
-        'title': 'Navratri',
-        'date': 'Oct 1, 2025',
-        'asset': AppAssets.homeFestivalNavratriCard,
-        'fallback': AppAssets.festivalPosterGarbaNight,
-      },
-      {
-        'title': 'Independence Day',
-        'date': 'Aug 15, 2025',
-        'asset': AppAssets.homeFestivalIndependenceCard,
-        'fallback': AppAssets.editorCanvasRepublicDay,
-      },
-      {
-        'title': 'Diwali',
-        'date': 'Oct 20, 2025',
-        'asset': AppAssets.homeFestivalDiwaliCard,
-        'fallback': AppAssets.festivalDiwaliDiyas,
-      },
-      {
-        'title': 'Ganesh Chaturthi',
-        'date': 'Aug 27, 2025',
-        'asset': AppAssets.homeFestivalGaneshCard,
-        'fallback': AppAssets.festivalAllGanesh,
-      },
-    ];
+    final festivals = _adminFestivals;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1144,42 +1232,62 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 12.0),
 
-        // Horizontal List of Uncropped Vertical Cards
-        SizedBox(
-          height: 172.0,
-          child: ListView.separated(
-            controller: _festivalScrollController,
-            scrollDirection: Axis.horizontal,
+        if (festivals.isEmpty)
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            physics: const BouncingScrollPhysics(),
-            itemCount: festivals.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 12.0),
-            itemBuilder: (context, index) {
-              final fest = festivals[index];
-              return _buildFestivalPosterCard(
-                title: fest['title']!,
-                date: fest['date']!,
-                asset: fest['asset']!,
-                fallback: fest['fallback']!,
-              );
-            },
+            child: Container(
+              height: 92.0,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16.0),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: const Center(
+                child: Text(
+                  'No festivals uploaded from Admin yet.',
+                  style: TextStyle(
+                    fontSize: 13.0,
+                    color: Color(0xFF64748B),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          )
+        else
+          SizedBox(
+            height: 172.0,
+            child: ListView.separated(
+              controller: _festivalScrollController,
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              physics: const BouncingScrollPhysics(),
+              itemCount: festivals.length,
+              separatorBuilder: (context, index) => const SizedBox(width: 12.0),
+              itemBuilder: (context, index) {
+                final fest = festivals[index];
+                return _buildFestivalPosterCard(
+                  festival: fest,
+                );
+              },
+            ),
           ),
-        ),
       ],
     );
   }
 
   Widget _buildFestivalPosterCard({
-    required String title,
-    required String date,
-    required String asset,
-    required String fallback,
+    required FestivalItem festival,
   }) {
+    final title = festival.name;
+    final date = festival.dateDisplay;
+    final imageUrl = festival.imageAsset;
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pushNamed(
           AppRoutes.festivalDetail,
-          arguments: title,
+          arguments: festival,
         );
       },
       child: Container(
@@ -1199,20 +1307,22 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Top uncropped artwork container
             ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(15.0)),
               child: SizedBox(
                 height: 104.0,
                 width: double.infinity,
-                child: Image.asset(
-                  asset,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, error, stackTrace) => Image.asset(
-                    fallback,
-                    fit: BoxFit.cover,
-                  ),
-                ),
+                child: imageUrl.isNotEmpty
+                    ? Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => const Center(
+                          child: Icon(Icons.celebration_rounded, color: Color(0xFF94A3B8)),
+                        ),
+                      )
+                    : const Center(
+                        child: Icon(Icons.celebration_rounded, color: Color(0xFF94A3B8)),
+                      ),
               ),
             ),
             const Spacer(),
@@ -1311,9 +1421,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: _buildCreateCategoryCard(
                   title: 'Festival',
                   subtitle: 'Create festival posts',
-                  thumbAsset: AppAssets.homeCreateFestivalThumb,
-                  fallbackThumb: AppAssets.homeCreateFestival,
                   icon: Icons.event_note_rounded,
+                  accentColor: const Color(0xFF7C3AED),
                   onTap: () => Navigator.of(context).pushNamed(AppRoutes.festivals),
                 ),
               ),
@@ -1324,9 +1433,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: _buildCreateCategoryCard(
                   title: 'Panchayat',
                   subtitle: 'Create panchayat posts',
-                  thumbAsset: AppAssets.homeCreatePanchayatThumb,
-                  fallbackThumb: AppAssets.homeCreatePanchayat,
                   icon: Icons.groups_rounded,
+                  accentColor: const Color(0xFF2563EB),
                   onTap: () => _showTemplatesModal(context, 'Panchayat'),
                 ),
               ),
@@ -1340,9 +1448,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildCreateCategoryCard({
     required String title,
     required String subtitle,
-    required String thumbAsset,
-    required String fallbackThumb,
     required IconData icon,
+    required Color accentColor,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
@@ -1363,21 +1470,15 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Row(
           children: [
-            // Left artwork thumbnail
-            ClipRRect(
-              borderRadius: const BorderRadius.horizontal(left: Radius.circular(15.0)),
-              child: SizedBox(
-                width: 74.0,
-                height: 86.0,
-                child: Image.asset(
-                  thumbAsset,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, error, stackTrace) => Image.asset(
-                    fallbackThumb,
-                    fit: BoxFit.cover,
-                  ),
-                ),
+            // Left icon panel
+            Container(
+              width: 58.0,
+              height: 86.0,
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.10),
+                borderRadius: const BorderRadius.horizontal(left: Radius.circular(15.0)),
               ),
+              child: Icon(icon, size: 26.0, color: accentColor),
             ),
 
             // Right text and action
@@ -1554,15 +1655,10 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Image.asset(
-                    AppAssets.homeAiWandThumb,
-                    height: 44.0,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, error, stackTrace) => const Icon(
-                      Icons.auto_awesome_rounded,
-                      color: Color(0xFF8B5CF6),
-                      size: 24.0,
-                    ),
+                  const Icon(
+                    Icons.auto_awesome_rounded,
+                    color: Color(0xFF8B5CF6),
+                    size: 24.0,
                   ),
                   const SizedBox(width: 8.0),
                   Container(
@@ -1590,101 +1686,102 @@ class _HomeScreenState extends State<HomeScreen> {
   // --- Popular Templates Section ---
 
   Widget _buildPopularTemplatesSection() {
-    final templates = [
-      {
-        'title': 'Sarkari Yojana',
-        'asset': AppAssets.homeTemplateSarkariYojana,
-        'fallback': AppAssets.homeTemplateVikas,
-      },
-      {
-        'title': 'Suvichar',
-        'asset': AppAssets.homeTemplateSuvichar,
-        'fallback': AppAssets.homeTemplateGramSabha,
-      },
-      {
-        'title': 'Atmanirbhar Bharat',
-        'asset': AppAssets.homeTemplateAtmanirbhar,
-        'fallback': AppAssets.homeTemplateSwachh,
-      },
-      {
-        'title': 'Good Morning',
-        'asset': AppAssets.homeTemplateGoodMorning,
-        'fallback': AppAssets.homeTemplateDiwali,
-      },
-      {
-        'title': 'Good Night',
-        'asset': AppAssets.homeTemplateGoodNight,
-        'fallback': AppAssets.homeFestivalBhaiBeej,
-      },
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Section Header
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            children: [
-              Container(
-                width: 4.0,
-                height: 18.0,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF6C5CE7),
-                  borderRadius: BorderRadius.circular(2.0),
-                ),
+    return ValueListenableBuilder<AppRemoteConfig>(
+      valueListenable: AppConfigService.instance.configNotifier,
+      builder: (context, config, _) {
+        final templates = config.templates;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  Container(
+                    width: 4.0,
+                    height: 18.0,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6C5CE7),
+                      borderRadius: BorderRadius.circular(2.0),
+                    ),
+                  ),
+                  const SizedBox(width: 8.0),
+                  const Expanded(
+                    child: Text(
+                      'Popular Templates',
+                      style: TextStyle(
+                        fontSize: 16.5,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textNavy,
+                      ),
+                    ),
+                  ),
+                  _buildSeeAllPill(
+                    key: const ValueKey('btn_see_all_templates'),
+                    onTap: () => _showAllTemplatesLibrary(context),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8.0),
-              const Expanded(
-                child: Text(
-                  'Popular Templates',
-                  style: TextStyle(
-                    fontSize: 16.5,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textNavy,
+            ),
+            const SizedBox(height: 12.0),
+
+            if (templates.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Container(
+                  height: 92.0,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16.0),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'No templates uploaded from Admin yet.',
+                      style: TextStyle(
+                        fontSize: 13.0,
+                        color: Color(0xFF64748B),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
                 ),
+              )
+            else
+              SizedBox(
+                height: 168.0,
+                child: ListView.separated(
+                  controller: _templatesScrollController,
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: templates.length,
+                  separatorBuilder: (context, index) => const SizedBox(width: 12.0),
+                  itemBuilder: (context, index) {
+                    final item = templates[index];
+                    final imageUrl = AppConfigService.instance.resolveMediaUrl(
+                      item.thumbnailUrl ?? item.backgroundImageUrl,
+                    );
+                    return _buildPopularTemplateCard(
+                      title: item.name,
+                      imageUrl: imageUrl,
+                    );
+                  },
+                ),
               ),
-              _buildSeeAllPill(
-                key: const ValueKey('btn_see_all_templates'),
-                onTap: () => _showAllTemplatesLibrary(context),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12.0),
-
-        // Horizontal List of 5 Vertical Poster Cards
-        SizedBox(
-          height: 168.0,
-          child: ListView.separated(
-            controller: _templatesScrollController,
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            physics: const BouncingScrollPhysics(),
-            itemCount: templates.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 12.0),
-            itemBuilder: (context, index) {
-              final item = templates[index];
-              return _buildPopularTemplateCard(
-                title: item['title']!,
-                asset: item['asset']!,
-                fallback: item['fallback']!,
-              );
-            },
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
   Widget _buildPopularTemplateCard({
     required String title,
-    required String asset,
-    required String fallback,
+    required String imageUrl,
   }) {
     return GestureDetector(
-      onTap: () => _openTemplateInEditor(title, asset),
+      onTap: () => _openTemplateInEditor(title, imageUrl),
       child: Container(
         width: 104.0,
         decoration: BoxDecoration(
@@ -1707,14 +1804,17 @@ class _HomeScreenState extends State<HomeScreen> {
               child: SizedBox(
                 height: 124.0,
                 width: double.infinity,
-                child: Image.asset(
-                  asset,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, error, stackTrace) => Image.asset(
-                    fallback,
-                    fit: BoxFit.cover,
-                  ),
-                ),
+                child: imageUrl.isNotEmpty
+                    ? Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => const Center(
+                          child: Icon(Icons.image_outlined, color: Color(0xFF94A3B8)),
+                        ),
+                      )
+                    : const Center(
+                        child: Icon(Icons.image_outlined, color: Color(0xFF94A3B8)),
+                      ),
               ),
             ),
             const Spacer(),

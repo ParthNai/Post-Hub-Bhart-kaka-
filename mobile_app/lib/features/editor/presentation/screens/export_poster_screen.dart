@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/localization/app_localizations.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
@@ -152,15 +151,21 @@ class _ExportPosterScreenState extends State<ExportPosterScreen> {
                   aspectRatio: _canvasWidth / _canvasHeight,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: Image.asset(
-                      AppAssets.editorCanvasRepublicDay,
-                      fit: BoxFit.cover,
-                      errorBuilder: (c, o, s) => Container(
-                        color: Colors.orange.shade50,
-                        alignment: Alignment.center,
-                        child: const Icon(Icons.image, size: 64, color: _kOrangePrimary),
-                      ),
-                    ),
+                    child: _project.backgroundAsset.startsWith('http')
+                        ? Image.network(
+                            _project.backgroundAsset,
+                            fit: BoxFit.cover,
+                            errorBuilder: (c, o, s) => Container(
+                              color: _project.backgroundColor,
+                              alignment: Alignment.center,
+                              child: const Icon(Icons.image, size: 64, color: _kOrangePrimary),
+                            ),
+                          )
+                        : Container(
+                            color: _project.backgroundColor,
+                            alignment: Alignment.center,
+                            child: const Icon(Icons.image, size: 64, color: _kOrangePrimary),
+                          ),
                   ),
                 ),
               ),
@@ -228,7 +233,7 @@ class _ExportPosterScreenState extends State<ExportPosterScreen> {
         height: _canvasHeight,
         fileSizeBytes: size,
         exportedAt: DateTime.now(),
-        thumbnailAsset: _project.previewAsset ?? AppAssets.editorCanvasRepublicDay,
+        thumbnailAsset: _project.previewAsset ?? _project.backgroundAsset,
         category: _project.category,
       );
 
@@ -552,15 +557,21 @@ class _ExportPosterScreenState extends State<ExportPosterScreen> {
               borderRadius: BorderRadius.circular(9),
               child: RepaintBoundary(
                 key: _repaintBoundaryKey,
-                child: Image.asset(
-                  AppAssets.editorCanvasRepublicDay,
-                  fit: BoxFit.cover,
-                  errorBuilder: (c, o, s) => Container(
-                    color: Colors.orange.shade50,
-                    alignment: Alignment.center,
-                    child: const Icon(Icons.image, size: 32, color: _kOrangePrimary),
-                  ),
-                ),
+                child: _project.backgroundAsset.startsWith('http')
+                    ? Image.network(
+                        _project.backgroundAsset,
+                        fit: BoxFit.cover,
+                        errorBuilder: (c, o, s) => Container(
+                          color: _project.backgroundColor,
+                          alignment: Alignment.center,
+                          child: const Icon(Icons.image, size: 32, color: _kOrangePrimary),
+                        ),
+                      )
+                    : Container(
+                        color: _project.backgroundColor,
+                        alignment: Alignment.center,
+                        child: const Icon(Icons.image, size: 32, color: _kOrangePrimary),
+                      ),
               ),
             ),
           ),

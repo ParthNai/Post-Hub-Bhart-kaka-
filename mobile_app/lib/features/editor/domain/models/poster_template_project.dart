@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_element.dart';
 
 /// Complete project model representing a customizable poster design.
@@ -206,7 +205,7 @@ class PosterTemplateProject {
       elements: const [],
     );
   }
-  /// Creates default project for Screen 12 matching the reference image exactly.
+  /// Creates a clean project for Screen 12 using admin-imported media without demo text.
   static PosterTemplateProject createDefaultNavratriProject({
     String? templateId,
     String? imageAsset,
@@ -214,42 +213,16 @@ class PosterTemplateProject {
   }) {
     return PosterTemplateProject(
       id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
-      templateId: templateId ?? 'navratri_shubh',
-      title: title ?? 'Navratri Celebration',
-      backgroundAsset: imageAsset ?? AppAssets.editorCanvasNavratri,
-      backgroundColor: const Color(0xFF2E0854),
+      templateId: templateId ?? 'custom_poster',
+      title: title ?? 'Poster',
+      backgroundAsset: imageAsset ?? '',
+      backgroundColor: const Color(0xFF1E293B),
       updatedAt: DateTime.now(),
-      elements: const [
-        PosterElement(
-          id: 'elem_headline',
-          type: PosterElementType.text,
-          text: 'શુભ નવરાત્રી',
-          x: 0.5,
-          y: 0.22,
-          fontSize: 32.0,
-          color: Color(0xFFFDE68A), // Golden Yellow
-          fontFamily: 'Poppins',
-          textAlign: TextAlign.center,
-          isBold: true,
-          isSelected: true,
-        ),
-        PosterElement(
-          id: 'elem_supporting',
-          type: PosterElementType.text,
-          text: 'માતાજીના આશીર્વાદથી\nતમારું જીવન હંમેશા ખુશીઓથી ભરેલું રહે...',
-          x: 0.5,
-          y: 0.38,
-          fontSize: 13.5,
-          color: Colors.white,
-          fontFamily: 'Poppins',
-          textAlign: TextAlign.center,
-          isBold: false,
-        ),
-      ],
+      elements: const [],
     );
   }
 
-  /// Creates default project for Screen 17 Quick Customize matching the reference image exactly.
+  /// Creates a clean project for Screen 17 Quick Customize without demo data.
   static PosterTemplateProject createDefaultQuickCustomizeProject({
     String? templateId,
     String? imageAsset,
@@ -257,66 +230,16 @@ class PosterTemplateProject {
   }) {
     return PosterTemplateProject(
       id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
-      templateId: templateId ?? 'quick_customize_navratri',
-      title: title ?? 'Navratri Celebration',
-      backgroundAsset: imageAsset ?? AppAssets.quickCustomizeNavratri,
-      backgroundColor: const Color(0xFFFDF7EE),
+      templateId: templateId ?? 'quick_customize',
+      title: title ?? 'Poster',
+      backgroundAsset: imageAsset ?? '',
+      backgroundColor: const Color(0xFFF8FAFC),
       updatedAt: DateTime.now(),
-      elements: const [
-        PosterElement(
-          id: 'elem_main_heading',
-          type: PosterElementType.text,
-          text: 'Happy Navratri',
-          x: 0.76,
-          y: 0.16,
-          fontSize: 28.0,
-          color: Color(0xFF6B1D2F),
-          fontFamily: 'Poppins',
-          textAlign: TextAlign.center,
-          isBold: true,
-          isSelected: true,
-        ),
-        PosterElement(
-          id: 'elem_subheading',
-          type: PosterElementType.text,
-          text: 'May Maa Amba remove all the negativity and fill our lives with happiness.',
-          x: 0.76,
-          y: 0.32,
-          fontSize: 11.5,
-          color: Color(0xFF4A3E3D),
-          fontFamily: 'Poppins',
-          textAlign: TextAlign.center,
-          isBold: false,
-        ),
-        PosterElement(
-          id: 'elem_user_name',
-          type: PosterElementType.text,
-          text: 'Rajan Patel',
-          x: 0.82,
-          y: 0.88,
-          fontSize: 12.0,
-          color: Color(0xFF252238),
-          fontFamily: 'Poppins',
-          textAlign: TextAlign.right,
-          isBold: true,
-        ),
-        PosterElement(
-          id: 'elem_business_details',
-          type: PosterElementType.text,
-          text: 'Panchayat Post • +91 98765 43210',
-          x: 0.50,
-          y: 0.94,
-          fontSize: 10.0,
-          color: Color(0xFF475569),
-          fontFamily: 'Poppins',
-          textAlign: TextAlign.center,
-          isBold: false,
-        ),
-      ],
+      elements: const [],
     );
   }
 
-  /// Creates default project for Screen 18 Main Poster Editor matching reference image exactly.
+  /// Creates a clean project for Screen 18 Main Poster Editor without demo data.
   static PosterTemplateProject createDefaultRepublicDayProject({
     String? templateId,
     String? imageAsset,
@@ -324,77 +247,12 @@ class PosterTemplateProject {
   }) {
     return PosterTemplateProject(
       id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
-      templateId: templateId ?? 'republic_day_main',
-      title: title ?? 'Republic Day Celebration',
-      backgroundAsset: imageAsset ?? AppAssets.editorCanvasRepublicDay,
+      templateId: templateId ?? 'main_poster',
+      title: title ?? 'Poster',
+      backgroundAsset: imageAsset ?? '',
       backgroundColor: const Color(0xFFF8FAFC),
       updatedAt: DateTime.now(),
-      elements: const [
-        PosterElement(
-          id: 'elem_headline',
-          type: PosterElementType.text,
-          text: 'Happy\nRepublic Day',
-          x: 0.50,
-          y: 0.24,
-          fontSize: 32.0,
-          color: Color(0xFF0F172A),
-          secondaryText: 'Day',
-          secondaryColor: Color(0xFFEA580C),
-          fontFamily: 'Poppins',
-          textAlign: TextAlign.center,
-          isBold: true,
-          isSelected: true,
-        ),
-        PosterElement(
-          id: 'elem_subheading',
-          type: PosterElementType.text,
-          text: "Let's celebrate the spirit\nof freedom and unity.",
-          x: 0.50,
-          y: 0.35,
-          fontSize: 13.0,
-          color: Color(0xFF1E293B),
-          fontFamily: 'Poppins',
-          textAlign: TextAlign.center,
-          isBold: false,
-          isItalic: true,
-        ),
-        PosterElement(
-          id: 'elem_org_title',
-          type: PosterElementType.text,
-          text: 'Panchayat Post\nConnect • Share • Grow',
-          x: 0.50,
-          y: 0.12,
-          fontSize: 15.0,
-          color: Color(0xFF1E293B),
-          fontFamily: 'Poppins',
-          textAlign: TextAlign.center,
-          isBold: true,
-        ),
-        PosterElement(
-          id: 'elem_author',
-          type: PosterElementType.text,
-          text: 'By: Mayank Prajapati',
-          x: 0.26,
-          y: 0.86,
-          fontSize: 11.0,
-          color: Colors.white,
-          fontFamily: 'Poppins',
-          textAlign: TextAlign.left,
-          isBold: true,
-        ),
-        PosterElement(
-          id: 'elem_contact',
-          type: PosterElementType.text,
-          text: '+91 96248 18530  |  info@myyunora.com',
-          x: 0.50,
-          y: 0.94,
-          fontSize: 10.5,
-          color: Colors.white,
-          fontFamily: 'Poppins',
-          textAlign: TextAlign.center,
-          isBold: false,
-        ),
-      ],
+      elements: const [],
     );
   }
 }

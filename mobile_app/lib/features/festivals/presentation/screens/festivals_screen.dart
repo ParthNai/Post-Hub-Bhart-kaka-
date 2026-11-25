@@ -4,6 +4,7 @@ import 'package:panchayat_post/core/constants/app_colors.dart';
 import 'package:panchayat_post/core/localization/app_localizations.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
+import 'package:panchayat_post/core/services/app_config_service.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
@@ -46,9 +47,17 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
     _authService = widget.authService ?? AuthService();
     _festivalService = widget.festivalService ?? FestivalService();
     _loadUserProfile();
+    _loadAdminFestivals();
     _searchController.addListener(() {
       setState(() {});
     });
+  }
+
+  Future<void> _loadAdminFestivals() async {
+    await _festivalService.fetchAdminFestivals();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -584,21 +593,28 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
               ),
               const SizedBox(height: 10.0),
               Expanded(
-                child: GridView.count(
-                  controller: scrollController,
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12.0,
-                  mainAxisSpacing: 12.0,
-                  childAspectRatio: 0.9,
-                  children: [
-                    _buildTemplateItem('Navratri Utsav', AppAssets.festivalNavratriMaa),
-                    _buildTemplateItem('Happy Diwali', AppAssets.festivalDiwaliDiyas),
-                    _buildTemplateItem('Bhai Beej', AppAssets.festivalBhaiBeej),
-                    _buildTemplateItem('Christmas Celebration', AppAssets.festivalChristmasSanta),
-                    _buildTemplateItem('Makar Sankranti', AppAssets.festivalAllMakarSankranti),
-                    _buildTemplateItem('Holi Dhuleti', AppAssets.festivalAllHoli),
-                  ],
-                ),
+                child: AppConfigService.instance.config.templates.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'No templates uploaded from Admin yet.',
+                          style: TextStyle(color: Color(0xFF64748B)),
+                        ),
+                      )
+                    : GridView.count(
+                        controller: scrollController,
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 12.0,
+                        mainAxisSpacing: 12.0,
+                        childAspectRatio: 0.9,
+                        children: AppConfigService.instance.config.templates
+                            .map((tpl) => _buildTemplateItem(
+                                  tpl.name,
+                                  AppConfigService.instance.resolveMediaUrl(
+                                    tpl.thumbnailUrl ?? tpl.backgroundImageUrl,
+                                  ),
+                                ))
+                            .toList(),
+                      ),
               ),
             ],
           ),
@@ -730,13 +746,10 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
   }
 
   Widget _buildAvatarWidget({double size = 36.0}) {
-    ImageProvider avatarProvider;
-    if (_currentUser?.profilePhotoUrl != null &&
-        _currentUser!.profilePhotoUrl!.isNotEmpty) {
-      avatarProvider = AssetImage(_currentUser!.profilePhotoUrl!);
-    } else {
-      avatarProvider = const AssetImage(AppAssets.homeAvatarRahul);
-    }
+    final photoUrl = _currentUser?.profilePhotoUrl;
+    final hasNetworkPhoto = photoUrl != null &&
+        photoUrl.isNotEmpty &&
+        (photoUrl.startsWith('http') || photoUrl.startsWith('/'));
 
     return GestureDetector(
       onTap: () => _showProfileDrawer(context),
@@ -745,6 +758,7 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
+          color: const Color(0xFFEDE9FE),
           border: Border.all(color: const Color(0xFF6D28D9), width: 1.5),
           boxShadow: [
             BoxShadow(
@@ -753,11 +767,22 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
               offset: const Offset(0, 1),
             ),
           ],
-          image: DecorationImage(
-            image: avatarProvider,
-            fit: BoxFit.cover,
-          ),
+          image: hasNetworkPhoto
+              ? DecorationImage(
+                  image: NetworkImage(
+                    AppConfigService.instance.resolveMediaUrl(photoUrl),
+                  ),
+                  fit: BoxFit.cover,
+                )
+              : null,
         ),
+        child: !hasNetworkPhoto
+            ? Icon(
+                Icons.person_rounded,
+                size: size * 0.56,
+                color: const Color(0xFF6D28D9),
+              )
+            : null,
       ),
     );
   }
@@ -1094,11 +1119,14 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
                 topRight: Radius.circular(22.0),
                 bottomRight: Radius.circular(22.0),
               ),
-              child: Image.asset(
-                AppAssets.festivalHeroDancers,
-                fit: BoxFit.cover,
-                alignment: Alignment.centerLeft,
-              ),
+              child: _festivalService.getFeaturedFestival().imageAsset.isNotEmpty
+                  ? Image.network(
+                      _festivalService.getFeaturedFestival().imageAsset,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.centerLeft,
+                      errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                    )
+                  : const SizedBox.shrink(),
             ),
           ),
 

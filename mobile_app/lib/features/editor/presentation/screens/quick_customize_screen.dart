@@ -82,7 +82,7 @@ class _QuickCustomizeScreenState extends State<QuickCustomizeScreen> {
   bool _showLogo = true;
 
   // Personal Assets
-  String _photoAsset = AppAssets.homeAvatarRahul;
+  String _photoAsset = '';
   String _logoAsset = AppAssets.panchayatLogo;
 
   int _selectedNavIndex = 4; // Default to Profile tab as shown in reference
@@ -174,7 +174,7 @@ class _QuickCustomizeScreenState extends State<QuickCustomizeScreen> {
   // ─── PHOTO & LOGO ACTIONS ──────────────────────────────────────────────────
   void _uploadPhoto() {
     setState(() {
-      _photoAsset = AppAssets.homeAvatarRahul;
+      _photoAsset = '';
     });
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -189,7 +189,7 @@ class _QuickCustomizeScreenState extends State<QuickCustomizeScreen> {
 
   void _changePhoto() {
     setState(() {
-      _photoAsset = AppAssets.homeAvatarRahul;
+      _photoAsset = '';
     });
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -267,7 +267,7 @@ class _QuickCustomizeScreenState extends State<QuickCustomizeScreen> {
                 _showContactInfo = true;
                 _showName = true;
                 _showLogo = true;
-                _photoAsset = AppAssets.homeAvatarRahul;
+                _photoAsset = '';
                 _logoAsset = AppAssets.panchayatLogo;
               });
               ScaffoldMessenger.of(context).showSnackBar(

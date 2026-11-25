@@ -653,18 +653,6 @@ class _PosterPreviewScreenState extends State<PosterPreviewScreen> {
               ),
             ),
 
-            // Dandiya couple artwork
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Image.asset(
-                AppAssets.editorDandiyaCouple,
-                fit: BoxFit.contain,
-                errorBuilder: (_, _, _) => const SizedBox.shrink(),
-              ),
-            ),
-
             // Text and layer elements
             for (final element in _project.elements)
               Positioned(

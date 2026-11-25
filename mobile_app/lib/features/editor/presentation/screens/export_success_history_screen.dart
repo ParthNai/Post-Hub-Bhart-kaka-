@@ -212,11 +212,7 @@ class _ExportSuccessHistoryScreenState extends State<ExportSuccessHistoryScreen>
       );
     }
 
-    return Image.asset(
-      AppAssets.editorCanvasNavratri,
-      fit: BoxFit.cover,
-      errorBuilder: (c, o, s) => _buildFallbackThumbnail(),
-    );
+    return _buildFallbackThumbnail();
   }
 
   Widget _buildFallbackThumbnail() {

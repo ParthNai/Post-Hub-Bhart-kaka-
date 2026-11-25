@@ -173,4 +173,84 @@ class AppConfigService {
   /// Helper to check if a screen is visible
   bool isScreenVisible(String key, {bool fallback = true}) =>
       config.isScreenVisible(key, fallback: fallback);
+
+  /// Resolves relative media paths (e.g. /uploaded/... or /templates/...) to full URLs.
+  String resolveMediaUrl(String? path, {String? baseUrlOverride}) {
+    if (path == null) return '';
+    final trimmed = path.trim();
+    if (trimmed.isEmpty) return '';
+    if (trimmed.startsWith('http://') ||
+        trimmed.startsWith('https://') ||
+        trimmed.startsWith('data:') ||
+        trimmed.startsWith('assets/')) {
+      return trimmed;
+    }
+    final base = (baseUrlOverride ?? serverBaseUrl).replaceAll(RegExp(r'/+$'), '');
+    final cleanPath = trimmed.startsWith('/') ? trimmed : '/$trimmed';
+    return '$base$cleanPath';
+  }
+
+  List<String> get _adminApiBases {
+    final bases = <String>{
+      serverBaseUrl.replaceAll(RegExp(r'/+$'), ''),
+      ...candidateUrls,
+    };
+    return bases.toList();
+  }
+
+  /// Fetches live festivals uploaded in the Admin Panel (/adminapi/festival).
+  Future<List<Map<String, dynamic>>> fetchAdminFestivals() async {
+    for (final base in _adminApiBases) {
+      try {
+        final response = await http
+            .get(
+              Uri.parse('$base/adminapi/festival'),
+              headers: const {'Accept': 'application/json'},
+            )
+            .timeout(const Duration(milliseconds: 2500));
+
+        if (response.statusCode == 200) {
+          final decoded = jsonDecode(response.body);
+          final list = decoded is Map<String, dynamic>
+              ? (decoded['data'] as List<dynamic>? ?? const [])
+              : (decoded is List<dynamic> ? decoded : const []);
+          return list.whereType<Map<String, dynamic>>().map((item) {
+            return {
+              ...item,
+              '_resolvedBase': base,
+            };
+          }).toList();
+        }
+      } catch (_) {}
+    }
+    return const [];
+  }
+
+  /// Fetches live sliders / hero banners uploaded in the Admin Panel (/adminapi/slider).
+  Future<List<Map<String, dynamic>>> fetchAdminSliders() async {
+    for (final base in _adminApiBases) {
+      try {
+        final response = await http
+            .get(
+              Uri.parse('$base/adminapi/slider'),
+              headers: const {'Accept': 'application/json'},
+            )
+            .timeout(const Duration(milliseconds: 2500));
+
+        if (response.statusCode == 200) {
+          final decoded = jsonDecode(response.body);
+          final list = decoded is Map<String, dynamic>
+              ? (decoded['data'] as List<dynamic>? ?? const [])
+              : (decoded is List<dynamic> ? decoded : const []);
+          return list.whereType<Map<String, dynamic>>().map((item) {
+            return {
+              ...item,
+              '_resolvedBase': base,
+            };
+          }).toList();
+        }
+      } catch (_) {}
+    }
+    return const [];
+  }
 }

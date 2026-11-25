@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/features/editor/domain/models/download_history_record.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,9 +21,7 @@ class DownloadHistoryService {
     final jsonList = prefs.getStringList(userKey);
 
     if (jsonList == null || jsonList.isEmpty) {
-      final initial = _getDefaultInitialRecords();
-      await saveAll(initial, userId: userId);
-      return initial;
+      return const [];
     }
 
     try {
@@ -35,7 +32,7 @@ class DownloadHistoryService {
       list.sort((a, b) => b.exportedAt.compareTo(a.exportedAt));
       return list;
     } catch (_) {
-      return _getDefaultInitialRecords();
+      return const [];
     }
   }
 
@@ -85,48 +82,4 @@ class DownloadHistoryService {
     await prefs.setStringList(userKey, []);
   }
 
-  /// Default baseline downloads matching the Screen 21 reference image.
-  static List<DownloadHistoryRecord> _getDefaultInitialRecords() {
-    return [
-      DownloadHistoryRecord(
-        id: 'dl_diwali_2025',
-        posterId: 'template_diwali_01',
-        title: 'Diwali Wishes Poster',
-        filePath: '',
-        format: 'JPG',
-        width: 1080,
-        height: 1080,
-        fileSizeBytes: (1.8 * 1024 * 1024).toInt(),
-        exportedAt: DateTime(2025, 10, 8, 16, 15),
-        thumbnailAsset: AppAssets.myDesignHappyDiwali,
-        category: 'Festivals',
-      ),
-      DownloadHistoryRecord(
-        id: 'dl_independence_2025',
-        posterId: 'template_republic_01',
-        title: 'Independence Day Poster',
-        filePath: '',
-        format: 'JPG',
-        width: 1080,
-        height: 1080,
-        fileSizeBytes: (2.1 * 1024 * 1024).toInt(),
-        exportedAt: DateTime(2025, 8, 15, 9, 20),
-        thumbnailAsset: AppAssets.editorCanvasRepublicDay,
-        category: 'National',
-      ),
-      DownloadHistoryRecord(
-        id: 'dl_ganesh_2025',
-        posterId: 'template_ganesh_01',
-        title: 'Ganesh Chaturthi Wishes',
-        filePath: '',
-        format: 'JPG',
-        width: 1080,
-        height: 1080,
-        fileSizeBytes: (1.9 * 1024 * 1024).toInt(),
-        exportedAt: DateTime(2025, 8, 27, 11, 45),
-        thumbnailAsset: AppAssets.festivalAllGanesh,
-        category: 'Festivals',
-      ),
-    ];
-  }
 }

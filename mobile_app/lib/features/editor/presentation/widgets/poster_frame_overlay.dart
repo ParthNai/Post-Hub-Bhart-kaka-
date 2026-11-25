@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/services/app_config_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 
@@ -42,21 +41,18 @@ class PosterFrames {
       name: 'Royal Kesariya',
       previewColor: Color(0xFFEAB308),
       badgeText: 'Admin',
-      imageUrl: AppAssets.frameFestiveGold,
     ),
     const PosterFrameDef(
       id: 'admin_tricolor',
       name: 'Tricolor Leader',
       previewColor: Color(0xFFFF9933),
       badgeText: 'National',
-      imageUrl: AppAssets.frameTricolorLeader,
     ),
     const PosterFrameDef(
       id: 'admin_sarpanch',
       name: 'Gram Panchayat VIP',
       previewColor: Color(0xFF2563EB),
       badgeText: 'VIP',
-      imageUrl: AppAssets.framePanchayatVip,
     ),
     const PosterFrameDef(
       id: 'cutout_leader',

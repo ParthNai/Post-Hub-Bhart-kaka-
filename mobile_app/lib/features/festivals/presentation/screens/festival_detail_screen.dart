@@ -582,7 +582,12 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
               ),
               child: const CircleAvatar(
                 radius: 16.0,
-                backgroundImage: AssetImage(AppAssets.homeAvatarRahul),
+                backgroundColor: Color(0xFFEDE9FE),
+                child: Icon(
+                  Icons.person_rounded,
+                  size: 18.0,
+                  color: Color(0xFF7C3AED),
+                ),
               ),
             ),
           ),
@@ -667,12 +672,14 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                   topRight: Radius.circular(20.0),
                   bottomRight: Radius.circular(20.0),
                 ),
-                child: Image.asset(
-                  AppAssets.festivalDetailHeroDancers,
-                  fit: BoxFit.cover,
-                  alignment: Alignment.centerLeft,
-                  errorBuilder: (_, error, stackTrace) => const SizedBox(),
-                ),
+                child: (_currentFestival.heroBannerAsset?.isNotEmpty == true)
+                    ? Image.network(
+                        _currentFestival.heroBannerAsset!,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.centerLeft,
+                        errorBuilder: (_, error, stackTrace) => const SizedBox(),
+                      )
+                    : const SizedBox(),
               ),
             ),
 
@@ -1423,14 +1430,10 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
               borderRadius: BorderRadius.circular(12.0),
             ),
             padding: const EdgeInsets.all(5.0),
-            child: Image.asset(
-              AppAssets.createOwnPalette,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) => const Icon(
-                Icons.palette_rounded,
-                color: Color(0xFF7C3AED),
-                size: 26.0,
-              ),
+            child: const Icon(
+              Icons.palette_rounded,
+              color: Color(0xFF7C3AED),
+              size: 26.0,
             ),
           ),
           const SizedBox(width: 12.0),
