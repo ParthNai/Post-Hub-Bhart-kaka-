@@ -143,6 +143,9 @@ class AppAssets {
 
   /// Home Screen Redesign Assets (Matching Screen 09 reference media_1795593859021_b9e397cd.jpg)
   static const String homeBannerNavratriHero = 'assets/images/home_banner_navratri_hero.png';
+  static const String homeBannerDiwaliHero = 'assets/images/home_banner_diwali_hero.png';
+  static const String homeBannerRepublicHero = 'assets/images/home_banner_republic_hero.png';
+  static const String homeBannerGaneshHero = 'assets/images/home_banner_ganesh_hero.png';
   static const String homeFestivalNavratriCard = 'assets/images/home_festival_navratri_card.png';
   static const String homeFestivalIndependenceCard = 'assets/images/home_festival_independence_card.png';
   static const String homeFestivalDiwaliCard = 'assets/images/home_festival_diwali_card.png';

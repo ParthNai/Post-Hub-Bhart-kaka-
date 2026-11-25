@@ -627,9 +627,6 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
 
   // 3. Hero Celebration Banner
   Widget _buildHeroBanner(BuildContext context, AppStrings s) {
-    final heroAsset = _currentFestival.heroBannerAsset ??
-        AppAssets.festivalDetailHeroBanner;
-
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -646,34 +643,50 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
         borderRadius: BorderRadius.circular(20.0),
         child: Stack(
           children: [
-            // Background Image / Artwork
+            // Background Gradient
             Positioned.fill(
-              child: Image.asset(
-                heroAsset,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF2E0854), Color(0xFF4C1D95), Color(0xFF6D28D9)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF240046), Color(0xFF3C096C), Color(0xFF5A189A)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
                 ),
               ),
             ),
 
-            // Subtle dark gradient overlay on left for readable white text
+            // Right side dancers artwork (without any baked-in text!)
+            Positioned(
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: 210.0,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(20.0),
+                  bottomRight: Radius.circular(20.0),
+                ),
+                child: Image.asset(
+                  AppAssets.festivalDetailHeroDancers,
+                  fit: BoxFit.cover,
+                  alignment: Alignment.centerLeft,
+                  errorBuilder: (_, error, stackTrace) => const SizedBox(),
+                ),
+              ),
+            ),
+
+            // Left side dark gradient overlay for text readability
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Colors.black.withValues(alpha: 0.72),
-                      Colors.black.withValues(alpha: 0.35),
+                      const Color(0xFF1B0033).withValues(alpha: 0.92),
+                      const Color(0xFF240046).withValues(alpha: 0.70),
                       Colors.transparent,
                     ],
-                    stops: const [0.0, 0.65, 1.0],
+                    stops: const [0.0, 0.55, 1.0],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
@@ -835,68 +848,77 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                   const SizedBox(height: 14.0),
 
                   // Two Action Buttons: Explore Designs -> & Share Festival
-                  Wrap(
-                    spacing: 8.0,
-                    runSpacing: 8.0,
+                  Row(
                     children: [
                       // Explore Designs
-                      ElevatedButton(
-                        key: const ValueKey('explore_designs_button'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF6D28D9),
-                          foregroundColor: Colors.white,
-                          elevation: 3.0,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14.0, vertical: 9.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                        ),
-                        onPressed: _scrollToPosterGrid,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Text(
-                              'Explore Designs',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12.0,
-                              ),
+                      Flexible(
+                        child: ElevatedButton(
+                          key: const ValueKey('explore_designs_button'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF7C3AED),
+                            foregroundColor: Colors.white,
+                            elevation: 3.0,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12.0, vertical: 8.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
                             ),
-                            SizedBox(width: 4.0),
-                            Icon(Icons.arrow_forward_rounded, size: 14.0),
-                          ],
+                          ),
+                          onPressed: _scrollToPosterGrid,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Text(
+                                  'Explore Designs',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 12.0,
+                                  ),
+                                ),
+                                SizedBox(width: 4.0),
+                                Icon(Icons.arrow_forward_rounded, size: 13.0),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 8.0),
 
                       // Share Festival
-                      OutlinedButton.icon(
-                        key: const ValueKey('share_festival_button'),
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: const Color(0xFF1E293B),
-                          side: BorderSide.none,
-                          elevation: 2.0,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14.0, vertical: 9.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                      Flexible(
+                        child: OutlinedButton.icon(
+                          key: const ValueKey('share_festival_button'),
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: const Color(0xFF1E293B),
+                            side: BorderSide.none,
+                            elevation: 2.0,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12.0, vertical: 8.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
                           ),
-                        ),
-                        icon: const Icon(
-                          Icons.share_outlined,
-                          size: 14.0,
-                          color: Color(0xFF1E293B),
-                        ),
-                        label: Text(
-                          s.shareFestivalButton,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 12.0,
+                          icon: const Icon(
+                            Icons.share_outlined,
+                            size: 13.0,
                             color: Color(0xFF1E293B),
                           ),
+                          label: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              s.shareFestivalButton,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12.0,
+                                color: Color(0xFF1E293B),
+                              ),
+                            ),
+                          ),
+                          onPressed: _shareFestival,
                         ),
-                        onPressed: _shareFestival,
                       ),
                     ],
                   ),

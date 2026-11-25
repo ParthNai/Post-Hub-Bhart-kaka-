@@ -1078,6 +1078,7 @@ class _MyPostersLibraryScreenState extends State<MyPostersLibraryScreen> {
                     key: Key('menu_${poster.id}'),
                     icon: const Icon(Icons.more_vert_rounded, size: 18, color: _kMutedText),
                     color: Colors.white,
+                    constraints: const BoxConstraints(minWidth: 150.0),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     onSelected: (action) {
                       switch (action) {

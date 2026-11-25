@@ -1153,7 +1153,7 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
       key: ValueKey('menu_btn_${design.id}'),
       icon: const Icon(Icons.more_vert_rounded, size: 18.0, color: Color(0xFF64748B)),
       padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(),
+      constraints: const BoxConstraints(minWidth: 140.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       itemBuilder: (context) => [
         PopupMenuItem(
@@ -1427,42 +1427,41 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
     required bool isSelected,
     required VoidCallback onTap,
   }) {
+    final color = isSelected ? const Color(0xFF6D28D9) : const Color(0xFF64748B);
     return Expanded(
       child: InkWell(
         key: ValueKey('bottom_nav_${label.toLowerCase().replaceAll(' ', '_')}'),
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12.0),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
+        borderRadius: BorderRadius.circular(16.0),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 6.0),
+          decoration: isSelected
+              ? BoxDecoration(
+                  color: const Color(0xFFEDE9FE),
+                  borderRadius: BorderRadius.circular(20.0),
+                )
+              : null,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 icon,
                 size: 22.0,
-                color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFF64748B),
+                color: color,
               ),
               const SizedBox(height: 2.0),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 10.5,
-                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-                  color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFF64748B),
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (isSelected) ...[
-                const SizedBox(height: 2.0),
-                Container(
-                  width: 16.0,
-                  height: 2.0,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF6D28D9),
-                    borderRadius: BorderRadius.circular(1.0),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11.0,
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                    color: color,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ],
+              ),
             ],
           ),
         ),

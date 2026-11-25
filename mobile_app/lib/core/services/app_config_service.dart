@@ -41,6 +41,7 @@ class AppConfigService {
     if (kIsWeb) {
       return const [
         'http://127.0.0.1:3000',
+        'http://localhost:3000',
       ];
     }
     return const [
@@ -55,27 +56,19 @@ class AppConfigService {
 
   /// Determines the best default server host for the current runtime platform:
   /// - Web / Desktop -> http://127.0.0.1:3000 (prevents IPv6 localhost resolution hangs)
-  /// - Android Device -> http://192.168.1.8:3000 (or 127.0.0.1 with adb reverse)
-  /// - Android Device -> http://192.168.0.121:3000 (PC Wi-Fi LAN) or 127.0.0.1 with adb reverse
+  /// - Android Device -> http://192.168.1.8:3000 (or 10.0.2.2 on emulator, 127.0.0.1 with adb reverse)
   String get defaultServerUrl {
     if (kIsWeb) {
       return 'http://127.0.0.1:3000';
     }
     if (Platform.isAndroid) {
       return 'http://192.168.1.8:3000';
-      return 'http://192.168.0.121:3000';
     }
     return 'http://127.0.0.1:3000';
   }
 
-  /// Get current effective server URL (normalizes localhost to 127.0.0.1 on web)
-  String get serverBaseUrl {
-    final raw = _cachedServerUrl ?? defaultServerUrl;
-    if (kIsWeb) {
-      return raw.replaceFirst('://localhost:', '://127.0.0.1:');
-    }
-    return raw;
-  }
+  /// Get current effective server URL
+  String get serverBaseUrl => _cachedServerUrl ?? defaultServerUrl;
 
   /// Updates and persists custom server base URL (e.g. for testing with local IP or production domain)
   Future<void> setServerBaseUrl(String url) async {
@@ -129,66 +122,53 @@ class AppConfigService {
     _isLoading = true;
     _syncError = null;
 
-    final urlsToTry = <String>{
-      serverBaseUrl,
-      ...candidateUrls,
-    }.map((u) => kIsWeb ? u.replaceFirst('://localhost:', '://127.0.0.1:') : u).toSet().toList();
+    final targetUrl = '$serverBaseUrl$configEndpoint';
+    debugPrint('[AppConfigService] Fetching remote screen config from: $targetUrl');
 
-    for (final base in urlsToTry) {
-      final targetUrl = '$base$configEndpoint';
-      try {
-        final response = await http
-            .get(
-              Uri.parse(targetUrl),
-              headers: {
-                'Accept': 'application/json',
-                'Cache-Control': 'no-cache',
-              },
-            )
-            .timeout(const Duration(milliseconds: 2500));
+    try {
+      final response = await http
+          .get(
+            Uri.parse(targetUrl),
+            headers: {
+              'Accept': 'application/json',
+              'Cache-Control': 'no-cache',
+            },
+          )
+          .timeout(const Duration(milliseconds: 3500));
 
-        if (response.statusCode == 200) {
-          final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-          final newConfig = AppRemoteConfig.fromJson(decoded);
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+        final newConfig = AppRemoteConfig.fromJson(decoded);
 
-          _cachedServerUrl = base;
-          configNotifier.value = newConfig;
-          _lastSyncedAt = DateTime.now();
-          _syncError = null;
+        configNotifier.value = newConfig;
+        _lastSyncedAt = DateTime.now();
+        _syncError = null;
 
-          // Persist to local cache for offline startup
-          try {
-            final prefs = await SharedPreferences.getInstance();
-            await prefs.setString(_cacheKey, response.body);
-            await prefs.setString(_customServerUrlKey, base);
-          } catch (_) {}
+        // Persist to local cache for offline startup
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString(_cacheKey, response.body);
+        } catch (_) {}
 
-          debugPrint('[AppConfigService] Successfully synced from $base!');
-          _isLoading = false;
-          return true;
-        }
-      } catch (e) {
-        debugPrint('[AppConfigService] Failed trying $targetUrl: $e');
+        debugPrint('[AppConfigService] Successfully synced ${newConfig.screens.length} screens from admin panel!');
+        _isLoading = false;
+        return true;
+      } else {
+        _syncError = 'Server returned status ${response.statusCode}';
+        debugPrint('[AppConfigService] Server returned error status: ${response.statusCode}');
       }
+    } catch (e) {
+      _syncError = e.toString();
+      debugPrint('[AppConfigService] Network fetch skipped/failed (will use cached/defaults): $e');
+    } finally {
+      _isLoading = false;
     }
 
-    _isLoading = false;
-    _syncError = 'Could not reach server on any candidate URL';
     return false;
   }
 
   /// Helper to get a screen config directly
   RemoteScreenConfig? getScreen(String key) => config.getScreen(key);
-
-  /// Helper to resolve media URLs (handles relative paths from server)
-  String resolveMediaUrl(String? path) {
-    if (path == null || path.isEmpty) return '';
-    if (path.startsWith('http://') || path.startsWith('https://')) {
-      return path;
-    }
-    final cleanPath = path.startsWith('/') ? path : '/$path';
-    return '$serverBaseUrl$cleanPath';
-  }
 
   /// Helper to check if a screen is visible
   bool isScreenVisible(String key, {bool fallback = true}) =>

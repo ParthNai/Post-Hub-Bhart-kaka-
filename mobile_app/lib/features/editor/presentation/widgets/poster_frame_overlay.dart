@@ -999,7 +999,7 @@ class PosterFrameOverlay extends StatelessWidget {
             textValue = map['defaultText']?.toString() ?? 'જય શ્રી રામ';
             defaultColor = Colors.white;
           } else if (vName == 'email') {
-            textValue = user?.email ?? '';
+            textValue = map['defaultText']?.toString() ?? '';
             defaultColor = Colors.white;
           } else {
             textValue = map['title']?.toString() ?? '';

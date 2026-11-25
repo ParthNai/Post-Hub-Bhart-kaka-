@@ -50,14 +50,17 @@ class AuthService {
     return sha256.convert(bytes).toString();
   }
 
-  /// Validates password policy: any password is valid as long as non-empty.
-  static bool validatePasswordMinLength(String password) => password.isNotEmpty;
+  /// Validates password policy:
+  /// - At least 8 characters
+  /// Guidelines suggest uppercase, lowercase, and numeric digits.
+  static bool validatePasswordMinLength(String password) => password.length >= 8;
 
-  static bool validatePasswordCases(String password) => true;
+  static bool validatePasswordCases(String password) =>
+      RegExp(r'[a-z]').hasMatch(password) && RegExp(r'[A-Z]').hasMatch(password);
 
-  static bool validatePasswordNumber(String password) => true;
+  static bool validatePasswordNumber(String password) => RegExp(r'[0-9]').hasMatch(password);
 
-  static bool isPasswordValid(String password) => password.trim().isNotEmpty;
+  static bool isPasswordValid(String password) => validatePasswordMinLength(password);
 
   /// Validates username format: alphanumeric + underscores, 3 to 30 characters.
   static bool isUsernameFormatValid(String username) {
@@ -322,24 +325,26 @@ class AuthService {
     final users = await _getAllUsers();
 
     final user = users[cleanLower];
-    if (user != null) {
-      if (user.status != 'active') {
-        throw AuthException('This account has been disabled or suspended.');
-      }
-      final hash = hashPassword(password);
-      if (user.passwordHash != hash && password != '1234') {
-        throw AuthException('Invalid password.');
-      }
-
-      final now = DateTime.now();
-      final token = 'session_${user.userId}_${now.millisecondsSinceEpoch}';
-      final expiry = rememberMe ? now.add(const Duration(days: 30)) : now.add(const Duration(days: 1));
-      await _sessionService.saveSession(token: token, userId: user.userId, expiry: expiry);
-
-      return user;
+    if (user == null) {
+      throw AuthException('User "$username" does not exist.');
     }
 
-    throw AuthException('User "$username" does not exist.');
+    if (user.status != 'active') {
+      throw AuthException('This account has been disabled or suspended.');
+    }
+
+    final hash = hashPassword(password);
+    if (user.passwordHash != hash && password != '1234') {
+      throw AuthException('Invalid password.');
+    }
+
+    // Save active session
+    final now = DateTime.now();
+    final token = 'session_${user.userId}_${now.millisecondsSinceEpoch}';
+    final expiry = rememberMe ? now.add(const Duration(days: 30)) : now.add(const Duration(days: 1));
+    await _sessionService.saveSession(token: token, userId: user.userId, expiry: expiry);
+
+    return user;
   }
 
   /// Submits an account recovery / password reset request.
