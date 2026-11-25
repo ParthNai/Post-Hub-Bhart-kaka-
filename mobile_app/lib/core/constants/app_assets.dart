@@ -140,4 +140,19 @@ class AppAssets {
 
   /// Approved UI reference for Screen 22 My Posters – Saved Drafts & Poster Library.
   static const String screen22Reference = 'assets/images/screen_22_reference.jpg';
+
+  /// Home Screen Redesign Assets (Matching Screen 09 reference media_1795593859021_b9e397cd.jpg)
+  static const String homeBannerNavratriHero = 'assets/images/home_banner_navratri_hero.png';
+  static const String homeFestivalNavratriCard = 'assets/images/home_festival_navratri_card.png';
+  static const String homeFestivalIndependenceCard = 'assets/images/home_festival_independence_card.png';
+  static const String homeFestivalDiwaliCard = 'assets/images/home_festival_diwali_card.png';
+  static const String homeFestivalGaneshCard = 'assets/images/home_festival_ganesh_card.png';
+  static const String homeCreateFestivalThumb = 'assets/images/home_create_festival_thumb.png';
+  static const String homeCreatePanchayatThumb = 'assets/images/home_create_panchayat_thumb.png';
+  static const String homeAiWandThumb = 'assets/images/home_ai_wand_thumb.png';
+  static const String homeTemplateSarkariYojana = 'assets/images/home_template_sarkari_yojana.png';
+  static const String homeTemplateSuvichar = 'assets/images/home_template_suvichar.png';
+  static const String homeTemplateAtmanirbhar = 'assets/images/home_template_atmanirbhar.png';
+  static const String homeTemplateGoodMorning = 'assets/images/home_template_good_morning.png';
+  static const String homeTemplateGoodNight = 'assets/images/home_template_good_night.png';
 }
