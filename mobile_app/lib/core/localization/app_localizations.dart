@@ -510,6 +510,34 @@ class AppStrings {
     required this.noDownloadsYet,
     required this.noDownloadsSubtitle,
     required this.createPosterButton,
+    // Screen 22: My Posters – Saved Drafts & Poster Library
+    required this.myPostersTitle,
+    required this.myPostersSubtitle,
+    required this.totalPostersLabel,
+    required this.draftsLabel,
+    required this.completedLabel,
+    required this.exportedStatusLabel,
+    required this.allPostersTab,
+    required this.searchPostersHint,
+    required this.filterLabel,
+    required this.allDatesLabel,
+    required this.sortByRecentlyUpdated,
+    required this.sortByOldestFirst,
+    required this.sortByName,
+    required this.openInEditorAction,
+    required this.previewPosterAction,
+    required this.duplicatePosterAction,
+    required this.renamePosterAction,
+    required this.exportPosterAction,
+    required this.deletePosterAction,
+    required this.yourPosterLibraryIsEmpty,
+    required this.startCreatingFirstPoster,
+    required this.noSavedDraftsYet,
+    required this.noExportedPostersYet,
+    required this.noPostersFound,
+    required this.renamePosterTitle,
+    required this.enterNewPosterTitle,
+    required this.deletePosterConfirmMessage,
   });
 
   final String languageName;
@@ -1034,6 +1062,35 @@ class AppStrings {
   final String noDownloadsSubtitle;
   final String createPosterButton;
 
+  // Screen 22: My Posters – Saved Drafts & Poster Library
+  final String myPostersTitle;
+  final String myPostersSubtitle;
+  final String totalPostersLabel;
+  final String draftsLabel;
+  final String completedLabel;
+  final String exportedStatusLabel;
+  final String allPostersTab;
+  final String searchPostersHint;
+  final String filterLabel;
+  final String allDatesLabel;
+  final String sortByRecentlyUpdated;
+  final String sortByOldestFirst;
+  final String sortByName;
+  final String openInEditorAction;
+  final String previewPosterAction;
+  final String duplicatePosterAction;
+  final String renamePosterAction;
+  final String exportPosterAction;
+  final String deletePosterAction;
+  final String yourPosterLibraryIsEmpty;
+  final String startCreatingFirstPoster;
+  final String noSavedDraftsYet;
+  final String noExportedPostersYet;
+  final String noPostersFound;
+  final String renamePosterTitle;
+  final String enterNewPosterTitle;
+  final String deletePosterConfirmMessage;
+
   static const String defaultLanguageCode = 'gu';
 
   static final Map<String, AppStrings> _localizedValues = {
@@ -1545,6 +1602,34 @@ class AppStrings {
       noDownloadsYet: 'હજુ સુધી કોઈ ડાઉનલોડ નથી',
       noDownloadsSubtitle: 'તમારા એક્સપોર્ટ કરેલા પોસ્ટર્સ અહીં દેખાશે.',
       createPosterButton: 'પોસ્ટર બનાવો',
+      // Screen 22: My Posters
+      myPostersTitle: 'મારા પોસ્ટર્સ',
+      myPostersSubtitle: 'તમારી બધી ડિઝાઇન્સ એક જ જગ્યાએ',
+      totalPostersLabel: 'કુલ પોસ્ટર્સ',
+      draftsLabel: 'ડ્રાફ્ટ્સ',
+      completedLabel: 'પૂર્ણ',
+      exportedStatusLabel: 'એક્સપોર્ટ કરેલ',
+      allPostersTab: 'બધા પોસ્ટર્સ',
+      searchPostersHint: 'તમારા પોસ્ટર્સ શોધો...',
+      filterLabel: 'ફિલ્ટર',
+      allDatesLabel: 'બધી તારીખો',
+      sortByRecentlyUpdated: 'સોર્ટ: તાજેતરમાં અપડેટ કરેલ',
+      sortByOldestFirst: 'સોર્ટ: સૌથી જૂના પ્રથમ',
+      sortByName: 'સોર્ટ: નામ A-Z',
+      openInEditorAction: 'એડિટરમાં ખોલો',
+      previewPosterAction: 'પ્રિવ્યૂ',
+      duplicatePosterAction: 'ડુપ્લિકેટ',
+      renamePosterAction: 'નામ બદલો',
+      exportPosterAction: 'એક્સપોર્ટ',
+      deletePosterAction: 'કાઢી નાખો',
+      yourPosterLibraryIsEmpty: 'તમારી પોસ્ટર લાયબ્રેરી ખાલી છે',
+      startCreatingFirstPoster: 'તમારું પ્રથમ પોસ્ટર બનાવવાનું શરૂ કરો અને તે અહીં દેખાશે.',
+      noSavedDraftsYet: 'હજુ સુધી કોઈ સેવ કરેલ ડ્રાફ્ટ્સ નથી',
+      noExportedPostersYet: 'હજુ સુધી કોઈ એક્સપોર્ટ કરેલ પોસ્ટર્સ નથી',
+      noPostersFound: 'કોઈ પોસ્ટર મળ્યા નથી',
+      renamePosterTitle: 'પોસ્ટરનું નામ બદલો',
+      enterNewPosterTitle: 'નવું શીર્ષક દાખલ કરો',
+      deletePosterConfirmMessage: 'શું તમે ખરેખર આ પોસ્ટર કાઢી નાખવા માંગો છો?',
     ),
     'hi': AppStrings(
       languageName: 'हिंदी',
@@ -2054,6 +2139,34 @@ class AppStrings {
       noDownloadsYet: 'अभी तक कोई डाउनलोड नहीं',
       noDownloadsSubtitle: 'आपके निर्यात किए गए पोस्टर यहां दिखाई देंगे।',
       createPosterButton: 'पोस्टर बनाएं',
+      // Screen 22: My Posters
+      myPostersTitle: 'मेरे पोस्टर्स',
+      myPostersSubtitle: 'आपके सभी डिज़ाइन्स एक ही स्थान पर',
+      totalPostersLabel: 'कुल पोस्टर्स',
+      draftsLabel: 'ड्राफ्ट्स',
+      completedLabel: 'पूर्ण',
+      exportedStatusLabel: 'निर्यातित',
+      allPostersTab: 'सभी पोस्टर्स',
+      searchPostersHint: 'अपने पोस्टर्स खोजें...',
+      filterLabel: 'फ़िल्टर',
+      allDatesLabel: 'सभी तिथियां',
+      sortByRecentlyUpdated: 'क्रमबद्ध: हाल ही में अपडेट किया गया',
+      sortByOldestFirst: 'क्रमबद्ध: सबसे पुराना पहले',
+      sortByName: 'क्रमबद्ध: नाम A-Z',
+      openInEditorAction: 'एडिटर में खोलें',
+      previewPosterAction: 'पूर्वावलोकन',
+      duplicatePosterAction: 'डुप्लिकेट',
+      renamePosterAction: 'नाम बदलें',
+      exportPosterAction: 'निर्यात',
+      deletePosterAction: 'हटाएं',
+      yourPosterLibraryIsEmpty: 'आपकी पोस्टर लाइब्रेरी खाली है',
+      startCreatingFirstPoster: 'अपना पहला पोस्टर बनाना शुरू करें और यह यहाँ दिखाई देगा।',
+      noSavedDraftsYet: 'अभी तक कोई सहेजा गया ड्राफ्ट नहीं है',
+      noExportedPostersYet: 'अभी तक कोई निर्यातित पोस्टर नहीं है',
+      noPostersFound: 'कोई पोस्टर नहीं मिला',
+      renamePosterTitle: 'पोस्टर का नाम बदलें',
+      enterNewPosterTitle: 'नया शीर्षक दर्ज करें',
+      deletePosterConfirmMessage: 'क्या आप वाकई इस पोस्टर को हटाना चाहते हैं?',
     ),
     'en': AppStrings(
       languageName: 'English',
@@ -2563,6 +2676,34 @@ class AppStrings {
       noDownloadsYet: 'No Downloads Yet',
       noDownloadsSubtitle: 'Your exported posters will appear here.',
       createPosterButton: 'Create Poster',
+      // Screen 22: My Posters
+      myPostersTitle: 'My Posters',
+      myPostersSubtitle: 'All your designs, in one place',
+      totalPostersLabel: 'Total Posters',
+      draftsLabel: 'Drafts',
+      completedLabel: 'Completed',
+      exportedStatusLabel: 'Exported',
+      allPostersTab: 'All Posters',
+      searchPostersHint: 'Search your posters...',
+      filterLabel: 'Filter',
+      allDatesLabel: 'All Dates',
+      sortByRecentlyUpdated: 'Sort by: Recently Updated',
+      sortByOldestFirst: 'Sort by: Oldest First',
+      sortByName: 'Sort by: Name A-Z',
+      openInEditorAction: 'Open in Editor',
+      previewPosterAction: 'Preview',
+      duplicatePosterAction: 'Duplicate',
+      renamePosterAction: 'Rename',
+      exportPosterAction: 'Export',
+      deletePosterAction: 'Delete',
+      yourPosterLibraryIsEmpty: 'Your Poster Library is Empty',
+      startCreatingFirstPoster: 'Start creating your first poster and it will appear here.',
+      noSavedDraftsYet: 'No Saved Drafts Yet',
+      noExportedPostersYet: 'No Exported Posters Yet',
+      noPostersFound: 'No Posters Found',
+      renamePosterTitle: 'Rename Poster',
+      enterNewPosterTitle: 'Enter new title',
+      deletePosterConfirmMessage: 'Are you sure you want to delete this poster?',
     ),
   };
 

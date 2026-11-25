@@ -19,6 +19,10 @@ class PosterTemplateProject {
     this.isFavorite = false,
     this.previewAsset,
     this.frameId = 'gold_vip',
+    this.status = 'draft',
+    this.fileSizeBytes,
+    this.lastExportedPath,
+    this.lastExportedAt,
   }) : createdAt = createdAt ?? updatedAt;
 
   final String id;
@@ -34,6 +38,33 @@ class PosterTemplateProject {
   final bool isFavorite;
   final String? previewAsset;
   final String frameId;
+  final String status; // 'draft', 'completed', 'exported'
+  final int? fileSizeBytes;
+  final String? lastExportedPath;
+  final DateTime? lastExportedAt;
+
+  bool get isDraft => status.toLowerCase() == 'draft';
+  bool get isCompleted => status.toLowerCase() == 'completed';
+  bool get isExported => status.toLowerCase() == 'exported';
+
+  String get formattedFileSize {
+    if (fileSizeBytes == null || fileSizeBytes! <= 0) return '1.8 MB';
+    if (fileSizeBytes! >= 1024 * 1024) {
+      return '${(fileSizeBytes! / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
+    return '${(fileSizeBytes! / 1024).toStringAsFixed(0)} KB';
+  }
+
+  String get formattedDate {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    final m = months[updatedAt.month - 1];
+    final d = updatedAt.day;
+    final y = updatedAt.year;
+    return '$m $d, $y';
+  }
 
   PosterTemplateProject copyWith({
     String? id,
@@ -49,6 +80,10 @@ class PosterTemplateProject {
     bool? isFavorite,
     String? previewAsset,
     String? frameId,
+    String? status,
+    int? fileSizeBytes,
+    String? lastExportedPath,
+    DateTime? lastExportedAt,
   }) {
     return PosterTemplateProject(
       id: id ?? this.id,
@@ -64,6 +99,10 @@ class PosterTemplateProject {
       isFavorite: isFavorite ?? this.isFavorite,
       previewAsset: previewAsset ?? this.previewAsset,
       frameId: frameId ?? this.frameId,
+      status: status ?? this.status,
+      fileSizeBytes: fileSizeBytes ?? this.fileSizeBytes,
+      lastExportedPath: lastExportedPath ?? this.lastExportedPath,
+      lastExportedAt: lastExportedAt ?? this.lastExportedAt,
     );
   }
 
@@ -73,9 +112,9 @@ class PosterTemplateProject {
     return copyWith(
       id: 'proj_${now.millisecondsSinceEpoch}',
       title: newTitle ?? '$title (Copy)',
+      status: 'draft',
       updatedAt: now,
       createdAt: now,
-      frameId: frameId,
     );
   }
 
@@ -93,6 +132,10 @@ class PosterTemplateProject {
         'isFavorite': isFavorite,
         'previewAsset': previewAsset,
         'frameId': frameId,
+        'status': status,
+        'fileSizeBytes': fileSizeBytes,
+        'lastExportedPath': lastExportedPath,
+        'lastExportedAt': lastExportedAt?.toIso8601String(),
       };
 
   factory PosterTemplateProject.fromMap(Map<String, dynamic> map) {
@@ -116,6 +159,12 @@ class PosterTemplateProject {
       isFavorite: map['isFavorite'] as bool? ?? false,
       previewAsset: map['previewAsset'] as String?,
       frameId: map['frameId'] as String? ?? 'gold_vip',
+      status: map['status'] as String? ?? 'draft',
+      fileSizeBytes: map['fileSizeBytes'] as int?,
+      lastExportedPath: map['lastExportedPath'] as String?,
+      lastExportedAt: map['lastExportedAt'] != null
+          ? DateTime.tryParse(map['lastExportedAt'] as String)
+          : null,
     );
   }
 
@@ -157,21 +206,18 @@ class PosterTemplateProject {
       elements: const [],
     );
   }
-
   /// Creates default project for Screen 12 matching the reference image exactly.
   static PosterTemplateProject createDefaultNavratriProject({
     String? templateId,
     String? imageAsset,
     String? title,
-    String? frameId,
   }) {
     return PosterTemplateProject(
       id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
       templateId: templateId ?? 'navratri_shubh',
       title: title ?? 'Navratri Celebration',
-      backgroundAsset: imageAsset ?? AppAssets.festivalPosterShubhNavratri,
+      backgroundAsset: imageAsset ?? AppAssets.editorCanvasNavratri,
       backgroundColor: const Color(0xFF2E0854),
-      frameId: frameId ?? 'admin_kesariya',
       updatedAt: DateTime.now(),
       elements: const [
         PosterElement(

@@ -12,6 +12,7 @@ import 'package:panchayat_post/features/editor/presentation/screens/poster_previ
 import 'package:panchayat_post/features/editor/presentation/screens/final_poster_preview_screen.dart';
 import 'package:panchayat_post/features/editor/presentation/screens/export_poster_screen.dart';
 import 'package:panchayat_post/features/editor/presentation/screens/export_success_history_screen.dart';
+import 'package:panchayat_post/features/editor/presentation/screens/my_posters_library_screen.dart';
 import 'package:panchayat_post/features/editor/presentation/screens/quick_customize_screen.dart';
 import 'package:panchayat_post/features/festivals/presentation/screens/festival_detail_screen.dart';
 import 'package:panchayat_post/features/festivals/presentation/screens/festivals_screen.dart';
@@ -89,6 +90,9 @@ class AppRoutes {
   static const String exportSuccess = '/export-success';
   static const String myDownloads = '/my-downloads';
 
+  /// Screen 22: My Posters – Saved Drafts & Poster Library
+  static const String myPosters = '/my-posters';
+
   /// Route generator map
   static Map<String, WidgetBuilder> get routes => {
         splash: (context) => const SplashScreen(),
@@ -110,6 +114,7 @@ class AppRoutes {
         myDownloads: (context) => const ExportSuccessHistoryScreen(),
         posterPreview: (context) => const PosterPreviewScreen(),
         myDesigns: (context) => const MyDesignsScreen(),
+        myPosters: (context) => const MyPostersLibraryScreen(),
         profile: (context) => const ProfileScreen(),
         settings: (context) => const SettingsScreen(),
         quickCustomize: (context) => const QuickCustomizeScreen(),

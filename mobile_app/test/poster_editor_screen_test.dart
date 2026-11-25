@@ -80,16 +80,11 @@ void main() {
       // 4. Customize Your Design Section & Tabs
       expect(find.byKey(const ValueKey('customize_your_design_title')), findsOneWidget);
       expect(find.text('Customize Your Design'), findsOneWidget);
-      expect(find.byKey(const ValueKey('tab_frames')), findsOneWidget);
       expect(find.byKey(const ValueKey('tab_text')), findsOneWidget);
       expect(find.byKey(const ValueKey('tab_images')), findsOneWidget);
       expect(find.byKey(const ValueKey('tab_colors')), findsOneWidget);
       expect(find.byKey(const ValueKey('tab_background')), findsOneWidget);
       expect(find.byKey(const ValueKey('tab_fonts')), findsOneWidget);
-
-      // Switch to Text tab to verify text editing controls
-      await tester.tap(find.byKey(const ValueKey('tab_text')));
-      await tester.pumpAndSettle();
 
       // 5. Active Editing Controls Panel (Text Tab)
       expect(find.byKey(const ValueKey('input_headline_text')), findsOneWidget);
@@ -113,10 +108,6 @@ void main() {
       await tester.pumpWidget(
         buildTestablePosterEditorScreen(localeController: englishController),
       );
-      await tester.pumpAndSettle();
-
-      // Switch to text tab
-      await tester.tap(find.byKey(const ValueKey('tab_text')));
       await tester.pumpAndSettle();
 
       // Scroll to headline input

@@ -137,4 +137,7 @@ class AppAssets {
 
   /// Approved UI reference for Screen 21 Export Success & Download History.
   static const String screen21Reference = 'assets/images/screen_21_reference.jpg';
+
+  /// Approved UI reference for Screen 22 My Posters – Saved Drafts & Poster Library.
+  static const String screen22Reference = 'assets/images/screen_22_reference.jpg';
 }

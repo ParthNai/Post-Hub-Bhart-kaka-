@@ -490,7 +490,7 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
                         style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
                     onPressed: () {
                       Navigator.of(ctx).pop();
-                      final project = PosterTemplateProject.createFromFestivalTemplate(
+                      final project = PosterTemplateProject.createDefaultNavratriProject(
                         templateId: 'festival_${festival.id}',
                         imageAsset: festival.imageAsset,
                         title: festival.name,
@@ -611,7 +611,7 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pop();
-        final project = PosterTemplateProject.createFromFestivalTemplate(
+        final project = PosterTemplateProject.createDefaultNavratriProject(
           templateId: 'tpl_${title.toLowerCase().replaceAll(' ', '_')}',
           imageAsset: asset,
           title: title,

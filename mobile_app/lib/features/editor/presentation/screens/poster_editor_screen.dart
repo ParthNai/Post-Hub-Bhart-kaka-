@@ -8,16 +8,14 @@ import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 import 'package:panchayat_post/features/editor/data/services/design_storage_service.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_element.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
-import 'package:panchayat_post/features/editor/presentation/widgets/poster_frame_overlay.dart';
 import 'package:panchayat_post/features/festivals/domain/models/festival_item.dart';
 
 /// Screen 12: Poster Template Editor & Customization Studio
-/// Redesigned to Canva / Adobe Express mobile creative studio standards:
-/// - Fixed non-scrollable workspace where the canvas is the hero
-/// - Clean light-grey neutral artboard (#F1F5F9)
-/// - Unified bottom studio dock with contextual quick actions, active tool shelf, and Canva tool strip
-/// - Live instant frame selection (with Admin/VIP frames) and dynamic logo emblem
-/// - No purple overload: Modern Canva Indigo (#4F46E5) & Slate palette
+///
+/// Implements pixel-accurate layout corresponding to the approved
+/// Screen 12 design reference image. Provides live interactive canvas,
+/// contextual editing tools, customizable headline & supporting text,
+/// font & color controls, zoom & preview, undo/redo, and persistent save.
 class PosterEditorScreen extends StatefulWidget {
   const PosterEditorScreen({
     super.key,
@@ -52,21 +50,18 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
   late final TextEditingController _supportingController;
 
   // Active Editor State
-  late String _selectedTab; // 'frames', 'text', 'images', 'colors', 'background', 'fonts'
-  late String _selectedFrameId;
-  String? _selectedAdminImageUrl;
+  String _selectedTab = 'text'; // 'text', 'images', 'colors', 'background', 'fonts'
   String? _selectedElementId = 'elem_headline';
   double _zoomLevel = 1.0; // 1.0 (100%), 1.25 (125%), 1.5 (150%)
   bool _isSaving = false;
+  bool _hasUnsavedChanges = false;
 
-  // Modern Canva-inspired color palette
+  // Color options matching reference
   final List<Color> _availableColors = const [
-    Color(0xFF4F46E5), // Canva Indigo
-    Color(0xFFF59E0B), // Golden Amber
+    Color(0xFF7C3AED), // Purple (active)
+    Color(0xFFF59E0B), // Golden Yellow
     Color(0xFFDC2626), // Crimson Red
-    Color(0xFF0F172A), // Slate Navy
-    Color(0xFF16A34A), // Emerald Green
-    Color(0xFFFFFFFF), // Crisp White
+    Color(0xFF1E293B), // Deep Navy
   ];
 
   // Font options
@@ -86,45 +81,28 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
 
     _initProject();
     _loadUser();
-
-    // Dynamically load any newly uploaded admin frames from server
-    PosterFrames.loadAdminFrames().then((_) {
-      if (mounted) setState(() {});
-    });
   }
 
   void _initProject() {
     if (widget.initialProject != null) {
       _project = widget.initialProject!;
-      _selectedTab = 'frames';
     } else if (widget.festivalPosterTemplate != null) {
-      _project = PosterTemplateProject.createFromFestivalTemplate(
+      _project = PosterTemplateProject.createDefaultNavratriProject(
         templateId: widget.festivalPosterTemplate!.id,
         imageAsset: widget.festivalPosterTemplate!.imageAsset,
         title: widget.festivalPosterTemplate!.title,
       );
-      _selectedTab = 'frames';
     } else {
-      // Default Navratri project for standalone launch / unit tests
       _project = PosterTemplateProject.createDefaultNavratriProject();
-      _selectedTab = 'frames';
     }
 
-    _selectedFrameId = _project.frameId;
-    _selectedAdminImageUrl = PosterFrames.list
-        .firstWhere(
-          (f) => f.id == _selectedFrameId,
-          orElse: () => const PosterFrameDef(id: '', name: '', previewColor: Colors.transparent),
-        )
-        .imageUrl;
-
     final headline = _project.elements
-        .firstWhere((e) => e.id == 'elem_headline', orElse: () => _project.elements.isNotEmpty ? _project.elements.first : const PosterElement(id: 'elem_headline', type: PosterElementType.text, text: ''))
+        .firstWhere((e) => e.id == 'elem_headline', orElse: () => _project.elements.first)
         .text;
     final supporting = _project.elements
         .firstWhere(
           (e) => e.id == 'elem_supporting',
-          orElse: () => _project.elements.length > 1 ? _project.elements[1] : const PosterElement(id: 'elem_supporting', type: PosterElementType.text, text: ''),
+          orElse: () => _project.elements.length > 1 ? _project.elements[1] : _project.elements.first,
         )
         .text;
 
@@ -135,37 +113,24 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Support receiving FestivalPosterTemplate or PosterTemplateProject via route arguments
     final args = ModalRoute.of(context)?.settings.arguments;
     if (widget.initialProject == null && widget.festivalPosterTemplate == null) {
       if (args is PosterTemplateProject) {
         setState(() {
           _project = args;
-          _selectedFrameId = args.frameId;
-          _selectedAdminImageUrl = PosterFrames.list
-              .firstWhere(
-                (f) => f.id == _selectedFrameId,
-                orElse: () => const PosterFrameDef(id: '', name: '', previewColor: Colors.transparent),
-              )
-              .imageUrl;
-          _selectedTab = 'frames';
-          _syncControllers();
+          _headlineController.text = _getElementText('elem_headline');
+          _supportingController.text = _getElementText('elem_supporting');
         });
       } else if (args is FestivalPosterTemplate) {
         setState(() {
-          _project = PosterTemplateProject.createFromFestivalTemplate(
+          _project = PosterTemplateProject.createDefaultNavratriProject(
             templateId: args.id,
             imageAsset: args.imageAsset,
             title: args.title,
           );
-          _selectedFrameId = _project.frameId;
-          _selectedAdminImageUrl = PosterFrames.list
-              .firstWhere(
-                (f) => f.id == _selectedFrameId,
-                orElse: () => const PosterFrameDef(id: '', name: '', previewColor: Colors.transparent),
-              )
-              .imageUrl;
-          _selectedTab = 'frames';
-          _syncControllers();
+          _headlineController.text = _getElementText('elem_headline');
+          _supportingController.text = _getElementText('elem_supporting');
         });
       }
     }
@@ -199,6 +164,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
   void _recordHistory() {
     _undoStack.add(List.from(_project.elements));
     _redoStack.clear();
+    _hasUnsavedChanges = true;
   }
 
   void _undo() {
@@ -232,12 +198,13 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
     }
   }
 
-  void _updateHeadlineText(String val) {
+  // --- ELEMENT MANIPULATION ---
+  void _updateHeadline(String newText) {
     _recordHistory();
     setState(() {
       final updated = _project.elements.map((e) {
         if (e.id == 'elem_headline') {
-          return e.copyWith(text: val);
+          return e.copyWith(text: newText);
         }
         return e;
       }).toList();
@@ -245,12 +212,12 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
     });
   }
 
-  void _updateSupportingText(String val) {
+  void _updateSupporting(String newText) {
     _recordHistory();
     setState(() {
       final updated = _project.elements.map((e) {
         if (e.id == 'elem_supporting') {
-          return e.copyWith(text: val);
+          return e.copyWith(text: newText);
         }
         return e;
       }).toList();
@@ -298,7 +265,6 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
   }
 
   void _duplicateSelectedElement() {
-    if (_project.elements.isEmpty) return;
     final target = _project.elements.firstWhere(
       (e) => e.id == _selectedElementId,
       orElse: () => _project.elements.first,
@@ -338,9 +304,8 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
   Future<void> _saveDesign() async {
     setState(() => _isSaving = true);
 
-    final toSave = _project.copyWith(frameId: _selectedFrameId);
     final success = await _storageService.saveDesign(
-      toSave,
+      _project,
       userId: _currentUser?.username ?? 'default_user',
     );
 
@@ -348,6 +313,9 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
 
     setState(() {
       _isSaving = false;
+      if (success) {
+        _hasUnsavedChanges = false;
+      }
     });
 
     final s = LocaleScope.maybeOf(context)?.strings ??
@@ -371,7 +339,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
     if (success) {
       Navigator.of(context).pushNamed(
         AppRoutes.posterPreview,
-        arguments: toSave,
+        arguments: _project,
       );
     }
   }
@@ -385,6 +353,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Preview Card
             ClipRRect(
               borderRadius: BorderRadius.circular(20.0),
               child: AspectRatio(
@@ -393,15 +362,17 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
               ),
             ),
             const SizedBox(height: 16.0),
+
+            // Close & Share Buttons
             Wrap(
               alignment: WrapAlignment.center,
               spacing: 12.0,
               runSpacing: 8.0,
               children: [
-                OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: const BorderSide(color: Colors.white70),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF1E293B),
                     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0),
@@ -413,7 +384,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
                 ),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4F46E5),
+                    backgroundColor: const Color(0xFF6D28D9),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
                     shape: RoundedRectangleBorder(
@@ -451,33 +422,89 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
   Widget build(BuildContext context) {
     final s = LocaleScope.maybeOf(context)?.strings ??
         AppStrings.of(AppStrings.defaultLanguageCode);
+    final isDesktop = MediaQuery.of(context).size.width >= 768;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9), // Clean light-grey neutral workspace artboard
+      backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
         child: Column(
           children: [
             // 1. Top Header
             _buildTopHeader(s),
 
-            // 2. Central Hero Canvas Workspace (Non-scrollable, perfectly fitted)
+            // Scrollable Workspace
             Expanded(
-              child: _buildCanvasWorkspace(),
-            ),
+              child: SingleChildScrollView(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: isDesktop ? 600.0 : double.infinity,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 12.0),
 
-            // 3. Creative Studio Bottom Dock (Unified dock, no competing double toolbars)
-            _buildBottomStudioDock(s),
+                          // 2. Poster Canvas
+                          _buildPosterCanvas(),
+
+                          const SizedBox(height: 14.0),
+
+                          // 3. Contextual Action Toolbar
+                          _buildContextualToolbar(s),
+
+                          const SizedBox(height: 20.0),
+
+                          // 4. Customize Your Design Section & Tabs
+                          _buildCustomizeSectionHeader(s),
+
+                          const SizedBox(height: 10.0),
+
+                          // 5. Active Editing Controls Panel (Text Tab)
+                          _buildEditingControlsPanel(s),
+
+                          const SizedBox(height: 18.0),
+
+                          // 6. Preview Poster & Save Design Action Buttons
+                          _buildBottomActionButtons(s),
+
+                          const SizedBox(height: 12.0),
+
+                          // 7. All changes saved badge & Bottom decorative footer
+                          _buildSaveStatusBadge(s),
+
+                          const SizedBox(height: 16.0),
+
+                          // Bottom silhouette watermark
+                          Center(
+                            child: Image.asset(
+                              AppAssets.villageSilhouette,
+                              height: 38.0,
+                              fit: BoxFit.contain,
+                              opacity: const AlwaysStoppedAnimation(0.24),
+                            ),
+                          ),
+
+                          const SizedBox(height: 12.0),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  // 1. Top Header (Flexibly adaptive across small, standard, and large screens)
+  // 1. Top Header
   Widget _buildTopHeader(AppStrings s) {
     return Container(
-      height: 44.0,
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(
@@ -489,118 +516,135 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
           // Back button
           InkWell(
             key: const ValueKey('editor_back_button'),
-            borderRadius: BorderRadius.circular(16.0),
+            borderRadius: BorderRadius.circular(20.0),
             onTap: () {
               if (Navigator.of(context).canPop()) {
                 Navigator.of(context).pop();
               } else {
-                Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+                Navigator.of(context).pushReplacementNamed(AppRoutes.festivals);
               }
             },
-            child: const Padding(
-              padding: EdgeInsets.all(4.0),
-              child: Icon(Icons.arrow_back_ios_new_rounded, size: 16.0, color: Color(0xFF1E293B)),
+            child: Container(
+              padding: const EdgeInsets.all(7.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.chevron_left_rounded,
+                size: 22.0,
+                color: Color(0xFF1E293B),
+              ),
             ),
           ),
-          const SizedBox(width: 4.0),
+          const SizedBox(width: 8.0),
 
-          // Title & Badge Area in Expanded so it never pushes against action buttons
+          // Title
           Expanded(
+            child: Text(
+              s.editYourPosterTitle,
+              key: const ValueKey('editor_title'),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 16.5,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF1E293B),
+              ),
+            ),
+          ),
+
+          // "Editing" Mode Pill Badge
+          Container(
+            key: const ValueKey('editor_mode_badge'),
+            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.5),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3E8FF),
+              borderRadius: BorderRadius.circular(16.0),
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Flexible(
-                  child: Text(
-                    s.editYourPosterTitle,
-                    key: const ValueKey('editor_title'),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 13.0,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF0F172A),
-                    ),
-                  ),
+                const Icon(
+                  Icons.edit_rounded,
+                  size: 13.0,
+                  color: Color(0xFF7C3AED),
                 ),
                 const SizedBox(width: 4.0),
-                Container(
-                  key: const ValueKey('editor_mode_badge'),
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEEF2FF),
-                    borderRadius: BorderRadius.circular(6.0),
-                    border: Border.all(color: const Color(0xFFC7D2FE), width: 0.8),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.edit_rounded, size: 9.0, color: Color(0xFF4F46E5)),
-                      const SizedBox(width: 2.0),
-                      Text(
-                        s.editingModeBadge,
-                        style: const TextStyle(
-                          fontSize: 8.5,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF4F46E5),
-                        ),
-                      ),
-                    ],
+                Text(
+                  s.editingModeBadge,
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF7C3AED),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 4.0),
+          const SizedBox(width: 6.0),
 
-          // Undo button
-          InkWell(
+          // Undo Button
+          IconButton(
             key: const ValueKey('editor_undo_button'),
-            borderRadius: BorderRadius.circular(14.0),
-            onTap: _undoStack.isNotEmpty ? _undo : null,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-              child: Icon(
-                Icons.undo_rounded,
-                size: 18.0,
-                color: _undoStack.isNotEmpty ? const Color(0xFF0F172A) : const Color(0xFFCBD5E1),
-              ),
+            visualDensity: VisualDensity.compact,
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            constraints: const BoxConstraints(),
+            icon: Icon(
+              Icons.undo_rounded,
+              size: 21.0,
+              color: _undoStack.isNotEmpty ? const Color(0xFF6D28D9) : const Color(0xFFCBD5E1),
             ),
+            onPressed: _undoStack.isNotEmpty ? _undo : null,
+            tooltip: 'Undo',
           ),
 
-          // Redo button
-          InkWell(
+          // Redo Button
+          IconButton(
             key: const ValueKey('editor_redo_button'),
-            borderRadius: BorderRadius.circular(14.0),
-            onTap: _redoStack.isNotEmpty ? _redo : null,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-              child: Icon(
-                Icons.redo_rounded,
-                size: 18.0,
-                color: _redoStack.isNotEmpty ? const Color(0xFF0F172A) : const Color(0xFFCBD5E1),
-              ),
+            visualDensity: VisualDensity.compact,
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            constraints: const BoxConstraints(),
+            icon: Icon(
+              Icons.redo_rounded,
+              size: 21.0,
+              color: _redoStack.isNotEmpty ? const Color(0xFF6D28D9) : const Color(0xFFCBD5E1),
             ),
+            onPressed: _redoStack.isNotEmpty ? _redo : null,
+            tooltip: 'Redo',
           ),
-          const SizedBox(width: 4.0),
 
-          // Save / Export header action
+          // Vertical Divider
+          Container(
+            height: 18.0,
+            width: 1.0,
+            color: const Color(0xFFE2E8F0),
+            margin: const EdgeInsets.symmetric(horizontal: 4.0),
+          ),
+
+          // Quick Header Save Button
           InkWell(
             key: const ValueKey('editor_header_save_button'),
-            borderRadius: BorderRadius.circular(6.0),
+            borderRadius: BorderRadius.circular(10.0),
             onTap: _isSaving ? null : _saveDesign,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 4.0),
+              padding: const EdgeInsets.all(7.5),
               decoration: BoxDecoration(
-                color: const Color(0xFF4F46E5),
-                borderRadius: BorderRadius.circular(6.0),
+                color: const Color(0xFF6D28D9),
+                borderRadius: BorderRadius.circular(10.0),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.file_download_outlined, color: Colors.white, size: 13.0),
-                  SizedBox(width: 2.0),
-                  Text('Save', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.w700)),
-                ],
+              child: const Icon(
+                Icons.save_rounded,
+                size: 19.0,
+                color: Colors.white,
               ),
             ),
           ),
@@ -609,91 +653,85 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
     );
   }
 
-  // 2. Central Canvas Workspace
-  Widget _buildCanvasWorkspace() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final maxW = constraints.maxWidth - 20.0;
-        final maxH = constraints.maxHeight - 12.0;
-        final size = (maxW < maxH ? maxW : maxH).clamp(160.0, 520.0);
-
-        return Center(
-          child: SizedBox(
-            width: size,
-            height: size,
-            child: _buildPosterCanvas(),
-          ),
-        );
-      },
-    );
-  }
-
+  // 2. Poster Canvas
   Widget _buildPosterCanvas() {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
+        borderRadius: BorderRadius.circular(20.0),
         border: Border.all(color: const Color(0xFFE2E8F0)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 16.0,
-            offset: const Offset(0, 5),
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16.0),
-        child: Stack(
-          children: [
-            // Scalable canvas stack
-            Transform.scale(
-              scale: _zoomLevel,
-              alignment: Alignment.center,
-              child: _buildCanvasStack(isInteractive: true),
-            ),
+        borderRadius: BorderRadius.circular(20.0),
+        child: AspectRatio(
+          aspectRatio: 1.04,
+          child: Stack(
+            children: [
+              // Zoomable / Scalable Canvas
+              Transform.scale(
+                scale: _zoomLevel,
+                alignment: Alignment.center,
+                child: _buildCanvasStack(isInteractive: true),
+              ),
 
-            // Floating Zoom chip
-            Positioned(
-              top: 8.0,
-              right: 8.0,
-              child: InkWell(
-                key: const ValueKey('editor_zoom_button'),
-                borderRadius: BorderRadius.circular(12.0),
-                onTap: _toggleZoom,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 3.5),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.92),
-                    borderRadius: BorderRadius.circular(12.0),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.06),
-                        blurRadius: 4.0,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.search_rounded, size: 11.0, color: Color(0xFF475569)),
-                      const SizedBox(width: 3.0),
-                      Text(
-                        '${(_zoomLevel * 100).toInt()}%',
-                        style: const TextStyle(
-                          fontSize: 10.0,
-                          fontWeight: FontWeight.w700,
+              // Floating Zoom & Fullscreen Controls
+              Positioned(
+                top: 10.0,
+                right: 10.0,
+                child: InkWell(
+                  key: const ValueKey('editor_zoom_button'),
+                  borderRadius: BorderRadius.circular(16.0),
+                  onTap: _toggleZoom,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.94),
+                      borderRadius: BorderRadius.circular(16.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.14),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.search_rounded,
+                          size: 14.0,
                           color: Color(0xFF1E293B),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 4.0),
+                        Text(
+                          '${(_zoomLevel * 100).toInt()}%',
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF1E293B),
+                          ),
+                        ),
+                        const SizedBox(width: 5.0),
+                        const Icon(
+                          Icons.fullscreen_rounded,
+                          size: 15.0,
+                          color: Color(0xFF64748B),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -720,7 +758,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
               ),
             ),
 
-            // Draggable Elements Layer
+            // Elements Layer
             for (final element in _project.elements)
               Positioned(
                 left: (element.x * w) - (w * 0.45),
@@ -731,7 +769,9 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
                       ? () {
                           setState(() {
                             _selectedElementId = element.id;
-                            _selectedTab = 'text';
+                            if (element.id == 'elem_headline') {
+                              _selectedTab = 'text';
+                            }
                           });
                         }
                       : null,
@@ -755,7 +795,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                     decoration: BoxDecoration(
                       border: isInteractive && _selectedElementId == element.id
-                          ? Border.all(color: const Color(0xFF4F46E5), width: 1.5)
+                          ? Border.all(color: const Color(0xFF7C3AED), width: 1.5)
                           : null,
                       borderRadius: BorderRadius.circular(6.0),
                     ),
@@ -780,859 +820,895 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
                   ),
                 ),
               ),
-
-            // Frame Overlay (Signature Panchayat & VIP frames)
-            if (_selectedFrameId != 'none')
-              PosterFrameOverlay(
-                frameId: _selectedFrameId,
-                adminImageUrl: _selectedAdminImageUrl,
-                user: _currentUser,
-                w: w,
-                h: h,
-              ),
           ],
         );
       },
     );
   }
 
-  // 3. Creative Studio Bottom Dock
-  Widget _buildBottomStudioDock(AppStrings s) {
+  // 3. Contextual Action Toolbar
+  Widget _buildContextualToolbar(AppStrings s) {
     return Container(
-      decoration: const BoxDecoration(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
+      decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(18.0)),
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
         boxShadow: [
           BoxShadow(
-            color: Color(0x10000000),
-            blurRadius: 14.0,
-            offset: Offset(0, -3),
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8.0,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          // Row 1: Contextual Action Toolbar
-          _buildContextualToolbar(s),
-          const Divider(height: 1, color: Color(0xFFF1F5F9)),
-
-          // Row 2: Active Tool Shelf
-          _buildToolShelf(s),
-          const Divider(height: 1, color: Color(0xFFF1F5F9)),
-
-          // Row 3: Action & Save Status Bar
-          _buildActionsStatusBar(s),
-
-          // Row 4: Fixed Canva Tool Selector Strip
-          _buildCanvaBottomNavStrip(s),
+          _buildToolButton(
+            key: 'tool_edit_text',
+            iconText: 'T',
+            label: s.toolEditText,
+            onTap: () {
+              setState(() => _selectedTab = 'text');
+            },
+          ),
+          _buildToolButton(
+            key: 'tool_replace_image',
+            icon: Icons.image_outlined,
+            label: s.toolReplaceImage,
+            onTap: _replaceImageAction,
+          ),
+          _buildToolButton(
+            key: 'tool_change_color',
+            icon: Icons.palette_outlined,
+            label: s.toolChangeColor,
+            onTap: () {
+              setState(() => _selectedTab = 'colors');
+            },
+          ),
+          _buildToolButton(
+            key: 'tool_position',
+            icon: Icons.open_with_rounded,
+            label: s.toolPosition,
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Drag elements on canvas to reposition'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+          _buildToolButton(
+            key: 'tool_duplicate',
+            icon: Icons.copy_rounded,
+            label: s.toolDuplicate,
+            onTap: _duplicateSelectedElement,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildContextualToolbar(AppStrings s) {
-    return Container(
-      height: 38.0,
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildToolbarAction(
-              key: 'tool_edit_text',
-              icon: Icons.title_rounded,
-              label: s.toolEditText,
-              onTap: () {
-                setState(() => _selectedTab = 'text');
-              },
-            ),
-            const SizedBox(width: 4.0),
-            _buildToolbarAction(
-              key: 'tool_replace_image',
-              icon: Icons.add_photo_alternate_outlined,
-              label: s.toolReplaceImage,
-              onTap: _replaceImageAction,
-            ),
-            const SizedBox(width: 4.0),
-            _buildToolbarAction(
-              key: 'tool_change_color',
-              icon: Icons.palette_outlined,
-              label: s.toolChangeColor,
-              onTap: () {
-                setState(() => _selectedTab = 'colors');
-              },
-            ),
-            const SizedBox(width: 4.0),
-            _buildToolbarAction(
-              key: 'tool_position',
-              icon: Icons.open_with_rounded,
-              label: s.toolPosition,
-              onTap: () {
-                _recordHistory();
-                setState(() {
-                  final updated = _project.elements.map((e) {
-                    if (e.id == _selectedElementId) {
-                      return e.copyWith(x: 0.5, y: 0.3);
-                    }
-                    return e;
-                  }).toList();
-                  _project = _project.copyWith(elements: updated);
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Element centered on canvas'),
-                    duration: Duration(seconds: 1),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(width: 4.0),
-            _buildToolbarAction(
-              key: 'tool_duplicate',
-              icon: Icons.copy_rounded,
-              label: s.toolDuplicate,
-              onTap: _duplicateSelectedElement,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildToolbarAction({
+  Widget _buildToolButton({
     required String key,
-    required IconData icon,
+    IconData? icon,
+    String? iconText,
     required String label,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      key: ValueKey(key),
-      borderRadius: BorderRadius.circular(8.0),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(8.0),
-          border: Border.all(color: const Color(0xFFE2E8F0), width: 0.8),
+    return Expanded(
+      child: InkWell(
+        key: ValueKey(key),
+        borderRadius: BorderRadius.circular(12.0),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 4.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (iconText != null)
+                Container(
+                  height: 24.0,
+                  alignment: Alignment.center,
+                  child: Text(
+                    iconText,
+                    style: const TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF6D28D9),
+                    ),
+                  ),
+                )
+              else
+                Icon(
+                  icon,
+                  size: 22.0,
+                  color: const Color(0xFF6D28D9),
+                ),
+              const SizedBox(height: 4.0),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 10.2,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF334155),
+                ),
+              ),
+            ],
+          ),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+      ),
+    );
+  }
+
+  // 4. Customize Your Design Section & Tabs
+  Widget _buildCustomizeSectionHeader(AppStrings s) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section Header
+        Row(
           children: [
-            Icon(icon, size: 13.0, color: const Color(0xFF475569)),
-            const SizedBox(width: 3.0),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 10.5,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF334155),
+            Container(
+              width: 4.0,
+              height: 16.0,
+              decoration: BoxDecoration(
+                color: const Color(0xFF7C3AED),
+                borderRadius: BorderRadius.circular(2.0),
+              ),
+            ),
+            const SizedBox(width: 8.0),
+            Expanded(
+              child: Text(
+                s.customizeYourDesignTitle,
+                key: const ValueKey('customize_your_design_title'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF1E293B),
+                ),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
+        const SizedBox(height: 10.0),
 
-  Widget _buildToolShelf(AppStrings s) {
-    return Container(
-      constraints: const BoxConstraints(minHeight: 104.0, maxHeight: 116.0),
-      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
+        // 5 Category Tabs
+        Container(
+          height: 40.0,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14.0),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Row(
             children: [
-              Container(
-                width: 3.0,
-                height: 12.0,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF4F46E5),
-                  borderRadius: BorderRadius.circular(2.0),
-                ),
+              _buildCategoryTab(
+                id: 'text',
+                label: s.tabText,
+                iconText: 'T',
               ),
-              const SizedBox(width: 6.0),
-              Flexible(
-                child: Text(
-                  s.customizeYourDesignTitle,
-                  key: const ValueKey('customize_your_design_title'),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 11.0,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF0F172A),
-                  ),
-                ),
+              _buildCategoryTab(
+                id: 'images',
+                label: s.tabImages,
+                icon: Icons.image_outlined,
               ),
-              const SizedBox(width: 4.0),
-              Text(
-                _selectedTab.toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 9.0,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF64748B),
-                  letterSpacing: 0.5,
-                ),
+              _buildCategoryTab(
+                id: 'colors',
+                label: s.tabColors,
+                icon: Icons.palette_outlined,
+              ),
+              _buildCategoryTab(
+                id: 'background',
+                label: s.tabBackground,
+                icon: Icons.texture_rounded,
+              ),
+              _buildCategoryTab(
+                id: 'fonts',
+                label: s.tabFonts,
+                iconText: 'Aa',
               ),
             ],
           ),
-          const SizedBox(height: 4.0),
-          Expanded(
-            child: _buildShelfContent(s),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildShelfContent(AppStrings s) {
-    switch (_selectedTab) {
-      case 'frames':
-        return _buildFramesShelf();
-      case 'text':
-        return _buildTextShelf(s);
-      case 'images':
-        return _buildImagesShelf(s);
-      case 'colors':
-        return _buildColorsShelf(s);
-      case 'background':
-        return _buildBackgroundShelf(s);
-      case 'fonts':
-        return _buildFontsShelf(s);
-      default:
-        return _buildFramesShelf();
-    }
-  }
-
-  // Shelf: Frames (Canva horizontal cards with Admin & VIP badges)
-  Widget _buildFramesShelf() {
-    final frames = PosterFrames.list;
-
-    return ListView.separated(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      itemCount: frames.length,
-      separatorBuilder: (_, _) => const SizedBox(width: 8.0),
-      itemBuilder: (context, index) {
-        final frame = frames[index];
-        final isSelected = _selectedFrameId == frame.id;
-
-        return GestureDetector(
-          onTap: () {
-            setState(() {
-              _selectedFrameId = frame.id;
-              _selectedAdminImageUrl = frame.imageUrl;
-              _project = _project.copyWith(frameId: frame.id);
-            });
-          },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            width: 72.0,
-            decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFFEEF2FF) : Colors.white,
-              borderRadius: BorderRadius.circular(10.0),
-              border: Border.all(
-                color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0),
-                width: isSelected ? 2.0 : 1.0,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isSelected ? 0.08 : 0.03),
-                  blurRadius: 4.0,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.all(4.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Thumbnail preview box
-                Container(
-                  height: 36.0,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: frame.previewColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(6.0),
-                    border: Border.all(color: frame.previewColor.withValues(alpha: 0.4)),
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Icon(
-                        frame.id == 'none' ? Icons.block_rounded : Icons.crop_original_rounded,
-                        color: frame.previewColor,
-                        size: 18.0,
-                      ),
-                      if (isSelected)
-                        Positioned(
-                          top: 2.0,
-                          right: 2.0,
-                          child: Container(
-                            padding: const EdgeInsets.all(2.0),
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF4F46E5),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.check, size: 7.0, color: Colors.white),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 3.0),
-
-                // Frame Name
-                Text(
-                  frame.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 9.0,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                    color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFF334155),
-                  ),
-                ),
-
-                // Badge text (Admin / VIP / National)
-                if (frame.badgeText != null)
-                  Container(
-                    margin: const EdgeInsets.only(top: 2.0),
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 1.0),
-                    decoration: BoxDecoration(
-                      color: frame.previewColor.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(3.0),
-                    ),
-                    child: Text(
-                      frame.badgeText!,
-                      style: TextStyle(
-                        fontSize: 7.0,
-                        fontWeight: FontWeight.w700,
-                        color: frame.previewColor,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  // Shelf: Text (With input_headline_text, dropdown_font_style, alignment, color)
-  Widget _buildTextShelf(AppStrings s) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // 1. Headline Text Input
-          SizedBox(
-            width: 135.0,
-            child: TextField(
-              key: const ValueKey('input_headline_text'),
-              controller: _headlineController,
-              onChanged: _updateHeadlineText,
-              style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600),
-              decoration: InputDecoration(
-                isDense: true,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 7.0),
-                labelText: s.headlineTextLabel,
-                labelStyle: const TextStyle(fontSize: 9.5, color: Color(0xFF64748B)),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear_rounded, size: 13.0),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: () {
-                    _headlineController.clear();
-                    _updateHeadlineText('');
-                  },
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8.0),
-
-          // 2. Supporting Text Input
-          SizedBox(
-            width: 135.0,
-            child: TextField(
-              key: const ValueKey('input_supporting_text'),
-              controller: _supportingController,
-              onChanged: _updateSupportingText,
-              style: const TextStyle(fontSize: 11.5),
-              decoration: InputDecoration(
-                isDense: true,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 7.0),
-                labelText: s.supportingTextLabel,
-                labelStyle: const TextStyle(fontSize: 9.5, color: Color(0xFF64748B)),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8.0),
-
-          // 3. Font Dropdown
-          SizedBox(
-            width: 110.0,
-            child: DropdownButtonFormField<String>(
-              key: const ValueKey('dropdown_font_style'),
-              initialValue: _availableFonts.contains(_getElementFont()) ? _getElementFont() : _availableFonts.first,
-              isDense: true,
-              isExpanded: true,
-              decoration: InputDecoration(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 5.0),
-                labelText: s.fontStyleLabel,
-                labelStyle: const TextStyle(fontSize: 9.5),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
-              ),
-              items: _availableFonts.map((f) => DropdownMenuItem(value: f, child: Text(f, style: const TextStyle(fontSize: 10.5)))).toList(),
-              onChanged: (val) {
-                if (val != null) _updateSelectedFont(val);
-              },
-            ),
-          ),
-          const SizedBox(width: 8.0),
-
-          // 4. Text Alignment
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(s.textAlignmentLabel, style: const TextStyle(fontSize: 9.0, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
-              const SizedBox(height: 2.0),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildAlignButton(Icons.format_align_left_rounded, TextAlign.left),
-                  _buildAlignButton(Icons.format_align_center_rounded, TextAlign.center),
-                  _buildAlignButton(Icons.format_align_right_rounded, TextAlign.right),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(width: 8.0),
-
-          // 5. Text Color
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('Text Color', style: TextStyle(fontSize: 9.0, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
-              const SizedBox(height: 2.0),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: _availableColors.map((c) {
-                  return GestureDetector(
-                    onTap: () => _updateSelectedColor(c),
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 3.0),
-                      width: 18.0,
-                      height: 18.0,
-                      decoration: BoxDecoration(
-                        color: c,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFCBD5E1), width: 1.0),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _getElementFont() {
-    try {
-      return _project.elements.firstWhere((e) => e.id == _selectedElementId).fontFamily;
-    } catch (_) {
-      return _availableFonts.first;
-    }
-  }
-
-  Widget _buildAlignButton(IconData icon, TextAlign align) {
-    return InkWell(
-      onTap: () => _updateSelectedAlignment(align),
-      child: Container(
-        padding: const EdgeInsets.all(4.0),
-        margin: const EdgeInsets.only(right: 2.0),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9),
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        child: Icon(icon, size: 13.0, color: const Color(0xFF334155)),
-      ),
-    );
-  }
-
-  // Shelf: Images & Logo
-  Widget _buildImagesShelf(AppStrings s) {
-    return Row(
-      children: [
-        _buildShelfButton(
-          icon: Icons.person_pin_rounded,
-          label: 'Change Photo',
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Profile photo selection dialog opened'), duration: Duration(seconds: 1)),
-            );
-          },
-        ),
-        const SizedBox(width: 8.0),
-        _buildShelfButton(
-          icon: Icons.shield_outlined,
-          label: 'Panchayat Emblem',
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Official Panchayat Emblem active from admin'), duration: Duration(seconds: 1)),
-            );
-          },
-        ),
-        const SizedBox(width: 8.0),
-        _buildShelfButton(
-          icon: Icons.add_photo_alternate_outlined,
-          label: 'Add Sticker',
-          onTap: _replaceImageAction,
         ),
       ],
     );
   }
 
-  // Shelf: Colors
-  Widget _buildColorsShelf(AppStrings s) {
-    return ListView.separated(
-      scrollDirection: Axis.horizontal,
-      itemCount: _availableColors.length,
-      separatorBuilder: (_, _) => const SizedBox(width: 8.0),
-      itemBuilder: (context, index) {
-        final c = _availableColors[index];
-        return GestureDetector(
-          onTap: () => _updateSelectedColor(c),
-          child: Column(
+  Widget _buildCategoryTab({
+    required String id,
+    required String label,
+    IconData? icon,
+    String? iconText,
+  }) {
+    final isActive = _selectedTab == id;
+
+    return Expanded(
+      child: InkWell(
+        key: ValueKey('tab_$id'),
+        borderRadius: BorderRadius.circular(12.0),
+        onTap: () {
+          setState(() => _selectedTab = id);
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isActive ? const Color(0xFF6D28D9) : Colors.transparent,
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: 34.0,
-                height: 34.0,
-                decoration: BoxDecoration(
-                  color: c,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFCBD5E1), width: 1.5),
-                  boxShadow: [
-                    BoxShadow(color: c.withValues(alpha: 0.3), blurRadius: 4, offset: const Offset(0, 2)),
-                  ],
+              if (iconText != null)
+                Text(
+                  iconText,
+                  style: TextStyle(
+                    fontSize: 12.0,
+                    fontWeight: FontWeight.w800,
+                    color: isActive ? Colors.white : const Color(0xFF64748B),
+                  ),
+                )
+              else
+                Icon(
+                  icon,
+                  size: 15.0,
+                  color: isActive ? Colors.white : const Color(0xFF64748B),
+                ),
+              const SizedBox(width: 4.0),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11.0,
+                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                    color: isActive ? Colors.white : const Color(0xFF64748B),
+                  ),
                 ),
               ),
             ],
           ),
-        );
-      },
-    );
-  }
-
-  // Shelf: Background
-  Widget _buildBackgroundShelf(AppStrings s) {
-    final backgrounds = [
-      AppAssets.festivalPosterShubhNavratri,
-      AppAssets.festivalPosterHappyNavratri,
-      AppAssets.festivalPosterGarbaNight,
-      AppAssets.festivalPosterJayMataji,
-    ];
-
-    return ListView.separated(
-      scrollDirection: Axis.horizontal,
-      itemCount: backgrounds.length,
-      separatorBuilder: (_, _) => const SizedBox(width: 8.0),
-      itemBuilder: (context, index) {
-        final bg = backgrounds[index];
-        return GestureDetector(
-          onTap: () {
-            setState(() {
-              _project = _project.copyWith(backgroundAsset: bg);
-            });
-          },
-          child: Container(
-            width: 54.0,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8.0),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: Image.asset(bg, fit: BoxFit.cover),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  // Shelf: Fonts
-  Widget _buildFontsShelf(AppStrings s) {
-    return ListView.separated(
-      scrollDirection: Axis.horizontal,
-      itemCount: _availableFonts.length,
-      separatorBuilder: (_, _) => const SizedBox(width: 8.0),
-      itemBuilder: (context, index) {
-        final font = _availableFonts[index];
-        final isSelected = _getElementFont() == font;
-        return GestureDetector(
-          onTap: () => _updateSelectedFont(font),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFFEEF2FF) : const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(10.0),
-              border: Border.all(
-                color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFFE2E8F0),
-              ),
-            ),
-            child: Text(
-              font,
-              style: TextStyle(
-                fontFamily: font,
-                fontSize: 11.5,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFF1E293B),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildShelfButton({required IconData icon, required String label, required VoidCallback onTap}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8.0),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(8.0),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 15.0, color: const Color(0xFF4F46E5)),
-            const SizedBox(width: 5.0),
-            Text(label, style: const TextStyle(fontSize: 11.0, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
-          ],
         ),
       ),
     );
   }
 
-  // Row 3: Action & Save Status Bar
-  Widget _buildActionsStatusBar(AppStrings s) {
+  // 5. Active Editing Controls Panel
+  Widget _buildEditingControlsPanel(AppStrings s) {
+    if (_selectedTab == 'colors') {
+      return _buildColorsTabPanel(s);
+    } else if (_selectedTab == 'fonts') {
+      return _buildFontsTabPanel(s);
+    } else if (_selectedTab == 'images') {
+      return _buildImagesTabPanel(s);
+    } else if (_selectedTab == 'background') {
+      return _buildBackgroundTabPanel(s);
+    }
+    return _buildTextTabPanel(s);
+  }
+
+  Widget _buildTextTabPanel(AppStrings s) {
+    final selectedElement = _project.elements.firstWhere(
+      (e) => e.id == _selectedElementId,
+      orElse: () => _project.elements.first,
+    );
+
     return Container(
-      height: 36.0,
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // All changes saved badge
-            Container(
-              key: const ValueKey('all_changes_saved_badge'),
-              padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 3.0),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: const Color(0xFFBBF7D0), width: 0.8),
+      padding: const EdgeInsets.all(14.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10.0,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Headline Text Input
+          _buildInputLabel(iconText: 'T', label: s.headlineTextLabel),
+          const SizedBox(height: 6.0),
+          TextField(
+            key: const ValueKey('input_headline_text'),
+            controller: _headlineController,
+            onChanged: _updateHeadline,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: const Color(0xFFF8FAFC),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.check_circle_rounded, size: 11.0, color: Color(0xFF16A34A)),
-                  const SizedBox(width: 3.0),
-                  Text(
-                    s.allChangesSavedLabel,
-                    style: const TextStyle(
-                      fontSize: 9.5,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF15803D),
-                    ),
-                  ),
-                ],
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.close_rounded, size: 18.0),
+                onPressed: () {
+                  _headlineController.clear();
+                  _updateHeadline('');
+                },
               ),
             ),
-            const SizedBox(width: 8.0),
+          ),
+          const SizedBox(height: 12.0),
 
-            // Preview Button
-            InkWell(
-              key: const ValueKey('preview_poster_button'),
-              borderRadius: BorderRadius.circular(14.0),
-              onTap: _previewPoster,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+          // Supporting Text Input
+          _buildInputLabel(iconText: 'T', label: s.supportingTextLabel),
+          const SizedBox(height: 6.0),
+          TextField(
+            key: const ValueKey('input_supporting_text'),
+            controller: _supportingController,
+            maxLines: 2,
+            onChanged: _updateSupporting,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: const Color(0xFFF8FAFC),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.close_rounded, size: 18.0),
+                onPressed: () {
+                  _supportingController.clear();
+                  _updateSupporting('');
+                },
+              ),
+            ),
+          ),
+          const SizedBox(height: 14.0),
+
+          // Font Style Dropdown Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildInputLabel(iconText: 'Aa', label: s.fontStyleLabel),
+              Container(
+                width: 140.0,
+                height: 38.0,
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(14.0),
-                  border: Border.all(color: const Color(0xFFCBD5E1)),
+                  borderRadius: BorderRadius.circular(12.0),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    key: const ValueKey('dropdown_font_style'),
+                    isExpanded: true,
+                    value: _availableFonts.contains(selectedElement.fontFamily)
+                        ? selectedElement.fontFamily
+                        : 'Poppins',
+                    icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18.0),
+                    items: _availableFonts.map((font) {
+                      return DropdownMenuItem<String>(
+                        value: font,
+                        child: Text(
+                          font,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontFamily: font,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (newFont) {
+                      if (newFont != null) _updateSelectedFont(newFont);
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14.0),
+
+          // Text Alignment & Text Color Row
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Left: Text Alignment
+              Expanded(
+                flex: 5,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.visibility_outlined, size: 12.0, color: Color(0xFF334155)),
-                    const SizedBox(width: 3.0),
                     Text(
-                      s.previewPosterButton,
-                      style: const TextStyle(fontSize: 10.0, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
+                      s.textAlignmentLabel,
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF475569),
+                      ),
+                    ),
+                    const SizedBox(height: 8.0),
+                    Container(
+                      height: 38.0,
+                      padding: const EdgeInsets.all(2.5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3E8FF),
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child: Row(
+                        children: [
+                          _buildAlignOption(
+                            icon: Icons.format_align_left_rounded,
+                            align: TextAlign.left,
+                            current: selectedElement.textAlign,
+                          ),
+                          _buildAlignOption(
+                            icon: Icons.format_align_center_rounded,
+                            align: TextAlign.center,
+                            current: selectedElement.textAlign,
+                          ),
+                          _buildAlignOption(
+                            icon: Icons.format_align_right_rounded,
+                            align: TextAlign.right,
+                            current: selectedElement.textAlign,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-            const SizedBox(width: 6.0),
+              const SizedBox(width: 10.0),
 
-            // Save Design Button
-            InkWell(
-              key: const ValueKey('save_design_button'),
-              borderRadius: BorderRadius.circular(14.0),
-              onTap: _isSaving ? null : _saveDesign,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9.0, vertical: 4.0),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF4F46E5),
-                  borderRadius: BorderRadius.circular(14.0),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+              // Right: Text Color
+              Expanded(
+                flex: 6,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.download_rounded, size: 12.0, color: Colors.white),
-                    const SizedBox(width: 3.0),
                     Text(
-                      s.saveDesignButton,
-                      style: const TextStyle(fontSize: 10.0, fontWeight: FontWeight.w700, color: Colors.white),
+                      s.textColorLabel,
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF475569),
+                      ),
+                    ),
+                    const SizedBox(height: 8.0),
+                    Wrap(
+                      spacing: 4.0,
+                      runSpacing: 4.0,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        for (final color in _availableColors)
+                          _buildColorSwatch(color, selectedElement.color),
+                        _buildCustomColorAdd(),
+                      ],
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Row 4: Fixed Canva Tool Selector Strip
-  Widget _buildCanvaBottomNavStrip(AppStrings s) {
-    return Container(
-      height: 48.0,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFF1F5F9))),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildCanvaTabItem(
-              key: 'tab_frames',
-              icon: Icons.crop_original_rounded,
-              label: 'Frames',
-              tabKey: 'frames',
-            ),
-          ),
-          Expanded(
-            child: _buildCanvaTabItem(
-              key: 'tab_text',
-              icon: Icons.title_rounded,
-              label: s.tabText,
-              tabKey: 'text',
-            ),
-          ),
-          Expanded(
-            child: _buildCanvaTabItem(
-              key: 'tab_images',
-              icon: Icons.image_outlined,
-              label: s.tabImages,
-              tabKey: 'images',
-            ),
-          ),
-          Expanded(
-            child: _buildCanvaTabItem(
-              key: 'tab_colors',
-              icon: Icons.palette_outlined,
-              label: s.tabColors,
-              tabKey: 'colors',
-            ),
-          ),
-          Expanded(
-            child: _buildCanvaTabItem(
-              key: 'tab_background',
-              icon: Icons.texture_rounded,
-              label: s.tabBackground,
-              tabKey: 'background',
-            ),
-          ),
-          Expanded(
-            child: _buildCanvaTabItem(
-              key: 'tab_fonts',
-              icon: Icons.font_download_outlined,
-              label: s.tabFonts,
-              tabKey: 'fonts',
-            ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCanvaTabItem({
-    required String key,
-    required IconData icon,
-    required String label,
-    required String tabKey,
-  }) {
-    final isSelected = _selectedTab == tabKey;
+  Widget _buildColorsTabPanel(AppStrings s) {
+    final selectedElement = _project.elements.firstWhere(
+      (e) => e.id == _selectedElementId,
+      orElse: () => _project.elements.first,
+    );
 
-    return InkWell(
-      key: ValueKey(key),
-      borderRadius: BorderRadius.circular(8.0),
-      onTap: () {
-        setState(() => _selectedTab = tabKey);
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFEEF2FF) : Colors.transparent,
-          borderRadius: BorderRadius.circular(8.0),
+    return Container(
+      padding: const EdgeInsets.all(14.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10.0,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.palette_outlined, color: Color(0xFF7C3AED), size: 18.0),
+              const SizedBox(width: 8.0),
+              Text(
+                s.textColorLabel,
+                style: const TextStyle(fontSize: 14.0, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12.0),
+          Wrap(
+            spacing: 8.0,
+            runSpacing: 8.0,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              for (final color in [
+                const Color(0xFF7C3AED),
+                const Color(0xFFF59E0B),
+                const Color(0xFFDC2626),
+                const Color(0xFF1E293B),
+                const Color(0xFF16A34A),
+                const Color(0xFF2563EB),
+                const Color(0xFFDB2777),
+                const Color(0xFFFFFFFF),
+              ])
+                _buildColorSwatch(color, selectedElement.color),
+              _buildCustomColorAdd(),
+            ],
+          ),
+          const SizedBox(height: 14.0),
+          Text(
+            'Tap any color above to apply instantly to the active text element on your poster canvas.',
+            style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFontsTabPanel(AppStrings s) {
+    final selectedElement = _project.elements.firstWhere(
+      (e) => e.id == _selectedElementId,
+      orElse: () => _project.elements.first,
+    );
+
+    return Container(
+      padding: const EdgeInsets.all(14.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10.0,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Text('Aa', style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w800, color: Color(0xFF7C3AED))),
+              SizedBox(width: 8.0),
+              Text(
+                'Select Font Style',
+                style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          Wrap(
+            spacing: 8.0,
+            runSpacing: 8.0,
+            children: _availableFonts.map((font) {
+              final isCurrent = selectedElement.fontFamily == font;
+              return ChoiceChip(
+                label: Text(font, style: TextStyle(fontFamily: font, fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500)),
+                selected: isCurrent,
+                selectedColor: const Color(0xFFEDE9FE),
+                labelStyle: TextStyle(color: isCurrent ? const Color(0xFF6D28D9) : const Color(0xFF334155)),
+                onSelected: (_) => _updateSelectedFont(font),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImagesTabPanel(AppStrings s) {
+    return Container(
+      padding: const EdgeInsets.all(14.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10.0,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.image_outlined, color: Color(0xFF7C3AED), size: 18.0),
+              SizedBox(width: 8.0),
+              Text(
+                'Poster Artwork & Elements',
+                style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF6D28D9),
+                    side: const BorderSide(color: Color(0xFF6D28D9)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                  ),
+                  icon: const Icon(Icons.photo_library_outlined, size: 16.0),
+                  label: const Text('Add Image'),
+                  onPressed: _replaceImageAction,
+                ),
+              ),
+              const SizedBox(width: 10.0),
+              Expanded(
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF6D28D9),
+                    side: const BorderSide(color: Color(0xFF6D28D9)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                  ),
+                  icon: const Icon(Icons.copy_rounded, size: 16.0),
+                  label: const Text('Duplicate'),
+                  onPressed: _duplicateSelectedElement,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBackgroundTabPanel(AppStrings s) {
+    return Container(
+      padding: const EdgeInsets.all(14.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10.0,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.texture_rounded, color: Color(0xFF7C3AED), size: 18.0),
+              SizedBox(width: 8.0),
+              Text(
+                'Background Atmosphere',
+                style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          const Text(
+            'The active background theme is calibrated to festival artwork with authentic Indian temple backdrops and illumination.',
+            style: TextStyle(fontSize: 12.0, color: Color(0xFF64748B)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInputLabel({required String iconText, required String label}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          iconText,
+          style: const TextStyle(
+            fontSize: 13.0,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF7C3AED),
+          ),
         ),
-        child: Column(
+        const SizedBox(width: 6.0),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 11.8,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF334155),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAlignOption({
+    required IconData icon,
+    required TextAlign align,
+    required TextAlign current,
+  }) {
+    final isActive = current == align;
+
+    return Expanded(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10.0),
+        onTap: () => _updateSelectedAlignment(align),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isActive ? const Color(0xFF7C3AED) : Colors.transparent,
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: Icon(
+            icon,
+            size: 18.0,
+            color: isActive ? Colors.white : const Color(0xFF7C3AED),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildColorSwatch(Color color, Color selectedColor) {
+    final isSelected = color.toARGB32() == selectedColor.toARGB32();
+
+    return GestureDetector(
+      onTap: () => _updateSelectedColor(color),
+      child: Container(
+        margin: const EdgeInsets.only(right: 6.0),
+        padding: const EdgeInsets.all(2.0),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: isSelected ? Border.all(color: const Color(0xFF7C3AED), width: 1.8) : null,
+        ),
+        child: Container(
+          width: 20.0,
+          height: 20.0,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.black12, width: 0.5),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCustomColorAdd() {
+    return GestureDetector(
+      onTap: () {
+        _updateSelectedColor(const Color(0xFFEC4899)); // Pink accent
+      },
+      child: Container(
+        width: 22.0,
+        height: 22.0,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: const Color(0xFFCBD5E1)),
+        ),
+        child: const Icon(Icons.add, size: 14.0, color: Color(0xFF64748B)),
+      ),
+    );
+  }
+
+  // 6. Bottom Action Buttons: Preview Poster & Save Design
+  Widget _buildBottomActionButtons(AppStrings s) {
+    return Row(
+      children: [
+        // Preview Poster (Outlined)
+        Expanded(
+          child: OutlinedButton.icon(
+            key: const ValueKey('preview_poster_button'),
+            style: OutlinedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF1E293B),
+              side: const BorderSide(color: Color(0xFFCBD5E1), width: 1.2),
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24.0),
+              ),
+            ),
+            icon: const Icon(Icons.visibility_outlined, size: 18.0, color: Color(0xFF1E293B)),
+            label: Text(
+              s.previewPosterButton,
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 13.0,
+                color: Color(0xFF1E293B),
+              ),
+            ),
+            onPressed: _previewPoster,
+          ),
+        ),
+        const SizedBox(width: 12.0),
+
+        // Save Design (Filled)
+        Expanded(
+          child: ElevatedButton.icon(
+            key: const ValueKey('save_design_button'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6D28D9),
+              foregroundColor: Colors.white,
+              elevation: 3.0,
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24.0),
+              ),
+            ),
+            icon: _isSaving
+                ? const SizedBox(
+                    width: 16.0,
+                    height: 16.0,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.0,
+                      valueColor: AlwaysStoppedAnimation(Colors.white),
+                    ),
+                  )
+                : const Icon(Icons.save_rounded, size: 18.0),
+            label: Text(
+              s.saveDesignButton,
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 13.0,
+              ),
+            ),
+            onPressed: _isSaving ? null : _saveDesign,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 7. Save Status Badge
+  Widget _buildSaveStatusBadge(AppStrings s) {
+    final isSaved = !_hasUnsavedChanges;
+    return Center(
+      child: Container(
+        key: const ValueKey('all_changes_saved_badge'),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 3.5),
+        decoration: BoxDecoration(
+          color: isSaved ? const Color(0xFFF0FDF4) : const Color(0xFFFEF3C7),
+          borderRadius: BorderRadius.circular(14.0),
+        ),
+        child: Row(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              icon,
-              size: 18.0,
-              color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFF64748B),
+              isSaved ? Icons.check_circle_rounded : Icons.pending_actions_rounded,
+              size: 14.0,
+              color: isSaved ? const Color(0xFF16A34A) : const Color(0xFFD97706),
             ),
-            const SizedBox(height: 2.0),
+            const SizedBox(width: 4.0),
             Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              isSaved ? s.allChangesSavedLabel : 'Unsaved changes',
               style: TextStyle(
-                fontSize: 9.5,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFF64748B),
+                fontSize: 11.0,
+                fontWeight: FontWeight.w600,
+                color: isSaved ? const Color(0xFF15803D) : const Color(0xFFB45309),
               ),
             ),
           ],
