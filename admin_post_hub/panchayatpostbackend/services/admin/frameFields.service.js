@@ -5,11 +5,13 @@ const { getFilesData, removeFile } = require("../../utils/functions");
 const DEFAULT_FRAME_FIELDS = [
   { title: 'User Photo', type: 'image', variableName: 'userPhoto', isElection: false, isActive: true },
   { title: 'User Name', type: 'text', variableName: 'userName', isElection: false, isActive: true },
-  { title: 'Designation (સરપંચ શ્રી)', type: 'text', variableName: 'designation', isElection: false, isActive: true },
+  { title: 'Designation / Post (સરપંચ શ્રી)', type: 'text', variableName: 'designation', isElection: false, isActive: true },
   { title: 'Gram Panchayat / Village', type: 'text', variableName: 'village', isElection: false, isActive: true },
   { title: 'Mobile Number', type: 'text', variableName: 'mobile', isElection: false, isActive: true },
+  { title: 'Post Text / Slogan (લખાણ)', type: 'text', variableName: 'postText', isElection: false, isActive: true },
   { title: 'Panchayat Logo / Emblem', type: 'image', variableName: 'panchayatLogo', isElection: false, isActive: true },
-  { title: 'Party Symbol / Election Logo', type: 'image', variableName: 'partySymbol', isElection: true, isActive: true }
+  { title: 'Party Symbol / Election Logo', type: 'image', variableName: 'partySymbol', isElection: true, isActive: true },
+  { title: 'Email Address', type: 'text', variableName: 'email', isElection: false, isActive: true }
 ];
 
 const all = async () => {

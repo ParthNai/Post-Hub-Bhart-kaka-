@@ -899,134 +899,163 @@ class PosterFrameOverlay extends StatelessWidget {
       final imgW = currentDef.imageWidth ?? 100.0;
       final imgH = currentDef.imageHeight ?? 100.0;
 
-      Map<String, dynamic>? findRegion(String key, String type) {
-        for (final r in regions) {
-          if (r is! Map) continue;
-          final map = r.cast<String, dynamic>();
-          final vName = map['variableName']?.toString().toLowerCase() ?? '';
-          final rType = map['type']?.toString().toLowerCase() ?? '';
-          final rTitle = map['title']?.toString().toLowerCase() ?? '';
-          if (vName == key.toLowerCase() || (type.isNotEmpty && rType == type) || rTitle.contains(key.toLowerCase())) {
-            return map;
-          }
+      double parseVal(dynamic v, double total, double baseSize) {
+        final n = (v as num?)?.toDouble() ?? 0.0;
+        if (baseSize > 100 && n > 100) {
+          return (n / baseSize) * total;
         }
-        return null;
+        return (n / 100.0) * total;
       }
 
-      final photoReg = findRegion('userphoto', 'image') ?? findRegion('photo', 'image');
+      final imageWidgets = <Widget>[];
+      final textWidgets = <Widget>[];
 
-      if (photoReg != null) {
-        double parseVal(dynamic v, double total, double baseSize) {
-          final n = (v as num?)?.toDouble() ?? 0.0;
-          if (baseSize > 100 && n > 100) {
-            return (n / baseSize) * total;
+      for (final r in regions) {
+        if (r is! Map) continue;
+        final map = r.cast<String, dynamic>();
+        final vName = map['variableName']?.toString().toLowerCase() ?? '';
+        final rType = map['type']?.toString().toLowerCase() ?? '';
+        final rTitle = map['title']?.toString().toLowerCase() ?? '';
+
+        final rx = parseVal(map['x'], w, imgW);
+        final ry = parseVal(map['y'], h, imgH);
+        final rw = parseVal(map['width'], w, imgW);
+        final rh = parseVal(map['height'], h, imgH);
+
+        if (rw <= 0 || rh <= 0) continue;
+
+        // Check if image region
+        final isImage = rType == 'image' ||
+            vName.contains('photo') ||
+            vName.contains('logo') ||
+            vName.contains('symbol') ||
+            rTitle.contains('photo') ||
+            rTitle.contains('logo');
+
+        if (isImage) {
+          if (vName == 'userphoto' || vName.contains('photo') || rTitle.contains('photo')) {
+            // 1. User Photo
+            imageWidgets.add(
+              Positioned(
+                left: rx,
+                top: ry,
+                width: rw,
+                height: rh,
+                child: _buildRegionPhoto(rw, rh),
+              ),
+            );
+          } else if (vName.contains('logo') || vName.contains('panchayat') || rTitle.contains('logo')) {
+            // 2. Panchayat Logo / Emblem
+            imageWidgets.add(
+              Positioned(
+                left: rx,
+                top: ry,
+                width: rw,
+                height: rh,
+                child: _buildRegionLogo(rw, rh, map['image']?.toString()),
+              ),
+            );
+          } else if (vName.contains('symbol') || vName.contains('party') || vName.contains('election') || rTitle.contains('symbol')) {
+            // 3. Party Symbol / Election Logo
+            imageWidgets.add(
+              Positioned(
+                left: rx,
+                top: ry,
+                width: rw,
+                height: rh,
+                child: _buildRegionPartySymbol(rw, rh, map['image']?.toString()),
+              ),
+            );
+          } else {
+            // 4. Other Graphic Image
+            imageWidgets.add(
+              Positioned(
+                left: rx,
+                top: ry,
+                width: rw,
+                height: rh,
+                child: _buildRegionGenericImage(rw, rh, map['image']?.toString()),
+              ),
+            );
           }
-          return (n / 100.0) * total;
-        }
+        } else {
+          // Text region (Name, Post / Designation, Mobile / Number, Village, Post Text / Slogan, Email)
+          String textValue = '';
+          Color defaultColor = Colors.white;
 
-        final pLeft = parseVal(photoReg['x'], w, imgW);
-        final pTop = parseVal(photoReg['y'], h, imgH);
-        final pWidth = parseVal(photoReg['width'], w, imgW);
-        final pHeight = parseVal(photoReg['height'], h, imgH);
+          if (vName == 'username' || vName == 'name' || rTitle.contains('name') || vName.contains('user')) {
+            textValue = _displayName;
+            defaultColor = Colors.white;
+          } else if (vName == 'designation' || vName == 'post' || vName == 'role' || rTitle.contains('designation') || rTitle.contains('post')) {
+            textValue = _designation;
+            defaultColor = const Color(0xFFFEF08A);
+          } else if (vName == 'mobile' || vName == 'number' || vName == 'phone' || rTitle.contains('mobile') || rTitle.contains('number')) {
+            textValue = _phone;
+            defaultColor = Colors.white;
+          } else if (vName == 'village' || vName == 'panchayat' || rTitle.contains('village') || rTitle.contains('panchayat')) {
+            textValue = user?.villageCity?.isNotEmpty == true ? user!.villageCity! : 'ગ્રામ પંચાયત';
+            defaultColor = const Color(0xFFFEF08A);
+          } else if (vName == 'posttext' || vName.contains('slogan') || vName.contains('text')) {
+            textValue = map['defaultText']?.toString() ?? 'જય શ્રી રામ';
+            defaultColor = Colors.white;
+          } else if (vName == 'email') {
+            textValue = user?.email ?? '';
+            defaultColor = Colors.white;
+          } else {
+            textValue = map['title']?.toString() ?? '';
+          }
 
-        final nameReg = findRegion('username', 'text') ?? findRegion('name', 'text');
-        final desigReg = findRegion('designation', 'text');
-        final mobileReg = findRegion('mobile', 'text');
+          final fontColor = _parseColor(map['properties']?['fontColor']) ?? defaultColor;
+          final fontSize = (rh * 0.55).clamp(8.0, 22.0);
 
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            // 1. User Photo placed exactly in the admin-selected region
+          textWidgets.add(
             Positioned(
-              left: pLeft,
-              top: pTop,
-              width: pWidth,
-              height: pHeight,
-              child: _buildRegionPhoto(pWidth, pHeight),
+              left: rx,
+              top: ry,
+              width: rw,
+              height: rh,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  textValue,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: fontColor,
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.w800,
+                    shadows: const [
+                      Shadow(color: Colors.black, blurRadius: 4, offset: Offset(0, 1)),
+                    ],
+                  ),
+                ),
+              ),
             ),
-
-            // 2. The Transparent Admin Frame Graphic Overlay
-            Positioned.fill(
-              child: IgnorePointer(
-                child: _buildResolvedImage(
-                  effectiveImage,
-                  fit: BoxFit.fill,
-                  fallback: const SizedBox.shrink(),
-                ),
-              ),
-            ),
-
-            // 3. Dynamic User Name in region
-            if (nameReg != null)
-              Positioned(
-                left: parseVal(nameReg['x'], w, imgW),
-                top: parseVal(nameReg['y'], h, imgH),
-                width: parseVal(nameReg['width'], w, imgW),
-                height: parseVal(nameReg['height'], h, imgH),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    _displayName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: _parseColor(nameReg['properties']?['fontColor']) ?? Colors.white,
-                      fontSize: (parseVal(nameReg['height'], h, imgH) * 0.55).clamp(10.0, 18.0),
-                      fontWeight: FontWeight.w800,
-                      shadows: const [Shadow(color: Colors.black, blurRadius: 4, offset: Offset(0, 1))],
-                    ),
-                  ),
-                ),
-              ),
-
-            // 4. Dynamic Designation in region
-            if (desigReg != null)
-              Positioned(
-                left: parseVal(desigReg['x'], w, imgW),
-                top: parseVal(desigReg['y'], h, imgH),
-                width: parseVal(desigReg['width'], w, imgW),
-                height: parseVal(desigReg['height'], h, imgH),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    _designation,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: _parseColor(desigReg['properties']?['fontColor']) ?? const Color(0xFFFEF08A),
-                      fontSize: (parseVal(desigReg['height'], h, imgH) * 0.50).clamp(9.0, 15.0),
-                      fontWeight: FontWeight.w700,
-                      shadows: const [Shadow(color: Colors.black, blurRadius: 4, offset: Offset(0, 1))],
-                    ),
-                  ),
-                ),
-              ),
-
-            // 5. Dynamic Mobile Number in region
-            if (mobileReg != null)
-              Positioned(
-                left: parseVal(mobileReg['x'], w, imgW),
-                top: parseVal(mobileReg['y'], h, imgH),
-                width: parseVal(mobileReg['width'], w, imgW),
-                height: parseVal(mobileReg['height'], h, imgH),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    _phone,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: _parseColor(mobileReg['properties']?['fontColor']) ?? Colors.white,
-                      fontSize: (parseVal(mobileReg['height'], h, imgH) * 0.50).clamp(8.5, 14.0),
-                      fontWeight: FontWeight.w700,
-                      shadows: const [Shadow(color: Colors.black, blurRadius: 4, offset: Offset(0, 1))],
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        );
+          );
+        }
       }
+
+      return Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // 1. Image Regions (Behind frame graphic cutout)
+          ...imageWidgets,
+
+          // 2. The Transparent Admin Frame Graphic Overlay
+          Positioned.fill(
+            child: IgnorePointer(
+              child: _buildResolvedImage(
+                effectiveImage,
+                fit: BoxFit.fill,
+                fallback: const SizedBox.shrink(),
+              ),
+            ),
+          ),
+
+          // 3. Text Regions (In front of frame graphic)
+          ...textWidgets,
+        ],
+      );
     }
 
     final frameH = (h * 0.16).clamp(42.0, 85.0);
@@ -1139,6 +1168,53 @@ class PosterFrameOverlay extends StatelessWidget {
       );
     }
     return photo;
+  }
+
+  Widget _buildRegionLogo(double width, double height, String? defaultImage) {
+    return Container(
+      width: width,
+      height: height,
+      alignment: Alignment.center,
+      child: _buildResolvedImage(
+        defaultImage,
+        fit: BoxFit.contain,
+        fallback: Icon(
+          Icons.account_balance_rounded,
+          color: const Color(0xFFFDE047),
+          size: (width < height ? width : height) * 0.7,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRegionPartySymbol(double width, double height, String? defaultImage) {
+    return Container(
+      width: width,
+      height: height,
+      alignment: Alignment.center,
+      child: _buildResolvedImage(
+        defaultImage,
+        fit: BoxFit.contain,
+        fallback: Icon(
+          Icons.how_to_vote_rounded,
+          color: const Color(0xFFF97316),
+          size: (width < height ? width : height) * 0.7,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRegionGenericImage(double width, double height, String? defaultImage) {
+    return Container(
+      width: width,
+      height: height,
+      alignment: Alignment.center,
+      child: _buildResolvedImage(
+        defaultImage,
+        fit: BoxFit.contain,
+        fallback: const SizedBox.shrink(),
+      ),
+    );
   }
 
   static Color? _parseColor(dynamic c) {
