@@ -198,58 +198,62 @@ class AppConfigService {
     return bases.toList();
   }
 
-  /// Fetches live festivals uploaded in the Admin Panel (/adminapi/festival).
+  /// Fetches live festivals uploaded in the Admin Panel (/adminapi/festivals).
   Future<List<Map<String, dynamic>>> fetchAdminFestivals() async {
     for (final base in _adminApiBases) {
-      try {
-        final response = await http
-            .get(
-              Uri.parse('$base/adminapi/festival'),
-              headers: const {'Accept': 'application/json'},
-            )
-            .timeout(const Duration(milliseconds: 2500));
+      for (final endpoint in ['/adminapi/festivals', '/adminapi/festival']) {
+        try {
+          final response = await http
+              .get(
+                Uri.parse('$base$endpoint'),
+                headers: const {'Accept': 'application/json'},
+              )
+              .timeout(const Duration(milliseconds: 2500));
 
-        if (response.statusCode == 200) {
-          final decoded = jsonDecode(response.body);
-          final list = decoded is Map<String, dynamic>
-              ? (decoded['data'] as List<dynamic>? ?? const [])
-              : (decoded is List<dynamic> ? decoded : const []);
-          return list.whereType<Map<String, dynamic>>().map((item) {
-            return {
-              ...item,
-              '_resolvedBase': base,
-            };
-          }).toList();
-        }
-      } catch (_) {}
+          if (response.statusCode == 200) {
+            final decoded = jsonDecode(response.body);
+            final list = decoded is Map<String, dynamic>
+                ? (decoded['data'] as List<dynamic>? ?? const [])
+                : (decoded is List<dynamic> ? decoded : const []);
+            return list.whereType<Map<String, dynamic>>().map((item) {
+              return {
+                ...item,
+                '_resolvedBase': base,
+              };
+            }).toList();
+          }
+        } catch (_) {}
+      }
     }
     return const [];
   }
 
-  /// Fetches live sliders / hero banners uploaded in the Admin Panel (/adminapi/slider).
+  /// Fetches live sliders / hero banners uploaded in the Admin Panel (/adminapi/sliders).
   Future<List<Map<String, dynamic>>> fetchAdminSliders() async {
     for (final base in _adminApiBases) {
-      try {
-        final response = await http
-            .get(
-              Uri.parse('$base/adminapi/slider'),
-              headers: const {'Accept': 'application/json'},
-            )
-            .timeout(const Duration(milliseconds: 2500));
+      for (final endpoint in ['/adminapi/sliders', '/adminapi/slider']) {
+        try {
+          final response = await http
+              .get(
+                Uri.parse('$base$endpoint'),
+                headers: const {'Accept': 'application/json'},
+              )
+              .timeout(const Duration(milliseconds: 2500));
 
-        if (response.statusCode == 200) {
-          final decoded = jsonDecode(response.body);
-          final list = decoded is Map<String, dynamic>
-              ? (decoded['data'] as List<dynamic>? ?? const [])
-              : (decoded is List<dynamic> ? decoded : const []);
-          return list.whereType<Map<String, dynamic>>().map((item) {
-            return {
-              ...item,
-              '_resolvedBase': base,
-            };
-          }).toList();
-        }
-      } catch (_) {}
+          if (response.statusCode == 200) {
+            final decoded = jsonDecode(response.body);
+            final list = decoded is Map<String, dynamic>
+                ? (decoded['data'] as List<dynamic>? ?? const [])
+                : (decoded is List<dynamic> ? decoded : const []);
+            return list.whereType<Map<String, dynamic>>().map((item) {
+              return {
+                ...item,
+                '_resolvedBase': base,
+              };
+            }).toList();
+          }
+        } catch (_) {}
+      }
     }
     return const [];
   }
