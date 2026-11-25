@@ -118,8 +118,8 @@ export const AppLoginForm: React.FC<AppLoginFormProps> = ({
         setError("Please enter your full name.");
         return;
       }
-      if (password.length < 6) {
-        setError("Password should be at least 6 characters long.");
+      if (!password) {
+        setError("Please enter your password.");
         return;
       }
       if (!agreeTerms) {

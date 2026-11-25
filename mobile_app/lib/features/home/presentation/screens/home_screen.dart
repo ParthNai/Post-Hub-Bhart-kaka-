@@ -1030,15 +1030,30 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          'Panchayat Post',
-                          style: TextStyle(
-                            fontSize: 11.0,
-                            fontWeight: FontWeight.w800,
-                            color: primaryColor,
-                            letterSpacing: 0.25,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Panchayat',
+                            style: TextStyle(
+                              fontSize: 11.0,
+                              fontWeight: FontWeight.w800,
+                              color: primaryColor,
+                              letterSpacing: 0.25,
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 4.0),
+                          Text(
+                            'Post',
+                            style: const TextStyle(
+                              fontSize: 11.0,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFFFE8706),
+                              letterSpacing: 0.25,
+                            ),
+                          ),
+                        ],
+                      ),
                         const SizedBox(height: 2.0),
                         Text(
                           strings.goodMorningGreeting,
@@ -1120,7 +1135,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // B. Featured Festival Hero Banner
-                    _buildFeaturedHeroBanner(),
+                    _buildFeaturedHeroBanner(strings),
                     const SizedBox(height: 16.0),
 
                     // E. Upcoming Festivals / Posts (Right after Hero)
@@ -1161,7 +1176,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // --- Sections ---
 
-  Widget _buildFeaturedHeroBanner() {
+  Widget _buildFeaturedHeroBanner(AppStrings strings) {
     return ValueListenableBuilder<AppRemoteConfig>(
       valueListenable: AppConfigService.instance.configNotifier,
       builder: (context, config, child) {
@@ -1172,7 +1187,163 @@ class _HomeScreenState extends State<HomeScreen> {
             .map((image) => image.trim())
             .where((image) => image.isNotEmpty)
             .toList();
-        if (heroImageUrls.isEmpty) return const SizedBox.shrink();
+
+        if (heroImageUrls.isEmpty) {
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16.0),
+            height: 200.0,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(22.0),
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFFE0E7FF),
+                  Color(0xFFEDE9FE),
+                  Color(0xFFFEF3C7),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF6D28D9).withValues(alpha: 0.10),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                // Background right-side temple and Navratri artwork
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: 220.0,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(22.0),
+                      bottomRight: Radius.circular(22.0),
+                    ),
+                    child: Image.asset(
+                      AppAssets.homeHeroBannerArt,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.centerLeft,
+                    ),
+                  ),
+                ),
+
+                // Purple bottom decorative fluid wave accent
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  height: 14.0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFF6D28D9).withValues(alpha: 0.85),
+                          const Color(0xFF8B5CF6).withValues(alpha: 0.85),
+                          const Color(0xFFA855F7).withValues(alpha: 0.65),
+                        ],
+                      ),
+                      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(22.0)),
+                    ),
+                  ),
+                ),
+
+                // Left Content
+                Positioned(
+                  left: 18.0,
+                  top: 14.0,
+                  bottom: 14.0,
+                  width: 200.0,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: SizedBox(
+                      width: 200.0,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            strings.heroBannerCreate,
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textNavy,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                          Text(
+                            strings.heroBannerFestival,
+                            style: const TextStyle(
+                              fontSize: 22.0,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF581C87),
+                              height: 1.15,
+                              letterSpacing: -0.4,
+                            ),
+                          ),
+                          const SizedBox(height: 6.0),
+                          Text(
+                            strings.heroBannerSubtitle,
+                            maxLines: 2,
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              color: Color(0xFF475569),
+                              fontWeight: FontWeight.w500,
+                              height: 1.35,
+                            ),
+                          ),
+                          const SizedBox(height: 12.0),
+                          InkWell(
+                            onTap: () => _showTemplatesModal(context, 'Navratri'),
+                            borderRadius: BorderRadius.circular(20.0),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 7.0),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF6D28D9),
+                                borderRadius: BorderRadius.circular(20.0),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFF6D28D9).withValues(alpha: 0.35),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    strings.heroBannerButton,
+                                    style: const TextStyle(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4.0),
+                                  const Icon(
+                                    Icons.arrow_forward_rounded,
+                                    size: 13.0,
+                                    color: Colors.white,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
 
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 20.0),

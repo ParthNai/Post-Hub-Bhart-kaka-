@@ -46,6 +46,7 @@ class AppConfigService {
     return const [
       'http://192.168.0.121:3000',
       'http://127.0.0.1:3000',
+      'http://192.168.1.8:3000',
       'http://10.0.2.2:3000',
       'http://192.168.0.121:4000',
       'http://127.0.0.1:4000',
@@ -54,12 +55,14 @@ class AppConfigService {
 
   /// Determines the best default server host for the current runtime platform:
   /// - Web / Desktop -> http://127.0.0.1:3000 (prevents IPv6 localhost resolution hangs)
+  /// - Android Device -> http://192.168.1.8:3000 (or 127.0.0.1 with adb reverse)
   /// - Android Device -> http://192.168.0.121:3000 (PC Wi-Fi LAN) or 127.0.0.1 with adb reverse
   String get defaultServerUrl {
     if (kIsWeb) {
       return 'http://127.0.0.1:3000';
     }
     if (Platform.isAndroid) {
+      return 'http://192.168.1.8:3000';
       return 'http://192.168.0.121:3000';
     }
     return 'http://127.0.0.1:3000';
