@@ -1,0 +1,11 @@
+module.exports.auth = require("./auth.controller");
+module.exports.userProfile = require("./userprofile.controller");
+module.exports.exploreController = require("./explore.controller");
+module.exports.imageEditorController = require("./imageeditor.controller");
+module.exports.festivalController = require("./festival.controller");
+module.exports.businessController = require("./business.controller");
+module.exports.categoryController = require("./category.controller");
+module.exports.templateController = require("./template.controller");
+module.exports.subscriptionController = require("./subscription.controller");
+module.exports.grettingController = require("./greeting.controller");
+module.exports.notificationController = require("./notification.controller");

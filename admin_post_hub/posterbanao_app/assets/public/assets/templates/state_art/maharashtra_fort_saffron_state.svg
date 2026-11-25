@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#170b10"/>
+      <stop offset=".46" stop-color="#9a3412"/>
+      <stop offset="1" stop-color="#fed7aa"/>
+    </linearGradient>
+    <radialGradient id="sun" cx=".78" cy=".22" r=".28">
+      <stop offset="0" stop-color="#ffedd5" stop-opacity=".82"/>
+      <stop offset="1" stop-color="#fb923c" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1080" height="1080" fill="url(#bg)"/>
+  <rect width="1080" height="1080" fill="url(#sun)"/>
+  <path d="M0 724c142-62 277-82 406-58 129 23 232 72 356 66 98-5 204-43 318-92v440H0z" fill="#3f1d16" opacity=".9"/>
+  <path d="M0 800c153-54 299-68 438-42 143 27 264 75 396 52 82-14 164-46 246-88v358H0z" fill="#1c1917"/>
+  <g fill="#f97316">
+    <path d="M224 614h632v142H224z"/>
+    <path d="M282 526h516v88H282z"/>
+    <path d="M348 462h384v64H348z"/>
+    <path d="M224 565h74v49h-74zM360 565h74v49h-74zM496 565h74v49h-74zM632 565h74v49h-74zM768 565h88v49h-88z"/>
+  </g>
+  <g fill="#431407">
+    <rect x="280" y="638" width="74" height="118" rx="37"/>
+    <rect x="436" y="628" width="78" height="128" rx="39"/>
+    <rect x="590" y="628" width="78" height="128" rx="39"/>
+    <rect x="746" y="638" width="74" height="118" rx="37"/>
+  </g>
+  <path d="M498 462V304c78 20 118 3 172-32-24 64-70 114-172 126" fill="#f97316"/>
+  <path d="M498 462V306" stroke="#ffedd5" stroke-width="8" stroke-linecap="round"/>
+  <g stroke="#fed7aa" stroke-width="5" opacity=".38">
+    <path d="M164 860c80-45 160-45 240 0s160 45 240 0 160-45 240 0"/>
+    <path d="M182 908c70-35 140-35 210 0s140 35 210 0 140-35 210 0"/>
+  </g>
+</svg>

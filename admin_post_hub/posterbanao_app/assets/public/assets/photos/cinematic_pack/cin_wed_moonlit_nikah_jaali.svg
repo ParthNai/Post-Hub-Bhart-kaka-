@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350">
+  <defs>
+    <linearGradient id="bg" y1="0" y2="1"><stop stop-color="#071427"/><stop offset=".55" stop-color="#12324d"/><stop offset="1" stop-color="#050712"/></linearGradient>
+    <radialGradient id="moon" cx="72%" cy="18%" r="28%"><stop stop-color="#e8fbff"/><stop offset=".35" stop-color="#9bdaf2" stop-opacity=".55"/><stop offset="1" stop-color="#9bdaf2" stop-opacity="0"/></radialGradient>
+    <pattern id="jaali" width="78" height="78" patternUnits="userSpaceOnUse"><path d="M39 3c18 18 18 54 0 72C21 57 21 21 39 3Zm0 0c-18 18-18 54 0 72 18-18 18-54 0-72Z" fill="none" stroke="#d7c18a" stroke-width="2" opacity=".34"/></pattern>
+    <filter id="soft"><feGaussianBlur stdDeviation="7"/></filter>
+  </defs>
+  <rect width="1080" height="1350" fill="url(#bg)"/>
+  <rect width="1080" height="1350" fill="url(#jaali)" opacity=".55"/>
+  <rect width="1080" height="1350" fill="url(#moon)"/>
+  <circle cx="786" cy="185" r="86" fill="#edfaff" opacity=".9"/>
+  <circle cx="820" cy="164" r="86" fill="#071427"/>
+  <path d="M160 1016c84-220 175-340 380-340s296 120 380 340" fill="#0a1525" stroke="#d7c18a" stroke-width="18"/>
+  <path d="M232 1010c62-150 135-234 308-234s246 84 308 234" fill="none" stroke="#edfaff" stroke-width="4" opacity=".75"/>
+  <g fill="#f7dc9a" filter="url(#soft)" opacity=".65">
+    <circle cx="192" cy="545" r="28"/><circle cx="888" cy="535" r="30"/><circle cx="540" cy="610" r="24"/>
+  </g>
+  <path d="M0 1160c190-66 345-86 540-18 190-68 350-48 540 18v190H0z" fill="#03040a" opacity=".88"/>
+</svg>

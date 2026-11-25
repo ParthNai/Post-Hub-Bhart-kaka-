@@ -1,0 +1,11 @@
+module.exports.authService = require("./auth.service");
+module.exports.userProfileService = require("./userprofile.service");
+module.exports.exploreService = require("./explore.service");
+module.exports.imageEditorService = require("./imageeditor.service");
+module.exports.businessService = require("./business.service");
+module.exports.categoryService = require("./category.service");
+module.exports.templateService = require("./template.service");
+module.exports.subscriptionService = require("./subscription.service");
+module.exports.festivalService = require("./festival.service");
+module.exports.greetingService = require("./greeting.service");
+module.exports.notificationService = require("./notification.service");

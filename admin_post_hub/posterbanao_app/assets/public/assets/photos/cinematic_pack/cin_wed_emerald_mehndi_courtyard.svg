@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350">
+  <defs>
+    <linearGradient id="bg" y1="0" y2="1"><stop stop-color="#06281e"/><stop offset=".55" stop-color="#0f766e"/><stop offset="1" stop-color="#03110d"/></linearGradient>
+    <radialGradient id="glow" cx="50%" cy="32%" r="62%"><stop stop-color="#bbf7d0"/><stop offset=".36" stop-color="#22c55e" stop-opacity=".55"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    <pattern id="henna" width="92" height="92" patternUnits="userSpaceOnUse"><path d="M46 8c24 14 34 32 30 54-22 4-40-6-54-30C28 19 36 12 46 8Z" fill="none" stroke="#d9f99d" stroke-width="2" opacity=".26"/></pattern>
+    <filter id="soft"><feGaussianBlur stdDeviation="8"/></filter>
+  </defs>
+  <rect width="1080" height="1350" fill="url(#bg)"/>
+  <rect width="1080" height="1350" fill="url(#henna)"/>
+  <rect width="1080" height="1350" fill="url(#glow)"/>
+  <g fill="#fef3c7" filter="url(#soft)" opacity=".65">
+    <circle cx="210" cy="330" r="38"/><circle cx="870" cy="330" r="42"/><circle cx="540" cy="420" r="34"/>
+  </g>
+  <path d="M135 1035c76-225 160-360 405-360s329 135 405 360" fill="#052016" stroke="#d9f99d" stroke-width="22" opacity=".9"/>
+  <path d="M230 1030c55-150 130-242 310-242s255 92 310 242" fill="none" stroke="#fef3c7" stroke-width="7" opacity=".8"/>
+  <path d="M0 1160c204-80 386-92 540-22 166-74 345-58 540 22v190H0z" fill="#020807" opacity=".9"/>
+</svg>

@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PosterBanao - Festival Greeting & WhatsApp Poster Maker for Your Business</title>
+  <meta name="description" content="Create stunning festival greetings with your business branding. Free WhatsApp poster maker for Diwali, Eid, Holi & more. Made for Indian shop owners.">
+  <meta name="keywords" content="festival poster maker, whatsapp greeting, business poster, diwali poster, eid greeting, indian festival">
+  <meta property="og:title" content="PosterBanao - WhatsApp Business Poster Maker">
+  <meta property="og:description" content="Create stunning festival greetings with your shop branding in seconds!">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#0D0B1A">
+  <link rel="icon" href="assets/brand/posterbanao-mark.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/brand/posterbanao-icon-192.png">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Main App Container -->
+  <div class="app-container" id="appContainer">
+
+    <!-- ========== HEADER ========== -->
+    <header class="app-header" id="appHeader" style="display: none;">
+      <div class="app-logo">
+        <img class="app-logo-icon" src="assets/brand/posterbanao-mark.svg" alt="" aria-hidden="true">
+        <span class="app-logo-text">PosterBanao</span>
+      </div>
+      <div class="header-actions">
+        <button class="btn-icon btn-icon-text" id="btnEditProfile" title="Edit Profile" aria-label="Edit Profile">
+          Profile
+        </button>
+      </div>
+    </header>
+
+    <!-- ========== SCREEN 0: PRELOADER / SPLASH SCREEN ========== -->
+    <section class="screen active" id="screenPreloader" style="position: fixed; inset: 0; z-index: 99999; background: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 48px 24px 36px 24px;">
+      <style>
+        @keyframes dualArcSpinApp {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      </style>
+      <div style="width: 100%; display: flex; justify-content: flex-end;">
+        <button id="btnPreloaderSkip" type="button" style="padding: 5px 12px; font-size: 0.75rem; font-weight: 700; color: #64748B; background: #F1F5F9; border: 1px solid #E2E8F0; border-radius: 20px; cursor: pointer;">Skip ›</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+        <div style="width: 110px; height: 110px; border-radius: 24px; background: #FFF; box-shadow: 0 10px 28px rgba(0,85,184,0.12); display: flex; align-items: center; justify-content: center; padding: 12px; margin-bottom: 20px; border: 1px solid #E2E8F0;">
+          <img id="preloaderLogoImg" src="assets/brand/posterbanao-mark.svg" alt="App Logo" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+        <h1 style="font-size: 1.6rem; font-weight: 800; color: #0F172A; margin: 0 0 6px 0;">
+          <span>Panchayat</span><span style="color: #0055B8;">Post</span>
+        </h1>
+        <p id="preloaderTagline" style="font-size: 0.82rem; color: #64748B; font-weight: 500; margin: 0;">
+          Create. Celebrate. Share.
+        </p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+        <div style="width: 40px; height: 40px;">
+          <svg viewBox="0 0 44 44" style="width: 100%; height: 100%; animation: dualArcSpinApp 1.1s linear infinite;">
+            <circle id="preloaderArcPrimary" cx="22" cy="22" r="18" fill="none" stroke="#FE8706" stroke-width="3.4" stroke-dasharray="42 70" stroke-linecap="round"></circle>
+            <circle id="preloaderArcSecondary" cx="22" cy="22" r="18" fill="none" stroke="#0055B8" stroke-width="3.4" stroke-dasharray="42 70" stroke-dashoffset="56" stroke-linecap="round"></circle>
+          </svg>
+        </div>
+        <div style="font-size: 0.70rem; color: #94A3B8; font-weight: 600;">
+          v2.4.0 • Official Digital Panchayat
+        </div>
+      </div>
+      <script>
+        (function() {
+          var preloader = document.getElementById('screenPreloader');
+          var skipBtn = document.getElementById('btnPreloaderSkip');
+          var logoImg = document.getElementById('preloaderLogoImg');
+          var tagline = document.getElementById('preloaderTagline');
+
+          function dismissPreloader() {
+            if (!preloader) return;
+            preloader.style.transition = 'opacity 0.4s ease, visibility 0.4s';
+            preloader.style.opacity = '0';
+            setTimeout(function() {
+              preloader.style.display = 'none';
+              preloader.classList.remove('active');
+            }, 400);
+          }
+
+          if (skipBtn) {
+            skipBtn.addEventListener('click', dismissPreloader);
+          }
+
+          // Fetch admin remote settings strictly from backend
+          fetch('/api/appcontrol')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              var cfg = data && (data.data || data.config || data);
+              var duration = 2200;
+              if (cfg && cfg.preloaderScreen) {
+                var p = cfg.preloaderScreen;
+                if (p.tagline && tagline) {
+                  tagline.textContent = p.tagline;
+                }
+                if (p.appIcon && p.appIcon.url && logoImg) {
+                  logoImg.src = p.appIcon.url;
+                }
+                var arcPrimary = document.getElementById('preloaderArcPrimary');
+                var arcSecondary = document.getElementById('preloaderArcSecondary');
+                if (p.spinnerColor && arcPrimary) {
+                  arcPrimary.setAttribute('stroke', p.spinnerColor);
+                }
+                if (p.spinnerSecondaryColor && arcSecondary) {
+                  arcSecondary.setAttribute('stroke', p.spinnerSecondaryColor);
+                }
+                if (p.durationSeconds) {
+                  duration = Math.max(800, p.durationSeconds * 1000);
+                }
+                if (p.videoUrl && p.mediaType === 'video') {
+                  var vid = document.createElement('video');
+                  vid.src = p.videoUrl;
+                  vid.autoplay = true;
+                  vid.loop = true;
+                  vid.muted = true;
+                  vid.playsInline = true;
+                  vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;';
+                  preloader.insertBefore(vid, preloader.firstChild);
+                }
+              }
+              setTimeout(dismissPreloader, duration);
+            })
+            .catch(function() {
+              setTimeout(dismissPreloader, 2200);
+            });
+        })();
+      </script>
+    </section>
+
+    <!-- ========== SCREEN 1: WELCOME ========== -->
+    <section class="screen" id="screenWelcome">
+      <div class="welcome-screen">
+        <div class="welcome-visual" aria-hidden="true">
+          <div class="welcome-phone-preview">
+            <img class="welcome-main-photo" src="assets/photos/wedding_real.jpg" alt="">
+            <div class="welcome-poster-overlay">
+              <span>Wedding Invite</span>
+              <strong>Your Brand</strong>
+            </div>
+          </div>
+          <img class="welcome-thumb welcome-thumb-one" src="assets/photos/retail_offer_real.jpg" alt="" loading="lazy">
+          <img class="welcome-thumb welcome-thumb-two" src="assets/photos/birthday_cake_real.jpg" alt="" loading="lazy">
+        </div>
+
+        <h1 class="heading-1 welcome-title">
+          <span class="text-gradient">PosterBanao</span>
+        </h1>
+        <p class="welcome-subtitle">
+          Create polished greetings, invites and offer posters with your business branding in seconds.
+        </p>
+
+        <div class="welcome-features">
+          <div class="welcome-feature">
+            <div class="welcome-feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <span class="welcome-feature-text">Smart Profile</span>
+          </div>
+          <div class="welcome-feature">
+            <div class="welcome-feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+            <span class="welcome-feature-text">Real Photos</span>
+          </div>
+          <div class="welcome-feature">
+            <div class="welcome-feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
+            <span class="welcome-feature-text">Share Ready</span>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-lg btn-block" id="btnGetStarted">
+          Get Started
+        </button>
+      </div>
+    </section>
+
+    <!-- ========== SCREEN 2: PROFILE SETUP ========== -->
+    <section class="screen" id="screenProfile">
+      <div class="profile-header">
+        <h2 class="heading-2">Set Up Your <span class="text-gradient">Business</span></h2>
+        <p class="text-secondary" style="font-size: var(--fs-sm);">Save the exact brand details that should appear on every poster.</p>
+      </div>
+
+      <div class="profile-steps">
+        <div class="profile-step active" id="step1"></div>
+        <div class="profile-step" id="step2"></div>
+        <div class="profile-step" id="step3"></div>
+      </div>
+
+      <form id="profileForm" class="glass-card profile-form" autocomplete="on">
+        <!-- Shop Name -->
+        <div class="form-group" id="groupShopName">
+          <label class="form-label" for="inputShopName">Business Name *</label>
+          <input type="text" class="form-input" id="inputShopName" placeholder="e.g. Sharma General Store" maxlength="52" autocomplete="organization" required>
+          <span class="form-help">Use the registered or commonly known name. We will clean extra spaces automatically.</span>
+          <span class="form-error">Please enter your business name</span>
+        </div>
+
+        <!-- Poster Display Name -->
+        <div class="form-group" id="groupDisplayName">
+          <label class="form-label" for="inputDisplayName">Poster Display Name</label>
+          <input type="text" class="form-input" id="inputDisplayName" placeholder="Auto-filled from business name" maxlength="36" autocomplete="organization-title">
+          <span class="form-help">Shorter names look better on posters. Leave blank to use the business name.</span>
+          <span class="form-error">Please use at least 2 characters</span>
+        </div>
+
+        <!-- Business Type -->
+        <div class="form-group">
+          <label class="form-label" for="inputBusinessType">Business Type</label>
+          <select class="form-input form-select" id="inputBusinessType" autocomplete="organization-title">
+            <option value="">Select type</option>
+            <option value="Retail Store">Retail Store</option>
+            <option value="Restaurant / Cafe">Restaurant / Cafe</option>
+            <option value="Salon / Beauty">Salon / Beauty</option>
+            <option value="Clinic / Healthcare">Clinic / Healthcare</option>
+            <option value="Education / Coaching">Education / Coaching</option>
+            <option value="Event / Wedding">Event / Wedding</option>
+            <option value="Real Estate">Real Estate</option>
+            <option value="Other Business">Other Business</option>
+          </select>
+        </div>
+
+        <!-- Phone Number -->
+        <div class="form-group" id="groupPhone">
+          <label class="form-label" for="inputPhone">Phone Number <span style="opacity:0.5;">(Optional)</span></label>
+          <input type="tel" class="form-input" id="inputPhone" placeholder="e.g. 98765 43210" maxlength="20" inputmode="tel" autocomplete="tel">
+          <span class="form-help">Indian numbers are formatted as +91 98765 43210. Other country codes are kept intact.</span>
+          <span class="form-error">Please enter a valid phone number</span>
+        </div>
+
+        <!-- Address (optional) -->
+        <div class="form-group">
+          <label class="form-label" for="inputAddress">Address <span style="opacity:0.5;">(Optional)</span></label>
+          <input type="text" class="form-input" id="inputAddress" placeholder="e.g. Main Market, Sector 22, Chandigarh" maxlength="90" autocomplete="street-address">
+        </div>
+
+        <!-- Tagline (optional) -->
+        <div class="form-group">
+          <label class="form-label" for="inputTagline">Tagline <span style="opacity:0.5;">(Optional)</span></label>
+          <input type="text" class="form-input" id="inputTagline" placeholder="e.g. Quality products since 1995" maxlength="58">
+        </div>
+
+        <!-- Logo Upload -->
+        <div class="form-group">
+          <label class="form-label">Business Logo <span style="opacity:0.5;">(Optional)</span></label>
+          <div class="logo-upload-area" id="logoUploadArea">
+            <div class="logo-upload-icon">LOGO</div>
+            <img class="logo-preview" id="logoPreview" alt="Logo preview">
+            <div class="logo-upload-text">
+              <strong>Tap to upload</strong> your logo<br>
+              <span style="font-size:0.7rem; opacity:0.6;">PNG, JPG, WebP - Max 2MB</span>
+            </div>
+            <input type="file" id="inputLogo" accept="image/png, image/jpeg, image/webp" aria-label="Upload logo">
+          </div>
+        </div>
+
+        <div class="profile-brand-kit" aria-labelledby="profileBrandKitTitle">
+          <div class="profile-brand-kit-header">
+            <div>
+              <span class="identity-preview-label">Brand Kit</span>
+              <h3 id="profileBrandKitTitle">Poster Defaults</h3>
+            </div>
+          </div>
+
+          <div class="profile-brand-toggle-grid" id="profileBrandDefaultToggles" aria-label="Brand fields shown by default">
+            <label class="profile-brand-toggle">
+              <input type="checkbox" data-profile-brand-show="logo" checked>
+              <span>Logo</span>
+            </label>
+            <label class="profile-brand-toggle">
+              <input type="checkbox" data-profile-brand-show="business_name" checked>
+              <span>Name</span>
+            </label>
+            <label class="profile-brand-toggle">
+              <input type="checkbox" data-profile-brand-show="phone" checked>
+              <span>Phone</span>
+            </label>
+            <label class="profile-brand-toggle">
+              <input type="checkbox" data-profile-brand-show="tagline" checked>
+              <span>Tagline</span>
+            </label>
+            <label class="profile-brand-toggle">
+              <input type="checkbox" data-profile-brand-show="address" checked>
+              <span>Address</span>
+            </label>
+          </div>
+
+          <div class="profile-brand-settings">
+            <label class="select-control profile-brand-field">
+              <span>Placement</span>
+              <select id="inputBrandPresetDefault">
+                <option value="bottom_bar">Bottom Bar</option>
+                <option value="top_bar">Top Bar</option>
+                <option value="left_stack">Left Stack</option>
+                <option value="right_stack">Right Stack</option>
+                <option value="corner_logo">Corner Logo</option>
+                <option value="clean">Clean</option>
+              </select>
+            </label>
+            <label class="color-control profile-brand-field">
+              <span>Text Color</span>
+              <input type="color" id="inputBrandTextColorDefault" value="#FFFFFF">
+            </label>
+            <label class="select-control profile-brand-field">
+              <span>Logo Shape</span>
+              <select id="inputLogoShapeDefault">
+                <option value="circle">Circle</option>
+                <option value="rounded">Rounded</option>
+                <option value="rect">Square</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="identity-preview" id="identityPreview" aria-live="polite">
+          <div class="identity-preview-mark" id="identityPreviewMark">PB</div>
+          <div class="identity-preview-copy">
+            <span class="identity-preview-label">Poster identity</span>
+            <strong id="identityPreviewName">Your Business</strong>
+            <span id="identityPreviewMeta">Phone number will appear here</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg mt-lg" id="btnSaveProfile">
+          Save & Start Creating
+        </button>
+      </form>
+    </section>
+
+    <!-- ========== SCREEN 3: TEMPLATE GALLERY ========== -->
+    <section class="screen" id="screenGallery">
+      <div class="gallery-header">
+        <h2 class="heading-2">Choose a <span class="text-gradient">Template</span></h2>
+        <p class="gallery-subtitle">Search events, invites, offers, real photos, festivals and saved designs.</p>
+      </div>
+
+      <div class="gallery-search">
+        <input type="search" class="form-input" id="inputTemplateSearch" placeholder="Search birthday, wedding, sale, photo..." autocomplete="off">
+        <button class="btn btn-primary btn-sm" id="btnCreateCustom" type="button">Blank Card</button>
+      </div>
+
+      <!-- ========== RECENT DESIGNS CAROUSEL ========== -->
+      <div class="recent-designs-section" id="recentDesignsSection" style="display: none; margin-top: 16px; margin-bottom: 24px;">
+        <div class="section-label" style="margin-bottom: 12px; font-size: 0.72rem; letter-spacing: 0.06em; font-weight: 700; text-transform: uppercase;">Recent Designs</div>
+        <div class="recent-designs-carousel" id="recentDesignsCarousel" style="display: flex; gap: 12px; overflow-x: auto; padding: 4px 4px 10px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
+          <!-- Recent design cards injected by JS -->
+        </div>
+      </div>
+
+      <div class="media-type-pills" id="mediaTypePills" aria-label="Template type">
+        <button class="media-type-pill active" type="button" data-media-type="all">All Designs</button>
+        <button class="media-type-pill" type="button" data-media-type="image">Images</button>
+        <button class="media-type-pill" type="button" data-media-type="video">Videos</button>
+      </div>
+      <div class="gallery-results-meta" id="galleryResultsMeta" aria-live="polite"></div>
+
+      <!-- Category Filter -->
+      <div class="category-pills" id="categoryPills">
+        <!-- Category buttons injected by JS -->
+      </div>
+
+      <!-- Template Grid -->
+      <div class="template-grid" id="templateGrid">
+        <!-- Templates injected by JS -->
+      </div>
+    </section>
+
+    <!-- ========== SCREEN 4: POSTER EDITOR ========== -->
+    <section class="screen editor-screen" id="screenEditor">
+      <div class="editor-topbar">
+        <button class="editor-back-btn" id="btnBackToGallery" type="button" aria-label="Back to templates" title="Back to templates">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="editor-title-group">
+          <div class="editor-template-name" id="editorTemplateName">Template</div>
+          <div class="editor-template-category" id="editorTemplateCategory">Category</div>
+        </div>
+        <span class="template-card-badge badge-free" id="editorBadge">FREE</span>
+      </div>
+
+      <div class="canvas-wrapper" id="canvasWrapper">
+        <canvas id="posterCanvas" width="1080" height="1080"></canvas>
+        <div class="canvas-selection-box" id="canvasSelectionBox" hidden aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div class="canvas-delete-zone" id="canvasDeleteZone" hidden aria-hidden="true">
+          <span class="delete-zone-icon">×</span>
+          <span class="delete-zone-label">Delete</span>
+        </div>
+        <!-- Canvas Viewport Zoom Overlay Controls -->
+        <div class="canvas-zoom-controls" style="position: absolute; top: 12px; right: 12px; z-index: 10; display: flex; gap: 6px;">
+          <button class="btn btn-secondary btn-sm" id="btnZoomIn" type="button" style="padding: 0; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%;" aria-label="Zoom In"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          <button class="btn btn-secondary btn-sm" id="btnZoomOut" type="button" style="padding: 0; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%;" aria-label="Zoom Out"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          <button class="btn btn-secondary btn-sm" id="btnZoomReset" type="button" style="padding: 0 10px; height: 32px; font-size: 11px; font-weight: 700; border-radius: 16px;">100%</button>
+        </div>
+      </div>
+
+      <div class="video-preview-card" id="videoPreviewCard" style="display:none;">
+        <div class="video-preview-header">
+          <span>Live Video Preview</span>
+          <span id="videoPreviewPreset">3D Motion</span>
+        </div>
+        <canvas id="videoPreviewCanvas" width="1080" height="1080"></canvas>
+      </div>
+
+      <div class="editor-bottom-sheet" id="editorBottomSheet" data-sheet-state="collapsed" aria-label="Editor controls">
+        <button class="editor-sheet-handle" id="editorSheetHandle" type="button" aria-label="Drag editor tools">
+          <span class="editor-sheet-grabber" aria-hidden="true"></span>
+        </button>
+
+        <div class="editor-tools" id="editorTools">
+          <div class="editor-command-rail" aria-label="Editor history">
+            <button class="quick-chip" id="btnUndoEdit" type="button" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+            <button class="quick-chip" id="btnRedoEdit" type="button" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg></button>
+          </div>
+
+          <div class="editor-tabbar" id="editorTabbar" role="tablist" aria-label="Editor tools">
+            <button class="editor-tab active" data-editor-tab="brand" type="button" role="tab" aria-selected="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg><span>Brand</span></button>
+            <button class="editor-tab" data-editor-tab="text" type="button" role="tab" aria-selected="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg><span>Text</span></button>
+            <button class="editor-tab" data-editor-tab="stickers" type="button" role="tab" aria-selected="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg><span>Stickers</span></button>
+            <button class="editor-tab" data-editor-tab="photo" type="button" role="tab" aria-selected="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>Photo</span></button>
+            <button class="editor-tab" data-editor-tab="adjust" type="button" role="tab" aria-selected="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Adjust</span></button>
+            <button class="editor-tab" data-editor-tab="crop" type="button" role="tab" aria-selected="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"/><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"/></svg><span>Crop</span></button>
+            <button class="editor-tab" data-editor-tab="layers" type="button" role="tab" aria-selected="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg><span>Layers</span></button>
+            <button class="editor-tab" data-editor-tab="animation" type="button" role="tab" aria-selected="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>Motion</span></button>
+            <button class="editor-tab" data-editor-tab="export" type="button" role="tab" aria-selected="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Export</span></button>
+          </div>
+
+          <div class="editor-sheet-content" id="editorSheetContent">
+            <div class="editor-tab-panel active" data-editor-tab-panel="brand">
+              <div class="section-label">Brand Placement</div>
+              <label class="select-control brand-placement-select">
+                <span>Position</span>
+                <select id="selectBrandPreset">
+                  <option value="bottom_bar">Bottom bar</option>
+                  <option value="top_bar">Top bar</option>
+                  <option value="left_stack">Left stack</option>
+                  <option value="right_stack">Right stack</option>
+                  <option value="corner_logo">Corner block</option>
+                  <option value="clean">Minimal bottom</option>
+                </select>
+              </label>
+
+              <div class="profile-brand-summary" id="profileBrandSummary" aria-live="polite"></div>
+              <button class="btn btn-secondary btn-block" id="btnApplyProfileBrand" type="button">Apply Profile Brand</button>
+
+              <div class="brand-control-panel" id="brandControlPanel">
+                <div class="brand-control-header">
+                  <span id="brandSelectedName">Business Name</span>
+                  <button class="mini-action" id="btnResetBrandText" type="button">Reset</button>
+                </div>
+                <div class="control-grid brand-control-grid">
+                  <label class="color-control" id="brandColorControl">
+                    <span>Color</span>
+                    <input type="color" id="inputBrandColor" value="#ffffff">
+                  </label>
+                  <label class="select-control" id="brandLogoShapeControl">
+                    <span>Logo Shape</span>
+                    <select id="selectBrandLogoShape">
+                      <option value="circle">Circle</option>
+                      <option value="rounded">Rounded</option>
+                      <option value="rect">Square</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="editor-tab-panel" data-editor-tab-panel="layers">
+              <div class="section-label">Layers</div>
+              <div class="editor-tool-actions">
+                <button class="btn btn-secondary btn-sm" id="btnDuplicateLayer" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Duplicate</button>
+                <button class="btn btn-secondary btn-sm" id="btnDeleteLayer" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Delete</button>
+                <button class="btn btn-secondary btn-sm" id="btnMoveLayerUp" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg> Move Up</button>
+                <button class="btn btn-secondary btn-sm" id="btnMoveLayerDown" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg> Move Down</button>
+              </div>
+              <div class="selected-layer-controls" id="selectedLayerControls">
+                <label class="range-control" data-layer-opacity-control>
+                  <span>Layer Opacity</span>
+                  <input type="range" id="inputLayerOpacityGlobal" data-layer-opacity-input min="0" max="100" step="1" value="100">
+                </label>
+              </div>
+              <div class="layer-status" id="layerPills" aria-live="polite"></div>
+            </div>
+
+            <div class="layer-controls editor-tab-panel" id="layerControls" data-editor-tab-panel="text">
+              <div class="section-label">Text</div>
+              <div class="editor-tool-actions">
+                <button class="btn btn-secondary btn-sm" id="btnAddTextLayer" type="button">Add Text</button>
+              </div>
+              <div class="ai-text-panel" id="aiTextPanel">
+                <div class="ai-text-header">
+                  <div>
+                    <span class="ai-text-kicker">AI copy</span>
+                    <strong>Smart text</strong>
+                  </div>
+                  <button class="mini-action" id="btnGenerateTextSuggestions" type="button">Generate text</button>
+                </div>
+                <div class="ai-text-suggestions" id="aiTextSuggestions" aria-live="polite"></div>
+              </div>
+              <div class="text-control" id="layerTextControl">
+                <label class="form-label" for="inputLayerText">Text</label>
+                <input type="text" class="form-input" id="inputLayerText" maxlength="80">
+              </div>
+              <div class="control-grid">
+                <label class="range-control" id="layerFontSizeControl">
+                  <span>Font Size</span>
+                  <input type="range" id="inputLayerFontSize" min="12" max="120" step="1" value="38">
+                </label>
+                <label class="range-control" id="layerOpacityControl" data-layer-opacity-control>
+                  <span>Opacity</span>
+                  <input type="range" id="inputLayerOpacity" data-layer-opacity-input min="0" max="100" step="1" value="100">
+                </label>
+              </div>
+              <div class="option-rail" id="textFontRail" aria-label="Text styles"></div>
+              <div class="option-rail" id="textStyleRail" aria-label="Text effects"></div>
+              <div class="option-rail" id="textColorRail" aria-label="Text colors"></div>
+              <label class="color-control compact-control">
+                <span>Custom Color</span>
+                <input type="color" id="inputLayerColor" value="#ffffff">
+              </label>
+            </div>
+
+            <div class="editor-tab-panel" data-editor-tab-panel="stickers">
+              <div class="section-label">Stickers</div>
+              <div class="sticker-panel-actions">
+                <button class="btn btn-primary btn-block" id="btnOpenStickerPicker" type="button">
+                  Browse sticker library
+                </button>
+              </div>
+              <div class="option-rail sticker-rail" id="stickerRail" aria-label="Quick stickers"></div>
+            </div>
+
+            <div class="editor-tab-panel" data-editor-tab-panel="photo">
+              <div class="section-label">Photo</div>
+              <div class="editor-tool-actions">
+                <button class="btn btn-secondary btn-sm" id="btnAddImageLayer" type="button">Add Image</button>
+                <button class="btn btn-primary btn-sm" id="btnFillSlot" type="button">Replace Photo</button>
+              </div>
+              <div class="image-upload-control" id="layerImageControl">
+                <label class="form-label" for="inputLayerImage">Image</label>
+                <input type="file" class="form-input" id="inputLayerImage" accept="image/png, image/jpeg, image/webp">
+              </div>
+              <div class="option-rail filter-rail" id="photoFilterRail" aria-label="Photo filters"></div>
+            </div>
+
+            <div class="editor-tab-panel" data-editor-tab-panel="adjust">
+              <div class="section-label">Adjust</div>
+              <div class="adjust-control-stack" id="adjustControlStack"></div>
+            </div>
+
+            <div class="editor-tab-panel" data-editor-tab-panel="crop">
+              <div class="section-label">Crop</div>
+              <div class="option-rail" id="cropFitRail" aria-label="Photo fit"></div>
+              <div class="option-rail" id="cropMaskRail" aria-label="Photo masks"></div>
+              <div class="rotation-wheel-card" id="rotationWheelCard">
+                <div class="rotation-wheel-header">
+                  <span>Straighten</span>
+                  <output id="rotationWheelValue" for="rotationWheel">0°</output>
+                  <button class="mini-action" id="btnResetRotation" type="button">Reset</button>
+                </div>
+                <div class="wheel-picker" id="rotationWheel" aria-label="Straighten selected photo"></div>
+              </div>
+              <div class="control-grid">
+                <label class="range-control" id="layerSpaceControl">
+                  <span>Frame</span>
+                  <input type="range" id="inputLayerSpace" min="0" max="14" step="1">
+                </label>
+                <label class="range-control" id="layerCropZoomControl">
+                  <span>Crop Zoom</span>
+                  <input type="range" id="inputLayerCropZoom" min="100" max="400" step="5">
+                </label>
+              </div>
+            </div>
+
+            <div class="animation-controls editor-tab-panel" id="animationControls" data-editor-tab-panel="animation" style="display:none;">
+              <div class="section-label">Animation</div>
+              <div class="control-grid">
+                <label class="select-control">
+                  <span>Preset</span>
+                  <select id="selectAnimationPreset">
+                    <option value="cinematic">Cinematic</option>
+                    <option value="sparkle">Sparkle</option>
+                    <option value="confetti">Confetti</option>
+                    <option value="spotlight">Spotlight</option>
+                    <option value="pulse">Pulse</option>
+                    <option value="slide">Slide</option>
+                    <option value="zoom">Zoom</option>
+                    <option value="mandap3d">3D Mandap</option>
+                    <option value="rangoli3d">3D Rangoli</option>
+                    <option value="stage3d">3D Stage</option>
+                    <option value="product3d">3D Product</option>
+                    <option value="photoOrbit3d">3D Photo Orbit</option>
+                    <option value="fireworks3d">3D Fireworks</option>
+                    <option value="confetti3d">3D Confetti</option>
+                    <option value="luxury3d">3D Luxury Scene</option>
+                  </select>
+                </label>
+                <label class="range-control">
+                  <span>Intensity</span>
+                  <input type="range" id="inputAnimationIntensity" min="20" max="200" step="5">
+                </label>
+                <label class="range-control">
+                  <span>Speed</span>
+                  <input type="range" id="inputAnimationSpeed" min="50" max="200" step="5">
+                </label>
+              </div>
+            </div>
+
+            <div class="editor-export-actions editor-tab-panel" data-editor-tab-panel="export">
+              <div class="section-label">Export</div>
+              <div class="export-settings">
+                <div class="control-grid export-control-grid">
+                  <label class="select-control">
+                    <span>Format</span>
+                    <select id="selectExportFormat">
+                      <option value="png">PNG</option>
+                      <option value="jpeg">JPEG</option>
+                      <option value="webp">WebP</option>
+                    </select>
+                  </label>
+                  <label class="range-control" id="exportQualityControl">
+                    <span>Quality <output id="exportQualityValue" for="inputExportQuality">92%</output></span>
+                    <input type="range" id="inputExportQuality" min="50" max="100" step="1" value="92">
+                  </label>
+                </div>
+                <label class="select-control">
+                  <span>Size</span>
+                  <select id="selectExportSize">
+                    <option value="original">Original HD</option>
+                    <option value="whatsapp">WhatsApp optimized</option>
+                    <option value="instagram">Instagram ready</option>
+                  </select>
+                </label>
+                <div class="export-summary" id="exportSummary" aria-live="polite">PNG / Original HD</div>
+              </div>
+              <div class="export-action-grid">
+                <button class="btn btn-secondary btn-block" id="btnSaveDesign" type="button">
+                  Save to My Designs
+                </button>
+                <button class="btn btn-primary btn-block btn-lg" id="btnDownloadHD">
+                  Download HD Poster
+                </button>
+                <button class="btn btn-secondary btn-block" id="btnDownloadVideo" style="display:none;">
+                  Create Video Invite
+                </button>
+                <button class="btn btn-secondary btn-block" id="btnDownloadAnimatedImage" style="display:none;">
+                  Download Animated GIF
+                </button>
+                <button class="btn btn-secondary btn-block" id="btnShareWhatsApp">
+                  Share to WhatsApp
+                </button>
+                <button class="btn btn-secondary btn-block" id="btnBatchExportDesigns" type="button">
+                  Batch export saved designs
+                </button>
+              </div>
+              <div class="batch-export-status" id="batchExportStatus" aria-live="polite"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== BOTTOM NAVIGATION ========== -->
+    <nav class="bottom-nav" id="bottomNav" style="display: none;" aria-label="Main navigation">
+      <button class="bottom-nav-item active" data-nav="gallery" type="button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Home</span>
+      </button>
+      <button class="bottom-nav-item" data-nav="create" type="button">
+        <div class="bottom-nav-create"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        <span>Create</span>
+      </button>
+      <button class="bottom-nav-item" data-nav="saved" type="button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        <span>Saved</span>
+      </button>
+      <button class="bottom-nav-item" data-nav="profile" type="button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Profile</span>
+      </button>
+    </nav>
+
+  </div><!-- /app-container -->
+
+  <!-- ========== TEMPLATE PREVIEW MODAL ========== -->
+  <div class="preview-modal-overlay" id="templatePreviewOverlay">
+    <div class="preview-modal" id="templatePreviewModal">
+      <button class="preview-modal-close" id="btnClosePreview" type="button" aria-label="Close preview">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="preview-modal-image" id="previewModalImage"></div>
+      <div class="preview-modal-info" style="position: relative;">
+        <span class="template-card-badge" id="previewBadge">FREE</span>
+        <h3 class="preview-modal-title" id="previewModalTitle">Template</h3>
+        <p class="preview-modal-category" id="previewModalCategory">Category</p>
+        <!-- Favorite heart button -->
+        <button class="btn-favorite" id="btnToggleFavorite" type="button" style="position: absolute; top: 0; right: 0; background: transparent; color: var(--text-secondary); border: none; padding: 6px; cursor: pointer; transition: all var(--transition-fast);" aria-label="Toggle favorite">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" id="btnUseTemplate">Use This Template</button>
+    </div>
+  </div>
+
+  <!-- ========== UNSAVED CHANGES DIALOG ========== -->
+  <div class="confirm-dialog-overlay" id="unsavedDialogOverlay">
+    <div class="confirm-dialog">
+      <div class="confirm-dialog-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <h3 class="confirm-dialog-title">Unsaved Changes</h3>
+      <p class="confirm-dialog-desc">You have unsaved edits. Leave without saving?</p>
+      <div class="confirm-dialog-actions">
+        <button class="btn btn-secondary" id="btnStayEditing" type="button">Keep Editing</button>
+        <button class="btn btn-primary" id="btnDiscardChanges" type="button">Leave</button>
+      </div>
+    </div>
+  </div>
+  <!-- ========== ASPECT RATIO SELECT DIALOG ========== -->
+  <div class="modal-overlay" id="aspectRatioModal" style="display: none; align-items: center; justify-content: center; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; opacity: 0; transition: opacity var(--transition-normal); backdrop-filter: blur(20px);">
+    <div class="modal-card" style="width: 90%; max-width: 420px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-xl); transform: scale(0.9); transition: transform var(--transition-normal);">
+      <h3 class="heading-3 text-center" style="margin-bottom: var(--space-sm);">Choose Canvas <span class="text-gradient">Format</span></h3>
+      <p class="text-secondary text-center text-sm" style="margin-bottom: var(--space-lg);">Select an aspect ratio preset for your custom design.</p>
+
+      <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 24px;">
+        <button class="btn btn-secondary aspect-preset-btn" data-aspect="1:1" style="justify-content: flex-start; gap: 14px; padding: 14px; height: auto;" type="button">
+          <div style="width: 24px; height: 24px; border: 2px solid currentColor; border-radius: 4px; opacity: 0.85; flex-shrink: 0;"></div>
+          <div style="text-align: left;">
+            <div style="font-weight: 700; font-family: var(--font-heading);">Square (1:1)</div>
+            <div style="font-size: var(--fs-xs); color: var(--text-tertiary);">Best for Instagram posts, WhatsApp statuses</div>
+          </div>
+        </button>
+
+        <button class="btn btn-secondary aspect-preset-btn" data-aspect="9:16" style="justify-content: flex-start; gap: 14px; padding: 14px; height: auto;" type="button">
+          <div style="width: 14px; height: 24px; border: 2px solid currentColor; border-radius: 4px; opacity: 0.85; flex-shrink: 0;"></div>
+          <div style="text-align: left;">
+            <div style="font-weight: 700; font-family: var(--font-heading);">Story / Portrait (9:16)</div>
+            <div style="font-size: var(--fs-xs); color: var(--text-tertiary);">Best for Instagram/FB Stories, WhatsApp Status</div>
+          </div>
+        </button>
+
+        <button class="btn btn-secondary aspect-preset-btn" data-aspect="16:9" style="justify-content: flex-start; gap: 14px; padding: 14px; height: auto;" type="button">
+          <div style="width: 24px; height: 14px; border: 2px solid currentColor; border-radius: 4px; opacity: 0.85; flex-shrink: 0;"></div>
+          <div style="text-align: left;">
+            <div style="font-weight: 700; font-family: var(--font-heading);">Landscape (16:9)</div>
+            <div style="font-size: var(--fs-xs); color: var(--text-tertiary);">Best for YouTube thumbnails, banners, presentations</div>
+          </div>
+        </button>
+
+        <button class="btn btn-secondary aspect-preset-btn" data-aspect="a4" style="justify-content: flex-start; gap: 14px; padding: 14px; height: auto;" type="button">
+          <div style="width: 17px; height: 24px; border: 2px solid currentColor; border-radius: 3px; opacity: 0.85; flex-shrink: 0;"></div>
+          <div style="text-align: left;">
+            <div style="font-weight: 700; font-family: var(--font-heading);">A4 Portrait</div>
+            <div style="font-size: var(--fs-xs); color: var(--text-tertiary);">Best for print-ready flyers and notices</div>
+          </div>
+        </button>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end;">
+        <button class="btn btn-secondary" id="btnCancelAspectSelect" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== STICKER PICKER ========== -->
+  <div class="sticker-picker-overlay" id="stickerPickerOverlay" aria-hidden="true">
+    <section class="sticker-picker-modal" role="dialog" aria-modal="true" aria-labelledby="stickerPickerTitle">
+      <div class="sticker-picker-header">
+        <div>
+          <h3 class="sticker-picker-title" id="stickerPickerTitle">Sticker library</h3>
+          <p class="sticker-picker-subtitle">Add scalable emojis, shapes, frames, arrows and social icons.</p>
+        </div>
+        <button class="sticker-picker-close" id="btnCloseStickerPicker" type="button" aria-label="Close sticker picker">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <label class="sticker-search-control" for="stickerPickerSearch">
+        <span aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <input id="stickerPickerSearch" type="search" placeholder="Search diya, offer, frame, arrow..." autocomplete="off">
+      </label>
+
+      <div class="sticker-category-tabs" id="stickerCategoryTabs" aria-label="Sticker categories"></div>
+      <div class="sticker-grid" id="stickerGrid" role="list"></div>
+    </section>
+  </div>
+
+  <!-- ========== ONBOARDING OVERLAY ========== -->
+  <div class="onboarding-overlay" id="onboardingOverlay">
+    <div class="onboarding-card">
+      <div class="onboarding-emoji" id="onboardingEmoji">1</div>
+      <div class="onboarding-step-title" id="onboardingTitle">Step 1</div>
+      <div class="onboarding-step-desc" id="onboardingDesc">Description</div>
+      <div class="onboarding-dots" id="onboardingDots">
+        <div class="onboarding-dot active"></div>
+        <div class="onboarding-dot"></div>
+        <div class="onboarding-dot"></div>
+      </div>
+      <button class="btn btn-primary btn-block" id="btnOnboardingNext">Next</button>
+    </div>
+  </div>
+
+  <!-- Capacitor runtime, available only inside native builds -->
+  <script src="capacitor.js"></script>
+
+  <!-- Scripts -->
+  <script src="js/utils.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/templates.js"></script>
+  <script src="js/ai-text.js"></script>
+  <script src="js/sticker-library.js"></script>
+  <script src="js/canvas-engine.js"></script>
+  <script src="js/native-bridge.js"></script>
+  <script src="js/download.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/video.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        if (window.Capacitor?.isNativePlatform?.()) {
+          navigator.serviceWorker.getRegistrations()
+            .then(registrations => registrations.forEach(registration => registration.unregister()))
+            .catch(err => console.warn('Service Worker cleanup failed:', err));
+          return;
+        }
+
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('Service Worker registered successfully:', reg.scope))
+          .catch(err => console.error('Service Worker registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>

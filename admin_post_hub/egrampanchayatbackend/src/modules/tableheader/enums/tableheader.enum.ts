@@ -1,0 +1,5 @@
+export enum TABLEHADERTYPES {
+  TEXT = 'TEXT',
+  IMAGE = 'IMAGE',
+  NUMBER = 'NUMBER',
+}

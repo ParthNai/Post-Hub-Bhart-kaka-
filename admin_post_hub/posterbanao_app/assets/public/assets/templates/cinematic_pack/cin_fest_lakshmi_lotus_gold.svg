@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350">
+  <defs>
+    <linearGradient id="bg" y1="0" y2="1"><stop stop-color="#3b1606"/><stop offset=".48" stop-color="#b7791f"/><stop offset="1" stop-color="#110602"/></linearGradient>
+    <radialGradient id="halo" cx="50%" cy="30%" r="58%"><stop stop-color="#fff7ad"/><stop offset=".36" stop-color="#facc15" stop-opacity=".6"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="9"/></filter>
+  </defs>
+  <rect width="1080" height="1350" fill="url(#bg)"/>
+  <rect width="1080" height="1350" fill="url(#halo)"/>
+  <circle cx="540" cy="515" r="214" fill="#fff7ad" opacity=".16"/>
+  <g fill="#fde68a" opacity=".88">
+    <path d="M330 680c78-118 142-118 210 0-70 44-140 44-210 0Z"/>
+    <path d="M540 680c68-130 132-130 210 0-70 44-140 44-210 0Z"/>
+    <path d="M420 750c92-108 148-108 240 0-80 52-160 52-240 0Z"/>
+  </g>
+  <g filter="url(#soft)" fill="#fef3c7" opacity=".62"><circle cx="168" cy="330" r="56"/><circle cx="912" cy="330" r="56"/><circle cx="540" cy="785" r="118"/></g>
+  <path d="M130 1020c96-260 210-400 410-400s314 140 410 400" fill="none" stroke="#fef3c7" stroke-width="18" opacity=".78"/>
+  <path d="M0 1158c190-58 370-75 540-16 178-64 360-45 540 16v192H0z" fill="#080301" opacity=".9"/>
+</svg>

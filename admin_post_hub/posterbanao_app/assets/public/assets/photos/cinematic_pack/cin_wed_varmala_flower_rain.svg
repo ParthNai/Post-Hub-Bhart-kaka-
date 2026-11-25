@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350">
+  <defs>
+    <linearGradient id="bg" y1="0" y2="1"><stop stop-color="#4c0519"/><stop offset=".48" stop-color="#be185d"/><stop offset="1" stop-color="#14040a"/></linearGradient>
+    <radialGradient id="glow" cx="50%" cy="30%" r="58%"><stop stop-color="#ffe4e6"/><stop offset=".42" stop-color="#f9a8d4" stop-opacity=".56"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="9"/></filter>
+  </defs>
+  <rect width="1080" height="1350" fill="url(#bg)"/>
+  <rect width="1080" height="1350" fill="url(#glow)"/>
+  <g fill="#ffe4e6" opacity=".75">
+    <ellipse cx="165" cy="260" rx="12" ry="28" transform="rotate(-24 165 260)"/><ellipse cx="310" cy="190" rx="10" ry="24" transform="rotate(32 310 190)"/><ellipse cx="705" cy="230" rx="11" ry="26" transform="rotate(-18 705 230)"/><ellipse cx="930" cy="310" rx="13" ry="30" transform="rotate(26 930 310)"/>
+    <ellipse cx="245" cy="470" rx="10" ry="22" transform="rotate(30 245 470)"/><ellipse cx="840" cy="500" rx="10" ry="22" transform="rotate(-30 840 500)"/>
+  </g>
+  <g filter="url(#soft)" opacity=".55"><circle cx="540" cy="660" r="230" fill="#fbcfe8"/><circle cx="155" cy="760" r="78" fill="#f472b6"/><circle cx="920" cy="760" r="82" fill="#f472b6"/></g>
+  <path d="M150 1015c86-230 190-350 390-350s304 120 390 350" fill="none" stroke="#ffe4e6" stroke-width="28"/>
+  <path d="M230 1010c65-150 145-232 310-232s245 82 310 232" fill="none" stroke="#facc15" stroke-width="7" opacity=".86"/>
+  <path d="M0 1140c210-64 380-88 540-24 176-70 360-52 540 24v210H0z" fill="#080207" opacity=".9"/>
+</svg>

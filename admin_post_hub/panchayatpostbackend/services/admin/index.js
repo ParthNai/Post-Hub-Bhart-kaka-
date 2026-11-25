@@ -1,0 +1,16 @@
+module.exports.dashboardService = require("./dashboard.service");
+module.exports.authService = require("./auth.service");
+module.exports.userService = require("./user.service");
+module.exports.businessService = require("./business.service");
+module.exports.businessService = require("./business.service");
+module.exports.categoryService = require("./category.service");
+module.exports.festivalService = require("./festival.service");
+module.exports.frameService = require("./frame.service");
+module.exports.subcategoryService = require("./subcategory.service");
+module.exports.postService = require("./post.service");
+module.exports.frameFieldsService = require("./frameFields.service");
+module.exports.subscriptionService = require("./subscription.service");
+module.exports.sliderService = require("./slider.service");
+module.exports.themeSampleService = require("./themesample.service");
+module.exports.greetingService = require("./greeting.service");
+module.exports.customCategoryService = require("./customcategory.service");

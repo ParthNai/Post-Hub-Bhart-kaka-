@@ -1,0 +1,14 @@
+module.exports.authController = require('./auth.controller');
+module.exports.userController = require('./user.controller');
+module.exports.businessController = require('./business.controller');
+module.exports.categoryController = require('./category.controller');
+module.exports.festivalController = require('./festival.controller');
+module.exports.subcategoryController = require('./subcategory.controller');
+module.exports.customcategoryController = require('./customcategory.controller');
+module.exports.postController = require('./post.controller');
+module.exports.frameController = require('./frame.controller');
+module.exports.frameFieldsController = require('./frameFields.controller');
+module.exports.subscriptionController = require('./subscription.controller');
+module.exports.sliderController = require('./slider.controller');
+module.exports.themeSampleController = require('./themesample.controller');
+module.exports.greetingController = require('./greeting.controller');
