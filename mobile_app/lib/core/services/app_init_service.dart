@@ -38,10 +38,13 @@ class AppInitService {
     String? initError;
 
     try {
+      await _loadConfiguration();
+      final configDuration = (AppConfigService.instance.config.preloaderDurationSeconds * 1000).toInt();
+      final targetMs = minDurationMs != minSplashDurationMs ? minDurationMs : configDuration.clamp(1000, 10000);
+
       final futures = <Future<dynamic>>[
         _sessionService.checkSession(),
-        Future<void>.delayed(Duration(milliseconds: minDurationMs)),
-        _loadConfiguration(),
+        Future<void>.delayed(Duration(milliseconds: targetMs)),
       ];
 
       final controller = localeController;
@@ -54,7 +57,6 @@ class AppInitService {
     } catch (e, stack) {
       debugPrint('App initialization error: $e\n$stack');
       initError = e.toString();
-      // Default safely to firstTime / welcome screen on error to never get user stuck
       determinedSession = SessionState.firstTime;
     } finally {
       stopwatch.stop();

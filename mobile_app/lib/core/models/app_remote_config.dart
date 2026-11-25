@@ -15,7 +15,17 @@ class AppRemoteConfig {
     this.logoUrl,
     required this.preloaderPrimaryColor,
     required this.preloaderSecondaryColor,
-    this.preloaderDurationMs = 2000,
+    this.preloaderDurationMs = 2500,
+    this.preloaderMediaType = 'video',
+    this.preloaderVideoUrl,
+    this.preloaderTagline = 'તમારા ગામનું પોતાનું ડિજિટલ પોસ્ટર',
+    this.preloaderBgGradient = 'gradient_blue',
+    this.preloaderDurationSeconds = 2.5,
+    this.preloaderSkipButtonEnabled = true,
+    this.preloaderShowVersion = true,
+    this.preloaderVideoFit = 'cover',
+    this.preloaderVideoMuted = true,
+    this.preloaderVideoLoop = true,
     required this.themeMode,
     required this.primaryAccentColor,
     this.backgroundColor = '#FFFFFF',
@@ -40,6 +50,16 @@ class AppRemoteConfig {
   final Color preloaderPrimaryColor;
   final Color preloaderSecondaryColor;
   final int preloaderDurationMs;
+  final String preloaderMediaType;
+  final String? preloaderVideoUrl;
+  final String preloaderTagline;
+  final String preloaderBgGradient;
+  final double preloaderDurationSeconds;
+  final bool preloaderSkipButtonEnabled;
+  final bool preloaderShowVersion;
+  final String preloaderVideoFit;
+  final bool preloaderVideoMuted;
+  final bool preloaderVideoLoop;
 
   // 3. Theme
   final String themeMode; // "Light" | "Dark"
@@ -66,7 +86,17 @@ class AppRemoteConfig {
       logoUrl: null,
       preloaderPrimaryColor: const Color(0xFFFE8706),
       preloaderSecondaryColor: const Color(0xFF0055B8),
-      preloaderDurationMs: 2000,
+      preloaderDurationMs: 2500,
+      preloaderMediaType: 'video',
+      preloaderVideoUrl: null,
+      preloaderTagline: 'તમારા ગામનું પોતાનું ડિજિટલ પોસ્ટર',
+      preloaderBgGradient: 'gradient_blue',
+      preloaderDurationSeconds: 2.5,
+      preloaderSkipButtonEnabled: true,
+      preloaderShowVersion: true,
+      preloaderVideoFit: 'cover',
+      preloaderVideoMuted: true,
+      preloaderVideoLoop: true,
       themeMode: 'Light',
       primaryAccentColor: const Color(0xFF0055B8),
       backgroundColor: '#FFFFFF',
@@ -92,16 +122,67 @@ class AppRemoteConfig {
       appIcon = branding['appIconUrl'] as String?;
       logo = branding['logoUrl'] as String?;
     }
+    if (json['appLogoUrl'] != null && logo == null) {
+      logo = json['appLogoUrl'].toString();
+    }
+    if (json['appIconUrl'] != null && appIcon == null) {
+      appIcon = json['appIconUrl'].toString();
+    }
 
     // 2. Preloader
     Color preloaderPrimary = const Color(0xFFFE8706);
     Color preloaderSecondary = const Color(0xFF0055B8);
-    int preloaderDuration = 2000;
+    int preloaderDuration = 2500;
+    String mediaType = 'video';
+    String? videoUrl;
+    String tagline = 'તમારા ગામનું પોતાનું ડિજિટલ પોસ્ટર';
+    String bgGradient = 'gradient_blue';
+    double durationSeconds = 2.5;
+    bool skipButtonEnabled = true;
+    bool showVersion = true;
+    String videoFit = 'cover';
+    bool videoMuted = true;
+    bool videoLoop = true;
+
+    final preloaderScreenJson = json['preloaderScreen'] is Map<String, dynamic>
+        ? json['preloaderScreen'] as Map<String, dynamic>
+        : (json['data'] is Map<String, dynamic> && (json['data'] as Map)['preloaderScreen'] is Map<String, dynamic>
+            ? (json['data'] as Map)['preloaderScreen'] as Map<String, dynamic>
+            : null);
+
+    if (preloaderScreenJson != null) {
+      mediaType = preloaderScreenJson['mediaType']?.toString() ?? 'video';
+      videoUrl = preloaderScreenJson['videoUrl']?.toString();
+      tagline = preloaderScreenJson['tagline']?.toString() ?? tagline;
+      bgGradient = preloaderScreenJson['bgGradient']?.toString() ?? bgGradient;
+      durationSeconds = (preloaderScreenJson['durationSeconds'] as num?)?.toDouble() ?? 2.5;
+      preloaderDuration = (durationSeconds * 1000).toInt();
+      skipButtonEnabled = preloaderScreenJson['skipButtonEnabled'] as bool? ?? true;
+      showVersion = preloaderScreenJson['showVersion'] as bool? ?? true;
+      videoFit = preloaderScreenJson['videoFit']?.toString() ?? 'cover';
+      videoMuted = preloaderScreenJson['videoMuted'] as bool? ?? true;
+      videoLoop = preloaderScreenJson['videoLoop'] as bool? ?? true;
+
+      if (preloaderScreenJson['appIcon'] is Map<String, dynamic>) {
+        final iconMap = preloaderScreenJson['appIcon'] as Map<String, dynamic>;
+        final iconUrl = iconMap['url']?.toString();
+        if (iconUrl != null && iconUrl.isNotEmpty) {
+          appIcon ??= iconUrl;
+          logo ??= iconUrl;
+        }
+      }
+    }
+
     if (json['preloader'] is Map<String, dynamic>) {
       final pre = json['preloader'] as Map<String, dynamic>;
       preloaderPrimary = hexToColor(pre['primaryColor'] as String?, fallback: const Color(0xFFFE8706));
       preloaderSecondary = hexToColor(pre['secondaryColor'] as String?, fallback: const Color(0xFF0055B8));
-      preloaderDuration = (pre['durationMs'] as num?)?.toInt() ?? 2000;
+      if (pre['durationMs'] != null) {
+        preloaderDuration = (pre['durationMs'] as num).toInt();
+      }
+      if (pre['videoUrl'] != null && videoUrl == null) {
+        videoUrl = pre['videoUrl'].toString();
+      }
     }
 
     // 3. Theme
@@ -163,6 +244,16 @@ class AppRemoteConfig {
       preloaderPrimaryColor: preloaderPrimary,
       preloaderSecondaryColor: preloaderSecondary,
       preloaderDurationMs: preloaderDuration,
+      preloaderMediaType: mediaType,
+      preloaderVideoUrl: videoUrl,
+      preloaderTagline: tagline,
+      preloaderBgGradient: bgGradient,
+      preloaderDurationSeconds: durationSeconds,
+      preloaderSkipButtonEnabled: skipButtonEnabled,
+      preloaderShowVersion: showVersion,
+      preloaderVideoFit: videoFit,
+      preloaderVideoMuted: videoMuted,
+      preloaderVideoLoop: videoLoop,
       themeMode: theme,
       primaryAccentColor: primaryAccent,
       backgroundColor: bg,

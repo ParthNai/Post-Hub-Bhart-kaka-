@@ -96,15 +96,13 @@ class _PosterEditorScreenState extends State<PosterEditorScreen> {
       _project = PosterTemplateProject.createDefaultNavratriProject();
     }
 
-    final headline = _project.elements
-        .firstWhere((e) => e.id == 'elem_headline', orElse: () => _project.elements.first)
-        .text;
-    final supporting = _project.elements
-        .firstWhere(
-          (e) => e.id == 'elem_supporting',
-          orElse: () => _project.elements.length > 1 ? _project.elements[1] : _project.elements.first,
-        )
-        .text;
+    final headlineElem = _project.elements.where((e) => e.id == 'elem_headline').firstOrNull ??
+        (_project.elements.isNotEmpty ? _project.elements.first : null);
+    final headline = headlineElem?.text ?? '';
+
+    final supportingElem = _project.elements.where((e) => e.id == 'elem_supporting').firstOrNull ??
+        (_project.elements.length > 1 ? _project.elements[1] : null);
+    final supporting = supportingElem?.text ?? '';
 
     _headlineController = TextEditingController(text: headline);
     _supportingController = TextEditingController(text: supporting);
