@@ -5,6 +5,7 @@ Widget createWebVideoPreloader({
   required bool muted,
   required bool loop,
   required String fit,
+  VoidCallback? onEnded,
 }) {
   return const SizedBox.shrink();
 }

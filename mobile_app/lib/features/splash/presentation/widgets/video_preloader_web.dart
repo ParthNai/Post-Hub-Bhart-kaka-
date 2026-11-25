@@ -8,6 +8,7 @@ Widget createWebVideoPreloader({
   required bool muted,
   required bool loop,
   required String fit,
+  VoidCallback? onEnded,
 }) {
   final cleanFit = (fit == 'contain' || fit == 'fill') ? fit : 'cover';
   final viewId = 'preloader-video-${videoUrl.hashCode.abs()}';
@@ -27,8 +28,17 @@ Widget createWebVideoPreloader({
       ..style.border = 'none'
       ..style.display = 'block';
 
-    // Attempt autoplay immediately
-    video.play().catchError((_) {});
+    if (onEnded != null) {
+      video.onEnded.listen((_) {
+        onEnded();
+      });
+    }
+
+    // Attempt autoplay immediately; if unmuted autoplay is blocked by browser, retry muted
+    video.play().catchError((_) {
+      video.muted = true;
+      video.play().catchError((_) {});
+    });
 
     return video;
   });

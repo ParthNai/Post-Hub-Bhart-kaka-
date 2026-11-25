@@ -8,14 +8,16 @@ class VideoPreloaderView extends StatelessWidget {
     super.key,
     required this.videoUrl,
     this.muted = true,
-    this.loop = true,
+    this.loop = false,
     this.fit = 'cover',
+    this.onEnded,
   });
 
   final String videoUrl;
   final bool muted;
   final bool loop;
   final String fit;
+  final VoidCallback? onEnded;
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +27,7 @@ class VideoPreloaderView extends StatelessWidget {
         muted: muted,
         loop: loop,
         fit: fit,
+        onEnded: onEnded,
       );
     }
     return const SizedBox.shrink();

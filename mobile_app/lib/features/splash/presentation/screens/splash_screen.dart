@@ -98,6 +98,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     fit: config.preloaderVideoFit,
                     muted: config.preloaderVideoMuted,
                     loop: config.preloaderVideoLoop,
+                    onEnded: _navigate,
                   ),
 
                   // Optional Skip Button

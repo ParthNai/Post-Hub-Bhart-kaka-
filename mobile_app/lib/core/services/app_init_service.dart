@@ -40,7 +40,7 @@ class AppInitService {
     try {
       await _loadConfiguration();
       final configDuration = (AppConfigService.instance.config.preloaderDurationSeconds * 1000).toInt();
-      final targetMs = minDurationMs != minSplashDurationMs ? minDurationMs : configDuration.clamp(1000, 10000);
+      final targetMs = minDurationMs != minSplashDurationMs ? minDurationMs : configDuration.clamp(1000, 30000);
 
       final futures = <Future<dynamic>>[
         _sessionService.checkSession(),
