@@ -10,8 +10,8 @@ import 'package:panchayat_post/features/editor/domain/models/poster_template_pro
 import 'package:panchayat_post/features/festivals/data/services/festival_service.dart';
 import 'package:panchayat_post/features/festivals/domain/models/festival_item.dart';
 
-/// Screen 10: Festival & Upcoming Events Listing
-/// Matching the approved Screen 10 UI reference image with high fidelity.
+/// Screen 10: Festivals & Upcoming Events Listing
+/// Redesigned to accurately match the approved Screen 10 UI reference image.
 class FestivalsScreen extends StatefulWidget {
   const FestivalsScreen({
     super.key,
@@ -33,12 +33,12 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
   UserProfile? _currentUser;
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _categoriesScrollController = ScrollController();
-  final ScrollController _exploreScrollController = ScrollController();
 
   String _selectedCategory = 'all';
   bool _upcomingOnly = false;
   int _unreadNotificationsCount = 2;
   int _selectedNavIndex = 1; // Festivals tab active (index 1)
+  final int _heroCurrentPage = 0;
 
   @override
   void initState() {
@@ -55,7 +55,6 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
   void dispose() {
     _searchController.dispose();
     _categoriesScrollController.dispose();
-    _exploreScrollController.dispose();
     super.dispose();
   }
 
@@ -70,7 +69,7 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
 
   void _onNavTapped(int index) {
     if (index == 0) {
-      Navigator.of(context).pop();
+      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
     } else if (index == 1) {
       setState(() => _selectedNavIndex = 1);
     } else if (index == 2) {
@@ -136,10 +135,13 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
                     setState(() => _unreadNotificationsCount = 0);
                     Navigator.of(ctx).pop();
                   },
-                  child: const Text('Mark all read',
-                      style: TextStyle(
-                          color: Color(0xFF6D28D9),
-                          fontWeight: FontWeight.w600)),
+                  child: const Text(
+                    'Mark all read',
+                    style: TextStyle(
+                      color: Color(0xFF6D28D9),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -150,12 +152,18 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
                 backgroundColor: Color(0xFFEDE9FE),
                 child: Icon(Icons.celebration_rounded, color: Color(0xFF6D28D9)),
               ),
-              title: Text('નવરાત્રી સ્પેશિયલ પોસ્ટર ટેમ્પલેટ ઉપલબ્ધ છે!',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
-              subtitle: Text('તમારા ગામ માટે સુંદર દાંડિયા રાસ પોસ્ટર બનાવો.',
-                  style: TextStyle(fontSize: 12.0)),
-              trailing: Text('10m ago',
-                  style: TextStyle(fontSize: 11.0, color: Color(0xFF94A3B8))),
+              title: Text(
+                'નવરાત્રી સ્પેશિયલ પોસ્ટર ટેમ્પલેટ ઉપલબ્ધ છે!',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
+              ),
+              subtitle: Text(
+                'તમારા ગામ માટે સુંદર દાંડિયા રાસ પોસ્ટર બનાવો.',
+                style: TextStyle(fontSize: 12.0),
+              ),
+              trailing: Text(
+                '10m ago',
+                style: TextStyle(fontSize: 11.0, color: Color(0xFF94A3B8)),
+              ),
             ),
             const ListTile(
               contentPadding: EdgeInsets.zero,
@@ -163,12 +171,18 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
                 backgroundColor: Color(0xFFFEF3C7),
                 child: Icon(Icons.campaign_rounded, color: Color(0xFFD97706)),
               ),
-              title: Text('દિવાળી પોસ્ટર ડિઝાઇન કલેક્શન લાઇવ થયું',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
-              subtitle: Text('શુભકામના સંદેશ સાથે તમારું નામ અને ફોટો જોડો.',
-                  style: TextStyle(fontSize: 12.0)),
-              trailing: Text('1h ago',
-                  style: TextStyle(fontSize: 11.0, color: Color(0xFF94A3B8))),
+              title: Text(
+                'દિવાળી પોસ્ટર ડિઝાઇન કલેક્શન લાઇવ થયું',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
+              ),
+              subtitle: Text(
+                'શુભકામના સંદેશ સાથે તમારું નામ અને ફોટો જોડો.',
+                style: TextStyle(fontSize: 12.0),
+              ),
+              trailing: Text(
+                '1h ago',
+                style: TextStyle(fontSize: 11.0, color: Color(0xFF94A3B8)),
+              ),
             ),
           ],
         ),
@@ -223,20 +237,26 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
                       });
                       Navigator.of(ctx).pop();
                     },
-                    child: const Text('Reset All',
-                        style: TextStyle(
-                            color: Color(0xFF6D28D9),
-                            fontWeight: FontWeight.w700)),
+                    child: const Text(
+                      'Reset All',
+                      style: TextStyle(
+                        color: Color(0xFF6D28D9),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ],
               ),
               const Divider(),
               const SizedBox(height: 8.0),
-              const Text('Filter by Status',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14.0,
-                      color: AppColors.textNavy)),
+              const Text(
+                'Filter by Status',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14.0,
+                  color: AppColors.textNavy,
+                ),
+              ),
               const SizedBox(height: 8.0),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
@@ -248,19 +268,21 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
                   setState(() => _upcomingOnly = val);
                 },
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 12.0),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6D28D9),
                   foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12.0),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14.0),
+                    borderRadius: BorderRadius.circular(12.0),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 13.0),
                 ),
                 onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('Apply Filter',
-                    style: TextStyle(fontWeight: FontWeight.w700)),
+                child: const Text(
+                  'Apply Filter',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5),
+                ),
               ),
             ],
           ),
@@ -283,9 +305,9 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
       ),
       builder: (ctx) => DraggableScrollableSheet(
-        initialChildSize: 0.75,
+        initialChildSize: 0.72,
+        minChildSize: 0.45,
         maxChildSize: 0.95,
-        minChildSize: 0.5,
         expand: false,
         builder: (_, scrollController) => Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
@@ -350,26 +372,34 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
                           width: 46.0,
                           height: 46.0,
                           fit: BoxFit.cover,
+                          errorBuilder: (_, error, stackTrace) => Container(
+                            width: 46.0,
+                            height: 46.0,
+                            color: const Color(0xFFEDE9FE),
+                            child: const Icon(Icons.celebration, color: Color(0xFF6D28D9)),
+                          ),
                         ),
                       ),
-                      title: Text(item.name,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w700, fontSize: 14.5)),
-                      subtitle: Text('${item.nameGu} • ${item.categoryName}',
-                          style: const TextStyle(fontSize: 12.0)),
+                      title: Text(
+                        item.name,
+                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5),
+                      ),
+                      subtitle: Text(
+                        '${item.nameGu} • ${item.categoryName}',
+                        style: const TextStyle(fontSize: 12.0),
+                      ),
                       trailing: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 5.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEDE9FE),
+                          color: const Color(0xFFF3E8FF),
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                         child: Text(
                           item.dateDisplay,
                           style: const TextStyle(
+                            color: Color(0xFF6D28D9),
                             fontSize: 11.5,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF6D28D9),
                           ),
                         ),
                       ),
@@ -391,150 +421,6 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
     );
   }
 
-  void _showFestivalTemplatesModal(BuildContext context, FestivalItem festival) {
-    final nameController = TextEditingController(
-      text: _currentUser?.effectiveDisplayName ?? 'Panchayat Post User',
-    );
-    final villageController = TextEditingController(
-      text: _currentUser?.villageCity ?? 'Gram Panchayat',
-    );
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
-      ),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          left: 20.0,
-          right: 20.0,
-          top: 18.0,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + 20.0,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    '${festival.name} Poster Designs',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 17.0,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textNavy,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close_rounded),
-                  onPressed: () => Navigator.of(ctx).pop(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8.0),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(14.0),
-              child: Image.asset(
-                festival.imageAsset,
-                height: 120.0,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-            const SizedBox(height: 12.0),
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(
-                labelText: 'તમારું નામ (Your Name)',
-                filled: true,
-                fillColor: const Color(0xFFF8FAFC),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            TextField(
-              controller: villageController,
-              decoration: InputDecoration(
-                labelText: 'ગામનું નામ (Village / Panchayat)',
-                filled: true,
-                fillColor: const Color(0xFFF8FAFC),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 14.0),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6D28D9),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 12.0),
-                    ),
-                    icon: const Icon(Icons.edit_rounded, size: 18.0),
-                    label: const Text('Open in Poster Editor Studio',
-                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
-                    onPressed: () {
-                      Navigator.of(ctx).pop();
-                      final project = PosterTemplateProject.createDefaultNavratriProject(
-                        templateId: 'festival_${festival.id}',
-                        imageAsset: festival.imageAsset,
-                        title: festival.name,
-                      );
-                      Navigator.of(context).pushNamed(
-                        AppRoutes.posterEditor,
-                        arguments: project,
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 8.0),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF6D28D9),
-                      side: const BorderSide(color: Color(0xFF6D28D9)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 12.0),
-                    ),
-                    icon: const Icon(Icons.download_rounded, size: 18.0),
-                    label: const Text('Download / Share Poster',
-                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
-                    onPressed: () {
-                      Navigator.of(ctx).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Poster for ${festival.name} ready for download!'),
-                          backgroundColor: const Color(0xFF059669),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _showAllTemplatesLibrary(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -545,10 +431,11 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
       ),
       builder: (ctx) => DraggableScrollableSheet(
         initialChildSize: 0.8,
+        minChildSize: 0.5,
         maxChildSize: 0.95,
         expand: false,
         builder: (_, scrollController) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -566,14 +453,12 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Expanded(
-                    child: Text(
-                      'All Festival Templates',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textNavy,
-                      ),
+                  const Text(
+                    'All Poster Templates',
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textNavy,
                     ),
                   ),
                   IconButton(
@@ -582,21 +467,19 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 10.0),
+              const Divider(),
               Expanded(
                 child: GridView.count(
                   controller: scrollController,
                   crossAxisCount: 2,
                   crossAxisSpacing: 12.0,
                   mainAxisSpacing: 12.0,
-                  childAspectRatio: 0.9,
+                  childAspectRatio: 0.75,
                   children: [
-                    _buildTemplateItem('Navratri Utsav', AppAssets.festivalNavratriMaa),
-                    _buildTemplateItem('Happy Diwali', AppAssets.festivalDiwaliDiyas),
-                    _buildTemplateItem('Bhai Beej', AppAssets.festivalBhaiBeej),
-                    _buildTemplateItem('Christmas Celebration', AppAssets.festivalChristmasSanta),
-                    _buildTemplateItem('Makar Sankranti', AppAssets.festivalAllMakarSankranti),
-                    _buildTemplateItem('Holi Dhuleti', AppAssets.festivalAllHoli),
+                    _buildTemplateItem('શુભ નવરાત્રી', AppAssets.homeFestivalNavratriCard),
+                    _buildTemplateItem('સ્વાતંત્ર્ય દિન', AppAssets.homeFestivalIndependenceCard),
+                    _buildTemplateItem('દીપોત્સવ દિવાળી', AppAssets.homeFestivalDiwaliCard),
+                    _buildTemplateItem('ગણેશ ઉત્સવ', AppAssets.homeFestivalGaneshCard),
                   ],
                 ),
               ),
@@ -639,7 +522,14 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
-                child: Image.asset(asset, fit: BoxFit.cover),
+                child: Image.asset(
+                  asset,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, error, stackTrace) => Container(
+                    color: const Color(0xFFEDE9FE),
+                    child: const Icon(Icons.image, color: Color(0xFF6D28D9)),
+                  ),
+                ),
               ),
               Container(
                 color: Colors.white,
@@ -662,103 +552,10 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
     );
   }
 
-  void _showProfileDrawer(BuildContext context) {
-    final strings = LocaleScope.of(context).strings;
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 22.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFCBD5E1),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            _buildAvatarWidget(size: 64.0),
-            const SizedBox(height: 10.0),
-            Text(
-              _currentUser?.effectiveDisplayName ?? 'Rahul Patel',
-              style: const TextStyle(
-                fontSize: 18.0,
-                fontWeight: FontWeight.w800,
-                color: AppColors.textNavy,
-              ),
-            ),
-            Text(
-              '@${_currentUser?.username ?? 'rahul17'} • ${_currentUser?.villageCity ?? 'Palanpur, Gujarat'}',
-              style: const TextStyle(fontSize: 13.0, color: Color(0xFF64748B)),
-            ),
-            const SizedBox(height: 16.0),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.edit_outlined, color: Color(0xFF6D28D9)),
-              title: Text(strings.editProfileButton,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () {
-                Navigator.of(ctx).pop();
-                Navigator.of(context).pushNamed(AppRoutes.profileSetup);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.arrow_back_rounded, color: Color(0xFF6D28D9)),
-              title: const Text('Back to Home Dashboard',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () {
-                Navigator.of(ctx).pop();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAvatarWidget({double size = 36.0}) {
-    ImageProvider avatarProvider;
-    if (_currentUser?.profilePhotoUrl != null &&
-        _currentUser!.profilePhotoUrl!.isNotEmpty) {
-      avatarProvider = AssetImage(_currentUser!.profilePhotoUrl!);
-    } else {
-      avatarProvider = const AssetImage(AppAssets.homeAvatarRahul);
-    }
-
-    return GestureDetector(
-      onTap: () => _showProfileDrawer(context),
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: const Color(0xFF6D28D9), width: 1.5),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 4,
-              offset: const Offset(0, 1),
-            ),
-          ],
-          image: DecorationImage(
-            image: avatarProvider,
-            fit: BoxFit.cover,
-          ),
-        ),
-      ),
+  void _showFestivalTemplatesModal(BuildContext context, FestivalItem festival) {
+    Navigator.of(context).pushNamed(
+      AppRoutes.festivalDetail,
+      arguments: festival,
     );
   }
 
@@ -781,274 +578,50 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
         : _festivalService.getUpcomingFestivals();
 
     final featuredFestival = _festivalService.getFeaturedFestival();
-    final exploreAllList = _festivalService.getExploreAllFestivals();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFCFCFD),
+      backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
         child: Column(
           children: [
-            // A. Header (Back Button + Panchayat Post + Festivals Title + Bell + Avatar)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
-              child: Row(
-                children: [
-                  // Circular Back Button
-                  InkWell(
-                    onTap: () => Navigator.of(context).pop(),
-                    borderRadius: BorderRadius.circular(20.0),
-                    child: Container(
-                      width: 36.0,
-                      height: 36.0,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 4,
-                            offset: const Offset(0, 1),
-                          ),
-                        ],
-                      ),
-                      alignment: Alignment.center,
-                      child: const Icon(
-                        Icons.chevron_left_rounded,
-                        size: 22.0,
-                        color: Color(0xFF1E293B),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8.0),
-
-                  // Panchayat Post Logo
-                  Image.asset(
-                    AppAssets.panchayatLogo,
-                    height: 32.0,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(width: 5.0),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Panchayat',
-                        style: TextStyle(
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.textNavy,
-                          height: 1.1,
-                        ),
-                      ),
-                      Text(
-                        'Post',
-                        style: TextStyle(
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.primaryBlue,
-                          height: 1.1,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Vertical divider
-                  Container(
-                    height: 24.0,
-                    width: 1.0,
-                    color: const Color(0xFFCBD5E1),
-                    margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                  ),
-
-                  // Page Title & Subtitle
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          strings.festivalsPageTitle,
-                          style: const TextStyle(
-                            fontSize: 15.0,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.textNavy,
-                            height: 1.1,
-                          ),
-                        ),
-                        Text(
-                          strings.festivalsPageSubtitle,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF64748B),
-                            height: 1.15,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Notification Bell with red dot
-                  GestureDetector(
-                    onTap: () => _showNotificationsSheet(context),
-                    child: Container(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          const Icon(
-                            Icons.notifications_none_rounded,
-                            size: 24.0,
-                            color: Color(0xFF1E293B),
-                          ),
-                          if (_unreadNotificationsCount > 0)
-                            Positioned(
-                              top: 0,
-                              right: 1,
-                              child: Container(
-                                width: 8.0,
-                                height: 8.0,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFEF4444),
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6.0),
-
-                  // Profile Avatar
-                  _buildAvatarWidget(size: 34.0),
-                ],
-              ),
-            ),
+            // 1. Redesigned Premium Header
+            _buildHeader(strings),
 
             // Scrollable Content
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: 12.0),
+                padding: const EdgeInsets.only(bottom: 16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // B. Search Bar with Filter
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                      child: Container(
-                        height: 46.0,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(24.0),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.03),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            const SizedBox(width: 14.0),
-                            const Icon(
-                              Icons.search_rounded,
-                              size: 20.0,
-                              color: Color(0xFF94A3B8),
-                            ),
-                            const SizedBox(width: 10.0),
-                            Expanded(
-                              child: TextField(
-                                controller: _searchController,
-                                style: const TextStyle(
-                                  fontSize: 13.5,
-                                  color: AppColors.textNavy,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: strings.searchFestivalsHint,
-                                  hintStyle: const TextStyle(
-                                    fontSize: 13.0,
-                                    color: Color(0xFF94A3B8),
-                                  ),
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.zero,
-                                ),
-                              ),
-                            ),
-                            if (_searchController.text.isNotEmpty)
-                              GestureDetector(
-                                onTap: () => _searchController.clear(),
-                                child: const Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 6.0),
-                                  child: Icon(Icons.close_rounded,
-                                      size: 18.0, color: Color(0xFF94A3B8)),
-                                ),
-                              ),
-                            Container(
-                              height: 22.0,
-                              width: 1.0,
-                              color: const Color(0xFFE2E8F0),
-                              margin: const EdgeInsets.symmetric(horizontal: 6.0),
-                            ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.tune_rounded,
-                                size: 20.0,
-                                color: Color(0xFF6D28D9),
-                              ),
-                              onPressed: () => _showFilterModal(context),
-                              tooltip: 'Filter',
-                            ),
-                            const SizedBox(width: 4.0),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12.0),
+                    const SizedBox(height: 10.0),
 
-                    // C. Featured Festival Banner
-                    _buildFeaturedFestivalBanner(strings, featuredFestival),
+                    // 2. Search Bar & Filter Button
+                    _buildSearchBar(strings),
+
+                    const SizedBox(height: 14.0),
+
+                    // 3. Featured Festival Hero Banner
+                    _buildHeroBanner(featuredFestival),
+
+                    const SizedBox(height: 18.0),
+
+                    // 4. Explore Categories Section
+                    _buildCategoriesSection(strings, categories),
+
+                    const SizedBox(height: 20.0),
+
+                    // 5. Upcoming Festivals Section (2-Column Grid)
+                    _buildUpcomingFestivalsSection(strings, displayedFestivals),
+
                     const SizedBox(height: 16.0),
-
-                    // D. Explore Categories Section
-                    _buildExploreCategoriesSection(strings, categories),
-                    const SizedBox(height: 16.0),
-
-                    // E. Upcoming Festivals Section (2-Column Grid)
-                    _buildUpcomingFestivalsGridSection(strings, displayedFestivals),
-                    const SizedBox(height: 16.0),
-
-                    // F. Explore All Festivals Carousel
-                    if (query.isEmpty) ...[
-                      _buildExploreAllFestivalsSection(strings, exploreAllList),
-                      const SizedBox(height: 12.0),
-                    ],
-
-                    // Bottom Cultural Village Silhouette Watermark
-                    Center(
-                      child: Opacity(
-                        opacity: 0.35,
-                        child: Image.asset(
-                          AppAssets.welcomeVillageFooter,
-                          height: 38.0,
-                          fit: BoxFit.fitWidth,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
             ),
 
-            // G. Bottom Navigation Bar
+            // 6. Modern Pill Bottom Navigation Bar
             _buildBottomNavigationBar(strings),
           ],
         ),
@@ -1056,171 +629,172 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
     );
   }
 
-  // --- UI Section Builders ---
+  // --- 1. Redesigned Header ---
 
-  Widget _buildFeaturedFestivalBanner(AppStrings strings, FestivalItem festival) {
+  Widget _buildHeader(AppStrings strings) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0),
-      height: 190.0,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22.0),
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFFFEF3C7),
-            Color(0xFFEDE9FE),
-            Color(0xFFFCE7F3),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1.0),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF6D28D9).withValues(alpha: 0.10),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
       ),
-      child: Stack(
+      child: Row(
         children: [
-          // Right side festive dancer artwork
-          Positioned(
-            right: 0,
-            top: 0,
-            bottom: 0,
-            width: 215.0,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topRight: Radius.circular(22.0),
-                bottomRight: Radius.circular(22.0),
+          // A. Back Button
+          InkWell(
+            key: const Key('festival_back_button'),
+            onTap: () => Navigator.of(context).pop(),
+            borderRadius: BorderRadius.circular(12.0),
+            child: Container(
+              width: 38.0,
+              height: 38.0,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12.0),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
               ),
-              child: Image.asset(
-                AppAssets.festivalHeroDancers,
-                fit: BoxFit.cover,
-                alignment: Alignment.centerLeft,
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.arrow_back_rounded,
+                size: 20.0,
+                color: Color(0xFF4C1D95),
               ),
             ),
           ),
+          const SizedBox(width: 10.0),
 
-          // Left side text and actions
-          Positioned(
-            left: 16.0,
-            top: 14.0,
-            bottom: 14.0,
-            width: 200.0,
+          // B. Original Panchayat Post Logo (Strict requirement: NO text beside it)
+          Container(
+            width: 40.0,
+            height: 40.0,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+              border: Border.all(color: const Color(0xFFEDE9FE), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF6D28D9).withValues(alpha: 0.08),
+                  blurRadius: 6,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(2.5),
+            child: Image.asset(
+              AppAssets.panchayatLogo,
+              fit: BoxFit.contain,
+              errorBuilder: (_, error, stackTrace) => const Icon(
+                Icons.account_balance_rounded,
+                size: 22.0,
+                color: Color(0xFF0055B8),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10.0),
+
+          // C. Page Title & Subtitle
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Upcoming Festival Badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF6D28D9),
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.calendar_month_rounded,
-                              size: 11.0, color: Colors.white),
-                          const SizedBox(width: 4.0),
-                          Text(
-                            strings.upcomingFestivalBadge,
-                            style: const TextStyle(
-                              fontSize: 9.0,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                              letterSpacing: 0.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 6.0),
-
-                    // Navratri Headline
-                    Text(
-                      strings.navratriCelebrationTitle,
-                      style: const TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF4C1D95),
-                        height: 1.1,
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-
-                    // Celebration Script
-                    Text(
-                      strings.navratriCelebrationScript,
-                      style: const TextStyle(
-                        fontFamily: 'serif',
-                        fontStyle: FontStyle.italic,
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF6D28D9),
-                        height: 1.05,
-                      ),
-                    ),
-                    const SizedBox(height: 4.0),
-
-                    // Subtitle
-                    Text(
-                      strings.exploreFestiveDesignsSubtitle,
-                      maxLines: 2,
-                      style: const TextStyle(
-                        fontSize: 11.0,
-                        color: Color(0xFF475569),
-                        fontWeight: FontWeight.w500,
-                        height: 1.25,
-                      ),
-                    ),
-                  ],
+                Text(
+                  strings.festivalsPageTitle,
+                  style: const TextStyle(
+                    fontSize: 17.5,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF1E1B4B),
+                    height: 1.15,
+                  ),
                 ),
-
-                // View Designs Button
-                InkWell(
-                  onTap: () => _showFestivalTemplatesModal(context, festival),
-                  borderRadius: BorderRadius.circular(20.0),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF581C87),
-                      borderRadius: BorderRadius.circular(20.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF581C87).withValues(alpha: 0.35),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          strings.viewDesignsButton,
-                          style: const TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(width: 4.0),
-                        const Icon(
-                          Icons.arrow_forward_rounded,
-                          size: 13.0,
-                          color: Colors.white,
-                        ),
-                      ],
-                    ),
+                const SizedBox(height: 1.5),
+                Text(
+                  strings.festivalsPageSubtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11.2,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF64748B),
+                    height: 1.15,
                   ),
                 ),
               ],
+            ),
+          ),
+          const SizedBox(width: 8.0),
+
+          // D. Notification Bell Button
+          InkWell(
+            onTap: () => _showNotificationsSheet(context),
+            borderRadius: BorderRadius.circular(20.0),
+            child: Container(
+              width: 38.0,
+              height: 38.0,
+              decoration: const BoxDecoration(
+                color: Color(0xFFF3E8FF),
+                shape: BoxShape.circle,
+              ),
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  const Icon(
+                    Icons.notifications_none_rounded,
+                    size: 21.0,
+                    color: Color(0xFF6D28D9),
+                  ),
+                  if (_unreadNotificationsCount > 0)
+                    Positioned(
+                      top: 1,
+                      right: 2,
+                      child: Container(
+                        padding: const EdgeInsets.all(3.0),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEF4444),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '$_unreadNotificationsCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9.0,
+                            fontWeight: FontWeight.w800,
+                            height: 1.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8.0),
+
+          // E. Profile Avatar
+          GestureDetector(
+            onTap: () => Navigator.of(context).pushNamed(AppRoutes.profile),
+            child: Container(
+              padding: const EdgeInsets.all(1.5),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFF7C3AED), width: 1.5),
+              ),
+              child: CircleAvatar(
+                radius: 17.0,
+                backgroundImage: AssetImage(
+                  _currentUser?.profilePhotoUrl ?? AppAssets.homeAvatarRahul,
+                ),
+              ),
             ),
           ),
         ],
@@ -1228,7 +802,319 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
     );
   }
 
-  Widget _buildExploreCategoriesSection(
+  // --- 2. Search Bar & Filter ---
+
+  Widget _buildSearchBar(AppStrings strings) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Row(
+        children: [
+          // Search Field
+          Expanded(
+            child: Container(
+              height: 48.0,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24.0),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  const SizedBox(width: 14.0),
+                  const Icon(
+                    Icons.search_rounded,
+                    size: 21.0,
+                    color: Color(0xFF6D28D9),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      style: const TextStyle(
+                        fontSize: 13.5,
+                        color: AppColors.textNavy,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: strings.searchFestivalsHint,
+                        hintStyle: const TextStyle(
+                          fontSize: 13.0,
+                          color: Color(0xFF94A3B8),
+                          fontWeight: FontWeight.w400,
+                        ),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ),
+                  if (_searchController.text.isNotEmpty)
+                    GestureDetector(
+                      onTap: () => setState(() => _searchController.clear()),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 18.0,
+                          color: Color(0xFF94A3B8),
+                        ),
+                      ),
+                    )
+                  else
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12.0),
+                      child: Icon(
+                        Icons.chevron_right_rounded,
+                        color: Color(0xFFCBD5E1),
+                        size: 20.0,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 10.0),
+
+          // Filter Button
+          InkWell(
+            onTap: () => _showFilterModal(context),
+            borderRadius: BorderRadius.circular(16.0),
+            child: Container(
+              width: 48.0,
+              height: 48.0,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF3E8FF),
+                borderRadius: BorderRadius.circular(16.0),
+                border: Border.all(color: const Color(0xFFEDE9FE)),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF6D28D9).withValues(alpha: 0.08),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.tune_rounded,
+                size: 22.0,
+                color: Color(0xFF6D28D9),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- 3. Hero Celebration Banner ---
+
+  Widget _buildHeroBanner(FestivalItem festival) {
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16.0),
+          height: 180.0,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22.0),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFD97706).withValues(alpha: 0.18),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(22.0),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Background festive image
+                Image.asset(
+                  AppAssets.homeBannerNavratriHero,
+                  fit: BoxFit.cover,
+                  alignment: Alignment.center,
+                  errorBuilder: (_, error, stackTrace) => Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFFFEF3C7), Color(0xFFFDE68A)],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Warm gradient overlay on right side for text contrast
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.transparent,
+                          const Color(0xFFFFFBEB).withValues(alpha: 0.45),
+                          const Color(0xFFFEF3C7).withValues(alpha: 0.94),
+                        ],
+                        stops: const [0.0, 0.40, 0.72],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Content on right half
+                Positioned(
+                  right: 16.0,
+                  top: 14.0,
+                  bottom: 14.0,
+                  width: 195.0,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Pill: UPCOMING FESTIVAL
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
+                              vertical: 3.5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF6D28D9),
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            child: const Text(
+                              'UPCOMING FESTIVAL',
+                              style: TextStyle(
+                                fontSize: 9.0,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                                letterSpacing: 0.4,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 5.0),
+
+                          // Navratri Celebration title
+                          const Text(
+                            'Navratri',
+                            style: TextStyle(
+                              fontFamily: 'serif',
+                              fontSize: 22.0,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF831843), // Deep Maroon/Crimson
+                              height: 1.05,
+                            ),
+                          ),
+                          const Text(
+                            'Celebration',
+                            style: TextStyle(
+                              fontFamily: 'serif',
+                              fontSize: 20.0,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF831843),
+                              height: 1.05,
+                            ),
+                          ),
+                          const SizedBox(height: 4.0),
+
+                          // Subtitle
+                          const Text(
+                            'Explore beautiful festive designs',
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              color: Color(0xFF1E293B),
+                              fontWeight: FontWeight.w500,
+                              height: 1.2,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // View Designs button
+                      InkWell(
+                        onTap: () => _showFestivalTemplatesModal(context, festival),
+                        borderRadius: BorderRadius.circular(20.0),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14.0,
+                            vertical: 7.0,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF6D28D9),
+                            borderRadius: BorderRadius.circular(20.0),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF6D28D9).withValues(alpha: 0.35),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'View Designs',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(width: 4.0),
+                              Icon(
+                                Icons.arrow_forward_rounded,
+                                size: 13.0,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8.0),
+
+        // Pagination Dots
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(5, (index) {
+            final isActive = index == _heroCurrentPage;
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 2.5),
+              width: isActive ? 22.0 : 6.0,
+              height: 6.0,
+              decoration: BoxDecoration(
+                color: isActive
+                    ? const Color(0xFF6D28D9)
+                    : const Color(0xFFEDE9FE),
+                borderRadius: BorderRadius.circular(3.0),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  // --- 4. Explore Categories ---
+
+  Widget _buildCategoriesSection(
       AppStrings strings, List<FestivalCategory> categories) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1240,9 +1126,9 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
             children: [
               Container(
                 width: 4.0,
-                height: 17.0,
+                height: 16.0,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF7C3AED),
+                  color: const Color(0xFF6D28D9),
                   borderRadius: BorderRadius.circular(2.0),
                 ),
               ),
@@ -1253,72 +1139,96 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
                   style: const TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textNavy,
+                    color: Color(0xFF1E293B),
                   ),
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  setState(() => _selectedCategory = 'all');
+                },
+                child: const Row(
+                  children: [
+                    Text(
+                      'See All',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF6D28D9),
+                      ),
+                    ),
+                    SizedBox(width: 2.0),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 13.0,
+                      color: Color(0xFF6D28D9),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 10.0),
+        const SizedBox(height: 12.0),
 
-        // Horizontal Category Chips
+        // Horizontal Category Cards
         SizedBox(
-          height: 38.0,
+          height: 76.0,
           child: ListView.separated(
             controller: _categoriesScrollController,
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             physics: const BouncingScrollPhysics(),
             itemCount: categories.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 8.0),
+            separatorBuilder: (context, index) => const SizedBox(width: 10.0),
             itemBuilder: (context, index) {
               final cat = categories[index];
               final isSelected = _selectedCategory == cat.id;
 
-              return GestureDetector(
+              return InkWell(
                 onTap: () {
                   setState(() {
                     _selectedCategory = cat.id;
                   });
                 },
+                borderRadius: BorderRadius.circular(16.0),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 7.0),
+                  width: 78.0,
                   decoration: BoxDecoration(
                     color: isSelected
                         ? const Color(0xFF6D28D9)
                         : const Color(0xFFF3E8FF),
-                    borderRadius: BorderRadius.circular(20.0),
+                    borderRadius: BorderRadius.circular(16.0),
                     boxShadow: isSelected
                         ? [
                             BoxShadow(
-                              color: const Color(0xFF6D28D9).withValues(alpha: 0.25),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
+                              color: const Color(0xFF6D28D9).withValues(alpha: 0.28),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
                             ),
                           ]
                         : null,
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      if (cat.icon != null) ...[
-                        Icon(
-                          cat.icon,
-                          size: 15.0,
-                          color: isSelected ? Colors.white : const Color(0xFF6D28D9),
-                        ),
-                        const SizedBox(width: 6.0),
-                      ] else if (cat.emoji != null) ...[
-                        Text(cat.emoji!, style: const TextStyle(fontSize: 13.0)),
-                        const SizedBox(width: 6.0),
-                      ],
+                      Icon(
+                        cat.icon ?? Icons.celebration_rounded,
+                        size: 22.0,
+                        color: isSelected ? Colors.white : const Color(0xFF6D28D9),
+                      ),
+                      const SizedBox(height: 4.0),
                       Text(
                         cat.name,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: 12.0,
+                          fontSize: 10.2,
                           fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                          color: isSelected ? Colors.white : const Color(0xFF334155),
+                          color: isSelected ? Colors.white : const Color(0xFF1E293B),
+                          height: 1.15,
                         ),
                       ),
                     ],
@@ -1332,21 +1242,23 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
     );
   }
 
-  Widget _buildUpcomingFestivalsGridSection(
+  // --- 5. Upcoming Festivals (2-Column Grid) ---
+
+  Widget _buildUpcomingFestivalsSection(
       AppStrings strings, List<FestivalItem> festivals) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section Header + View Calendar
+        // Section Header + View Calendar Action
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
             children: [
               Container(
                 width: 4.0,
-                height: 17.0,
+                height: 16.0,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF7C3AED),
+                  color: const Color(0xFF6D28D9),
                   borderRadius: BorderRadius.circular(2.0),
                 ),
               ),
@@ -1357,30 +1269,44 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
                   style: const TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textNavy,
+                    color: Color(0xFF1E293B),
                   ),
                 ),
               ),
-              GestureDetector(
+              InkWell(
                 onTap: () => _showCalendarSheet(context),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      strings.viewCalendarAction,
-                      style: const TextStyle(
-                        fontSize: 13.0,
-                        fontWeight: FontWeight.w700,
+                borderRadius: BorderRadius.circular(20.0),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEDE9FE),
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.calendar_month_outlined,
+                        size: 13.0,
                         color: Color(0xFF6D28D9),
                       ),
-                    ),
-                    const SizedBox(width: 2.0),
-                    const Icon(
-                      Icons.arrow_forward_rounded,
-                      size: 13.0,
-                      color: Color(0xFF6D28D9),
-                    ),
-                  ],
+                      SizedBox(width: 4.0),
+                      Text(
+                        'View Calendar',
+                        style: TextStyle(
+                          fontSize: 11.2,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF6D28D9),
+                        ),
+                      ),
+                      SizedBox(width: 2.0),
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        size: 12.0,
+                        color: Color(0xFF6D28D9),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -1390,11 +1316,15 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
 
         if (festivals.isEmpty)
           Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(28.0),
             child: Center(
               child: Column(
                 children: [
-                  const Icon(Icons.search_off_rounded, size: 40.0, color: Color(0xFF94A3B8)),
+                  const Icon(
+                    Icons.search_off_rounded,
+                    size: 42.0,
+                    color: Color(0xFF94A3B8),
+                  ),
                   const SizedBox(height: 8.0),
                   Text(
                     strings.noFestivalsFound,
@@ -1420,7 +1350,7 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
             ),
           )
         else
-          // 2-Column Responsive Festival Grid
+          // 2-Column Grid
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: GridView.builder(
@@ -1430,8 +1360,8 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: 12.0,
-                mainAxisSpacing: 12.0,
-                childAspectRatio: 0.92,
+                mainAxisSpacing: 14.0,
+                childAspectRatio: 0.72,
               ),
               itemBuilder: (context, index) {
                 final item = festivals[index];
@@ -1444,295 +1374,196 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
   }
 
   Widget _buildFestivalGridCard(AppStrings strings, FestivalItem item) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16.0),
-      onTap: () => Navigator.of(context).pushNamed(
-        AppRoutes.festivalDetail,
-        arguments: item,
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.0),
-          border: Border.all(color: const Color(0xFFF1F5F9)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Top Image with "Upcoming" Badge
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
-                child: Image.asset(
-                  item.imageAsset,
-                  height: 82.0,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              if (item.isUpcoming)
-                Positioned(
-                  top: 6.0,
-                  right: 6.0,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 3.0),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFEF3C7),
-                      borderRadius: BorderRadius.circular(10.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.06),
-                          blurRadius: 3,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.access_time_rounded,
-                          size: 10.0,
-                          color: Color(0xFFD97706),
-                        ),
-                        const SizedBox(width: 3.0),
-                        Text(
-                          strings.upcomingStatusBadge,
-                          style: const TextStyle(
-                            fontSize: 9.5,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFFD97706),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
-          ),
-
-          // Bottom Details & View Designs Button
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        item.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textNavy,
-                        ),
-                      ),
-                      const SizedBox(height: 2.0),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.calendar_month_outlined,
-                            size: 11.0,
-                            color: Color(0xFF64748B),
-                          ),
-                          const SizedBox(width: 4.0),
-                          Expanded(
-                            child: Text(
-                              item.dateDisplay,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF64748B),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  // View Designs pill button
-                  GestureDetector(
-                    onTap: () => _showFestivalTemplatesModal(context, item),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.5),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF3E8FF),
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              strings.viewDesignsButton,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF7C3AED),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 3.0),
-                          const Icon(
-                            Icons.arrow_forward_rounded,
-                            size: 11.0,
-                            color: Color(0xFF7C3AED),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-  Widget _buildExploreAllFestivalsSection(
-      AppStrings strings, List<FestivalItem> allFestivals) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Section Header
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            children: [
-              Container(
-                width: 4.0,
-                height: 17.0,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF7C3AED),
-                  borderRadius: BorderRadius.circular(2.0),
-                ),
-              ),
-              const SizedBox(width: 8.0),
-              Expanded(
-                child: Text(
-                  strings.exploreAllFestivalsTitle,
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textNavy,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12.0),
-
-        // Carousel of 4 festival cards
-        SizedBox(
-          height: 122.0,
-          child: ListView.separated(
-            controller: _exploreScrollController,
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            physics: const BouncingScrollPhysics(),
-            itemCount: allFestivals.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 10.0),
-            itemBuilder: (context, index) {
-              final item = allFestivals[index];
-              return GestureDetector(
-                onTap: () => Navigator.of(context).pushNamed(
-                  AppRoutes.festivalDetail,
-                  arguments: item,
-                ),
-                child: Container(
-                  width: 105.0,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16.0),
-                    border: Border.all(color: const Color(0xFFF1F5F9)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      ClipRRect(
-                        borderRadius:
-                            const BorderRadius.vertical(top: Radius.circular(16.0)),
-                        child: Image.asset(
-                          item.imageAsset,
-                          height: 75.0,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 4.0, vertical: 4.0),
-                          alignment: Alignment.center,
-                          child: Text(
-                            item.name,
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 11.0,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textNavy,
-                              height: 1.15,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  // --- Bottom Navigation Bar ---
-
-  Widget _buildBottomNavigationBar(AppStrings strings) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, -3),
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Dedicated Poster Image Container (Entire artwork visible)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12.0),
+              child: AspectRatio(
+                aspectRatio: 1.25,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.asset(
+                      item.imageAsset,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, error, stackTrace) => Container(
+                        color: const Color(0xFFEDE9FE),
+                        alignment: Alignment.center,
+                        child: Text(
+                          item.name,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 12.0,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF6D28D9),
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (item.isUpcoming)
+                      Positioned(
+                        top: 6.0,
+                        right: 6.0,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6.0,
+                            vertical: 2.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF6D28D9),
+                            borderRadius: BorderRadius.circular(8.0),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.20),
+                                blurRadius: 3,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.calendar_month_rounded,
+                                size: 10.0,
+                                color: Colors.white,
+                              ),
+                              SizedBox(width: 3.0),
+                              Text(
+                                'Upcoming',
+                                style: TextStyle(
+                                  fontSize: 9.0,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // 2. Festival Title
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Text(
+              item.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF1E293B),
+              ),
+            ),
+          ),
+          const SizedBox(height: 3.0),
+
+          // 3. Festival Date
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.calendar_today_outlined,
+                  size: 11.0,
+                  color: Color(0xFF64748B),
+                ),
+                const SizedBox(width: 4.0),
+                Expanded(
+                  child: Text(
+                    item.dateDisplay,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 11.0,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const Spacer(),
+
+          // 4. View Designs Button
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10.0, 0, 10.0, 10.0),
+            child: InkWell(
+              onTap: () => _showFestivalTemplatesModal(context, item),
+              borderRadius: BorderRadius.circular(10.0),
+              child: Container(
+                width: double.infinity,
+                height: 32.0,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEDE9FE),
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'View Designs',
+                        style: TextStyle(
+                          fontSize: 11.0,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF6D28D9),
+                        ),
+                      ),
+                      SizedBox(width: 4.0),
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        size: 12.0,
+                        color: Color(0xFF6D28D9),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- 6. Bottom Navigation Bar ---
+
+  Widget _buildBottomNavigationBar(AppStrings strings) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(color: Color(0xFFF1F5F9), width: 1.0),
+        ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 6.0),
       child: Row(

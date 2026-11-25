@@ -23,26 +23,35 @@ class FestivalService {
   /// Default category chips matching Screen 10
   List<FestivalCategory> getCategories() {
     return const [
-      FestivalCategory(id: 'all', name: 'All'),
+      FestivalCategory(
+        id: 'all',
+        name: 'All',
+        icon: Icons.grid_view_rounded,
+      ),
       FestivalCategory(
         id: 'hindu',
         name: 'Hindu Festivals',
-        icon: Icons.temple_hindu_rounded,
+        icon: Icons.wb_incandescent_outlined,
       ),
       FestivalCategory(
         id: 'national',
         name: 'National Days',
-        emoji: '🇮🇳',
+        icon: Icons.flag_rounded,
       ),
       FestivalCategory(
         id: 'religious',
-        name: 'Religious Events',
+        name: 'Religious',
         icon: Icons.volunteer_activism_rounded,
       ),
       FestivalCategory(
         id: 'cultural',
         name: 'Cultural Events',
         icon: Icons.theater_comedy_rounded,
+      ),
+      FestivalCategory(
+        id: 'govt',
+        name: 'Govt. Holidays',
+        icon: Icons.account_balance_rounded,
       ),
     ];
   }
@@ -133,33 +142,58 @@ class FestivalService {
         name: 'Navratri',
         nameGu: 'નવરાત્રી',
         nameHi: 'नवरात्रि',
-        dateDisplay: '22 Oct – 30 Oct',
+        dateDisplay: 'Oct 1, 2025',
         category: 'cultural',
-        categoryName: 'Cultural',
-        imageAsset: AppAssets.festivalNavratriMaa,
+        categoryName: 'Cultural Events',
+        imageAsset: AppAssets.homeFestivalNavratriCard,
         isUpcoming: true,
         celebrationType: 'Traditional',
         aboutText:
             'Celebrate Navratri with devotion, music, traditional Garba and beautiful festive designs.',
-        heroBannerAsset: AppAssets.festivalDetailHeroBanner,
+        heroBannerAsset: AppAssets.homeBannerNavratriHero,
         posterTemplates: navratriTemplates,
         keywords: ['navratri', 'durga', 'maa', 'garba', 'dandiya', 'નવરાત્રી', 'અંબે મા'],
         templateCount: 18,
+      ),
+      FestivalItem(
+        id: 'fest_independence_day',
+        name: 'Independence Day',
+        nameGu: 'સ્વાતંત્ર્ય દિન',
+        nameHi: 'स्वतंत्रता दिवस',
+        dateDisplay: 'Aug 15, 2025',
+        category: 'national',
+        categoryName: 'National Days',
+        imageAsset: AppAssets.homeFestivalIndependenceCard,
+        isUpcoming: true,
+        celebrationType: 'National Day',
+        aboutText:
+            'Celebrate the spirit of freedom and unity with inspiring national poster designs.',
+        heroBannerAsset: AppAssets.homeBannerRepublicHero,
+        posterTemplates: [
+          FestivalPosterTemplate(
+            id: 'ind_tricolor',
+            title: '15th August Celebration',
+            imageAsset: AppAssets.homeFestivalIndependenceCard,
+            style: 'modern',
+          ),
+        ],
+        keywords: ['independence', '15 august', 'swatantrata', 'tiranga', 'આઝાદી'],
+        templateCount: 16,
       ),
       FestivalItem(
         id: 'fest_diwali',
         name: 'Diwali',
         nameGu: 'દિવાળી',
         nameHi: 'दिवाली',
-        dateDisplay: '12 Nov – 20 Nov',
+        dateDisplay: 'Oct 20, 2025',
         category: 'hindu',
         categoryName: 'Hindu Festivals',
-        imageAsset: AppAssets.festivalDiwaliDiyas,
+        imageAsset: AppAssets.homeFestivalDiwaliCard,
         isUpcoming: true,
         celebrationType: 'Festival of Lights',
         aboutText:
             'Celebrate Diwali with joyful lights, festive greetings, family celebrations and prosperity.',
-        heroBannerAsset: AppAssets.festivalDiwaliDiyas,
+        heroBannerAsset: AppAssets.homeBannerDiwaliHero,
         posterTemplates: [
           FestivalPosterTemplate(
             id: 'diwali_happy',
@@ -173,22 +207,41 @@ class FestivalService {
             imageAsset: AppAssets.festivalDiwaliDiyas,
             style: 'devotional',
           ),
-          FestivalPosterTemplate(
-            id: 'diwali_modern',
-            title: 'Deepotsav 2026',
-            imageAsset: AppAssets.homeTemplateDiwali,
-            style: 'modern',
-          ),
-          FestivalPosterTemplate(
-            id: 'diwali_event',
-            title: 'Diwali Milan Event',
-            imageAsset: AppAssets.festivalDiwaliDiyas,
-            style: 'event',
-          ),
         ],
         keywords: ['diwali', 'deepotsav', 'diya', 'lights', 'દિવાળી', 'દીવો', 'दिवाली'],
         templateCount: 22,
       ),
+      FestivalItem(
+        id: 'fest_ganesh_chaturthi',
+        name: 'Ganesh Chaturthi',
+        nameGu: 'ગણેશ ચતુર્થી',
+        nameHi: 'गणेश चतुर्थी',
+        dateDisplay: 'Aug 27, 2025',
+        category: 'hindu',
+        categoryName: 'Hindu Festivals',
+        imageAsset: AppAssets.homeFestivalGaneshCard,
+        isUpcoming: true,
+        celebrationType: 'Devotional',
+        aboutText:
+            'Celebrate Ganesh Chaturthi with devotion, blessings and festive happiness.',
+        heroBannerAsset: AppAssets.homeBannerGaneshHero,
+        posterTemplates: [
+          FestivalPosterTemplate(
+            id: 'ganesh_bappa',
+            title: 'Ganesh Chaturthi Wishes',
+            imageAsset: AppAssets.homeFestivalGaneshCard,
+            style: 'devotional',
+          ),
+        ],
+        keywords: ['ganesh', 'chaturthi', 'bappa', 'modak', 'ગણેશ', 'વિનાયક'],
+        templateCount: 20,
+      ),
+    ];
+  }
+
+  /// All Festivals for carousel and full directory
+  List<FestivalItem> getExploreAllFestivals() {
+    return const [
       FestivalItem(
         id: 'fest_bhai_beej',
         name: 'Bhai Beej',
@@ -196,27 +249,10 @@ class FestivalService {
         nameHi: 'भाई दूज',
         dateDisplay: '16 Nov',
         category: 'cultural',
-        categoryName: 'Cultural',
+        categoryName: 'Cultural Events',
         imageAsset: AppAssets.festivalBhaiBeej,
         isUpcoming: true,
         celebrationType: 'Family Celebration',
-        aboutText:
-            'Celebrate the eternal bond of brothers and sisters with heartfelt blessings and traditions.',
-        heroBannerAsset: AppAssets.festivalBhaiBeej,
-        posterTemplates: [
-          FestivalPosterTemplate(
-            id: 'bhaibeej_shubh',
-            title: 'શુભ ભાઈ બીજ',
-            imageAsset: AppAssets.festivalBhaiBeej,
-            style: 'traditional',
-          ),
-          FestivalPosterTemplate(
-            id: 'bhaibeej_modern',
-            title: 'Happy Bhai Dooj',
-            imageAsset: AppAssets.festivalBhaiBeej,
-            style: 'modern',
-          ),
-        ],
         keywords: ['bhai beej', 'bhai dooj', 'tilak', 'ભાઈ બીજ', 'भाई दूज'],
         templateCount: 10,
       ),
@@ -227,36 +263,13 @@ class FestivalService {
         nameHi: 'क्रिसमस',
         dateDisplay: '25 Dec',
         category: 'religious',
-        categoryName: 'Religious Events',
+        categoryName: 'Religious',
         imageAsset: AppAssets.festivalChristmasSanta,
         isUpcoming: true,
         celebrationType: 'Joy & Giving',
-        aboutText:
-            'Celebrate the joy of Christmas with peace, cheer, beautiful greetings and warmth.',
-        heroBannerAsset: AppAssets.festivalChristmasSanta,
-        posterTemplates: [
-          FestivalPosterTemplate(
-            id: 'christmas_merry',
-            title: 'Merry Christmas',
-            imageAsset: AppAssets.festivalChristmasSanta,
-            style: 'traditional',
-          ),
-          FestivalPosterTemplate(
-            id: 'christmas_modern',
-            title: 'Season Greetings',
-            imageAsset: AppAssets.festivalChristmasSanta,
-            style: 'modern',
-          ),
-        ],
         keywords: ['christmas', 'santa', 'xmas', 'holiday', 'નાતાલ', 'क्रिसमस'],
         templateCount: 8,
       ),
-    ];
-  }
-
-  /// All Festivals for carousel and full directory
-  List<FestivalItem> getExploreAllFestivals() {
-    return const [
       FestivalItem(
         id: 'fest_makar_sankranti',
         name: 'Makar Sankranti',

@@ -36,35 +36,18 @@ class AppConfigService {
   DateTime? get lastSyncedAt => _lastSyncedAt;
   String? get syncError => _syncError;
 
-  /// Candidate server base URLs to test in order of network priority
-  List<String> get candidateUrls {
-    if (kIsWeb) {
-      return const [
-        'http://127.0.0.1:3000',
-        'http://localhost:3000',
-      ];
-    }
-    return const [
-      'http://192.168.0.121:3000',
-      'http://127.0.0.1:3000',
-      'http://192.168.1.8:3000',
-      'http://10.0.2.2:3000',
-      'http://192.168.0.121:4000',
-      'http://127.0.0.1:4000',
-    ];
-  }
-
   /// Determines the best default server host for the current runtime platform:
-  /// - Web / Desktop -> http://127.0.0.1:3000 (prevents IPv6 localhost resolution hangs)
-  /// - Android Device -> http://192.168.1.8:3000 (or 10.0.2.2 on emulator, 127.0.0.1 with adb reverse)
+  /// - Android Emulator -> http://10.0.2.2:3000
+  /// - iOS Simulator / Desktop / Web -> http://localhost:3000
   String get defaultServerUrl {
     if (kIsWeb) {
-      return 'http://127.0.0.1:3000';
+      return 'http://localhost:3000';
     }
     if (Platform.isAndroid) {
-      return 'http://192.168.1.8:3000';
+      // 10.0.2.2 routes to the host computer's localhost from Android emulator
+      return 'http://10.0.2.2:3000';
     }
-    return 'http://127.0.0.1:3000';
+    return 'http://localhost:3000';
   }
 
   /// Get current effective server URL

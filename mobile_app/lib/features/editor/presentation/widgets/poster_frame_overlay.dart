@@ -13,9 +13,6 @@ class PosterFrameDef {
     required this.previewColor,
     this.badgeText,
     this.imageUrl,
-    this.regions,
-    this.imageHeight,
-    this.imageWidth,
   });
 
   final String id;
@@ -23,9 +20,6 @@ class PosterFrameDef {
   final Color previewColor;
   final String? badgeText;
   final String? imageUrl;
-  final List<dynamic>? regions;
-  final double? imageHeight;
-  final double? imageWidth;
 }
 
 /// Available built-in and designer poster frames.
@@ -118,18 +112,12 @@ class PosterFrames {
             final path = f['path']?.toString() ?? '';
             if (path.isEmpty) continue;
             final fullUrl = path.startsWith('http') ? path : '$baseUrl$path';
-            final regions = f['regions'] as List<dynamic>?;
-            final imgH = (f['imageHeight'] as num?)?.toDouble();
-            final imgW = (f['imageWidth'] as num?)?.toDouble();
             fetched.add(PosterFrameDef(
               id: 'admin_$id',
               name: name,
               previewColor: const Color(0xFFF59E0B),
               badgeText: 'Admin',
               imageUrl: fullUrl,
-              regions: regions,
-              imageHeight: imgH,
-              imageWidth: imgW,
             ));
           }
           if (fetched.isNotEmpty) {
@@ -887,177 +875,6 @@ class PosterFrameOverlay extends StatelessWidget {
   // Admin image frame overlay
   Widget _buildAdminImageFrame([String? overrideImageUrl]) {
     final effectiveImage = overrideImageUrl ?? adminImageUrl;
-
-    // Check if the admin frame has custom designer regions configured
-    final currentDef = PosterFrames.list.firstWhere(
-      (f) => f.id == frameId,
-      orElse: () => const PosterFrameDef(id: 'none', name: 'None', previewColor: Colors.grey),
-    );
-
-    final regions = currentDef.regions;
-    if (regions != null && regions.isNotEmpty) {
-      final imgW = currentDef.imageWidth ?? 100.0;
-      final imgH = currentDef.imageHeight ?? 100.0;
-
-      double parseVal(dynamic v, double total, double baseSize) {
-        final n = (v as num?)?.toDouble() ?? 0.0;
-        if (baseSize > 100 && n > 100) {
-          return (n / baseSize) * total;
-        }
-        return (n / 100.0) * total;
-      }
-
-      final imageWidgets = <Widget>[];
-      final textWidgets = <Widget>[];
-
-      for (final r in regions) {
-        if (r is! Map) continue;
-        final map = r.cast<String, dynamic>();
-        final vName = map['variableName']?.toString().toLowerCase() ?? '';
-        final rType = map['type']?.toString().toLowerCase() ?? '';
-        final rTitle = map['title']?.toString().toLowerCase() ?? '';
-
-        final rx = parseVal(map['x'], w, imgW);
-        final ry = parseVal(map['y'], h, imgH);
-        final rw = parseVal(map['width'], w, imgW);
-        final rh = parseVal(map['height'], h, imgH);
-
-        if (rw <= 0 || rh <= 0) continue;
-
-        // Check if image region
-        final isImage = rType == 'image' ||
-            vName.contains('photo') ||
-            vName.contains('logo') ||
-            vName.contains('symbol') ||
-            rTitle.contains('photo') ||
-            rTitle.contains('logo');
-
-        if (isImage) {
-          if (vName == 'userphoto' || vName.contains('photo') || rTitle.contains('photo')) {
-            // 1. User Photo
-            imageWidgets.add(
-              Positioned(
-                left: rx,
-                top: ry,
-                width: rw,
-                height: rh,
-                child: _buildRegionPhoto(rw, rh),
-              ),
-            );
-          } else if (vName.contains('logo') || vName.contains('panchayat') || rTitle.contains('logo')) {
-            // 2. Panchayat Logo / Emblem
-            imageWidgets.add(
-              Positioned(
-                left: rx,
-                top: ry,
-                width: rw,
-                height: rh,
-                child: _buildRegionLogo(rw, rh, map['image']?.toString()),
-              ),
-            );
-          } else if (vName.contains('symbol') || vName.contains('party') || vName.contains('election') || rTitle.contains('symbol')) {
-            // 3. Party Symbol / Election Logo
-            imageWidgets.add(
-              Positioned(
-                left: rx,
-                top: ry,
-                width: rw,
-                height: rh,
-                child: _buildRegionPartySymbol(rw, rh, map['image']?.toString()),
-              ),
-            );
-          } else {
-            // 4. Other Graphic Image
-            imageWidgets.add(
-              Positioned(
-                left: rx,
-                top: ry,
-                width: rw,
-                height: rh,
-                child: _buildRegionGenericImage(rw, rh, map['image']?.toString()),
-              ),
-            );
-          }
-        } else {
-          // Text region (Name, Post / Designation, Mobile / Number, Village, Post Text / Slogan, Email)
-          String textValue = '';
-          Color defaultColor = Colors.white;
-
-          if (vName == 'username' || vName == 'name' || rTitle.contains('name') || vName.contains('user')) {
-            textValue = _displayName;
-            defaultColor = Colors.white;
-          } else if (vName == 'designation' || vName == 'post' || vName == 'role' || rTitle.contains('designation') || rTitle.contains('post')) {
-            textValue = _designation;
-            defaultColor = const Color(0xFFFEF08A);
-          } else if (vName == 'mobile' || vName == 'number' || vName == 'phone' || rTitle.contains('mobile') || rTitle.contains('number')) {
-            textValue = _phone;
-            defaultColor = Colors.white;
-          } else if (vName == 'village' || vName == 'panchayat' || rTitle.contains('village') || rTitle.contains('panchayat')) {
-            textValue = user?.villageCity?.isNotEmpty == true ? user!.villageCity! : 'ગ્રામ પંચાયત';
-            defaultColor = const Color(0xFFFEF08A);
-          } else if (vName == 'posttext' || vName.contains('slogan') || vName.contains('text')) {
-            textValue = map['defaultText']?.toString() ?? 'જય શ્રી રામ';
-            defaultColor = Colors.white;
-          } else if (vName == 'email') {
-            textValue = map['defaultText']?.toString() ?? '';
-            defaultColor = Colors.white;
-          } else {
-            textValue = map['title']?.toString() ?? '';
-          }
-
-          final fontColor = _parseColor(map['properties']?['fontColor']) ?? defaultColor;
-          final fontSize = (rh * 0.55).clamp(8.0, 22.0);
-
-          textWidgets.add(
-            Positioned(
-              left: rx,
-              top: ry,
-              width: rw,
-              height: rh,
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  textValue,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: fontColor,
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.w800,
-                    shadows: const [
-                      Shadow(color: Colors.black, blurRadius: 4, offset: Offset(0, 1)),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        }
-      }
-
-      return Stack(
-        clipBehavior: Clip.none,
-        children: [
-          // 1. Image Regions (Behind frame graphic cutout)
-          ...imageWidgets,
-
-          // 2. The Transparent Admin Frame Graphic Overlay
-          Positioned.fill(
-            child: IgnorePointer(
-              child: _buildResolvedImage(
-                effectiveImage,
-                fit: BoxFit.fill,
-                fallback: const SizedBox.shrink(),
-              ),
-            ),
-          ),
-
-          // 3. Text Regions (In front of frame graphic)
-          ...textWidgets,
-        ],
-      );
-    }
-
     final frameH = (h * 0.16).clamp(42.0, 85.0);
     final photoSize = (frameH * 1.05).clamp(44.0, 80.0);
 
@@ -1143,89 +960,6 @@ class PosterFrameOverlay extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  Widget _buildRegionPhoto(double width, double height) {
-    final photo = Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(width == height ? width / 2 : 8.0),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: _buildResolvedImage(
-        _effectivePhotoUrl,
-        fit: BoxFit.cover,
-        fallback: _fallbackAvatar(),
-      ),
-    );
-
-    if (onTapPhoto != null) {
-      return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTapPhoto,
-        child: photo,
-      );
-    }
-    return photo;
-  }
-
-  Widget _buildRegionLogo(double width, double height, String? defaultImage) {
-    return Container(
-      width: width,
-      height: height,
-      alignment: Alignment.center,
-      child: _buildResolvedImage(
-        defaultImage,
-        fit: BoxFit.contain,
-        fallback: Icon(
-          Icons.account_balance_rounded,
-          color: const Color(0xFFFDE047),
-          size: (width < height ? width : height) * 0.7,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRegionPartySymbol(double width, double height, String? defaultImage) {
-    return Container(
-      width: width,
-      height: height,
-      alignment: Alignment.center,
-      child: _buildResolvedImage(
-        defaultImage,
-        fit: BoxFit.contain,
-        fallback: Icon(
-          Icons.how_to_vote_rounded,
-          color: const Color(0xFFF97316),
-          size: (width < height ? width : height) * 0.7,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRegionGenericImage(double width, double height, String? defaultImage) {
-    return Container(
-      width: width,
-      height: height,
-      alignment: Alignment.center,
-      child: _buildResolvedImage(
-        defaultImage,
-        fit: BoxFit.contain,
-        fallback: const SizedBox.shrink(),
-      ),
-    );
-  }
-
-  static Color? _parseColor(dynamic c) {
-    if (c == null) return null;
-    final s = c.toString().trim();
-    if (s.startsWith('#')) {
-      final hex = s.replaceFirst('#', '');
-      if (hex.length == 6) return Color(int.parse('FF$hex', radix: 16));
-      if (hex.length == 8) return Color(int.parse(hex, radix: 16));
-    }
-    return null;
   }
 
   Widget _buildCircularPhoto(double size, Color ringColor) {

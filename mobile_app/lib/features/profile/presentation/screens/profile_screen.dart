@@ -374,13 +374,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const Icon(Icons.phone_rounded, size: 12.0, color: _kTextSecondary),
                     const SizedBox(width: 5.0),
                     Text(mobile, style: const TextStyle(fontSize: 11.5, color: _kTextPrimary, fontWeight: FontWeight.w500)),
-                    Flexible(
-                      child: Text(
-                        mobile,
-                        style: const TextStyle(fontSize: 11.5, color: _kTextPrimary, fontWeight: FontWeight.w500),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 2.0),

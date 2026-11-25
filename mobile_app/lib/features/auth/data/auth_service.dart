@@ -1,9 +1,5 @@
-import 'dart:async';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
-import 'package:panchayat_post/core/services/app_config_service.dart';
 import 'package:panchayat_post/core/services/session_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/recovery_request.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
@@ -72,80 +68,16 @@ class AuthService {
   Future<Map<String, UserProfile>> _getAllUsers() async {
     final prefs = await _getPrefs();
     final jsonString = prefs.getString(_usersKey);
-    final now = DateTime(2026, 1, 1);
-    final defaultSeedUsers = <String, UserProfile>{
-      '7359265501': UserProfile(
-        userId: '6b06a2a425b2f71d7835a25f',
-        fullName: 'Krushnapalsinh Parmar',
-        username: '7359265501',
-        displayName: 'Krushnapalsinh Parmar (સરપંચ શ્રી)',
-        passwordHash: hashPassword('1234'),
-        villageCity: 'Palanpur',
-        state: 'Banaskantha',
-        isProfileComplete: true,
-        createdAt: now,
-        acceptedLegalTimestamp: now,
-      ),
-      '9624192725': UserProfile(
-        userId: '667d84ff6a5a1114983ddb6c',
-        fullName: 'Harsh',
-        username: '9624192725',
-        displayName: 'Harsh (સરપંચ શ્રી)',
-        passwordHash: hashPassword('1234'),
-        villageCity: 'Palanpur',
-        state: 'B.K',
-        isProfileComplete: true,
-        createdAt: now,
-        acceptedLegalTimestamp: now,
-      ),
-      '9723365365': UserProfile(
-        userId: '667d8c856a5a1114983ddbc9',
-        fullName: 'Bharat Chaudhary',
-        username: '9723365365',
-        displayName: 'Bharat Chaudhary (સરપંચ શ્રી)',
-        passwordHash: hashPassword('1234'),
-        villageCity: 'Palanpur',
-        state: 'B.K',
-        isProfileComplete: true,
-        createdAt: now,
-        acceptedLegalTimestamp: now,
-      ),
-      '9999999999': UserProfile(
-        userId: '6b069a4667921ed8c2eabfca',
-        fullName: 'Super Admin',
-        username: '9999999999',
-        displayName: 'Super Admin',
-        passwordHash: hashPassword('1234'),
-        villageCity: 'Palanpur',
-        state: 'B.K',
-        isProfileComplete: true,
-        createdAt: now,
-        acceptedLegalTimestamp: now,
-      ),
-    };
-
     if (jsonString == null || jsonString.isEmpty) {
-      await _saveAllUsers(defaultSeedUsers);
-      return defaultSeedUsers;
+      return {};
     }
 
     try {
       final decoded = jsonDecode(jsonString) as Map<String, dynamic>;
-      final result = decoded.map((key, value) =>
+      return decoded.map((key, value) =>
           MapEntry(key, UserProfile.fromJson(value as Map<String, dynamic>)));
-      bool added = false;
-      defaultSeedUsers.forEach((key, val) {
-        if (!result.containsKey(key)) {
-          result[key] = val;
-          added = true;
-        }
-      });
-      if (added) {
-        await _saveAllUsers(result);
-      }
-      return result;
     } catch (_) {
-      return defaultSeedUsers;
+      return {};
     }
   }
 
@@ -213,21 +145,6 @@ class AuthService {
     users[cleanUsername] = newProfile;
     await _saveAllUsers(users);
 
-    // Try to sync with backend MongoDB
-    try {
-      final activeBase = AppConfigService.instance.serverBaseUrl.replaceAll(RegExp(r'/+$'), '');
-      await http.post(
-        Uri.parse('$activeBase/api/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'name': cleanName,
-          'mobile': cleanUsername,
-          'pin': password,
-          'occupation': 'સરપંચ શ્રી',
-        }),
-      ).timeout(const Duration(seconds: 3));
-    } catch (_) {}
-
     // Save session
     final token = 'session_${userId}_${now.millisecondsSinceEpoch}';
     final expiry = now.add(const Duration(days: 30));
@@ -242,89 +159,10 @@ class AuthService {
     required String password,
     bool rememberMe = true,
   }) async {
-    final cleanUsername = username.trim();
-    final activeBase = AppConfigService.instance.serverBaseUrl.replaceAll(RegExp(r'/+$'), '');
-    final candidateBases = <String>{
-      activeBase,
-      'http://127.0.0.1:4000',
-      'http://localhost:4000',
-      'http://127.0.0.1:3000',
-      'http://localhost:3000',
-      'http://10.0.2.2:4000',
-    }.toList();
-
-    // 1. Try backend MongoDB authentication
-    for (final base in candidateBases) {
-      try {
-        final response = await http
-            .post(
-              Uri.parse('$base/api/login'),
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-              },
-              body: jsonEncode({
-                'mobile': cleanUsername,
-                'username': cleanUsername,
-                'otp': password,
-                'pin': password,
-                'password': password,
-              }),
-            )
-            .timeout(const Duration(milliseconds: 2500));
-
-        if (response.statusCode == 200) {
-          final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-          final token = decoded['token'] as String?;
-          final userObj = decoded['user'] as Map<String, dynamic>?;
-
-          if (userObj != null) {
-            final userId = userObj['_id']?.toString() ?? userObj['id']?.toString() ?? cleanUsername;
-            final name = userObj['name']?.toString() ?? userObj['fullName']?.toString() ?? cleanUsername;
-            final village = userObj['village']?.toString() ?? '';
-            final district = userObj['district']?.toString() ?? '';
-            final occupation = userObj['occupation']?.toString() ?? '';
-            final now = DateTime.now();
-            final expiry = rememberMe ? now.add(const Duration(days: 30)) : now.add(const Duration(days: 1));
-
-            if (token != null) {
-              await _sessionService.saveSession(token: token, userId: userId, expiry: expiry);
-            }
-
-            final profile = UserProfile(
-              userId: userId,
-              fullName: name,
-              username: cleanUsername,
-              displayName: occupation.isNotEmpty ? '$name ($occupation)' : name,
-              passwordHash: hashPassword(password),
-              villageCity: village,
-              state: district,
-              isProfileComplete: true,
-              createdAt: now,
-              acceptedLegalTimestamp: now,
-            );
-
-            // Cache profile locally
-            final users = await _getAllUsers();
-            users[cleanUsername.toLowerCase()] = profile;
-            await _saveAllUsers(users);
-
-            // Lock in working server base URL
-            unawaited(AppConfigService.instance.setServerBaseUrl(base));
-
-            return profile;
-          }
-        }
-      } catch (e) {
-        debugPrint('[AuthService] Backend login attempt to $base: $e');
-      }
-    }
-
-    // 2. Fallback to local accounts
-    final cleanLower = cleanUsername.toLowerCase();
+    final cleanUsername = username.trim().toLowerCase();
     final users = await _getAllUsers();
 
-    final user = users[cleanLower];
+    final user = users[cleanUsername];
     if (user == null) {
       throw AuthException('User "$username" does not exist.');
     }
@@ -334,7 +172,7 @@ class AuthService {
     }
 
     final hash = hashPassword(password);
-    if (user.passwordHash != hash && password != '1234') {
+    if (user.passwordHash != hash) {
       throw AuthException('Invalid password.');
     }
 
