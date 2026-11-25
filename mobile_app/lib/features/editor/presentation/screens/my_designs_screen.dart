@@ -1741,6 +1741,137 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
     );
   }
 
+  void _showAllTemplatesLibrary(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+      ),
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.75,
+        minChildSize: 0.45,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (_, scrollController) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFCBD5E1),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'All Poster Templates',
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textNavy,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: () => Navigator.of(ctx).pop(),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Expanded(
+                child: GridView.count(
+                  controller: scrollController,
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12.0,
+                  mainAxisSpacing: 12.0,
+                  childAspectRatio: 0.75,
+                  children: [
+                    _buildTemplateItem('શુભ નવરાત્રી', AppAssets.homeFestivalNavratriCard),
+                    _buildTemplateItem('સ્વાતંત્ર્ય દિન', AppAssets.homeFestivalIndependenceCard),
+                    _buildTemplateItem('દીપોત્સવ દિવાળી', AppAssets.homeFestivalDiwaliCard),
+                    _buildTemplateItem('ગણેશ ઉત્સવ', AppAssets.homeFestivalGaneshCard),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTemplateItem(String title, String asset) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).pop();
+        final project = PosterTemplateProject.createDefaultNavratriProject(
+          templateId: 'tpl_${title.toLowerCase().replaceAll(' ', '_')}',
+          imageAsset: asset,
+          title: title,
+        );
+        Navigator.of(context).pushNamed(
+          AppRoutes.posterEditor,
+          arguments: project,
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14.0),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(14.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: Image.asset(
+                  asset,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, error, stackTrace) => Container(
+                    color: const Color(0xFFEDE9FE),
+                    child: const Icon(Icons.image, color: Color(0xFF6D28D9)),
+                  ),
+                ),
+              ),
+              Container(
+                color: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textNavy,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   // --- 8. Modern Pill Bottom Navigation Bar ---
 
   Widget _buildBottomNavigation() {
@@ -1769,7 +1900,7 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
             icon: Icons.layers_rounded,
             label: 'Templates',
             isSelected: false,
-            onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.festivals),
+            onTap: () => _showAllTemplatesLibrary(context),
           ),
           _buildNavItem(
             icon: Icons.photo_library_rounded,

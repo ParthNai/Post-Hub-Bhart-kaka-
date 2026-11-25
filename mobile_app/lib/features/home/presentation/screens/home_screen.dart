@@ -480,13 +480,16 @@ class _HomeScreenState extends State<HomeScreen> {
               label: const Text('Generate Poster with AI',
                   style: TextStyle(fontWeight: FontWeight.w700)),
               onPressed: () {
+                final prompt = _aiPromptController.text.trim();
                 Navigator.of(ctx).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('AI is generating your custom poster design...'),
-                    backgroundColor: Color(0xFF6C5CE7),
-                    duration: Duration(seconds: 3),
-                  ),
+                final project = PosterTemplateProject.createDefaultNavratriProject(
+                  templateId: 'ai_${DateTime.now().millisecondsSinceEpoch}',
+                  title: prompt.isNotEmpty ? prompt : 'AI Festival Poster',
+                  imageAsset: AppAssets.homeBannerNavratriHero,
+                );
+                Navigator.of(context).pushNamed(
+                  AppRoutes.posterEditor,
+                  arguments: project,
                 );
               },
             ),
@@ -1843,7 +1846,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required IconData icon,
   }) {
     final isSelected = _selectedNavIndex == index;
-    final color = isSelected ? const Color(0xFF6C5CE7) : const Color(0xFF64748B);
+    final color = isSelected ? const Color(0xFF6D28D9) : const Color(0xFF64748B);
 
     return InkWell(
       onTap: () => _onNavTapped(index),
