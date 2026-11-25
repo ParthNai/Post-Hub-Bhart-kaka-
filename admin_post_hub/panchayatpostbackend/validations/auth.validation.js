@@ -15,10 +15,12 @@ const register = {
 
 const pinLogin = {
   body: Joi.object().keys({
-    mobile: Joi.string().pattern(/^\d{10}$/).required(),
+    mobile: Joi.string().allow('').optional(),
+    username: Joi.string().allow('').optional(),
     otp: Joi.string().min(1).max(100).optional(),
     pin: Joi.string().min(1).max(100).optional(),
-  }).or('otp', 'pin'),
+    password: Joi.string().min(1).max(100).optional(),
+  }),
 };
 
 const login = {

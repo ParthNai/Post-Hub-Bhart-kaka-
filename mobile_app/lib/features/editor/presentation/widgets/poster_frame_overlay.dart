@@ -13,6 +13,9 @@ class PosterFrameDef {
     required this.previewColor,
     this.badgeText,
     this.imageUrl,
+    this.regions,
+    this.imageHeight,
+    this.imageWidth,
   });
 
   final String id;
@@ -20,6 +23,9 @@ class PosterFrameDef {
   final Color previewColor;
   final String? badgeText;
   final String? imageUrl;
+  final List<dynamic>? regions;
+  final double? imageHeight;
+  final double? imageWidth;
 }
 
 /// Available built-in and designer poster frames.
@@ -112,12 +118,18 @@ class PosterFrames {
             final path = f['path']?.toString() ?? '';
             if (path.isEmpty) continue;
             final fullUrl = path.startsWith('http') ? path : '$baseUrl$path';
+            final regions = f['regions'] as List<dynamic>?;
+            final imgH = (f['imageHeight'] as num?)?.toDouble();
+            final imgW = (f['imageWidth'] as num?)?.toDouble();
             fetched.add(PosterFrameDef(
               id: 'admin_$id',
               name: name,
               previewColor: const Color(0xFFF59E0B),
               badgeText: 'Admin',
               imageUrl: fullUrl,
+              regions: regions,
+              imageHeight: imgH,
+              imageWidth: imgW,
             ));
           }
           if (fetched.isNotEmpty) {
@@ -875,6 +887,148 @@ class PosterFrameOverlay extends StatelessWidget {
   // Admin image frame overlay
   Widget _buildAdminImageFrame([String? overrideImageUrl]) {
     final effectiveImage = overrideImageUrl ?? adminImageUrl;
+
+    // Check if the admin frame has custom designer regions configured
+    final currentDef = PosterFrames.list.firstWhere(
+      (f) => f.id == frameId,
+      orElse: () => const PosterFrameDef(id: 'none', name: 'None', previewColor: Colors.grey),
+    );
+
+    final regions = currentDef.regions;
+    if (regions != null && regions.isNotEmpty) {
+      final imgW = currentDef.imageWidth ?? 100.0;
+      final imgH = currentDef.imageHeight ?? 100.0;
+
+      Map<String, dynamic>? findRegion(String key, String type) {
+        for (final r in regions) {
+          if (r is! Map) continue;
+          final map = r.cast<String, dynamic>();
+          final vName = map['variableName']?.toString().toLowerCase() ?? '';
+          final rType = map['type']?.toString().toLowerCase() ?? '';
+          final rTitle = map['title']?.toString().toLowerCase() ?? '';
+          if (vName == key.toLowerCase() || (type.isNotEmpty && rType == type) || rTitle.contains(key.toLowerCase())) {
+            return map;
+          }
+        }
+        return null;
+      }
+
+      final photoReg = findRegion('userphoto', 'image') ?? findRegion('photo', 'image');
+
+      if (photoReg != null) {
+        double parseVal(dynamic v, double total, double baseSize) {
+          final n = (v as num?)?.toDouble() ?? 0.0;
+          if (baseSize > 100 && n > 100) {
+            return (n / baseSize) * total;
+          }
+          return (n / 100.0) * total;
+        }
+
+        final pLeft = parseVal(photoReg['x'], w, imgW);
+        final pTop = parseVal(photoReg['y'], h, imgH);
+        final pWidth = parseVal(photoReg['width'], w, imgW);
+        final pHeight = parseVal(photoReg['height'], h, imgH);
+
+        final nameReg = findRegion('username', 'text') ?? findRegion('name', 'text');
+        final desigReg = findRegion('designation', 'text');
+        final mobileReg = findRegion('mobile', 'text');
+
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // 1. User Photo placed exactly in the admin-selected region
+            Positioned(
+              left: pLeft,
+              top: pTop,
+              width: pWidth,
+              height: pHeight,
+              child: _buildRegionPhoto(pWidth, pHeight),
+            ),
+
+            // 2. The Transparent Admin Frame Graphic Overlay
+            Positioned.fill(
+              child: IgnorePointer(
+                child: _buildResolvedImage(
+                  effectiveImage,
+                  fit: BoxFit.fill,
+                  fallback: const SizedBox.shrink(),
+                ),
+              ),
+            ),
+
+            // 3. Dynamic User Name in region
+            if (nameReg != null)
+              Positioned(
+                left: parseVal(nameReg['x'], w, imgW),
+                top: parseVal(nameReg['y'], h, imgH),
+                width: parseVal(nameReg['width'], w, imgW),
+                height: parseVal(nameReg['height'], h, imgH),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    _displayName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: _parseColor(nameReg['properties']?['fontColor']) ?? Colors.white,
+                      fontSize: (parseVal(nameReg['height'], h, imgH) * 0.55).clamp(10.0, 18.0),
+                      fontWeight: FontWeight.w800,
+                      shadows: const [Shadow(color: Colors.black, blurRadius: 4, offset: Offset(0, 1))],
+                    ),
+                  ),
+                ),
+              ),
+
+            // 4. Dynamic Designation in region
+            if (desigReg != null)
+              Positioned(
+                left: parseVal(desigReg['x'], w, imgW),
+                top: parseVal(desigReg['y'], h, imgH),
+                width: parseVal(desigReg['width'], w, imgW),
+                height: parseVal(desigReg['height'], h, imgH),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    _designation,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: _parseColor(desigReg['properties']?['fontColor']) ?? const Color(0xFFFEF08A),
+                      fontSize: (parseVal(desigReg['height'], h, imgH) * 0.50).clamp(9.0, 15.0),
+                      fontWeight: FontWeight.w700,
+                      shadows: const [Shadow(color: Colors.black, blurRadius: 4, offset: Offset(0, 1))],
+                    ),
+                  ),
+                ),
+              ),
+
+            // 5. Dynamic Mobile Number in region
+            if (mobileReg != null)
+              Positioned(
+                left: parseVal(mobileReg['x'], w, imgW),
+                top: parseVal(mobileReg['y'], h, imgH),
+                width: parseVal(mobileReg['width'], w, imgW),
+                height: parseVal(mobileReg['height'], h, imgH),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    _phone,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: _parseColor(mobileReg['properties']?['fontColor']) ?? Colors.white,
+                      fontSize: (parseVal(mobileReg['height'], h, imgH) * 0.50).clamp(8.5, 14.0),
+                      fontWeight: FontWeight.w700,
+                      shadows: const [Shadow(color: Colors.black, blurRadius: 4, offset: Offset(0, 1))],
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      }
+    }
+
     final frameH = (h * 0.16).clamp(42.0, 85.0);
     final photoSize = (frameH * 1.05).clamp(44.0, 80.0);
 
@@ -960,6 +1114,42 @@ class PosterFrameOverlay extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Widget _buildRegionPhoto(double width, double height) {
+    final photo = Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(width == height ? width / 2 : 8.0),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: _buildResolvedImage(
+        _effectivePhotoUrl,
+        fit: BoxFit.cover,
+        fallback: _fallbackAvatar(),
+      ),
+    );
+
+    if (onTapPhoto != null) {
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTapPhoto,
+        child: photo,
+      );
+    }
+    return photo;
+  }
+
+  static Color? _parseColor(dynamic c) {
+    if (c == null) return null;
+    final s = c.toString().trim();
+    if (s.startsWith('#')) {
+      final hex = s.replaceFirst('#', '');
+      if (hex.length == 6) return Color(int.parse('FF$hex', radix: 16));
+      if (hex.length == 8) return Color(int.parse(hex, radix: 16));
+    }
+    return null;
   }
 
   Widget _buildCircularPhoto(double size, Color ringColor) {

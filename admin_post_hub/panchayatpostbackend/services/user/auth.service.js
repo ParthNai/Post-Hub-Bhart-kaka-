@@ -103,8 +103,16 @@ const sendloginotp = async (data) => {
 
 const checkIfUserExist = async (data) => {
   try {
-    console.log("checkIfUserExist", data);
-    const user = await User.findOne({ mobile: Number(data.mobile) });
+    const rawMobile = data.mobile;
+    const numMobile = Number(rawMobile);
+    const query = {
+      $or: [
+        { mobile: rawMobile },
+        ...(isNaN(numMobile) ? [] : [{ mobile: numMobile }]),
+        { userName: String(rawMobile) }
+      ]
+    };
+    const user = await User.findOne(query);
 
     if (!user) {
       return {
@@ -113,12 +121,6 @@ const checkIfUserExist = async (data) => {
         message: "User Not found",
       };
     }
-    // if (!user.status) {
-    //   return {
-    //     status: httpStatus.INTERNAL_SERVER_ERROR,
-    //     message: "Inactive account!",
-    //   };
-    // }
     return { status: httpStatus.OK, isExist: true, message: "User Found" };
   } catch (error) {
     console.log(error);
@@ -127,8 +129,18 @@ const checkIfUserExist = async (data) => {
 };
 const login = async (data) => {
   try {
-    const pinVal = data.otp || data.pin;
-    const user = await User.findOne({ mobile: data.mobile, pin: pinVal });
+    const pinVal = data.otp || data.pin || data.password;
+    const rawMobile = data.mobile || data.username;
+    const numMobile = Number(rawMobile);
+
+    const mobileConditions = [
+      { mobile: rawMobile },
+      ...(isNaN(numMobile) ? [] : [{ mobile: numMobile }]),
+      { userName: String(rawMobile) },
+      { email: String(rawMobile) }
+    ];
+
+    const user = await User.findOne({ $or: mobileConditions });
 
     if (!user) {
       return {
@@ -142,6 +154,28 @@ const login = async (data) => {
         message: "Account is inactive, please contact your administrator.",
       };
     }
+
+    // Verify pin or password
+    let isValid = false;
+    if (user.pin && (String(user.pin) === String(pinVal))) {
+      isValid = true;
+    } else if (user.password) {
+      if (user.password === pinVal) {
+        isValid = true;
+      } else {
+        try {
+          isValid = await bcrypt.compare(String(pinVal), user.password);
+        } catch (_) {}
+      }
+    }
+
+    if (!isValid) {
+      return {
+        status: httpStatus.INTERNAL_SERVER_ERROR,
+        message: "Invalid Pin or user does not exist",
+      };
+    }
+
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
     const userData = await getUserData(user);
     return {

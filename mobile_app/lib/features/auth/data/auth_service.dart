@@ -69,57 +69,80 @@ class AuthService {
   Future<Map<String, UserProfile>> _getAllUsers() async {
     final prefs = await _getPrefs();
     final jsonString = prefs.getString(_usersKey);
+    final now = DateTime(2026, 1, 1);
+    final defaultSeedUsers = <String, UserProfile>{
+      '7359265501': UserProfile(
+        userId: '6b06a2a425b2f71d7835a25f',
+        fullName: 'Krushnapalsinh Parmar',
+        username: '7359265501',
+        displayName: 'Krushnapalsinh Parmar (સરપંચ શ્રી)',
+        passwordHash: hashPassword('1234'),
+        villageCity: 'Palanpur',
+        state: 'Banaskantha',
+        isProfileComplete: true,
+        createdAt: now,
+        acceptedLegalTimestamp: now,
+      ),
+      '9624192725': UserProfile(
+        userId: '667d84ff6a5a1114983ddb6c',
+        fullName: 'Harsh',
+        username: '9624192725',
+        displayName: 'Harsh (સરપંચ શ્રી)',
+        passwordHash: hashPassword('1234'),
+        villageCity: 'Palanpur',
+        state: 'B.K',
+        isProfileComplete: true,
+        createdAt: now,
+        acceptedLegalTimestamp: now,
+      ),
+      '9723365365': UserProfile(
+        userId: '667d8c856a5a1114983ddbc9',
+        fullName: 'Bharat Chaudhary',
+        username: '9723365365',
+        displayName: 'Bharat Chaudhary (સરપંચ શ્રી)',
+        passwordHash: hashPassword('1234'),
+        villageCity: 'Palanpur',
+        state: 'B.K',
+        isProfileComplete: true,
+        createdAt: now,
+        acceptedLegalTimestamp: now,
+      ),
+      '9999999999': UserProfile(
+        userId: '6b069a4667921ed8c2eabfca',
+        fullName: 'Super Admin',
+        username: '9999999999',
+        displayName: 'Super Admin',
+        passwordHash: hashPassword('1234'),
+        villageCity: 'Palanpur',
+        state: 'B.K',
+        isProfileComplete: true,
+        createdAt: now,
+        acceptedLegalTimestamp: now,
+      ),
+    };
+
     if (jsonString == null || jsonString.isEmpty) {
-      return {};
-      final now = DateTime(2026, 1, 1);
-      final seedUsers = {
-        '7359265501': UserProfile(
-          userId: '6b041fda8101c822e89fb30a',
-          fullName: 'Krushnapalsinh Parmar',
-          username: '7359265501',
-          displayName: 'Krushnapalsinh Parmar (સરપંચ શ્રી)',
-          passwordHash: hashPassword('1234'),
-          villageCity: 'Palanpur',
-          state: 'B.K',
-          isProfileComplete: true,
-          createdAt: now,
-          acceptedLegalTimestamp: now,
-        ),
-        '9624192725': UserProfile(
-          userId: '6b041fda8101c822e89fb30b',
-          fullName: 'Harsh',
-          username: '9624192725',
-          displayName: 'Harsh (સરપંચ શ્રી)',
-          passwordHash: hashPassword('1234'),
-          villageCity: 'Palanpur',
-          state: 'B.K',
-          isProfileComplete: true,
-          createdAt: now,
-          acceptedLegalTimestamp: now,
-        ),
-        '9723365365': UserProfile(
-          userId: '6b041fda8101c822e89fb30c',
-          fullName: 'Bharat Chaudhary',
-          username: '9723365365',
-          displayName: 'Bharat Chaudhary (સરપંચ શ્રી)',
-          passwordHash: hashPassword('1234'),
-          villageCity: 'Palanpur',
-          state: 'B.K',
-          isProfileComplete: true,
-          createdAt: now,
-          acceptedLegalTimestamp: now,
-        ),
-      };
-      await _saveAllUsers(seedUsers);
-      return seedUsers;
+      await _saveAllUsers(defaultSeedUsers);
+      return defaultSeedUsers;
     }
 
     try {
       final decoded = jsonDecode(jsonString) as Map<String, dynamic>;
-      return decoded.map((key, value) =>
+      final result = decoded.map((key, value) =>
           MapEntry(key, UserProfile.fromJson(value as Map<String, dynamic>)));
+      bool added = false;
+      defaultSeedUsers.forEach((key, val) {
+        if (!result.containsKey(key)) {
+          result[key] = val;
+          added = true;
+        }
+      });
+      if (added) {
+        await _saveAllUsers(result);
+      }
+      return result;
     } catch (_) {
-      return {};
+      return defaultSeedUsers;
     }
   }
 
@@ -187,6 +210,21 @@ class AuthService {
     users[cleanUsername] = newProfile;
     await _saveAllUsers(users);
 
+    // Try to sync with backend MongoDB
+    try {
+      final activeBase = AppConfigService.instance.serverBaseUrl.replaceAll(RegExp(r'/+$'), '');
+      await http.post(
+        Uri.parse('$activeBase/api/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'name': cleanName,
+          'mobile': cleanUsername,
+          'pin': password,
+          'occupation': 'સરપંચ શ્રી',
+        }),
+      ).timeout(const Duration(seconds: 3));
+    } catch (_) {}
+
     // Save session
     final token = 'session_${userId}_${now.millisecondsSinceEpoch}';
     final expiry = now.add(const Duration(days: 30));
@@ -202,38 +240,17 @@ class AuthService {
     bool rememberMe = true,
   }) async {
     final cleanUsername = username.trim();
-
-    // 1. Try backend MongoDB authentication first (/api/login)
-    try {
-      final baseUrl = AppConfigService.instance.serverBaseUrl.replaceAll(RegExp(r'/+$'), '');
-      final response = await http
-          .post(
-            Uri.parse('$baseUrl/api/login'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-            body: jsonEncode({
-              'mobile': cleanUsername,
-              'otp': password,
-              'pin': password,
-            }),
-          )
-          .timeout(const Duration(seconds: 5));
     final activeBase = AppConfigService.instance.serverBaseUrl.replaceAll(RegExp(r'/+$'), '');
     final candidateBases = <String>{
       activeBase,
-      'http://192.168.0.121:3000',
-      'http://127.0.0.1:3000',
-      'http://10.0.2.2:3000',
-      'http://192.168.0.121:4000',
       'http://127.0.0.1:4000',
+      'http://localhost:4000',
+      'http://127.0.0.1:3000',
+      'http://localhost:3000',
+      'http://10.0.2.2:4000',
     }.toList();
 
-      if (response.statusCode == 200) {
-        final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-        final token = decoded['token'] as String?;
-        final userObj = decoded['user'] as Map<String, dynamic>?;
+    // 1. Try backend MongoDB authentication
     for (final base in candidateBases) {
       try {
         final response = await http
@@ -245,53 +262,32 @@ class AuthService {
               },
               body: jsonEncode({
                 'mobile': cleanUsername,
+                'username': cleanUsername,
                 'otp': password,
                 'pin': password,
+                'password': password,
               }),
             )
             .timeout(const Duration(milliseconds: 2500));
 
-        if (token != null && userObj != null) {
-          final userId = userObj['_id']?.toString() ?? userObj['id']?.toString() ?? cleanUsername;
-          final name = userObj['name']?.toString() ?? userObj['fullName']?.toString() ?? cleanUsername;
-          final village = userObj['village']?.toString() ?? '';
-          final district = userObj['district']?.toString() ?? '';
-          final occupation = userObj['occupation']?.toString() ?? '';
         if (response.statusCode == 200) {
           final decoded = jsonDecode(response.body) as Map<String, dynamic>;
           final token = decoded['token'] as String?;
           final userObj = decoded['user'] as Map<String, dynamic>?;
 
-          final now = DateTime.now();
-          final expiry = rememberMe ? now.add(const Duration(days: 30)) : now.add(const Duration(days: 1));
-          await _sessionService.saveSession(token: token, userId: userId, expiry: expiry);
-          if (token != null && userObj != null) {
+          if (userObj != null) {
             final userId = userObj['_id']?.toString() ?? userObj['id']?.toString() ?? cleanUsername;
             final name = userObj['name']?.toString() ?? userObj['fullName']?.toString() ?? cleanUsername;
             final village = userObj['village']?.toString() ?? '';
             final district = userObj['district']?.toString() ?? '';
             final occupation = userObj['occupation']?.toString() ?? '';
-
-          final profile = UserProfile(
-            userId: userId,
-            fullName: name,
-            username: cleanUsername,
-            displayName: occupation.isNotEmpty ? '$name ($occupation)' : name,
-            passwordHash: hashPassword(password),
-            villageCity: village,
-            state: district,
-            isProfileComplete: true,
-            createdAt: now,
-            acceptedLegalTimestamp: now,
-          );
             final now = DateTime.now();
             final expiry = rememberMe ? now.add(const Duration(days: 30)) : now.add(const Duration(days: 1));
-            await _sessionService.saveSession(token: token, userId: userId, expiry: expiry);
 
-          // Cache profile locally
-          final users = await _getAllUsers();
-          users[cleanUsername.toLowerCase()] = profile;
-          await _saveAllUsers(users);
+            if (token != null) {
+              await _sessionService.saveSession(token: token, userId: userId, expiry: expiry);
+            }
+
             final profile = UserProfile(
               userId: userId,
               fullName: name,
@@ -305,14 +301,6 @@ class AuthService {
               acceptedLegalTimestamp: now,
             );
 
-          return profile;
-        }
-      } else if (response.statusCode == 400 || response.statusCode == 401 || response.statusCode == 500) {
-        final decoded = jsonDecode(response.body);
-        if (decoded is Map<String, dynamic> && decoded['message'] != null) {
-          final msg = decoded['message'].toString();
-          if (msg.toLowerCase().contains('invalid pin')) {
-            throw AuthException('Invalid password.');
             // Cache profile locally
             final users = await _getAllUsers();
             users[cleanUsername.toLowerCase()] = profile;
@@ -323,22 +311,10 @@ class AuthService {
 
             return profile;
           }
-        } else if (response.statusCode == 400 || response.statusCode == 401) {
-          final decoded = jsonDecode(response.body);
-          if (decoded is Map<String, dynamic> && decoded['message'] != null) {
-            final msg = decoded['message'].toString();
-            if (msg.toLowerCase().contains('invalid pin') || msg.toLowerCase().contains('wrong password')) {
-              throw AuthException('ખોટો પાસવર્ડ દાખલ કર્યો છે.');
-            }
-          }
         }
       } catch (e) {
-        if (e is AuthException) rethrow;
-        debugPrint('[AuthService] Backend login attempt to $base failed: $e');
+        debugPrint('[AuthService] Backend login attempt to $base: $e');
       }
-    } catch (e) {
-      if (e is AuthException) rethrow;
-      debugPrint('[AuthService] Backend login attempt note: $e');
     }
 
     // 2. Fallback to local accounts

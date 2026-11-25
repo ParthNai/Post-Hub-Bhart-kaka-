@@ -74,6 +74,23 @@ async function restoreDump() {
       }
     }
 
+    // Seed default framefields if empty
+    const ffColl = db.collection('framefields');
+    const ffCount = await ffColl.countDocuments();
+    if (ffCount === 0) {
+      console.log('Seeding default framefields...');
+      await ffColl.insertMany([
+        { title: 'User Photo', type: 'image', variableName: 'userPhoto', isElection: false, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { title: 'User Name', type: 'text', variableName: 'userName', isElection: false, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { title: 'Designation (સરપંચ શ્રી)', type: 'text', variableName: 'designation', isElection: false, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { title: 'Gram Panchayat / Village', type: 'text', variableName: 'village', isElection: false, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { title: 'Mobile Number', type: 'text', variableName: 'mobile', isElection: false, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { title: 'Panchayat Logo / Emblem', type: 'image', variableName: 'panchayatLogo', isElection: false, isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { title: 'Party Symbol / Election Logo', type: 'image', variableName: 'partySymbol', isElection: true, isActive: true, createdAt: new Date(), updatedAt: new Date() }
+      ]);
+      console.log(' -> Default framefields seeded successfully (7 fields)');
+    }
+
     // Verify admin accounts in festivalappbackend
     const adminUsers = await db.collection('users').find({
       $or: [
