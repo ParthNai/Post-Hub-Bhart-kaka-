@@ -50,17 +50,19 @@ class AuthService {
     return sha256.convert(bytes).toString();
   }
 
-  /// Validates password policy:
-  /// - At least 8 characters
-  /// Guidelines suggest uppercase, lowercase, and numeric digits.
-  static bool validatePasswordMinLength(String password) => password.length >= 8;
+  /// Validates password / PIN policy:
+  /// Supports both 4-digit numeric PINs and legacy passwords >= 8 chars.
+  static bool validatePinFormat(String pin) => RegExp(r'^\d{4}$').hasMatch(pin.trim());
+
+  static bool validatePasswordMinLength(String password) => password.length >= 4;
 
   static bool validatePasswordCases(String password) =>
       RegExp(r'[a-z]').hasMatch(password) && RegExp(r'[A-Z]').hasMatch(password);
 
   static bool validatePasswordNumber(String password) => RegExp(r'[0-9]').hasMatch(password);
 
-  static bool isPasswordValid(String password) => validatePasswordMinLength(password);
+  static bool isPasswordValid(String password) =>
+      validatePinFormat(password) || password.length >= 8;
 
   /// Validates username format: alphanumeric + underscores, 3 to 30 characters.
   static bool isUsernameFormatValid(String username) {
