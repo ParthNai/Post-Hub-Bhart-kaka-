@@ -1,20 +1,21 @@
 import 'dart:async';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:panchayat_post/core/constants/app_assets.dart';
-import 'package:panchayat_post/core/constants/app_colors.dart';
-import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
 import 'package:panchayat_post/core/widgets/legal_dialog_helper.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
-import 'package:panchayat_post/features/auth/presentation/widgets/auth_header_widget.dart';
-import 'package:panchayat_post/features/auth/presentation/widgets/auth_text_field.dart';
-import 'package:panchayat_post/features/auth/presentation/widgets/password_guidelines_widget.dart';
-import 'package:panchayat_post/features/welcome/presentation/widgets/welcome_background_painter.dart';
+import 'package:panchayat_post/features/auth/presentation/widgets/four_digit_pin_field.dart';
 
 /// Screen 03: Create Account / Registration Screen.
-/// Fully functional registration with form validation, debounced username availability,
-/// dynamic password requirement checkmarks, salted SHA-256 password hashing,
-/// terms agreement enforcement, and session creation.
+/// Redesigned with a minimal, spacious UI featuring:
+/// - Compact header with circular back navigation
+/// - Centered original Panchayat Post brand mark
+/// - English default typography and styling
+/// - Clean full name & username fields with live availability check
+/// - Two independent 4-digit PIN input components with auto-advance and secure masking
+/// - Interactive Terms & Privacy Policy integration
+/// - High-contrast primary action button and seamless Login navigation
 class CreateAccountScreen extends StatefulWidget {
   const CreateAccountScreen({
     super.key,
@@ -34,13 +35,14 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
   final _fullNameController = TextEditingController();
   final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
+
+  String _pin = '';
+  String _confirmPin = '';
+  String? _pinError;
+  String? _confirmPinError;
 
   late final AuthService _authService;
 
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
   bool _termsAccepted = false;
   bool _showTermsError = false;
 
@@ -50,11 +52,19 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   String? _usernameFeedback;
   Timer? _debounceTimer;
 
+  late final TapGestureRecognizer _termsRecognizer;
+  late final TapGestureRecognizer _privacyRecognizer;
+
   @override
   void initState() {
     super.initState();
     _authService = widget.authService ?? AuthService();
     _usernameController.addListener(_onUsernameChanged);
+
+    _termsRecognizer = TapGestureRecognizer()
+      ..onTap = () => LegalDialogHelper.showPolicyDialog(context, isPrivacy: false);
+    _privacyRecognizer = TapGestureRecognizer()
+      ..onTap = () => LegalDialogHelper.showPolicyDialog(context, isPrivacy: true);
   }
 
   @override
@@ -63,8 +73,8 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     _usernameController.removeListener(_onUsernameChanged);
     _fullNameController.dispose();
     _usernameController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
+    _termsRecognizer.dispose();
+    _privacyRecognizer.dispose();
     super.dispose();
   }
 
@@ -88,7 +98,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         setState(() {
           _isCheckingUsername = false;
           _isUsernameAvailable = false;
-          _usernameFeedback = null;
+          _usernameFeedback = 'Username must be 3-30 letters, numbers, or _';
         });
       }
       return;
@@ -103,11 +113,12 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       try {
         final available = await _authService.checkUsernameAvailability(text);
         if (mounted) {
-          final strings = LocaleScope.of(context).strings;
           setState(() {
             _isCheckingUsername = false;
             _isUsernameAvailable = available;
-            _usernameFeedback = available ? strings.usernameAvailable : strings.usernameTakenError;
+            _usernameFeedback = available
+                ? 'Username is available'
+                : 'This username is already taken';
           });
         }
       } catch (_) {
@@ -120,32 +131,50 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     });
   }
 
-  Future<void> _handleRegistration() async {
-    // Dismiss keyboard
+  Future<void> _handleRegister() async {
+    // Dismiss soft keyboard
     FocusScope.of(context).unfocus();
 
-    final strings = LocaleScope.of(context).strings;
+    // Reset inline PIN & Terms errors
+    setState(() {
+      _pinError = null;
+      _confirmPinError = null;
+      _showTermsError = false;
+    });
 
-    // Validate form fields
-    final isValid = _formKey.currentState?.validate() ?? false;
+    bool isValid = _formKey.currentState!.validate();
 
-    // Validate terms acceptance
+    // Validate 4-digit PIN
+    if (_pin.length != 4) {
+      setState(() => _pinError = 'Please enter a complete 4-digit PIN');
+      isValid = false;
+    } else if (!AuthService.validatePinFormat(_pin)) {
+      setState(() => _pinError = 'PIN must contain exactly 4 numeric digits');
+      isValid = false;
+    }
+
+    // Validate Confirm PIN
+    if (_confirmPin.length != 4) {
+      setState(() => _confirmPinError = 'Please confirm your 4-digit PIN');
+      isValid = false;
+    } else if (_pin != _confirmPin) {
+      setState(() => _confirmPinError = 'PINs do not match');
+      isValid = false;
+    }
+
+    // Validate Terms acceptance
     if (!_termsAccepted) {
       setState(() => _showTermsError = true);
-    } else {
-      setState(() => _showTermsError = false);
+      isValid = false;
     }
 
-    if (!isValid || !_termsAccepted) {
-      return;
-    }
+    if (!isValid) return;
 
-    // Check username availability if not yet confirmed
     if (_isUsernameAvailable == false) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(strings.usernameTakenError),
-          backgroundColor: const Color(0xFFEF4444),
+          content: Text(_usernameFeedback ?? 'This username is already taken'),
+          backgroundColor: const Color(0xFFDC2626),
         ),
       );
       return;
@@ -157,24 +186,21 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       final user = await _authService.registerUser(
         fullName: _fullNameController.text.trim(),
         username: _usernameController.text.trim(),
-        password: _passwordController.text,
+        password: _pin,
       );
 
       if (!mounted) return;
-
       setState(() => _isLoading = false);
 
-      // Show success feedback
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(strings.registrationSuccess),
-          backgroundColor: const Color(0xFF16A34A),
-          duration: const Duration(seconds: 2),
+        const SnackBar(
+          content: Text('Account created successfully!'),
+          backgroundColor: Color(0xFF16A34A),
+          duration: Duration(seconds: 2),
         ),
       );
 
-      // Navigate to Screen 07 Profile Setup if configured and profile incomplete; else Home
-      if (widget.navigateToProfileSetup && !user.isProfileComplete) {
+      if (widget.navigateToProfileSetup) {
         Navigator.of(context).pushNamedAndRemoveUntil(
           AppRoutes.profileSetup,
           (route) => false,
@@ -192,460 +218,672 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.message),
-          backgroundColor: const Color(0xFFEF4444),
+          backgroundColor: const Color(0xFFDC2626),
         ),
       );
     } catch (_) {
       if (!mounted) return;
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(strings.networkOrServerError),
-          backgroundColor: const Color(0xFFEF4444),
+        const SnackBar(
+          content: Text('An error occurred. Please try again.'),
+          backgroundColor: Color(0xFFDC2626),
         ),
       );
     }
   }
 
+  void _navigateToLogin() {
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    } else {
+      Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final strings = LocaleScope.of(context).strings;
-
     return Scaffold(
       backgroundColor: Colors.white,
-      body: CustomPaint(
-        painter: const WelcomeBackgroundPainter(),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // 1. Header (Back, Logo, Language Selector)
-              AuthHeaderWidget(
-                onBackPressed: () => Navigator.of(context).maybePop(),
+      body: Stack(
+        children: [
+          // Subtle soft pastel waves at corners
+          Positioned(
+            top: 0,
+            right: 0,
+            child: IgnorePointer(
+              child: CustomPaint(
+                size: const Size(220, 180),
+                painter: _TopRightWavePainter(),
               ),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            child: IgnorePointer(
+              child: CustomPaint(
+                size: const Size(200, 160),
+                painter: _BottomLeftWavePainter(),
+              ),
+            ),
+          ),
 
-              // 2. Scrollable Registration Form
-              Expanded(
-                child: SingleChildScrollView(
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  physics: const ClampingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+          // Main form content
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+              physics: const ClampingScrollPhysics(),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Back button row
+                    Row(
                       children: [
-                        const SizedBox(height: 8.0),
+                        GestureDetector(
+                          onTap: _navigateToLogin,
+                          behavior: HitTestBehavior.opaque,
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF3E8FF),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF9333EA).withValues(alpha: 0.08),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            alignment: Alignment.center,
+                            child: const Icon(
+                              Icons.arrow_back_rounded,
+                              color: Color(0xFF6B21A8),
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
 
-                        // Hero Illustration
-                        Image.asset(
-                          AppAssets.createAccountHero,
-                          height: 65,
+                    const SizedBox(height: 12),
+
+                    // Centered original brand logo
+                    Center(
+                      child: Image.asset(
+                        AppAssets.panchayatLogo,
+                        height: 72,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Image.asset(
+                          AppAssets.panchayatLogoOriginal,
+                          height: 72,
                           fit: BoxFit.contain,
                         ),
-                        const SizedBox(height: 12.0),
+                      ),
+                    ),
 
-                        // Main Heading
-                        Text(
-                          strings.createAccountHeading,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 24.0,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.textNavy,
-                            letterSpacing: -0.4,
-                          ),
-                        ),
-                        const SizedBox(height: 6.0),
+                    const SizedBox(height: 18),
 
-                        // Subtitle
-                        Text(
-                          strings.createAccountSubheading,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 13.0,
-                            color: Color(0xFF475569),
-                            height: 1.35,
-                          ),
-                        ),
-                        const SizedBox(height: 20.0),
+                    // Title
+                    const Text(
+                      'Create your account',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF0F172A),
+                        letterSpacing: -0.5,
+                      ),
+                    ),
 
-                        // Field 1: Full Name
-                        AuthTextField(
-                          label: strings.fullNameLabel,
-                          hintText: strings.fullNameHint,
-                          controller: _fullNameController,
-                          textInputAction: TextInputAction.next,
-                          labelIcon: const Icon(
-                            Icons.person_rounded,
-                            size: 16.0,
-                            color: AppColors.textNavy,
-                          ),
-                          prefixWidget: const Icon(
-                            Icons.person_outline_rounded,
-                            color: AppColors.textNavy,
-                            size: 20.0,
-                          ),
-                          validator: (val) {
-                            if (val == null || val.trim().isEmpty) {
-                              return strings.fullNameRequiredError;
-                            }
-                            if (val.trim().length < 2) {
-                              return strings.fullNameRequiredError;
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 14.0),
+                    const SizedBox(height: 8),
 
-                        // Field 2: Username
-                        AuthTextField(
-                          label: strings.usernameLabel,
-                          hintText: strings.usernameHint,
-                          controller: _usernameController,
-                          textInputAction: TextInputAction.next,
-                          labelIcon: const Text(
-                            '@',
-                            style: TextStyle(
-                              fontSize: 15.0,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.textNavy,
-                            ),
-                          ),
-                          prefixWidget: const Text(
-                            '@',
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textNavy,
-                            ),
-                          ),
-                          suffixWidget: _isCheckingUsername
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2.0,
-                                    color: AppColors.primaryBlue,
-                                  ),
-                                )
-                              : _isUsernameAvailable == true
-                                  ? const Icon(
-                                      Icons.check_circle_rounded,
-                                      color: Color(0xFF16A34A),
-                                      size: 20.0,
-                                    )
-                                  : _isUsernameAvailable == false
-                                      ? const Icon(
-                                          Icons.cancel_rounded,
-                                          color: Color(0xFFEF4444),
-                                          size: 20.0,
-                                        )
-                                      : null,
-                          helperText: _usernameFeedback ?? strings.usernameHelper,
-                          validator: (val) {
-                            if (val == null || val.trim().isEmpty) {
-                              return strings.usernameLengthError;
-                            }
-                            final clean = val.trim();
-                            if (clean.length < 3) {
-                              return strings.usernameLengthError;
-                            }
-                            if (!AuthService.isUsernameFormatValid(clean)) {
-                              return strings.usernameInvalidFormatError;
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 14.0),
+                    // Subtitle
+                    const Text(
+                      'Join Panchayat Post and create beautiful\nposts for your community.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF64748B),
+                        height: 1.45,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
 
-                        // Field 3: Password
-                        AuthTextField(
-                          label: strings.passwordLabel,
-                          hintText: strings.passwordHint,
-                          controller: _passwordController,
-                          obscureText: _obscurePassword,
-                          textInputAction: TextInputAction.next,
-                          onChanged: (_) => setState(() {}),
-                          labelIcon: const Icon(
-                            Icons.lock_rounded,
-                            size: 15.0,
-                            color: AppColors.textNavy,
-                          ),
-                          prefixWidget: const Icon(
-                            Icons.lock_outline_rounded,
-                            color: AppColors.textNavy,
-                            size: 20.0,
-                          ),
-                          suffixWidget: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                              color: const Color(0xFF64748B),
-                              size: 20.0,
-                            ),
-                            onPressed: () =>
-                                setState(() => _obscurePassword = !_obscurePassword),
-                          ),
-                          validator: (val) {
-                            if (val == null || !AuthService.isPasswordValid(val)) {
-                              return strings.passwordWeakError;
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 14.0),
+                    const SizedBox(height: 28),
 
-                        // Field 4: Confirm Password
-                        AuthTextField(
-                          label: strings.confirmPasswordLabel,
-                          hintText: strings.confirmPasswordHint,
-                          controller: _confirmPasswordController,
-                          obscureText: _obscureConfirmPassword,
-                          textInputAction: TextInputAction.done,
-                          labelIcon: const Icon(
-                            Icons.lock_rounded,
-                            size: 15.0,
-                            color: AppColors.textNavy,
-                          ),
-                          prefixWidget: const Icon(
-                            Icons.lock_outline_rounded,
-                            color: AppColors.textNavy,
-                            size: 20.0,
-                          ),
-                          suffixWidget: IconButton(
-                            icon: Icon(
-                              _obscureConfirmPassword
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                              color: const Color(0xFF64748B),
-                              size: 20.0,
-                            ),
-                            onPressed: () => setState(
-                                () => _obscureConfirmPassword = !_obscureConfirmPassword),
-                          ),
-                          validator: (val) {
-                            if (val == null || val.isEmpty) {
-                              return strings.passwordMismatchError;
-                            }
-                            if (val != _passwordController.text) {
-                              return strings.passwordMismatchError;
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 14.0),
+                    // 1. Full Name
+                    _buildFieldLabel(
+                      icon: Icons.person_rounded,
+                      label: 'Full Name',
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _fullNameController,
+                      textCapitalization: TextCapitalization.words,
+                      keyboardType: TextInputType.name,
+                      textInputAction: TextInputAction.next,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        color: Color(0xFF0F172A),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      decoration: _buildInputDecoration(
+                        hintText: 'Enter your full name',
+                        prefixIcon: Icons.person_outline_rounded,
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter your full name';
+                        }
+                        if (value.trim().length < 2) {
+                          return 'Full name must be at least 2 characters';
+                        }
+                        return null;
+                      },
+                    ),
 
-                        // Password Guidelines Card
-                        PasswordGuidelinesWidget(password: _passwordController.text),
-                        const SizedBox(height: 12.0),
+                    const SizedBox(height: 20),
 
-                        // Terms & Conditions Checkbox
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: Checkbox(
-                                value: _termsAccepted,
-                                activeColor: AppColors.primaryBlue,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4.0),
-                                ),
-                                onChanged: (val) {
-                                  setState(() {
-                                    _termsAccepted = val ?? false;
-                                    if (_termsAccepted) _showTermsError = false;
-                                  });
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 8.0),
-                            Expanded(
-                              child: Text.rich(
-                                TextSpan(
-                                  style: const TextStyle(
-                                    fontSize: 12.5,
-                                    color: Color(0xFF334155),
-                                  ),
-                                  children: [
-                                    TextSpan(text: strings.termsAcceptPrefix),
-                                    WidgetSpan(
-                                      alignment: PlaceholderAlignment.baseline,
-                                      baseline: TextBaseline.alphabetic,
-                                      child: GestureDetector(
-                                        onTap: () => LegalDialogHelper.showPolicyDialog(
-                                          context,
-                                          isPrivacy: false,
-                                        ),
-                                        child: Text(
-                                          strings.termsAndConditions,
-                                          style: const TextStyle(
-                                            color: AppColors.primaryBlue,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 12.5,
-                                            decoration: TextDecoration.underline,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TextSpan(text: strings.termsAndText),
-                                    WidgetSpan(
-                                      alignment: PlaceholderAlignment.baseline,
-                                      baseline: TextBaseline.alphabetic,
-                                      child: GestureDetector(
-                                        onTap: () => LegalDialogHelper.showPolicyDialog(
-                                          context,
-                                          isPrivacy: true,
-                                        ),
-                                        child: Text(
-                                          strings.privacyPolicy,
-                                          style: const TextStyle(
-                                            color: AppColors.primaryBlue,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 12.5,
-                                            decoration: TextDecoration.underline,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TextSpan(text: strings.termsAcceptSuffix),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                    // 2. Username
+                    _buildFieldLabel(
+                      icon: Icons.alternate_email_rounded,
+                      label: 'Username',
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _usernameController,
+                      keyboardType: TextInputType.text,
+                      textInputAction: TextInputAction.next,
+                      autocorrect: false,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        color: Color(0xFF0F172A),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      decoration: _buildInputDecoration(
+                        hintText: 'Choose a username',
+                        prefixIcon: Icons.alternate_email_rounded,
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter a username';
+                        }
+                        if (value.trim().length < 3) {
+                          return 'Username must be at least 3 characters';
+                        }
+                        if (!AuthService.isUsernameFormatValid(value.trim())) {
+                          return 'Only letters, numbers, and _ are allowed';
+                        }
+                        return null;
+                      },
+                    ),
 
-                        if (_showTermsError) ...[
-                          const SizedBox(height: 4.0),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 32.0),
-                              child: Text(
-                                strings.termsRequiredError,
-                                style: const TextStyle(
-                                  color: Color(0xFFEF4444),
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 18.0),
+                    // Username helper row
+                    const SizedBox(height: 6),
+                    _buildUsernameHelper(),
 
-                        // Primary Action Button ("એકાઉન્ટ બનાવો →")
+                    const SizedBox(height: 20),
+
+                    // 3. Create 4-digit PIN
+                    _buildFieldLabel(
+                      icon: Icons.lock_rounded,
+                      label: 'Create 4-digit PIN',
+                    ),
+                    const SizedBox(height: 10),
+                    FourDigitPinField(
+                      obscureText: true,
+                      hasError: _pinError != null,
+                      errorMessage: _pinError,
+                      onChanged: (pin) {
+                        setState(() {
+                          _pin = pin;
+                          if (pin.length == 4) _pinError = null;
+                        });
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // 4. Confirm 4-digit PIN
+                    _buildFieldLabel(
+                      icon: Icons.lock_rounded,
+                      label: 'Confirm 4-digit PIN',
+                    ),
+                    const SizedBox(height: 10),
+                    FourDigitPinField(
+                      obscureText: true,
+                      hasError: _confirmPinError != null,
+                      errorMessage: _confirmPinError,
+                      onChanged: (pin) {
+                        setState(() {
+                          _confirmPin = pin;
+                          if (pin.length == 4) _confirmPinError = null;
+                        });
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // 5. Terms & Conditions Checkbox
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         SizedBox(
-                          width: double.infinity,
-                          height: 52.0,
-                          child: ElevatedButton(
-                            onPressed: _isLoading ? null : _handleRegistration,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryBlue,
-                              foregroundColor: Colors.white,
-                              disabledBackgroundColor: AppColors.primaryBlue.withValues(alpha: 0.6),
-                              elevation: 2.0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(26.0),
+                          width: 24,
+                          height: 24,
+                          child: Checkbox(
+                            value: _termsAccepted,
+                            activeColor: const Color(0xFF0056D2),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            side: BorderSide(
+                              color: _showTermsError
+                                  ? const Color(0xFFEF4444)
+                                  : const Color(0xFF94A3B8),
+                              width: 1.5,
+                            ),
+                            onChanged: (val) {
+                              setState(() {
+                                _termsAccepted = val ?? false;
+                                if (_termsAccepted) _showTermsError = false;
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 2.0),
+                            child: RichText(
+                              text: TextSpan(
+                                style: const TextStyle(
+                                  fontSize: 13.5,
+                                  color: Color(0xFF475569),
+                                  height: 1.4,
+                                ),
+                                children: [
+                                  const TextSpan(text: 'I agree to the '),
+                                  TextSpan(
+                                    text: 'Terms & Conditions',
+                                    style: const TextStyle(
+                                      color: Color(0xFF0056D2),
+                                      fontWeight: FontWeight.w600,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                    recognizer: _termsRecognizer,
+                                  ),
+                                  const TextSpan(text: ' and '),
+                                  TextSpan(
+                                    text: 'Privacy Policy',
+                                    style: const TextStyle(
+                                      color: Color(0xFF0056D2),
+                                      fontWeight: FontWeight.w600,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                    recognizer: _privacyRecognizer,
+                                  ),
+                                  const TextSpan(text: '.'),
+                                ],
                               ),
                             ),
-                            child: _isLoading
-                                ? const SizedBox(
-                                    width: 22,
-                                    height: 22,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_showTermsError) ...[
+                      const SizedBox(height: 6),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 34.0),
+                        child: Text(
+                          'Please agree to the Terms & Conditions and Privacy Policy.',
+                          style: TextStyle(
+                            color: Color(0xFFEF4444),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 28),
+
+                    // Primary Action Button: "Create Account ->"
+                    SizedBox(
+                      height: 52,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _handleRegister,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0056D2),
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor: const Color(0xFF93C5FD),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Create Account',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 0.2,
                                     ),
-                                  )
-                                : Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Icon(
+                                    Icons.arrow_forward_rounded,
+                                    size: 19,
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    // Footer divider and login link
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        return Row(
+                          children: [
+                            const Expanded(
+                              child: Divider(
+                                color: Color(0xFFE2E8F0),
+                                thickness: 1,
+                              ),
+                            ),
+                            ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: constraints.maxWidth > 60
+                                    ? constraints.maxWidth - 40
+                                    : constraints.maxWidth,
+                              ),
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Text(
-                                        strings.createAccountButton,
-                                        style: const TextStyle(
-                                          fontSize: 16.5,
-                                          fontWeight: FontWeight.w700,
-                                          letterSpacing: 0.2,
+                                      const Text(
+                                        'Already have an account? ',
+                                        style: TextStyle(
+                                          fontSize: 13.5,
+                                          color: Color(0xFF64748B),
+                                          fontWeight: FontWeight.w400,
                                         ),
                                       ),
-                                      const SizedBox(width: 8.0),
-                                      const Icon(
-                                        Icons.arrow_forward_rounded,
-                                        size: 20.0,
+                                      GestureDetector(
+                                        onTap: _navigateToLogin,
+                                        child: const Text(
+                                          'Log in',
+                                          style: TextStyle(
+                                            fontSize: 13.5,
+                                            color: Color(0xFF0056D2),
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
-                          ),
-                        ),
-                        const SizedBox(height: 20.0),
-
-                        // Login Divider Row
-                        Row(
-                          children: [
-                            const Expanded(
-                              child: Divider(color: Color(0xFFE2E8F0), thickness: 1.0),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                              child: Text(
-                                strings.alreadyHaveAccount,
-                                style: const TextStyle(
-                                  fontSize: 13.5,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF64748B),
                                 ),
                               ),
                             ),
                             const Expanded(
-                              child: Divider(color: Color(0xFFE2E8F0), thickness: 1.0),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6.0),
-
-                        // Login Link with brush highlight
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).pushReplacementNamed(AppRoutes.login);
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Text(
-                              strings.loginAction,
-                              style: const TextStyle(
-                                fontSize: 16.5,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.primaryBlue,
-                                decoration: TextDecoration.underline,
-                                decorationColor: AppColors.accentOrange,
-                                decorationThickness: 2.5,
+                              child: Divider(
+                                color: Color(0xFFE2E8F0),
+                                thickness: 1,
                               ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 16.0),
-
-                        // Village Silhouette Footer
-                        Image.asset(
-                          AppAssets.welcomeVillageFooter,
-                          fit: BoxFit.contain,
-                          width: double.infinity,
-                          height: 70.0,
-                        ),
-                        const SizedBox(height: 8.0),
-                      ],
+                          ],
+                        );
+                      },
                     ),
-                  ),
+
+                    const SizedBox(height: 24),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
+
+  Widget _buildFieldLabel({
+    required IconData icon,
+    required String label,
+  }) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 18,
+          color: const Color(0xFF6366F1),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14.5,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF0F172A),
+            letterSpacing: -0.2,
+          ),
+        ),
+      ],
+    );
+  }
+
+  InputDecoration _buildInputDecoration({
+    required String hintText,
+    required IconData prefixIcon,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      hintStyle: const TextStyle(
+        fontSize: 14.5,
+        color: Color(0xFF94A3B8),
+        fontWeight: FontWeight.w400,
+      ),
+      prefixIcon: Icon(
+        prefixIcon,
+        color: const Color(0xFF94A3B8),
+        size: 20,
+      ),
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.8),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.2),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.8),
+      ),
+    );
+  }
+
+  Widget _buildUsernameHelper() {
+    if (_isCheckingUsername) {
+      return const Row(
+        children: [
+          SizedBox(
+            width: 14,
+            height: 14,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Color(0xFF6366F1),
+            ),
+          ),
+          SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              'Checking username availability...',
+              style: TextStyle(
+                color: Color(0xFF64748B),
+                fontSize: 12.5,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (_isUsernameAvailable == true) {
+      return const Row(
+        children: [
+          Icon(Icons.check_circle_rounded, size: 15, color: Color(0xFF16A34A)),
+          SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              'Username is available',
+              style: TextStyle(
+                color: Color(0xFF16A34A),
+                fontSize: 12.5,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (_isUsernameAvailable == false) {
+      return Row(
+        children: [
+          const Icon(Icons.cancel_rounded, size: 15, color: Color(0xFFDC2626)),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              _usernameFeedback ?? 'This username is already taken',
+              style: const TextStyle(
+                color: Color(0xFFDC2626),
+                fontSize: 12.5,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return const Row(
+      children: [
+        Icon(Icons.info_outline_rounded, size: 15, color: Color(0xFF6366F1)),
+        SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            'Your username will be used to log in.',
+            style: TextStyle(
+              color: Color(0xFF6366F1),
+              fontSize: 12.5,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Custom painter for the top-right subtle purple curved background accent.
+class _TopRightWavePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint1 = Paint()
+      ..color = const Color(0xFFF3E8FF).withValues(alpha: 0.7)
+      ..style = PaintingStyle.fill;
+
+    final paint2 = Paint()
+      ..color = const Color(0xFFEDE9FE).withValues(alpha: 0.5)
+      ..style = PaintingStyle.fill;
+
+    final path1 = Path()
+      ..moveTo(size.width * 0.25, 0)
+      ..quadraticBezierTo(
+        size.width * 0.45,
+        size.height * 0.7,
+        size.width,
+        size.height * 0.9,
+      )
+      ..lineTo(size.width, 0)
+      ..close();
+
+    final path2 = Path()
+      ..moveTo(size.width * 0.45, 0)
+      ..quadraticBezierTo(
+        size.width * 0.65,
+        size.height * 0.55,
+        size.width,
+        size.height * 0.75,
+      )
+      ..lineTo(size.width, 0)
+      ..close();
+
+    canvas.drawPath(path1, paint1);
+    canvas.drawPath(path2, paint2);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Custom painter for the bottom-left subtle purple curved background accent.
+class _BottomLeftWavePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFFF3E8FF).withValues(alpha: 0.6)
+      ..style = PaintingStyle.fill;
+
+    final path = Path()
+      ..moveTo(0, size.height * 0.2)
+      ..quadraticBezierTo(
+        size.width * 0.65,
+        size.height * 0.5,
+        size.width * 0.8,
+        size.height,
+      )
+      ..lineTo(0, size.height)
+      ..close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

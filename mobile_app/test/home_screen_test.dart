@@ -22,7 +22,6 @@ void main() {
     await localeController.loadSavedLanguage();
     authService = AuthService(preferences: prefs);
 
-    // Register and update test user
     testUser = await authService.registerUser(
       fullName: 'Rahul Sharma',
       username: 'rahul_panchayat',
@@ -67,8 +66,8 @@ void main() {
     );
   }
 
-  group('Screen 09 Redesign: Main Home Dashboard UI & Component Tests', () {
-    testWidgets('Renders all redesigned Home Screen elements accurately matching reference', (tester) async {
+  group('Redesigned Home Screen UI & Component Tests (Strict Reference Match)', () {
+    testWidgets('Header contains ONLY original logo on left and avatar on right, NO greeting, username, or bell', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -76,54 +75,63 @@ void main() {
       await tester.pumpWidget(buildTestableScreen());
       await tester.pumpAndSettle();
 
-      // A. Top Header
-      // STRICT REQUIREMENT: Only the original brand logo is displayed; NO brand text next to logo.
+      // Top-left: Original logo
       expect(find.byWidgetPredicate((widget) =>
           widget is Image &&
           widget.image is AssetImage &&
           (widget.image as AssetImage).assetName == AppAssets.panchayatLogo), findsOneWidget);
-      expect(find.text('Panchayat Post'), findsNothing);
-      expect(find.textContaining('Welcome, Rahul'), findsOneWidget);
-      expect(find.byKey(const ValueKey('btn_notifications')), findsOneWidget);
-      expect(find.text('2'), findsOneWidget); // unread badge count
+
+      // Top-right: User avatar
       expect(find.byKey(const ValueKey('btn_profile_avatar')), findsOneWidget);
 
-      // B. Hero Carousel
-      expect(find.byType(PageView), findsOneWidget);
+      // CRITICAL: NO greeting text, username, or notification bell in header
+      expect(find.text('Good morning,'), findsNothing);
+      expect(find.text('Good afternoon,'), findsNothing);
+      expect(find.text('Good evening,'), findsNothing);
+      expect(find.text('Rahul'), findsNothing);
+      expect(find.text('Krushnapalsinh'), findsNothing);
+      expect(find.byKey(const ValueKey('btn_notifications')), findsNothing);
+      expect(find.byIcon(Icons.notifications_outlined), findsNothing);
+    });
 
-      // C. Upcoming Festivals Section (Uncropped festival cards)
+    testWidgets('Renders all redesigned Home Screen sections accurately matching reference', (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(buildTestableScreen());
+      await tester.pumpAndSettle();
+
+      // 1. Featured Festival Component
+      expect(find.byType(PageView), findsOneWidget);
+      expect(find.text('Navratri'), findsWidgets);
+      expect(find.text('Navratri Celebration'), findsOneWidget);
+      expect(find.text('Create Post'), findsOneWidget);
+
+      // 2. Upcoming Festivals Section (Two-Column Grid)
       expect(find.text('Upcoming Festivals'), findsOneWidget);
       expect(find.byKey(const ValueKey('btn_see_all_festivals')), findsOneWidget);
-      expect(find.text('Navratri', skipOffstage: false), findsOneWidget);
-      expect(find.text('Independence Day', skipOffstage: false), findsOneWidget);
-      expect(find.text('Diwali', skipOffstage: false), findsOneWidget);
-      expect(find.text('Ganesh Chaturthi', skipOffstage: false), findsOneWidget);
-      expect(find.text('Oct 1, 2025', skipOffstage: false), findsOneWidget);
-      expect(find.text('Aug 15, 2025', skipOffstage: false), findsOneWidget);
+      expect(find.text('Diwali', skipOffstage: false), findsWidgets);
+      expect(find.text('Holi', skipOffstage: false), findsOneWidget);
       expect(find.text('Oct 20, 2025', skipOffstage: false), findsOneWidget);
-      expect(find.text('Aug 27, 2025', skipOffstage: false), findsOneWidget);
+      expect(find.text('Mar 14, 2026', skipOffstage: false), findsOneWidget);
 
-      // D. Create Something New Section
+      // 3. Create Something New Section (Two Equal Action Tiles)
       expect(find.text('Create Something New'), findsOneWidget);
-      expect(find.text('Festival'), findsWidgets);
-      expect(find.text('Create festival posts'), findsOneWidget);
-      expect(find.text('Panchayat'), findsWidgets);
-      expect(find.text('Create panchayat posts'), findsOneWidget);
+      expect(find.text('Festival Post'), findsOneWidget);
+      expect(find.text('Create festival greetings'), findsOneWidget);
+      expect(find.text('Panchayat Post'), findsOneWidget);
+      expect(find.text('Create community\nannouncements'), findsOneWidget);
 
-      // E. AI Poster Entry Section
-      expect(find.text('AI Poster'), findsOneWidget);
-      expect(find.text('Create stunning posters with AI'), findsOneWidget);
-
-      // F. Popular Templates Section
+      // 4. Popular Templates Section (Horizontal List)
       expect(find.text('Popular Templates'), findsOneWidget);
       expect(find.byKey(const ValueKey('btn_see_all_templates')), findsOneWidget);
-      expect(find.text('Sarkari Yojana', skipOffstage: false), findsOneWidget);
-      expect(find.text('Suvichar', skipOffstage: false), findsOneWidget);
-      expect(find.text('Atmanirbhar Bharat', skipOffstage: false), findsOneWidget);
+      expect(find.text('Diwali Wishes', skipOffstage: false), findsOneWidget);
       expect(find.text('Good Morning', skipOffstage: false), findsOneWidget);
-      expect(find.text('Good Night', skipOffstage: false), findsOneWidget);
+      expect(find.text('Jai Hind', skipOffstage: false), findsOneWidget);
+      expect(find.text('Suvichar', skipOffstage: false), findsOneWidget);
 
-      // G. Bottom Navigation Bar
+      // 5. Fixed 5-Item Bottom Navigation Bar
       expect(find.text('Home'), findsOneWidget);
       expect(find.text('Festivals'), findsOneWidget);
       expect(find.text('Templates'), findsOneWidget);
@@ -133,7 +141,7 @@ void main() {
       expect(find.byIcon(Icons.layers_outlined), findsOneWidget);
     });
 
-    testWidgets('Tapping Notification Bell opens notifications sheet', (tester) async {
+    testWidgets('Tapping Festival Post in Create Something New opens Festivals screen', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -141,36 +149,17 @@ void main() {
       await tester.pumpWidget(buildTestableScreen());
       await tester.pumpAndSettle();
 
-      final bellFinder = find.byKey(const ValueKey('btn_notifications'));
-      expect(bellFinder, findsOneWidget);
+      final festAction = find.text('Festival Post');
+      expect(festAction, findsOneWidget);
 
-      await tester.tap(bellFinder);
+      await tester.ensureVisible(festAction);
+      await tester.tap(festAction);
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('Notifications'), findsWidgets);
-      expect(find.text('Mark all read'), findsOneWidget);
+      expect(find.text('Festivals Screen'), findsOneWidget);
     });
 
-    testWidgets('Tapping AI Poster card opens AI poster creation bottom sheet', (tester) async {
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-
-      await tester.pumpWidget(buildTestableScreen());
-      await tester.pumpAndSettle();
-
-      final aiCard = find.text('AI Poster');
-      expect(aiCard, findsOneWidget);
-
-      await tester.ensureVisible(aiCard);
-      await tester.tap(aiCard);
-      await tester.pumpAndSettle();
-
-      expect(find.text('AI Poster Creation'), findsOneWidget);
-      expect(find.text('Generate Poster with AI'), findsOneWidget);
-    });
-
-    testWidgets('Tapping See All in Popular Templates opens full templates library modal', (tester) async {
+    testWidgets('Tapping View All in Popular Templates opens full templates library modal', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -205,7 +194,7 @@ void main() {
       expect(find.text('Profile Screen'), findsOneWidget);
     });
 
-    testWidgets('Tapping Upcoming Festival card navigates to festival detail', (tester) async {
+    testWidgets('Tapping Upcoming Festival item navigates to festival detail', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -213,18 +202,36 @@ void main() {
       await tester.pumpWidget(buildTestableScreen());
       await tester.pumpAndSettle();
 
-      final navratriCard = find.text('Navratri');
-      expect(navratriCard, findsOneWidget);
+      final holiCard = find.text('Holi');
+      expect(holiCard, findsOneWidget);
 
-      await tester.ensureVisible(navratriCard);
-      await tester.tap(navratriCard);
+      await tester.ensureVisible(holiCard);
+      await tester.tap(holiCard);
       await tester.pumpAndSettle();
 
       expect(find.text('Festival Detail Screen'), findsOneWidget);
     });
+
+    testWidgets('Tapping Create Post in Featured Festival navigates to festivals screen', (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(buildTestableScreen());
+      await tester.pumpAndSettle();
+
+      final createPostBtn = find.text('Create Post');
+      expect(createPostBtn, findsOneWidget);
+
+      await tester.ensureVisible(createPostBtn);
+      await tester.tap(createPostBtn);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Festivals Screen'), findsOneWidget);
+    });
   });
 
-  group('Screen 09 Redesign: Responsive Layout Across Mobile Screen Sizes', () {
+  group('Redesigned Home Screen: Responsive Layout Across Mobile Screen Sizes', () {
     const screenSizes = [
       Size(360, 640),  // Small Android
       Size(390, 844),  // Standard iPhone
@@ -245,7 +252,6 @@ void main() {
         expect(find.text('Create Something New'), findsOneWidget);
         expect(find.text('Popular Templates'), findsOneWidget);
         expect(find.text('Upcoming Festivals'), findsOneWidget);
-        expect(find.text('AI Poster'), findsOneWidget);
       });
     }
   });
