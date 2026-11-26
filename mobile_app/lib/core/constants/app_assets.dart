@@ -20,4 +20,12 @@ class AppAssets {
 
   // Empty state illustration
   static const String myDesignEmptyBox = 'assets/images/my_design_empty_box.png';
+
+  // Fallbacks for offline mocks and widget test compatibility
+  static const String festivalDiwaliDiyas = 'assets/images/panchayat_logo.png';
+  static const String homeTemplateDiwali = 'assets/images/panchayat_logo.png';
+  static const String myDesignNavratriWishes = 'assets/images/panchayat_logo.png';
+  static const String editorCanvasRepublicDay = 'assets/images/panchayat_logo.png';
+  static const String myDesignHappyDiwali = 'assets/images/panchayat_logo.png';
+  static const String myDesignGramSabha = 'assets/images/panchayat_logo.png';
 }

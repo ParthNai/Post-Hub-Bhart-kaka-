@@ -4,14 +4,17 @@ const moment = require("moment");
 const { Token } = require("../../models");
 
 const admin = require("firebase-admin");
-
-const serviceAccount = require("../../firebase.json");
 const config = require("../../config/config");
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: config.mongoose.url,
-});
+try {
+  const serviceAccount = require("../../firebase.json");
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: config.mongoose.url,
+  });
+} catch (e) {
+  console.log("[Notice] Firebase admin not initialized:", e.message);
+}
 
 const register = async (data) => {
   try {
