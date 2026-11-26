@@ -292,10 +292,11 @@ class PosterFrameOverlay extends StatelessWidget {
       );
     }
 
-    if (url.startsWith('data:image') || url.length > 200) {
+    if (url.startsWith('data:image') || url.startsWith('data:') || url.length > 200) {
       try {
         final cleanBase64 = url.contains(',') ? url.split(',').last : url;
-        final bytes = base64Decode(cleanBase64);
+        final clean = cleanBase64.replaceAll(RegExp(r'\s+'), '');
+        final bytes = base64Decode(clean);
         return Image.memory(
           bytes,
           fit: fit,
@@ -1331,15 +1332,36 @@ class PosterFrameOverlay extends StatelessWidget {
 
   Widget _fallbackAvatar() {
     return Container(
-      color: const Color(0xFF1E293B),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        border: Border.all(
+          color: const Color(0xFFFDE047).withValues(alpha: 0.6),
+          width: 1.5,
+        ),
+      ),
       child: Center(
-        child: Text(
-          _displayName.characters.isNotEmpty ? _displayName.characters.first : 'P',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w800,
-            fontSize: 16.0 * _scale,
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.add_a_photo_rounded,
+              color: const Color(0xFFFDE047),
+              size: (w * 0.055).clamp(16.0, 30.0),
+            ),
+            const SizedBox(height: 3.0),
+            Text(
+              'ફોટો ઉમેરો',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: (w * 0.026).clamp(8.0, 11.5),
+                shadows: const [
+                  Shadow(color: Colors.black, blurRadius: 3),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
