@@ -16,6 +16,14 @@ const categorySchema = mongoose.Schema(
       enum: ['announcement', 'greeting', 'festival', 'general'],
       default: 'greeting'
     },
+    isEditable: {
+      type: Boolean,
+      default: false
+    },
+    showAtBottom: {
+      type: Boolean,
+      default: true
+    },
     showInHero: {
       type: Boolean,
       default: false

@@ -228,7 +228,9 @@
 
   // Only 4 focused tabs - Default to preloader so opening splash is always shown first
   let activeStudioTab = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('active_studio_tab')) || 'preloader';
+  if (activeStudioTab === 'frames' || activeStudioTab === 'content') activeStudioTab = 'preloader';
   let phoneActiveTab = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('phone_active_view')) || 'preloader';
+  if (phoneActiveTab === 'frames') phoneActiveTab = 'preloader';
   let configLoaded = false;
   const previewContent = {
     loading: true,
@@ -631,14 +633,6 @@
               <span class="studio-tab-icon">✨</span>
               <span class="studio-tab-label">Home Hero</span>
             </button>
-            <button class="studio-tab-v2 ${activeStudioTab === 'frames' ? 'active' : ''}" data-tab="frames">
-              <span class="studio-tab-icon">🖼️</span>
-              <span class="studio-tab-label">Digital Frames</span>
-            </button>
-            <button class="studio-tab-v2 ${activeStudioTab === 'content' ? 'active' : ''}" data-tab="content">
-              <span class="studio-tab-icon">🗂️</span>
-              <span class="studio-tab-label">Categories &amp; Festivals</span>
-            </button>
           </div>
 
           <!-- Dynamic Tab Content -->
@@ -681,9 +675,6 @@
             </button>
             <button class="simulator-view-btn ${phoneActiveTab === 'appicon' ? 'active' : ''}" id="sim-view-launcher">
               <span>📱</span> Launcher
-            </button>
-            <button class="simulator-view-btn ${phoneActiveTab === 'frames' ? 'active' : ''}" id="sim-view-frames">
-              <span>🖼️</span> Poster Frame
             </button>
           </div>
         </div>
@@ -1112,173 +1103,9 @@
     }
 
     
-    if (tab === 'frames') {
-      const frames = window.__adminFramesList || [];
-      return `
-        <div class="hero-tab-header-v2" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <div>
-            <h3 class="hero-tab-title-v2" style="margin: 0; font-size: 18px; font-weight: 800; color: #1E293B;">🖼️ Digital Poster Frames Management</h3>
-            <p class="hero-tab-desc-v2" style="margin: 4px 0 0 0; font-size: 13px; color: #64748B;">
-              Manage transparent identity frames that appear inside the mobile app poster editor for Sarpanch & Panchayat leaders.
-            </p>
-          </div>
-          <label for="ctrl-frame-file-upload" class="studio-btn studio-btn-primary" style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; background: #6D28D9; color: white;">
-            <span>+</span> Upload New Frame (PNG)
-          </label>
-          <input type="file" id="ctrl-frame-file-upload" accept="image/png" style="display: none;" />
-        </div>
 
-        <!-- Frame List Grid -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;">
-          ${frames.map((f, idx) => `
-            <div style="background: white; border: 1.5px solid #E2E8F0; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: transform 0.2s;">
-              <div style="height: 140px; background: #0F172A; display: flex; align-items: center; justify-content: center; position: relative; padding: 12px;">
-                <img src="${f.path.startsWith('http') ? f.path : 'http://localhost:3000' + f.path}" alt="${f.frameName}" style="max-height: 100%; max-width: 100%; object-fit: contain;" />
-                <span style="position: absolute; top: 8px; right: 8px; background: #6D28D9; color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 12px;">Admin</span>
-              </div>
-              <div style="padding: 12px;">
-                <h4 style="margin: 0 0 4px 0; font-size: 13px; font-weight: 700; color: #1E293B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${f.frameName}</h4>
-                <p style="margin: 0 0 10px 0; font-size: 11px; color: #64748B;">Transparent Frame Overlay</p>
-                <div style="display: flex; gap: 8px;">
-                  <button class="frame-preview-sim-btn" data-url="${f.path}" style="flex: 1; padding: 6px 10px; font-size: 11px; font-weight: 600; background: #F3E8FF; color: #6D28D9; border: none; border-radius: 8px; cursor: pointer;">Preview on Phone</button>
-                  <button class="frame-delete-btn" data-id="${f._id || f.id}" style="padding: 6px 10px; font-size: 11px; font-weight: 600; background: #FEE2E2; color: #DC2626; border: none; border-radius: 8px; cursor: pointer;">Delete</button>
-                </div>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    }
 
-    if (tab === 'content') {
-      const liveFestivals = previewContent.festivals || [];
-      const frames = window.__adminFramesList || [];
 
-      return `
-        <div class="hero-tab-header-v2" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <div>
-            <h3 class="hero-tab-title-v2" style="margin: 0; font-size: 18px; font-weight: 800; color: #1E293B;">🗂️ Categories, Announcements &amp; Festival Posters</h3>
-            <p class="hero-tab-desc-v2" style="margin: 4px 0 0 0; font-size: 13px; color: #64748B;">
-              Simplified 1-click management: Upload government circulars or festive artworks, choose recommended frames, and pin to Top Hero Slider.
-            </p>
-          </div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
-          <!-- CARD 1: 📢 ANNOUNCEMENT (View & Share Only) -->
-          <div style="background: white; border: 1.5px solid #DBEAFE; border-radius: 16px; padding: 20px; box-shadow: 0 4px 14px rgba(37,99,235,0.06);">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-              <span style="font-size: 24px;">📢</span>
-              <div>
-                <h4 style="margin: 0; font-size: 15px; font-weight: 800; color: #1E3A8A;">સરકારી પરિપત્ર / જાહેરાત (Announcement)</h4>
-                <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #3B82F6;">View &amp; WhatsApp Share only (no user frames)</p>
-              </div>
-            </div>
-
-            <div style="margin-bottom: 12px;">
-              <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px;">પરિપત્ર / જાહેરાતનું શીર્ષક (Title):</label>
-              <input type="text" id="ctrl-announcement-title" placeholder="દા.ત. ગ્રામ પંચાયત સામાન્ય સભા પરિપત્ર" style="width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 13px;" />
-            </div>
-
-            <div style="margin-bottom: 12px;">
-              <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px;">પરિપત્ર / નોટિસ ઇમેજ (Image/Circular):</label>
-              <input type="file" id="ctrl-announcement-file" accept="image/*" style="width: 100%; font-size: 12px;" />
-            </div>
-
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; background: #EFF6FF; padding: 10px; border-radius: 10px;">
-              <input type="checkbox" id="ctrl-announcement-hero" checked style="width: 16px; height: 16px; cursor: pointer;" />
-              <label for="ctrl-announcement-hero" style="font-size: 12.5px; font-weight: 700; color: #1E40AF; cursor: pointer;">
-                📢 ટોપ સ્લાઇડર બેનરમાં બતાવો? (Show in Hero Slider)
-              </label>
-            </div>
-
-            <button type="button" id="ctrl-announcement-submit-btn" style="width: 100%; background: #2563EB; color: white; border: none; border-radius: 10px; padding: 11px; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-              <span>🚀</span> પરિપત્ર પ્રસિદ્ધ કરો (Publish Announcement)
-            </button>
-          </div>
-
-          <!-- CARD 2: 🪔 FESTIVAL POSTER (1-Click Frame & Recommended Frame) -->
-          <div style="background: white; border: 1.5px solid #FDE68A; border-radius: 16px; padding: 20px; box-shadow: 0 4px 14px rgba(217,119,6,0.06);">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-              <span style="font-size: 24px;">🪔</span>
-              <div>
-                <h4 style="margin: 0; font-size: 15px; font-weight: 800; color: #92400E;">તહેવાર પોસ્ટર આર્ટવર્ક (Festival Poster)</h4>
-                <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #B45309;">Users can apply their frame in 1-click</p>
-              </div>
-            </div>
-
-            <div style="margin-bottom: 12px;">
-              <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px;">તહેવારનું નામ (Festival Name):</label>
-              <input type="text" id="ctrl-festival-title" placeholder="દા.ત. મહા શિવરાત્રી, હોળી ધુળેટી" style="width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 13px;" />
-            </div>
-
-            <div style="margin-bottom: 12px;">
-              <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px;">પોસ્ટર આર્ટવર્ક ઇમેજ (Poster Artwork):</label>
-              <input type="file" id="ctrl-festival-file" accept="image/*" style="width: 100%; font-size: 12px;" />
-            </div>
-
-            <div style="margin-bottom: 12px;">
-              <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px;">⭐ શ્રેષ્ઠ મેળ ખાતી ફ્રેમ (Recommended Frame):</label>
-              <select id="ctrl-festival-frame-select" style="width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 13px; background: white;">
-                <option value="admin_kesariya">⭐ Royal Kesariya (કેસરિયા ભલામણ)</option>
-                <option value="admin_sarpanch">👑 Gram Panchayat VIP (વી.આઇ.પી.)</option>
-                <option value="admin_tricolor">🇮🇳 Tricolor Leader (ત્રિરંગા)</option>
-                <option value="cutout_leader">✂️ Cutout Leader (કટઆઉટ)</option>
-                <option value="gold_vip">🏆 VIP Gold</option>
-                <option value="royal_blue">🔷 Royal Executive Blue</option>
-                <option value="kesariya_ribbon">🎗️ Kesariya Festive Ribbon</option>
-                <option value="dark_glass">🌑 Modern Dark Glass</option>
-                ${frames.map(f => `<option value="${f._id || f.id || f.frameName}">🖼️ ${f.frameName} (Custom Admin Frame)</option>`).join('')}
-              </select>
-            </div>
-
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; background: #FEF3C7; padding: 10px; border-radius: 10px;">
-              <input type="checkbox" id="ctrl-festival-hero" style="width: 16px; height: 16px; cursor: pointer;" />
-              <label for="ctrl-festival-hero" style="font-size: 12.5px; font-weight: 700; color: #92400E; cursor: pointer;">
-                📢 ટોપ સ્લાઇડર બેનરમાં બતાવો? (Show in Hero Slider)
-              </label>
-            </div>
-
-            <button type="button" id="ctrl-festival-submit-btn" style="width: 100%; background: #D97706; color: white; border: none; border-radius: 10px; padding: 11px; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-              <span>🚀</span> તહેવાર પોસ્ટર સેવ કરો (Publish Festival Poster)
-            </button>
-          </div>
-        </div>
-
-        <!-- SECTION 3: LIVE ACTIVE ITEMS -->
-        <div style="background: white; border: 1.5px solid #E2E8F0; border-radius: 16px; padding: 20px;">
-          <h4 style="margin: 0 0 14px 0; font-size: 15px; font-weight: 800; color: #1E293B;">
-            📋 હાલમાં પ્રકાશિત સક્રિય આઇટમ્સ (Active Announcements &amp; Festivals)
-          </h4>
-          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px;" id="admin-content-items-grid">
-            ${liveFestivals.map(f => {
-              const isHero = f.showInHero === true || f.showInHero === 'true';
-              const isAnn = f.categoryType === 'announcement' || f.isAnnouncement === true || (f.festivalName && (f.festivalName.includes('પરિપત્ર') || f.festivalName.includes('જાહેરાત')));
-              const imgUrl = f.festivalImage || (f.festivalImages && f.festivalImages[0]) || f.imageUrl || '';
-              const fullImg = imgUrl.startsWith('http') ? imgUrl : (imgUrl ? 'http://localhost:3000' + imgUrl : '');
-
-              return `
-                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 12px; display: flex; gap: 12px; align-items: center; position: relative;">
-                  <img src="${escapeHtml(fullImg)}" alt="" style="width: 52px; height: 52px; object-fit: cover; border-radius: 8px; background: #E2E8F0; flex-shrink: 0;" onerror="this.src='/panchayat_logo.png'" />
-                  <div style="flex: 1; min-width: 0;">
-                    <div style="display: flex; gap: 4px; margin-bottom: 4px;">
-                      <span style="font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 6px; background: ${isAnn ? '#DBEAFE' : '#FEF3C7'}; color: ${isAnn ? '#1E40AF' : '#92400E'};">
-                        ${isAnn ? '📢 પરિપત્ર' : '🪔 તહેવાર'}
-                      </span>
-                      ${isHero ? '<span style="font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 6px; background: #DCFCE7; color: #166534;">⭐ Hero Active</span>' : ''}
-                    </div>
-                    <h5 style="margin: 0; font-size: 13px; font-weight: 700; color: #1E293B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                      ${escapeHtml(f.festivalName || f.title || 'Festival')}
-                    </h5>
-                    ${f.recommendedFrameId ? `<span style="font-size: 10px; color: #64748B;">ફ્રેમ: ${escapeHtml(f.recommendedFrameId)}</span>` : ''}
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        </div>
-      `;
-    }
 
     return renderTabContent('appicon');
   }
@@ -2166,119 +1993,61 @@
       });
     });
 
-    // ===== 6. CATEGORIES, ANNOUNCEMENTS & FESTIVALS CONTROLS =====
-    const annSubmitBtn = document.getElementById('ctrl-announcement-submit-btn');
-    if (annSubmitBtn) {
-      annSubmitBtn.addEventListener('click', async () => {
-        const titleInput = document.getElementById('ctrl-announcement-title');
-        const fileInput = document.getElementById('ctrl-announcement-file');
-        const heroCheck = document.getElementById('ctrl-announcement-hero');
-
-        const title = (titleInput && titleInput.value.trim()) || '';
-        const file = fileInput && fileInput.files && fileInput.files[0];
-
-        if (!title) {
-          showToast('⚠️ Please enter the announcement title');
-          return;
-        }
-        if (!file) {
-          showToast('⚠️ Please select a circular or announcement image');
-          return;
-        }
-
-        annSubmitBtn.disabled = true;
-        annSubmitBtn.textContent = '⏳ Publishing Announcement...';
-
-        try {
-          const fd = new FormData();
-          fd.append('festivalName', title);
-          fd.append('category', 'cultural');
-          fd.append('categoryType', 'announcement');
-          fd.append('isAnnouncement', 'true');
-          fd.append('showInHero', heroCheck && heroCheck.checked ? 'true' : 'false');
-          fd.append('image', file);
-
-          const res = await fetch('/adminapi/festival', {
-            method: 'POST',
-            body: fd
-          });
-          const json = await res.json();
-          if (json.status || res.ok) {
-            showToast('✅ પરિપત્ર સફળતાપૂર્વક પ્રસિદ્ધ થયો (Announcement Published)!');
-            await loadPreviewContent();
-            const content = document.getElementById('studio-tab-content');
-            if (content) content.innerHTML = renderTabContent('content');
-            bindControlInputs();
-            updatePhoneSimulator();
-          } else {
-            showToast('❌ Error: ' + (json.message || 'Could not publish announcement'));
-          }
-        } catch (err) {
-          showToast('❌ Upload failed: ' + err.message);
-        } finally {
-          annSubmitBtn.disabled = false;
-          annSubmitBtn.innerHTML = '<span>🚀</span> પરિપત્ર પ્રસિદ્ધ કરો (Publish Announcement)';
-        }
-      });
-    }
-
-    const festSubmitBtn = document.getElementById('ctrl-festival-submit-btn');
-    if (festSubmitBtn) {
-      festSubmitBtn.addEventListener('click', async () => {
-        const titleInput = document.getElementById('ctrl-festival-title');
-        const fileInput = document.getElementById('ctrl-festival-file');
-        const frameSelect = document.getElementById('ctrl-festival-frame-select');
-        const heroCheck = document.getElementById('ctrl-festival-hero');
-
-        const title = (titleInput && titleInput.value.trim()) || '';
-        const file = fileInput && fileInput.files && fileInput.files[0];
-        const recFrame = (frameSelect && frameSelect.value) || 'admin_kesariya';
-
-        if (!title) {
-          showToast('⚠️ Please enter the festival name');
-          return;
-        }
-        if (!file) {
-          showToast('⚠️ Please select a festival artwork image');
-          return;
-        }
-
-        festSubmitBtn.disabled = true;
-        festSubmitBtn.textContent = '⏳ Saving Festival Poster...';
-
-        try {
-          const fd = new FormData();
-          fd.append('festivalName', title);
-          fd.append('category', 'cultural');
-          fd.append('categoryType', 'festival');
-          fd.append('recommendedFrameId', recFrame);
-          fd.append('showInHero', heroCheck && heroCheck.checked ? 'true' : 'false');
-          fd.append('image', file);
-
-          const res = await fetch('/adminapi/festival', {
-            method: 'POST',
-            body: fd
-          });
-          const json = await res.json();
-          if (json.status || res.ok) {
-            showToast('✅ તહેવાર પોસ્ટર સફળતાપૂર્વક સેવ થયું (Festival Poster Published)!');
-            await loadPreviewContent();
-            const content = document.getElementById('studio-tab-content');
-            if (content) content.innerHTML = renderTabContent('content');
-            bindControlInputs();
-            updatePhoneSimulator();
-          } else {
-            showToast('❌ Error: ' + (json.message || 'Could not save festival poster'));
-          }
-        } catch (err) {
-          showToast('❌ Upload failed: ' + err.message);
-        } finally {
-          festSubmitBtn.disabled = false;
-          festSubmitBtn.innerHTML = '<span>🚀</span> તહેવાર પોસ્ટર સેવ કરો (Publish Festival Poster)';
-        }
-      });
-    }
   }
+
+  // Intercept category create & update requests to append announcement options
+  (function setupCategoryPayloadInterceptor() {
+    if (typeof window === 'undefined' || window.__catInterceptorInstalled) return;
+    window.__catInterceptorInstalled = true;
+
+    const originalOpen = XMLHttpRequest.prototype.open;
+    const originalSend = XMLHttpRequest.prototype.send;
+
+    XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+      this._url = url;
+      this._method = method;
+      return originalOpen.apply(this, [method, url, ...rest]);
+    };
+
+    XMLHttpRequest.prototype.send = function(body) {
+      try {
+        const url = (this._url || '').toLowerCase();
+        if ((url.includes('/categories/create') || url.includes('/categories/update')) && body) {
+          let data = null;
+          let isJson = false;
+          if (typeof body === 'string') {
+            try {
+              data = JSON.parse(body);
+              isJson = true;
+            } catch (_) {}
+          }
+
+          if (data && typeof data === 'object') {
+            // Read injected form state
+            const typeSelect = document.getElementById('enh-cat-type');
+            const editableCheck = document.getElementById('enh-cat-editable');
+            const bottomCheck = document.getElementById('enh-cat-bottom');
+            const heroCheck = document.getElementById('enh-cat-hero');
+
+            const catType = (typeSelect && typeSelect.value) || window.__lastSelectedCatType || 'announcement';
+            const isEditable = editableCheck ? editableCheck.checked : (window.__lastIsEditable ?? false);
+            const showAtBottom = bottomCheck ? bottomCheck.checked : (window.__lastShowAtBottom ?? true);
+            const showInHero = heroCheck ? heroCheck.checked : (window.__lastShowInHero ?? true);
+
+            data.categoryType = catType;
+            data.isEditable = isEditable;
+            data.showAtBottom = showAtBottom;
+            data.showInHero = showInHero;
+
+            body = JSON.stringify(data);
+          }
+        }
+      } catch (e) {
+        console.warn('[CategoryInterceptor] Error merging category fields:', e);
+      }
+      return originalSend.apply(this, [body]);
+    };
+  })();
 
   function setupModalEnhancer() {
     if (typeof MutationObserver === 'undefined') return;
@@ -2287,7 +2056,8 @@
       const dialog = document.querySelector('.MuiDialog-root, .MuiDialog-paper');
       if (!dialog) return;
 
-      const festivalInput = dialog.querySelector('input[name="festivalName"], input[name="name"], input[placeholder*="Festival"], input[placeholder*="Name"]');
+      // 1. FESTIVAL DIALOG ENHANCEMENTS
+      const festivalInput = dialog.querySelector('input[name="festivalName"], input[placeholder*="Festival"]');
       if (festivalInput && !dialog.querySelector('#enh-injected-fields')) {
         const container = document.createElement('div');
         container.id = 'enh-injected-fields';
@@ -2319,10 +2089,125 @@
         `;
 
         const form = dialog.querySelector('form') || dialog.querySelector('.MuiDialogContent-root');
+        if (form) form.appendChild(container);
+      }
+
+      // 2. CATEGORY DIALOG ENHANCEMENTS (Announcement Options)
+      const categoryInput = dialog.querySelector('input[name="categoryName"]');
+      if (categoryInput && !dialog.querySelector('#enh-category-injected-fields')) {
+        const catContainer = document.createElement('div');
+        catContainer.id = 'enh-category-injected-fields';
+        catContainer.style.padding = '14px';
+        catContainer.style.background = '#F8FAFC';
+        catContainer.style.border = '1.5px solid #E2E8F0';
+        catContainer.style.borderRadius = '12px';
+        catContainer.style.marginTop = '16px';
+        catContainer.style.marginBottom = '8px';
+
+        catContainer.innerHTML = `
+          <div style="font-size: 13px; font-weight: 800; color: #1E293B; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+            <span>📢</span> કેટેગરી પ્રકાર અને વિકલ્પો (Category Type &amp; Options)
+          </div>
+
+          <!-- Category Type Selector -->
+          <div style="margin-bottom: 12px;">
+            <label style="display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 4px;">
+              કેટેગરી પ્રકાર (Category Type):
+            </label>
+            <select id="enh-cat-type" style="width: 100%; box-sizing: border-box; padding: 8px 12px; border: 1.5px solid #CBD5E1; border-radius: 8px; font-size: 13px; background: white; font-weight: 700; color: #1E293B;">
+              <option value="announcement">📢 Announcement (સરકારી પરિપત્ર / ગ્રામ પંચાયત જાહેરાત)</option>
+              <option value="greeting">🎉 Greeting / General (શુભેચ્છા / સામાન્ય પોસ્ટર)</option>
+            </select>
+          </div>
+
+          <!-- Option 1: Is it Editable? -->
+          <div style="background: white; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div>
+                <label for="enh-cat-editable" style="font-size: 12.5px; font-weight: 700; color: #1E293B; cursor: pointer; display: block;">
+                  ✏️ શું યુઝર એડિટ કરી શકે? (Is it Editable?)
+                </label>
+                <div id="enh-cat-editable-hint" style="font-size: 11px; color: #64748B; margin-top: 2px;">
+                  બંધ (OFF): યુઝર માત્ર પરિપત્ર/જાહેરાત જોઈ અને શેર કરી શકશે (View-only, no frame changes).
+                </div>
+              </div>
+              <input type="checkbox" id="enh-cat-editable" style="width: 18px; height: 18px; cursor: pointer; accent-color: #2563EB;" />
+            </div>
+          </div>
+
+          <!-- Option 2: Where to Show - Bottom of App Home Page -->
+          <div style="background: white; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div>
+                <label for="enh-cat-bottom" style="font-size: 12.5px; font-weight: 700; color: #1E293B; cursor: pointer; display: block;">
+                  📱 એપના હોમ પેજ પર નીચે બતાવો? (Show at Bottom of Home Page)
+                </label>
+                <div style="font-size: 11px; color: #64748B; margin-top: 2px;">
+                  ચાલુ (ON): હોમ પેજ પર નીચે ખાસ પરિપત્ર/જાહેરાત સેક્શનમાં દેખાશે.
+                </div>
+              </div>
+              <input type="checkbox" id="enh-cat-bottom" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: #2563EB;" />
+            </div>
+          </div>
+
+          <!-- Option 3: Show Announcement Poster at Hero Toggle -->
+          <div style="background: white; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 12px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div>
+                <label for="enh-cat-hero" style="font-size: 12.5px; font-weight: 700; color: #1E293B; cursor: pointer; display: block;">
+                  ⭐ ટોપ સ્લાઇડર બેનરમાં બતાવો? (Show in Hero Slider Banner)
+                </label>
+                <div style="font-size: 11px; color: #64748B; margin-top: 2px;">
+                  ચાલુ (ON): હોમ પેજ પર સૌથી ઉપર મોટા હીરો સ્લાઇડરમાં પણ આ જાહેરાત દેખાશે.
+                </div>
+              </div>
+              <input type="checkbox" id="enh-cat-hero" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: #2563EB;" />
+            </div>
+          </div>
+        `;
+
+        const form = dialog.querySelector('form') || dialog.querySelector('.MuiDialogContent-root');
         if (form) {
-          form.appendChild(container);
+          form.appendChild(catContainer);
+
+          // Type toggle behavior
+          const typeSelect = catContainer.querySelector('#enh-cat-type');
+          const editableCheck = catContainer.querySelector('#enh-cat-editable');
+          const editableHint = catContainer.querySelector('#enh-cat-editable-hint');
+          const bottomCheck = catContainer.querySelector('#enh-cat-bottom');
+          const heroCheck = catContainer.querySelector('#enh-cat-hero');
+
+          const updateHint = () => {
+            if (editableCheck.checked) {
+              editableHint.textContent = 'ચાલુ (ON): યુઝર આ કેટેગરીના પોસ્ટરમાં પોતાનું નામ/ફોટો/ફ્રેમ બદલી શકશે.';
+              editableHint.style.color = '#15803D';
+            } else {
+              editableHint.textContent = 'બંધ (OFF): યુઝર માત્ર પરિપત્ર/જાહેરાત જોઈ અને શેર કરી શકશે (View-only, no frame changes).';
+              editableHint.style.color = '#64748B';
+            }
+          };
+
+          typeSelect.addEventListener('change', () => {
+            const isAnn = typeSelect.value === 'announcement';
+            editableCheck.checked = !isAnn;
+            bottomCheck.checked = isAnn;
+            heroCheck.checked = isAnn;
+            updateHint();
+          });
+
+          editableCheck.addEventListener('change', updateHint);
+
+          // Sync globals for interceptor
+          typeSelect.addEventListener('change', () => { window.__lastSelectedCatType = typeSelect.value; });
+          editableCheck.addEventListener('change', () => { window.__lastIsEditable = editableCheck.checked; });
+          bottomCheck.addEventListener('change', () => { window.__lastShowAtBottom = bottomCheck.checked; });
+          heroCheck.addEventListener('change', () => { window.__lastShowInHero = heroCheck.checked; });
         }
       }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
     });
 
     observer.observe(document.body, { childList: true, subtree: true });
@@ -2778,6 +2663,70 @@
       .replace(/"/g, '&quot;');
   }
 
+  function enhanceCategoriesPage() {
+    const isCatPage = window.location.pathname.includes('/categories') ||
+      window.location.hash.includes('/categories') ||
+      Boolean(document.querySelector('h1, h2, h3, h4, h5')?.textContent?.includes('Categories'));
+
+    if (!isCatPage) return;
+
+    // Check if table or main container exists
+    const mainContent = document.querySelector('.MuiContainer-root, main, #root > div');
+    if (!mainContent) return;
+
+    if (!document.getElementById('enh-categories-banner')) {
+      const banner = document.createElement('div');
+      banner.id = 'enh-categories-banner';
+      banner.style.cssText = 'background: linear-gradient(135deg, #1E3A8A, #2563EB); border-radius: 14px; padding: 18px 24px; color: white; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);';
+      banner.innerHTML = `
+        <div>
+          <div style="font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+            <span>📢</span> સરકારી પરિપત્ર અને જાહેરાત કેટેગરી (Announcement Category)
+          </div>
+          <div style="font-size: 12.5px; opacity: 0.9; margin-top: 4px;">
+            પરિપત્ર/જાહેરાત માટે યુઝર ફ્રેમ એડિટ વગર માત્ર જોઈ અને શેર કરી શકે (View-Only), હોમ પેજ પર નીચે (Bottom) અથવા હીરો બેનર (Hero Slider) પર દર્શાવી શકો છો.
+          </div>
+        </div>
+        <button id="enh-add-announcement-btn" style="background: white; color: #1E3A8A; font-weight: 800; border: none; padding: 10px 18px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); white-space: nowrap;">
+          <span>➕</span> નવી જાહેરાત / પરિપત્ર ઉમેરો
+        </button>
+      `;
+
+      // Insert before table or first card
+      const targetCard = mainContent.querySelector('.MuiPaper-root, .MuiCard-root, table') || mainContent.firstChild;
+      if (targetCard && targetCard.parentNode) {
+        targetCard.parentNode.insertBefore(banner, targetCard);
+      } else {
+        mainContent.prepend(banner);
+      }
+
+      const addBtn = document.getElementById('enh-add-announcement-btn');
+      if (addBtn) {
+        addBtn.addEventListener('click', () => {
+          window.__lastSelectedCatType = 'announcement';
+          window.__lastIsEditable = false;
+          window.__lastShowAtBottom = true;
+          window.__lastShowInHero = true;
+
+          // Find React Add button on page and trigger click
+          const reactAddBtn = Array.from(document.querySelectorAll('button')).find(b =>
+            b.textContent && (b.textContent.includes('Add') || b.textContent.includes('Create') || b.textContent.includes('New'))
+          );
+          if (reactAddBtn) {
+            reactAddBtn.click();
+            setTimeout(() => {
+              const nameInput = document.querySelector('input[name="categoryName"]');
+              if (nameInput && !nameInput.value) {
+                nameInput.value = 'સરકારી પરિપત્ર અને જાહેરાત';
+                nameInput.dispatchEvent(new Event('input', { bubbles: true }));
+              }
+            }, 300);
+          }
+        });
+      }
+    }
+  }
+
   function fixPinVisibility() {
     // Force visible PIN in any user detail card or table
     document.querySelectorAll('div, td, span, p').forEach(el => {
@@ -2793,10 +2742,72 @@
     });
   }
 
+  function enhancePostsCalendarPage() {
+    const isPostsPage = window.location.pathname.includes('/posts') ||
+      window.location.hash.includes('/posts') ||
+      Boolean(document.querySelector('.rbc-calendar'));
+
+    if (!isPostsPage) {
+      const existingHeader = document.getElementById('modern-posts-header');
+      if (existingHeader) existingHeader.remove();
+      return;
+    }
+
+    const rbcCalendar = document.querySelector('.rbc-calendar');
+    if (!rbcCalendar) return;
+
+    // 1. Force remove the hardcoded 130vh inline style
+    if (rbcCalendar.style.height === '130vh' || rbcCalendar.getAttribute('style')?.includes('130vh')) {
+      rbcCalendar.style.setProperty('height', 'calc(100vh - 210px)', 'important');
+      rbcCalendar.style.setProperty('min-height', '560px', 'important');
+      rbcCalendar.style.setProperty('max-height', '740px', 'important');
+    }
+
+    // 2. Inject sleek page header if not present
+    if (!document.getElementById('modern-posts-header')) {
+      const header = document.createElement('div');
+      header.id = 'modern-posts-header';
+      header.className = 'posts-calendar-header';
+      header.innerHTML = `
+        <div class="posts-calendar-header-left">
+          <div class="posts-calendar-breadcrumb">
+            <span>Dashboard</span>
+            <span class="sep">/</span>
+            <span class="active">Festival &amp; Announcement Posts</span>
+          </div>
+          <h1 class="posts-calendar-title">📅 Post Calendar &amp; Schedule</h1>
+          <p class="posts-calendar-subtitle">Schedule upcoming festival greetings, announcements, and posters for automatic release on the mobile app.</p>
+        </div>
+        <div class="posts-calendar-header-right">
+          <button type="button" class="posts-calendar-add-btn" id="posts-calendar-quick-add">
+            <span>➕</span>
+            <span>Schedule New Post</span>
+          </button>
+        </div>
+      `;
+
+      rbcCalendar.parentElement.insertBefore(header, rbcCalendar);
+
+      // Handle Quick Add button click
+      const addBtn = document.getElementById('posts-calendar-quick-add');
+      if (addBtn) {
+        addBtn.addEventListener('click', () => {
+          // Trigger click on today's slot or first selectable slot
+          const todayCell = document.querySelector('.rbc-today, .rbc-day-bg');
+          if (todayCell) {
+            todayCell.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+          }
+        });
+      }
+    }
+  }
+
   // Hook into popstate for SPA navigation
   window.addEventListener('popstate', () => {
     injectAppScreensStudio();
     injectDashboardEnhancements();
+    enhanceCategoriesPage();
+    enhancePostsCalendarPage();
     fixPinVisibility();
     setupModalEnhancer();
   });
@@ -2806,6 +2817,8 @@
     enhanceNavbar();
     injectDashboardEnhancements();
     injectAppScreensStudio();
+    enhanceCategoriesPage();
+    enhancePostsCalendarPage();
     fixSidebarAndProfile();
     fixPinVisibility();
   }, 200);
@@ -2814,6 +2827,8 @@
     enhanceNavbar();
     injectDashboardEnhancements();
     injectAppScreensStudio();
+    enhanceCategoriesPage();
+    enhancePostsCalendarPage();
     fixSidebarAndProfile();
     fixPinVisibility();
     setupModalEnhancer();
@@ -2826,10 +2841,6 @@
       .then(r => r.json())
       .then(res => {
         window.__adminFramesList = res.data || [];
-        if (activeStudioTab === 'frames') {
-          const tabContent = document.getElementById('studio-tab-content');
-          if (tabContent) tabContent.innerHTML = renderTabContent('frames');
-        }
       })
       .catch(() => {});
   }
