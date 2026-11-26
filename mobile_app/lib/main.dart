@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
 import 'package:panchayat_post/core/services/app_init_service.dart';
+import 'package:panchayat_post/core/services/one_signal_notification_service.dart';
 import 'package:panchayat_post/core/theme/app_theme.dart';
 import 'package:panchayat_post/features/splash/presentation/screens/splash_screen.dart';
 
@@ -21,6 +22,9 @@ void main() {
   );
 
   runApp(const PanchayatPostApp());
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    OneSignalNotificationService.initialize();
+  });
 }
 
 class PanchayatPostApp extends StatefulWidget {

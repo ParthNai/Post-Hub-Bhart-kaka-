@@ -1,2 +1,5 @@
 node_modules
 uploaded
+.env
+.env.*
+!.env.example

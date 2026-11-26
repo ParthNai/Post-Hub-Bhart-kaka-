@@ -2,19 +2,8 @@ const httpStatus = require("http-status");
 const { FestivalPost, Festival, Image } = require("../../models");
 const moment = require("moment");
 const { Token } = require("../../models");
-
-const admin = require("firebase-admin");
+const axios = require("axios");
 const config = require("../../config/config");
-
-try {
-  const serviceAccount = require("../../firebase.json");
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: config.mongoose.url,
-  });
-} catch (e) {
-  console.log("[Notice] Firebase admin not initialized:", e.message);
-}
 
 const register = async (data) => {
   try {
@@ -41,63 +30,76 @@ const register = async (data) => {
 };
 
 const sendNotifications = async ({ title, body, imageUrl }) => {
-  try {
-    if (admin.apps.length === 0) {
-      return {
-        status: httpStatus.SERVICE_UNAVAILABLE,
-        message: "Firebase Admin is not initialized",
-      };
-    }
-
-    const tokenDocs = await Token.find().select("token").lean();
-    const tokens = Array.from(
-      new Set(tokenDocs.map((tokenDoc) => tokenDoc.token).filter(Boolean))
-    );
-    if (tokens.length === 0) {
-      return {
-        status: httpStatus.NOT_FOUND,
-        message: "No device tokens are registered",
-      };
-    }
-
-    let successCount = 0;
-    let failureCount = 0;
-    const failureCodes = new Set();
-    for (let offset = 0; offset < tokens.length; offset += 500) {
-      const response = await admin.messaging().sendMulticast({
-        tokens: tokens.slice(offset, offset + 500),
-        notification: {
-          title,
-          body,
-          imageUrl,
-        },
-      });
-
-      successCount += response.successCount;
-      failureCount += response.failureCount;
-      response.responses.forEach((result) => {
-        if (!result.success && result.error) {
-          failureCodes.add(result.error.code);
-        }
-      });
-    }
-
+  if (
+    typeof title !== "string" ||
+    !title.trim() ||
+    typeof body !== "string" ||
+    !body.trim()
+  ) {
     return {
-      status: failureCount === 0
-        ? httpStatus.OK
-        : successCount === 0
-        ? httpStatus.INTERNAL_SERVER_ERROR
-        : 207,
-      message: `Notification sent to ${successCount} of ${tokens.length} devices`,
-      successCount,
-      failureCount,
-      failureCodes: Array.from(failureCodes),
+      status: httpStatus.BAD_REQUEST,
+      message: "Notification title and body are required",
+    };
+  }
+
+  const { appId, restApiKey } = config.onesignal;
+  if (!appId || !restApiKey) {
+    return {
+      status: httpStatus.SERVICE_UNAVAILABLE,
+      message: "OneSignal App ID and REST API key are not configured",
+    };
+  }
+
+  const payload = {
+    app_id: appId,
+    target_channel: "push",
+    included_segments: ["Subscribed Users"],
+    headings: { en: title.trim() },
+    contents: { en: body.trim() },
+  };
+  if (typeof imageUrl === "string" && imageUrl.trim()) {
+    payload.big_picture = imageUrl.trim();
+    payload.ios_attachments = { poster: imageUrl.trim() };
+  }
+
+  try {
+    const response = await axios.post(
+      "https://api.onesignal.com/notifications",
+      payload,
+      {
+        headers: {
+          Authorization: `Key ${restApiKey}`,
+          "Content-Type": "application/json",
+        },
+        timeout: 15000,
+      }
+    );
+
+    const result = response.data || {};
+    const recipients = Number.isFinite(result.recipients)
+      ? result.recipients
+      : null;
+    return {
+      status: recipients === 0 ? httpStatus.NOT_FOUND : httpStatus.OK,
+      message:
+        recipients === 0
+          ? "OneSignal accepted the notification, but no subscribed devices were found"
+          : `Notification submitted to OneSignal${recipients === null ? "" : ` for ${recipients} devices`}`,
+      notificationId: result.id || null,
+      recipients,
     };
   } catch (error) {
-    console.log(error);
+    const responseData = error.response && error.response.data;
+    const apiErrors = responseData && responseData.errors;
+    const details = Array.isArray(apiErrors)
+      ? apiErrors.join("; ")
+      : typeof apiErrors === "string"
+      ? apiErrors
+      : null;
+    console.error("[OneSignal] Notification request failed:", error.message);
     return {
-      status: httpStatus.INTERNAL_SERVER_ERROR,
-      message: error.message || "Failed to send notification",
+      status: httpStatus.BAD_GATEWAY,
+      message: details || "OneSignal could not accept the notification",
     };
   }
 };
