@@ -24,10 +24,15 @@ const all = async () => {
             });
           })
         );
+        const todayStart = moment().startOf("day");
+        const festMoment = f.festivalDate ? moment(f.festivalDate).startOf("day") : null;
+        const isLocked = Boolean(festMoment && festMoment.isAfter(todayStart));
         return {
           ...f._doc,
           recommendedFrameId: f.recommendedFrameId || null,
           showInHero: Boolean(f.showInHero),
+          isLocked: isLocked,
+          isAvailable: !isLocked,
           festivalImages: festivalImages,
           festivalImagesDetails: festivalImagesDetails
         };
@@ -35,6 +40,8 @@ const all = async () => {
     );
     return {
       status: httpStatus.OK,
+      serverTime: new Date().toISOString(),
+      serverDate: moment().format("YYYY-MM-DD"),
       data: newFestivals,
     };
   } catch (error) {

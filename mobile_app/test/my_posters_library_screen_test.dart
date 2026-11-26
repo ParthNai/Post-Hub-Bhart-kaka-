@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
 import 'package:panchayat_post/features/editor/data/services/poster_library_service.dart';
@@ -34,8 +33,8 @@ List<PosterTemplateProject> _createSamplePosters() {
       id: 'p_navratri',
       templateId: 'navratri_wishes',
       title: 'Navratri Wishes Poster',
-      backgroundAsset: AppAssets.myDesignNavratriWishes,
-      previewAsset: AppAssets.myDesignNavratriWishes,
+      backgroundAsset: '',
+      previewAsset: '',
       category: 'Festivals',
       status: 'completed',
       fileSizeBytes: (2.4 * 1024 * 1024).toInt(),
@@ -46,8 +45,8 @@ List<PosterTemplateProject> _createSamplePosters() {
       id: 'p_independence',
       templateId: 'republic_day',
       title: 'Independence Day Poster',
-      backgroundAsset: AppAssets.editorCanvasRepublicDay,
-      previewAsset: AppAssets.editorCanvasRepublicDay,
+      backgroundAsset: '',
+      previewAsset: '',
       category: 'National',
       status: 'exported',
       fileSizeBytes: (1.8 * 1024 * 1024).toInt(),
@@ -59,8 +58,8 @@ List<PosterTemplateProject> _createSamplePosters() {
       id: 'p_diwali',
       templateId: 'happy_diwali',
       title: 'Diwali Wishes Poster',
-      backgroundAsset: AppAssets.myDesignHappyDiwali,
-      previewAsset: AppAssets.myDesignHappyDiwali,
+      backgroundAsset: '',
+      previewAsset: '',
       category: 'Festivals',
       status: 'draft',
       fileSizeBytes: (1.8 * 1024 * 1024).toInt(),
@@ -71,8 +70,8 @@ List<PosterTemplateProject> _createSamplePosters() {
       id: 'p_gram_sabha',
       templateId: 'gram_sabha_notice',
       title: 'Gram Sabha Notice',
-      backgroundAsset: AppAssets.myDesignGramSabha,
-      previewAsset: AppAssets.myDesignGramSabha,
+      backgroundAsset: '',
+      previewAsset: '',
       category: 'Panchayat',
       status: 'draft',
       fileSizeBytes: 980 * 1024,

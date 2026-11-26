@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
 import 'package:panchayat_post/features/festivals/data/services/festival_service.dart';
@@ -119,22 +118,22 @@ void main() {
         dateDisplay: '12 Nov – 20 Nov',
         category: 'hindu',
         categoryName: 'Hindu Festivals',
-        imageAsset: AppAssets.festivalDiwaliDiyas,
+        imageAsset: '',
         isUpcoming: true,
         celebrationType: 'Festival of Lights',
         aboutText: 'Celebrate Diwali with joyful lights and greetings.',
-        heroBannerAsset: AppAssets.festivalDiwaliDiyas,
+        heroBannerAsset: '',
         posterTemplates: [
           FestivalPosterTemplate(
             id: 'diwali_happy',
             title: 'Happy Diwali',
-            imageAsset: AppAssets.homeTemplateDiwali,
+            imageAsset: '',
             style: 'traditional',
           ),
           FestivalPosterTemplate(
             id: 'diwali_shubh',
             title: 'શુભ દીપાવલી',
-            imageAsset: AppAssets.festivalDiwaliDiyas,
+            imageAsset: '',
             style: 'devotional',
           ),
         ],

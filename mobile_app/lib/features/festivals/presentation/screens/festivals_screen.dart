@@ -354,7 +354,7 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
                       contentPadding: const EdgeInsets.symmetric(vertical: 4.0),
                       leading: ClipRRect(
                         borderRadius: BorderRadius.circular(8.0),
-                        child: Image.asset(
+                        child: _buildAdminImage(
                           item.imageAsset,
                           width: 46.0,
                           height: 46.0,
@@ -450,7 +450,7 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
             const SizedBox(height: 8.0),
             ClipRRect(
               borderRadius: BorderRadius.circular(14.0),
-              child: Image.asset(
+              child: _buildAdminImage(
                 festival.imageAsset,
                 height: 120.0,
                 width: double.infinity,
@@ -655,7 +655,7 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
-                child: Image.asset(asset, fit: BoxFit.cover),
+                child: _buildAdminImage(asset, fit: BoxFit.cover),
               ),
               Container(
                 color: Colors.white,
@@ -1499,7 +1499,7 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
-                child: Image.asset(
+                child: _buildAdminImage(
                   item.imageAsset,
                   height: 82.0,
                   width: double.infinity,
@@ -1710,7 +1710,7 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
                       ClipRRect(
                         borderRadius:
                             const BorderRadius.vertical(top: Radius.circular(16.0)),
-                        child: Image.asset(
+                        child: _buildAdminImage(
                           item.imageAsset,
                           height: 75.0,
                           width: double.infinity,
@@ -1744,6 +1744,57 @@ class _FestivalsScreenState extends State<FestivalsScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  // --- Helper: Render admin URL or local asset image ---
+
+  Widget _buildAdminImage(
+    String src, {
+    double? width,
+    double? height,
+    BoxFit fit = BoxFit.cover,
+  }) {
+    final isNetwork = src.startsWith('http://') || src.startsWith('https://');
+    if (isNetwork) {
+      return Image.network(
+        src,
+        width: width,
+        height: height,
+        fit: fit,
+        errorBuilder: (ctx, err, stack) => Container(
+          width: width,
+          height: height,
+          color: const Color(0xFFF1F5F9),
+          child: const Center(
+            child: Icon(Icons.image_outlined, color: Color(0xFF94A3B8), size: 28),
+          ),
+        ),
+      );
+    }
+    if (src.startsWith('assets/')) {
+      return Image.asset(
+        src,
+        width: width,
+        height: height,
+        fit: fit,
+      );
+    }
+    // Relative path — resolve via admin base URL
+    final resolved = AppConfigService.instance.resolveMediaUrl(src);
+    return Image.network(
+      resolved,
+      width: width,
+      height: height,
+      fit: fit,
+      errorBuilder: (ctx, err, stack) => Container(
+        width: width,
+        height: height,
+        color: const Color(0xFFF1F5F9),
+        child: const Center(
+          child: Icon(Icons.image_outlined, color: Color(0xFF94A3B8), size: 28),
+        ),
+      ),
     );
   }
 

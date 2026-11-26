@@ -32,34 +32,36 @@ const all = async () => {
 
 const create = async (data, files) => {
   try {
-    data.image = await getFilesData(files[0])
-    data.isElection = data.isElection === 'true' ? true : false
+    data.image = (files && files.length > 0) ? await getFilesData(files[0]) : null;
+    data.isElection = data.isElection === 'true' || data.isElection === true;
     if (data.type !== 'image') {
-      data.image = null
+      data.image = null;
     }
     await FrameField.create(data);
-    return { status: httpStatus.OK, message: "Frame Added Successfully" };
+    return { status: httpStatus.OK, message: "Frame Field Added Successfully" };
   } catch (error) {
     console.log(error);
-    return { status: httpStatus.INTERNAL_SERVER_ERROR, message: error };
+    return { status: httpStatus.INTERNAL_SERVER_ERROR, message: error.message || "Failed to create frame field" };
   }
 };
 
 const update = async (data, files) => {
   try {
-    data.image = await getFilesData(files[0])
-    data.isElection = data.isElection === 'true' ? true : false
+    if (files && files.length > 0) {
+      data.image = await getFilesData(files[0]);
+    }
+    data.isElection = data.isElection === 'true' || data.isElection === true;
     if (data.type !== 'image') {
-      data.image = null
+      data.image = null;
     }
     await FrameField.findByIdAndUpdate(
       data._id || data.id,
       data
     );
-    return { status: httpStatus.OK, message: "Frame Updated Successfully" };
+    return { status: httpStatus.OK, message: "Frame Field Updated Successfully" };
   } catch (error) {
     console.log(error);
-    return { status: httpStatus.INTERNAL_SERVER_ERROR, message: error };
+    return { status: httpStatus.INTERNAL_SERVER_ERROR, message: error.message || "Failed to update frame field" };
   }
 };
 

@@ -16,11 +16,14 @@ const all = async () => {
 
 const uploadframe = async (data, files) => {
   try {
+    if (!files || files.length === 0) {
+      return { status: httpStatus.BAD_REQUEST, message: "No frame file uploaded" };
+    }
     data.path = await getFilesData(files[0]);
     return { status: httpStatus.OK, data: data.path };
   } catch (error) {
     console.log(error);
-    return { status: httpStatus.INTERNAL_SERVER_ERROR, message: error };
+    return { status: httpStatus.INTERNAL_SERVER_ERROR, message: error.message || "Failed to upload frame" };
   }
 };
 

@@ -28,8 +28,13 @@ const all = async () => {
           delete fest._id;
           delete fest.id;
           if (fest) {
+            const todayStart = moment().startOf("day");
+            const startMoment = d.postStartDate ? moment(d.postStartDate).startOf("day") : (fest.festivalDate ? moment(fest.festivalDate).startOf("day") : null);
+            const isLocked = Boolean(startMoment && startMoment.isAfter(todayStart));
             return {
               ...d._doc,
+              isAvailable: !isLocked,
+              isLocked: isLocked,
               festival: { ...fest._doc, festivalImages: festivalImages },
             };
           }
@@ -37,7 +42,12 @@ const all = async () => {
         return d;
       })
     );
-    return { status: httpStatus.OK, data: upComingFestivals };
+    return {
+      status: httpStatus.OK,
+      serverTime: new Date().toISOString(),
+      serverDate: moment().format("YYYY-MM-DD"),
+      data: upComingFestivals,
+    };
   } catch (error) {
     console.log(error);
     return { status: httpStatus.INTERNAL_SERVER_ERROR, message: error };
@@ -45,7 +55,43 @@ const all = async () => {
 
 };
 
+const checkAccess = async (festivalId) => {
+  try {
+    const fest = await Festival.findById(festivalId);
+    if (!fest) {
+      return { status: httpStatus.NOT_FOUND, locked: false, message: "Festival not found" };
+    }
+    const todayStart = moment().startOf("day");
+    const festStart = fest.festivalDate ? moment(fest.festivalDate).startOf("day") : null;
+    const isLocked = Boolean(festStart && festStart.isAfter(todayStart));
+    const releaseDate = festStart ? festStart.format("YYYY-MM-DD") : null;
+    const serverDate = todayStart.format("YYYY-MM-DD");
+    if (isLocked) {
+      return {
+        status: httpStatus.FORBIDDEN,
+        locked: true,
+        isAvailable: false,
+        releaseDate,
+        serverDate,
+        serverTime: new Date().toISOString(),
+        message: `This festival opens on ${releaseDate}. You cannot open it before that date.`,
+      };
+    }
+    return {
+      status: httpStatus.OK,
+      locked: false,
+      isAvailable: true,
+      releaseDate,
+      serverDate,
+      serverTime: new Date().toISOString(),
+      data: fest,
+    };
+  } catch (error) {
+    return { status: httpStatus.INTERNAL_SERVER_ERROR, message: error.message || "Error checking festival access" };
+  }
+};
 
 module.exports = {
-  all
+  all,
+  checkAccess,
 };

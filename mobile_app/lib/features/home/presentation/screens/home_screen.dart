@@ -60,7 +60,6 @@ class _HomeScreenState extends State<HomeScreen> {
   UserProfile? _currentUser;
   late int _selectedNavIndex;
 
-  final TextEditingController _aiPromptController = TextEditingController();
   final ScrollController _festivalScrollController = ScrollController();
   final ScrollController _templatesScrollController = ScrollController();
   final PageController _heroPageController = PageController();
@@ -131,7 +130,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _heroTimer?.cancel();
     _heroPageController.dispose();
-    _aiPromptController.dispose();
     _festivalScrollController.dispose();
     _templatesScrollController.dispose();
     super.dispose();
@@ -255,31 +253,16 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const Divider(),
-            ListTile(
+            const ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const CircleAvatar(
+              leading: CircleAvatar(
                 backgroundColor: Color(0xFFEDE9FE),
-                child: Icon(Icons.celebration_rounded, color: Color(0xFF6D28D9)),
+                child: Icon(Icons.notifications_none_rounded, color: Color(0xFF6D28D9)),
               ),
-              title: const Text('નવરાત્રી સ્પેશિયલ પોસ્ટર ટેમ્પલેટ ઉપલબ્ધ છે!',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
-              subtitle: const Text('તમારા ગામ માટે સુંદર દાંડિયા રાસ પોસ્ટર બનાવો.',
-                  style: TextStyle(fontSize: 12.0)),
-              trailing: const Text('10m ago',
-                  style: TextStyle(fontSize: 11.0, color: Color(0xFF94A3B8))),
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const CircleAvatar(
-                backgroundColor: Color(0xFFFEF3C7),
-                child: Icon(Icons.campaign_rounded, color: Color(0xFFD97706)),
-              ),
-              title: const Text('ગ્રામ સભા મીટિંગ નોટિસ અપડેટ',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
-              subtitle: const Text('નવી ગ્રામ વિકાસ સભા માટે તૈયાર પોસ્ટર જુઓ.',
-                  style: TextStyle(fontSize: 12.0)),
-              trailing: const Text('2h ago',
-                  style: TextStyle(fontSize: 11.0, color: Color(0xFF94A3B8))),
+              title: Text('No new notifications',
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5, color: Color(0xFF64748B))),
+              subtitle: Text('You are all caught up!',
+                  style: TextStyle(fontSize: 12.0, color: Color(0xFF94A3B8))),
             ),
             const SizedBox(height: 16.0),
           ],
@@ -442,95 +425,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showAiPosterModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
-      ),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          left: 20.0,
-          right: 20.0,
-          top: 20.0,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24.0,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFEDE9FE),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Text('AI',
-                      style: TextStyle(
-                          color: Color(0xFF6C5CE7), fontWeight: FontWeight.w900, fontSize: 13)),
-                ),
-                const SizedBox(width: 10.0),
-                const Expanded(
-                  child: Text(
-                    'AI Poster Creation',
-                    style: TextStyle(
-                      fontSize: 17.0,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textNavy,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12.0),
-            TextField(
-              controller: _aiPromptController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: 'દા.ત. નવરાત્રી માટે અમારા ગામ વતી શુભેચ્છા પાઠવતું સુંદર પોસ્ટર...',
-                hintStyle: const TextStyle(fontSize: 13.0, color: Color(0xFF94A3B8)),
-                filled: true,
-                fillColor: const Color(0xFFF8FAFC),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14.0),
-                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                ),
-              ),
-            ),
-            const SizedBox(height: 14.0),
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6C5CE7),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14.0),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 13.0),
-              ),
-              icon: const Icon(Icons.auto_awesome_rounded, size: 18.0),
-              label: const Text('Generate Poster with AI',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('AI is generating your custom poster design...'),
-                    backgroundColor: Color(0xFF6C5CE7),
-                    duration: Duration(seconds: 3),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _showTemplatesModal(BuildContext context, String categoryName) {
     showModalBottomSheet(
       context: context,
@@ -656,15 +550,6 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.layers_rounded, color: Color(0xFF0055B8)),
-              title: const Text('Test All Screens (01–22)', style: TextStyle(fontWeight: FontWeight.w600)),
-              trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14.0),
-              onTap: () {
-                Navigator.of(ctx).pop();
-                _showScreensNavigator(context);
-              },
-            ),
-            ListTile(
               leading: const Icon(Icons.logout_rounded, color: Color(0xFFDC2626)),
               title: Text(strings.logoutDialogTitle,
                   style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFFDC2626))),
@@ -678,68 +563,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  void _showScreensNavigator(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Panchayat Post — All Screens Navigator',
-              style: TextStyle(
-                fontSize: 17.0,
-                fontWeight: FontWeight.w800,
-                color: AppColors.textNavy,
-              ),
-            ),
-            const SizedBox(height: 12.0),
-            _buildNavTile(ctx, 'Screen 01: Splash Screen', AppRoutes.splash),
-            _buildNavTile(ctx, 'Screen 02: Welcome Screen', AppRoutes.welcome),
-            _buildNavTile(ctx, 'Screen 03: Create Account', AppRoutes.createAccount),
-            _buildNavTile(ctx, 'Screen 04: User Login', AppRoutes.login),
-            _buildNavTile(ctx, 'Screen 05: Forgot Password', AppRoutes.forgotPassword),
-            _buildNavTile(ctx, 'Screen 06: Recovery Status', AppRoutes.recoveryStatus),
-            _buildNavTile(ctx, 'Screen 07: Profile Setup', AppRoutes.profileSetup),
-            _buildNavTile(ctx, 'Screen 08: Onboarding Confirmation', AppRoutes.onboardingConfirmation),
-            _buildNavTile(ctx, 'Screen 09: Home Dashboard', AppRoutes.home),
-            _buildNavTile(ctx, 'Screen 10: Festival Listing', AppRoutes.festivals),
-            _buildNavTile(ctx, 'Screen 11: Festival Details', AppRoutes.festivalDetail),
-            _buildNavTile(ctx, 'Screen 12: Poster Editor Studio', AppRoutes.posterEditor),
-            _buildNavTile(ctx, 'Screen 17: Quick Customize', AppRoutes.quickCustomize),
-            _buildNavTile(ctx, 'Screen 18: Main Poster Editor', AppRoutes.mainPosterEditor),
-            _buildNavTile(ctx, 'Screen 19: Final Poster Preview', AppRoutes.finalPosterPreview),
-            _buildNavTile(ctx, 'Screen 20: Export Poster Settings', AppRoutes.exportPoster),
-            _buildNavTile(ctx, 'Screen 21: Export Success & History', AppRoutes.exportSuccess),
-            _buildNavTile(ctx, 'Screen 22: My Posters Library', AppRoutes.myPosters),
-            const SizedBox(height: 10.0),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavTile(BuildContext ctx, String label, String route) {
-    return ListTile(
-      dense: true,
-      contentPadding: EdgeInsets.zero,
-      leading: const Icon(Icons.circle, size: 8.0, color: Color(0xFF6C5CE7)),
-      title: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
-      trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 13.0),
-      onTap: () {
-        Navigator.of(ctx).pop();
-        Navigator.of(context).pushNamed(route);
-      },
     );
   }
 
@@ -894,13 +717,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     // 4. Create Something New Section (Festival & Panchayat 2-card row)
                     _buildCreateSomethingNewSection(),
-                    const SizedBox(height: 18.0),
-
-                    // 5. AI Poster Entry Section (Full-width banner)
-                    _buildAiPosterCard(),
                     const SizedBox(height: 20.0),
 
-                    // 6. Popular Templates Section (5 vertical cards)
+                    // 5. Popular Templates Section (5 vertical cards)
                     _buildPopularTemplatesSection(),
                     const SizedBox(height: 20.0),
 
@@ -1601,134 +1420,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  // --- AI Poster Banner Card ---
-
-  Widget _buildAiPosterCard() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: GestureDetector(
-        onTap: () => _showAiPosterModal(context),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 74.0),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [
-                Color(0xFFF5F3FF),
-                Color(0xFFEDE9FE),
-              ],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-            borderRadius: BorderRadius.circular(18.0),
-            border: Border.all(color: const Color(0xFFDDD6FE), width: 1.0),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF6C5CE7).withValues(alpha: 0.08),
-                blurRadius: 8,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
-          child: Row(
-            children: [
-              // Left AI Microchip Icon
-              Container(
-                width: 44.0,
-                height: 44.0,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12.0),
-                  border: Border.all(color: const Color(0xFFC4B5FD)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF6C5CE7).withValues(alpha: 0.12),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.memory_rounded,
-                      size: 20.0,
-                      color: Color(0xFF6C5CE7),
-                    ),
-                    Text(
-                      'AI',
-                      style: TextStyle(
-                        fontSize: 9.0,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF6C5CE7),
-                        height: 1.0,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12.0),
-
-              // Middle Texts
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'AI Poster',
-                      style: TextStyle(
-                        fontSize: 15.5,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textNavy,
-                      ),
-                    ),
-                    SizedBox(height: 2.0),
-                    Text(
-                      'Create stunning posters with AI',
-                      style: TextStyle(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF6B7280),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Right Magic Wand & Chevron Button
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.auto_awesome_rounded,
-                    color: Color(0xFF8B5CF6),
-                    size: 24.0,
-                  ),
-                  const SizedBox(width: 8.0),
-                  Container(
-                    width: 26.0,
-                    height: 26.0,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF6C5CE7),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.chevron_right_rounded,
-                      size: 18.0,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
         ),
       ),
     );
