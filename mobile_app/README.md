@@ -27,3 +27,10 @@ The first iOS build downloads the three ML Kit model resource bundles from the
 upstream release and copies them into the app. An internet connection is
 required for that initial build; the downloaded bundles are cached locally and
 excluded from version control.
+
+## Screenshot protection
+
+Android enables `FLAG_SECURE` for the whole app, blocking screenshots and screen
+recordings and hiding the app preview in the recent-apps switcher. This setting
+does not apply to iOS or web; iOS does not provide a supported API to block
+screenshots.
