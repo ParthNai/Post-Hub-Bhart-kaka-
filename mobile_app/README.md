@@ -15,3 +15,15 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## Photo frame background removal
+
+On Android and iOS, photos selected for a festival frame are segmented on-device
+with Google ML Kit Selfie Segmentation. The photo is not sent to a background
+removal service. Web and desktop builds do not support this ML Kit feature; they
+offer the original photo as an explicit fallback.
+
+The first iOS build downloads the three ML Kit model resource bundles from the
+upstream release and copies them into the app. An internet connection is
+required for that initial build; the downloaded bundles are cached locally and
+excluded from version control.

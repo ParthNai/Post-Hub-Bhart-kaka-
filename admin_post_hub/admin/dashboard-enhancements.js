@@ -13,8 +13,47 @@
     document.body.classList.add('sidebar-collapsed');
   }
 
+  function isMobileNavigation() {
+    return window.matchMedia('(max-width: 760px)').matches;
+  }
+
+  function updateAdminPageClass() {
+    const path = window.location.pathname.replace(/\/+$/, '') || '/';
+    document.body.classList.toggle('admin-login-page', path === '/login' || path === '/auth/login');
+  }
+
+  function closeMobileNavigation() {
+    document.body.classList.remove('sidebar-mobile-open');
+    const toggleBtn = document.getElementById('nav-slide-toggle');
+    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+    const backdrop = document.getElementById('nav-sidebar-backdrop');
+    if (backdrop) backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  function ensureMobileNavigationBackdrop() {
+    if (document.getElementById('nav-sidebar-backdrop')) return;
+
+    const backdrop = document.createElement('button');
+    backdrop.id = 'nav-sidebar-backdrop';
+    backdrop.className = 'nav-sidebar-backdrop';
+    backdrop.type = 'button';
+    backdrop.setAttribute('aria-label', 'Close navigation menu');
+    backdrop.setAttribute('aria-hidden', 'true');
+    backdrop.addEventListener('click', closeMobileNavigation);
+    document.body.appendChild(backdrop);
+  }
+
+  updateAdminPageClass();
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeMobileNavigation();
+  });
+
   // 1. Add Slidable Hamburger Toggle to Top Navbar
   function enhanceNavbar() {
+    ensureMobileNavigationBackdrop();
+    updateAdminPageClass();
+
     const toolbar = document.querySelector('.MuiToolbar-root');
     if (!toolbar) return;
 
@@ -22,7 +61,10 @@
       const toggleBtn = document.createElement('button');
       toggleBtn.id = 'nav-slide-toggle';
       toggleBtn.className = 'nav-slide-toggle-btn';
-      toggleBtn.title = 'Slide / Toggle Sidebar';
+      toggleBtn.type = 'button';
+      toggleBtn.title = 'Toggle navigation';
+      toggleBtn.setAttribute('aria-label', 'Toggle navigation');
+      toggleBtn.setAttribute('aria-expanded', 'false');
       toggleBtn.innerHTML = `
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -33,9 +75,17 @@
 
       toggleBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const isCollapsed = document.body.classList.toggle('sidebar-collapsed');
-        localStorage.setItem('sidebar_collapsed', isCollapsed ? 'true' : 'false');
-        document.body.classList.remove('sidebar-hovered');
+        if (isMobileNavigation()) {
+          const isOpen = document.body.classList.toggle('sidebar-mobile-open');
+          toggleBtn.setAttribute('aria-expanded', String(isOpen));
+          const backdrop = document.getElementById('nav-sidebar-backdrop');
+          if (backdrop) backdrop.setAttribute('aria-hidden', String(!isOpen));
+        } else {
+          const isCollapsed = document.body.classList.toggle('sidebar-collapsed');
+          localStorage.setItem('sidebar_collapsed', isCollapsed ? 'true' : 'false');
+          toggleBtn.setAttribute('aria-expanded', String(!isCollapsed));
+          document.body.classList.remove('sidebar-hovered');
+        }
         fixSidebarAndProfile();
       });
 
@@ -64,9 +114,24 @@
   // 2. Setup Cursor-Controlled Hover Auto-Expansion
   let isHoverBound = false;
   function setupSidebarHover() {
-    if (isHoverBound) return;
     const drawerPaper = document.querySelector('.MuiDrawer-paper');
     if (!drawerPaper) return;
+
+    if (!drawerPaper.dataset.mobileCloseBound) {
+      drawerPaper.dataset.mobileCloseBound = 'true';
+      drawerPaper.addEventListener('click', (event) => {
+        const target = event.target;
+        if (
+          isMobileNavigation() &&
+          target instanceof Element &&
+          target.closest('.MuiListItem-root, a')
+        ) {
+          closeMobileNavigation();
+        }
+      });
+    }
+
+    if (isHoverBound || isMobileNavigation()) return;
 
     drawerPaper.addEventListener('mouseenter', () => {
       if (document.body.classList.contains('sidebar-collapsed')) {
@@ -2208,10 +2273,6 @@
 
     observer.observe(document.body, { childList: true, subtree: true });
   }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-  }
 
   function updateHeroIconPreview() {
     const heroSlot = document.getElementById('hero-icon-preview');
@@ -2565,13 +2626,18 @@
     if (!drawerPaper) return;
 
     const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+    const isMobile = isMobileNavigation();
+
+    if (!isMobile && document.body.classList.contains('sidebar-mobile-open')) {
+      closeMobileNavigation();
+    }
 
     const drawerRoot = document.querySelector('.MuiDrawer-docked') || drawerPaper.parentElement;
     if (drawerRoot && drawerRoot.parentElement) {
       const outerBox = drawerRoot.parentElement;
       if (outerBox && outerBox !== document.body) {
-        outerBox.style.width = isCollapsed ? '68px' : '260px';
-        outerBox.style.flex = isCollapsed ? '0 0 68px' : '0 0 260px';
+        outerBox.style.width = isMobile ? '0px' : (isCollapsed ? '68px' : '260px');
+        outerBox.style.flex = isMobile ? '0 0 0px' : (isCollapsed ? '0 0 68px' : '0 0 260px');
         outerBox.style.transition = 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
       }
     }
@@ -2587,7 +2653,9 @@
     // Keep main container responsive to sidebar slide state
     const mainContainer = getMainContentContainer();
     if (mainContainer && mainContainer !== document.body) {
-      mainContainer.style.maxWidth = isCollapsed ? 'calc(100vw - 68px)' : 'calc(100vw - 260px)';
+      mainContainer.style.maxWidth = isMobile
+        ? '100vw'
+        : (isCollapsed ? 'calc(100vw - 68px)' : 'calc(100vw - 260px)');
       mainContainer.style.overflowX = 'hidden';
       mainContainer.style.boxSizing = 'border-box';
     }
@@ -2804,6 +2872,8 @@
 
   // Hook into popstate for SPA navigation
   window.addEventListener('popstate', () => {
+    updateAdminPageClass();
+    closeMobileNavigation();
     injectAppScreensStudio();
     injectDashboardEnhancements();
     enhanceCategoriesPage();
@@ -2814,6 +2884,7 @@
 
   // Periodic observer to catch single-page route navigation & DOM changes
   setInterval(() => {
+    updateAdminPageClass();
     enhanceNavbar();
     injectDashboardEnhancements();
     injectAppScreensStudio();
@@ -2824,6 +2895,7 @@
   }, 200);
 
   window.addEventListener('DOMContentLoaded', () => {
+    updateAdminPageClass();
     enhanceNavbar();
     injectDashboardEnhancements();
     injectAppScreensStudio();

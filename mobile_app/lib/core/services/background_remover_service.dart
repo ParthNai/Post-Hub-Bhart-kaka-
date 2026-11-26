@@ -1,17 +1,19 @@
 import 'dart:typed_data';
 
-/// On-device AI background removal service placeholder.
+import 'background_remover_stub.dart'
+    if (dart.library.io) 'background_remover_mobile.dart'
+    as implementation;
+
 class BackgroundRemoverService {
   BackgroundRemoverService._();
+
   static final BackgroundRemoverService instance = BackgroundRemoverService._();
 
-  bool get isSupported => false;
+  bool get isSupported => implementation.isSupported;
 
-  Future<String?> removeBackground(String filePath) async {
-    return null;
-  }
+  Future<Uint8List> removeBackground(String filePath) =>
+      implementation.removeBackground(filePath);
 
-  Future<String?> removeBackgroundFromBytes(Uint8List bytes) async {
-    return null;
-  }
+  Future<Uint8List> removeBackgroundFromBytes(Uint8List bytes) =>
+      implementation.removeBackgroundFromBytes(bytes);
 }

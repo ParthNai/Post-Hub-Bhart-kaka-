@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:panchayat_post/core/constants/app_assets.dart';
@@ -6,6 +8,7 @@ import 'package:panchayat_post/core/constants/app_colors.dart';
 import 'package:panchayat_post/core/localization/app_localizations.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
+import 'package:panchayat_post/core/services/background_remover_service.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
@@ -46,7 +49,9 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
   String? _selectedStyleFilter;
   String? _customPhotoUrl;
 
-  Future<void> _pickUserPhoto(void Function(void Function()) setSheetState) async {
+  Future<void> _pickUserPhoto(
+    void Function(void Function()) setSheetState,
+  ) async {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -88,12 +93,18 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                     color: const Color(0xFFEFF6FF),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF2563EB)),
+                  child: const Icon(
+                    Icons.camera_alt_rounded,
+                    color: Color(0xFF2563EB),
+                  ),
                 ),
-                title: const Text('કેમેરાથી ફોટો પાડો (Camera)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                title: const Text(
+                  'કેમેરાથી ફોટો પાડો (Camera)',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                ),
                 onTap: () {
                   Navigator.of(ctx).pop();
-                  _executePhotoPick(ImageSource.camera, setSheetState);
+                  _executePhotoPick(ImageSource.camera);
                 },
               ),
               ListTile(
@@ -103,15 +114,22 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                     color: const Color(0xFFF0FDF4),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.photo_library_rounded, color: Color(0xFF16A34A)),
+                  child: const Icon(
+                    Icons.photo_library_rounded,
+                    color: Color(0xFF16A34A),
+                  ),
                 ),
-                title: const Text('ગેલેરીમાંથી પસંદ કરો (Gallery)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                title: const Text(
+                  'ગેલેરીમાંથી પસંદ કરો (Gallery)',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                ),
                 onTap: () {
                   Navigator.of(ctx).pop();
-                  _executePhotoPick(ImageSource.gallery, setSheetState);
+                  _executePhotoPick(ImageSource.gallery);
                 },
               ),
-              if (_customPhotoUrl != null || _currentUser?.profilePhotoUrl?.isNotEmpty == true) ...[
+              if (_customPhotoUrl != null ||
+                  _currentUser?.profilePhotoUrl?.isNotEmpty == true) ...[
                 ListTile(
                   leading: Container(
                     padding: const EdgeInsets.all(8),
@@ -119,9 +137,19 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                       color: const Color(0xFFFEF2F2),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.delete_outline_rounded, color: Color(0xFFDC2626)),
+                    child: const Icon(
+                      Icons.delete_outline_rounded,
+                      color: Color(0xFFDC2626),
+                    ),
                   ),
-                  title: const Text('ફોટો દૂર કરો (Remove Photo)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Color(0xFFDC2626))),
+                  title: const Text(
+                    'ફોટો દૂર કરો (Remove Photo)',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: Color(0xFFDC2626),
+                    ),
+                  ),
                   onTap: () {
                     Navigator.of(ctx).pop();
                     setSheetState(() {
@@ -140,7 +168,7 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
     );
   }
 
-  Future<void> _executePhotoPick(ImageSource source, void Function(void Function()) setSheetState) async {
+  Future<void> _executePhotoPick(ImageSource source) async {
     try {
       final picker = ImagePicker();
       final picked = await picker.pickImage(
@@ -152,44 +180,59 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
       if (picked == null) return;
 
       final bytes = await picked.readAsBytes();
-      final dataUrl = 'data:image/png;base64,${base64Encode(bytes)}';
+      if (!mounted) return;
 
-      setSheetState(() {
-        _customPhotoUrl = dataUrl;
-      });
-      setState(() {
-        _customPhotoUrl = dataUrl;
-      });
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Removing the background on your device...'),
+          duration: Duration(minutes: 1),
+        ),
+      );
 
-      // Persist in background to user profile if logged in
-      if (_currentUser != null) {
-        try {
-          final savedUrl = await _authService.saveProfilePhoto(
-            userId: _currentUser!.userId,
-            imageBytes: bytes,
-            fileName: picked.name,
-          );
-          final updated = await _authService.updateUserProfile(
-            userId: _currentUser!.userId,
-            profilePhotoUrl: savedUrl,
-          );
-          if (mounted) {
-            setState(() {
-              _currentUser = updated;
-            });
-          }
-        } catch (_) {}
-      }
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ ફોટો સફળતાપૂર્વક ફ્રેમમાં સેટ થયો!'),
-            backgroundColor: Color(0xFF15803D),
-            duration: Duration(seconds: 2),
+      Uint8List cutoutBytes;
+      try {
+        cutoutBytes = await BackgroundRemoverService.instance
+            .removeBackgroundFromBytes(bytes);
+      } catch (error) {
+        debugPrint('[FestivalDetail] Photo background removal failed: $error');
+        if (!mounted) return;
+        messenger.hideCurrentSnackBar();
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              error is UnsupportedError
+                  ? 'Automatic background removal is available on Android and iOS. You can still add the original photo.'
+                  : 'Could not remove the background. You can still add the original photo.',
+            ),
+            duration: const Duration(seconds: 8),
+            action: SnackBarAction(
+              label: 'Use original',
+              onPressed: () {
+                _applyPhotoToFrame(
+                  bytes,
+                  fileName: picked.name,
+                  backgroundRemoved: false,
+                );
+              },
+            ),
           ),
         );
+        return;
       }
+
+      if (!mounted) return;
+      messenger.hideCurrentSnackBar();
+      final fileExtension = picked.name.lastIndexOf('.');
+      final fileStem = fileExtension > 0
+          ? picked.name.substring(0, fileExtension)
+          : 'frame-photo';
+      await _applyPhotoToFrame(
+        cutoutBytes,
+        fileName: '${fileStem}_cutout.png',
+        backgroundRemoved: true,
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -202,12 +245,77 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
     }
   }
 
+  Future<void> _applyPhotoToFrame(
+    Uint8List bytes, {
+    required String fileName,
+    required bool backgroundRemoved,
+  }) async {
+    if (!mounted) return;
+
+    final mimeType = fileName.toLowerCase().endsWith('.png')
+        ? 'image/png'
+        : fileName.toLowerCase().endsWith('.webp')
+        ? 'image/webp'
+        : 'image/jpeg';
+    final dataUrl = 'data:$mimeType;base64,${base64Encode(bytes)}';
+
+    setState(() {
+      _customPhotoUrl = dataUrl;
+    });
+
+    if (_currentUser != null) {
+      try {
+        final savedUrl = await _authService.saveProfilePhoto(
+          userId: _currentUser!.userId,
+          imageBytes: bytes,
+          fileName: fileName,
+        );
+        final updated = await _authService.updateUserProfile(
+          userId: _currentUser!.userId,
+          profilePhotoUrl: savedUrl,
+        );
+        if (mounted) {
+          setState(() {
+            _currentUser = updated;
+          });
+        }
+      } catch (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Photo added to the frame, but could not be saved to your profile: $error',
+              ),
+              backgroundColor: const Color(0xFFB45309),
+            ),
+          );
+        }
+        return;
+      }
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            backgroundRemoved
+                ? '✅ Photo background removed and added to the frame.'
+                : '✅ Original photo added to the frame.',
+          ),
+          backgroundColor: Color(0xFF15803D),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _festivalService = widget.festivalService ?? FestivalService();
     _authService = widget.authService ?? AuthService();
-    _currentFestival = widget.festival ?? _festivalService.getFeaturedFestival();
+    _currentFestival =
+        widget.festival ?? _festivalService.getFeaturedFestival();
     _loadUserProfile();
     _loadFrames();
   }
@@ -328,12 +436,17 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
     // 1. If template or festival has a specific recommended frame ID, use it.
     // 2. Otherwise, if the admin uploaded any custom frame, use the first custom admin frame!
     // 3. Fallback to 'admin_kesariya'.
-    String? explicitRec = template?.recommendedFrameId ?? _currentFestival.recommendedFrameId;
+    String? explicitRec =
+        template?.recommendedFrameId ?? _currentFestival.recommendedFrameId;
     if (explicitRec != null && explicitRec.trim().isEmpty) explicitRec = null;
 
     final firstAdminCustomFrame = PosterFrames.list.firstWhere(
       (f) => f.imageUrl != null && f.imageUrl!.isNotEmpty,
-      orElse: () => const PosterFrameDef(id: 'admin_kesariya', name: 'Royal Kesariya', previewColor: Colors.amber),
+      orElse: () => const PosterFrameDef(
+        id: 'admin_kesariya',
+        name: 'Royal Kesariya',
+        previewColor: Colors.amber,
+      ),
     );
 
     final recommendedFrameId = explicitRec ?? firstAdminCustomFrame.id;
@@ -391,12 +504,17 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                               children: [
                                 if (isAnnouncement)
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                      vertical: 3.0,
+                                    ),
                                     margin: const EdgeInsets.only(right: 6.0),
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFEFF6FF),
                                       borderRadius: BorderRadius.circular(6.0),
-                                      border: Border.all(color: const Color(0xFF93C5FD)),
+                                      border: Border.all(
+                                        color: const Color(0xFF93C5FD),
+                                      ),
                                     ),
                                     child: const Text(
                                       '📢 પરિપત્ર / જાહેરાત',
@@ -409,12 +527,17 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                                   )
                                 else
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                      vertical: 3.0,
+                                    ),
                                     margin: const EdgeInsets.only(right: 6.0),
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFFDF2F8),
                                       borderRadius: BorderRadius.circular(6.0),
-                                      border: Border.all(color: const Color(0xFFFBCFE8)),
+                                      border: Border.all(
+                                        color: const Color(0xFFFBCFE8),
+                                      ),
                                     ),
                                     child: const Text(
                                       '⭐ ૧-ક્લિક ફ્રેમ પોસ્ટર',
@@ -442,7 +565,10 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          color: Color(0xFF64748B),
+                        ),
                         onPressed: () => Navigator.of(ctx).pop(),
                       ),
                     ],
@@ -485,7 +611,11 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                       ),
                       child: const Row(
                         children: [
-                          Icon(Icons.info_outline_rounded, color: Color(0xFF16A34A), size: 18.0),
+                          Icon(
+                            Icons.info_outline_rounded,
+                            color: Color(0xFF16A34A),
+                            size: 18.0,
+                          ),
                           SizedBox(width: 8.0),
                           Expanded(
                             child: Text(
@@ -501,7 +631,6 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                       ),
                     ),
                   ]
-
                   // --- FESTIVAL POSTER VIEW (1-Click Frame Overlay) ---
                   else ...[
                     // Square live canvas preview with PosterFrameOverlay
@@ -543,10 +672,13 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                                   user: _currentUser,
                                   w: canvasWidth,
                                   h: canvasHeight,
-                                  customPhotoUrl: (_customPhotoUrl != null && _customPhotoUrl!.isNotEmpty)
+                                  customPhotoUrl:
+                                      (_customPhotoUrl != null &&
+                                          _customPhotoUrl!.isNotEmpty)
                                       ? _customPhotoUrl
                                       : _currentUser?.profilePhotoUrl,
-                                  onTapPhoto: () => _pickUserPhoto(setSheetState),
+                                  onTapPhoto: () =>
+                                      _pickUserPhoto(setSheetState),
                                 ),
                               ],
                             ),
@@ -559,25 +691,34 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                     // User identity chip with "Add / Change Photo" action
                     Builder(
                       builder: (context) {
-                        final effectivePhoto = (_customPhotoUrl != null && _customPhotoUrl!.isNotEmpty)
+                        final effectivePhoto =
+                            (_customPhotoUrl != null &&
+                                _customPhotoUrl!.isNotEmpty)
                             ? _customPhotoUrl
                             : _currentUser?.profilePhotoUrl;
-                        final hasPhoto = effectivePhoto != null && effectivePhoto.isNotEmpty;
+                        final hasPhoto =
+                            effectivePhoto != null && effectivePhoto.isNotEmpty;
 
                         ImageProvider? photoProvider;
                         if (hasPhoto) {
                           if (effectivePhoto.startsWith('data:')) {
-                            final raw = effectivePhoto.contains(',') ? effectivePhoto.split(',').last : effectivePhoto;
+                            final raw = effectivePhoto.contains(',')
+                                ? effectivePhoto.split(',').last
+                                : effectivePhoto;
                             try {
                               photoProvider = MemoryImage(base64Decode(raw));
                             } catch (_) {}
-                          } else if (effectivePhoto.startsWith('http://') || effectivePhoto.startsWith('https://')) {
+                          } else if (effectivePhoto.startsWith('http://') ||
+                              effectivePhoto.startsWith('https://')) {
                             photoProvider = NetworkImage(effectivePhoto);
                           }
                         }
 
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10.0,
+                            vertical: 8.0,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFFF8FAFC),
                             borderRadius: BorderRadius.circular(12.0),
@@ -595,7 +736,11 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                                       backgroundColor: const Color(0xFF7C3AED),
                                       backgroundImage: photoProvider,
                                       child: !hasPhoto
-                                          ? const Icon(Icons.person, size: 18.0, color: Colors.white)
+                                          ? const Icon(
+                                              Icons.person,
+                                              size: 18.0,
+                                              color: Colors.white,
+                                            )
                                           : null,
                                     ),
                                     Positioned(
@@ -607,7 +752,11 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                                           color: Color(0xFF2563EB),
                                           shape: BoxShape.circle,
                                         ),
-                                        child: const Icon(Icons.camera_alt, size: 8.5, color: Colors.white),
+                                        child: const Icon(
+                                          Icons.camera_alt,
+                                          size: 8.5,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -630,7 +779,8 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                                       ),
                                     ),
                                     Text(
-                                      _currentUser?.villageCity ?? 'પાલનપુર ગ્રામ પંચાયત',
+                                      _currentUser?.villageCity ??
+                                          'પાલનપુર ગ્રામ પંચાયત',
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
@@ -644,16 +794,27 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                               ),
                               const SizedBox(width: 8.0),
                               ElevatedButton.icon(
-                                icon: const Icon(Icons.add_a_photo_rounded, size: 14.0),
+                                icon: const Icon(
+                                  Icons.add_a_photo_rounded,
+                                  size: 14.0,
+                                ),
                                 label: Text(
                                   hasPhoto ? 'ફોટો બદલો' : 'ફોટો ઉમેરો',
-                                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700),
+                                  style: const TextStyle(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF2563EB),
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0,
+                                    vertical: 8.0,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
                                   elevation: 0,
                                 ),
                                 onPressed: () => _pickUserPhoto(setSheetState),
@@ -679,16 +840,25 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                         ),
                         if (selectedFrameId == recommendedFrameId)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
+                              vertical: 2.0,
+                            ),
                             decoration: BoxDecoration(
                               color: const Color(0xFFFEF3C7),
                               borderRadius: BorderRadius.circular(8.0),
-                              border: Border.all(color: const Color(0xFFFDE68A)),
+                              border: Border.all(
+                                color: const Color(0xFFFDE68A),
+                              ),
                             ),
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.star_rounded, size: 13.0, color: Color(0xFFD97706)),
+                                Icon(
+                                  Icons.star_rounded,
+                                  size: 13.0,
+                                  color: Color(0xFFD97706),
+                                ),
                                 SizedBox(width: 3.0),
                                 Text(
                                   'શ્રેષ્ઠ મેળ ખાતી ભલામણ',
@@ -711,12 +881,15 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: availableFrames.length,
-                        separatorBuilder: (context, index) => const SizedBox(width: 8.0),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(width: 8.0),
                         itemBuilder: (context, idx) {
                           final f = availableFrames[idx];
                           final isSelected = (selectedFrameId == f.id);
-                          final isRec = (f.id == recommendedFrameId ||
-                              (recommendedFrameId.isNotEmpty && f.id.contains(recommendedFrameId)));
+                          final isRec =
+                              (f.id == recommendedFrameId ||
+                              (recommendedFrameId.isNotEmpty &&
+                                  f.id.contains(recommendedFrameId)));
 
                           return InkWell(
                             key: ValueKey('frame_pick_${f.id}'),
@@ -731,18 +904,23 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                               width: 76.0,
                               padding: const EdgeInsets.all(4.0),
                               decoration: BoxDecoration(
-                                color: isSelected ? const Color(0xFFF3E8FF) : Colors.white,
+                                color: isSelected
+                                    ? const Color(0xFFF3E8FF)
+                                    : Colors.white,
                                 borderRadius: BorderRadius.circular(12.0),
                                 border: Border.all(
                                   color: isSelected
                                       ? const Color(0xFF7C3AED)
-                                      : (isRec ? const Color(0xFFF59E0B) : const Color(0xFFE2E8F0)),
+                                      : (isRec
+                                            ? const Color(0xFFF59E0B)
+                                            : const Color(0xFFE2E8F0)),
                                   width: isSelected ? 2.0 : (isRec ? 1.5 : 1.0),
                                 ),
                                 boxShadow: [
                                   if (isSelected)
                                     BoxShadow(
-                                      color: const Color(0xFF7C3AED).withValues(alpha: 0.20),
+                                      color: const Color(0xFF7C3AED)
+                                          .withValues(alpha: 0.20),
                                       blurRadius: 6.0,
                                       offset: const Offset(0, 2),
                                     ),
@@ -758,9 +936,14 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                                         width: 32.0,
                                         height: 32.0,
                                         decoration: BoxDecoration(
-                                          color: f.previewColor.withValues(alpha: 0.20),
+                                          color: f.previewColor.withValues(
+                                            alpha: 0.20,
+                                          ),
                                           shape: BoxShape.circle,
-                                          border: Border.all(color: f.previewColor, width: 1.5),
+                                          border: Border.all(
+                                            color: f.previewColor,
+                                            width: 1.5,
+                                          ),
                                         ),
                                         child: Center(
                                           child: Icon(
@@ -797,8 +980,12 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 9.5,
-                                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                                      color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFF475569),
+                                      fontWeight: isSelected
+                                          ? FontWeight.w800
+                                          : FontWeight.w600,
+                                      color: isSelected
+                                          ? const Color(0xFF6D28D9)
+                                          : const Color(0xFF475569),
                                     ),
                                   ),
                                   if (isRec)
@@ -840,7 +1027,10 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                           icon: const Icon(Icons.share_rounded, size: 18.0),
                           label: const Text(
                             'વોટ્સએપ શેર',
-                            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 13.5,
+                            ),
                           ),
                           onPressed: () {
                             Navigator.of(ctx).pop();
@@ -848,12 +1038,18 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                               SnackBar(
                                 content: Row(
                                   children: [
-                                    const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                                    const Icon(
+                                      Icons.check_circle_rounded,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
                                         'શુભ ${_currentFestival.name}! વોટ્સએપ પર શેરિંગ તૈયાર છે.',
-                                        style: const TextStyle(fontWeight: FontWeight.w600),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -861,7 +1057,9 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                                 backgroundColor: const Color(0xFF16A34A),
                                 behavior: SnackBarBehavior.floating,
                                 duration: const Duration(seconds: 3),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
                               ),
                             );
                           },
@@ -885,7 +1083,10 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                           icon: const Icon(Icons.download_rounded, size: 18.0),
                           label: Text(
                             isAnnouncement ? 'પરિપત્ર ડાઉનલોડ' : 'ડાઉનલોડ કરો',
-                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 13.5,
+                            ),
                           ),
                           onPressed: () {
                             Navigator.of(ctx).pop();
@@ -893,12 +1094,18 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                               SnackBar(
                                 content: Row(
                                   children: [
-                                    const Icon(Icons.download_done_rounded, color: Colors.white, size: 20),
+                                    const Icon(
+                                      Icons.download_done_rounded,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
                                         '${_currentFestival.name} પોસ્ટર ગેલેરીમાં સાચવવામાં આવ્યું!',
-                                        style: const TextStyle(fontWeight: FontWeight.w600),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -906,7 +1113,9 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                                 backgroundColor: const Color(0xFF059669),
                                 behavior: SnackBarBehavior.floating,
                                 duration: const Duration(seconds: 3),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
                               ),
                             );
                           },
@@ -924,7 +1133,8 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
   }
 
   void _showNotificationsSheet(BuildContext context) {
-    final s = LocaleScope.maybeOf(context)?.strings ??
+    final s =
+        LocaleScope.maybeOf(context)?.strings ??
         AppStrings.of(AppStrings.defaultLanguageCode);
     showModalBottomSheet(
       context: context,
@@ -1024,7 +1234,9 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
     }
 
     final filtered = templates
-        .where((t) => t.style.toLowerCase() == _selectedStyleFilter!.toLowerCase())
+        .where(
+          (t) => t.style.toLowerCase() == _selectedStyleFilter!.toLowerCase(),
+        )
         .toList();
 
     return filtered.isNotEmpty ? filtered : templates;
@@ -1032,7 +1244,8 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final s = LocaleScope.maybeOf(context)?.strings ??
+    final s =
+        LocaleScope.maybeOf(context)?.strings ??
         AppStrings.of(AppStrings.defaultLanguageCode);
     final isDesktop = MediaQuery.of(context).size.width >= 768;
 
@@ -1172,11 +1385,7 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
           const SizedBox(width: 8.0),
 
           // Vertical Divider
-          Container(
-            height: 18.0,
-            width: 1.2,
-            color: const Color(0xFFCBD5E1),
-          ),
+          Container(height: 18.0, width: 1.2, color: const Color(0xFFCBD5E1)),
           const SizedBox(width: 8.0),
 
           // Page Title
@@ -1261,11 +1470,7 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.home_rounded,
-            size: 14.0,
-            color: Color(0xFF7C3AED),
-          ),
+          const Icon(Icons.home_rounded, size: 14.0, color: Color(0xFF7C3AED)),
           const SizedBox(width: 5.0),
           Flexible(
             child: Text(
@@ -1307,7 +1512,11 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
               child: Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFF240046), Color(0xFF3C096C), Color(0xFF5A189A)],
+                    colors: [
+                      Color(0xFF240046),
+                      Color(0xFF3C096C),
+                      Color(0xFF5A189A),
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -1357,7 +1566,10 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
 
             // Banner Content
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 16.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -1401,7 +1613,8 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                       _currentFestival.id == 'fest_featured_navratri' ||
                               _currentFestival.id == 'fest_navratri'
                           ? s.celebrateGarbaSubtitle
-                          : (_currentFestival.description ?? s.celebrateGarbaSubtitle),
+                          : (_currentFestival.description ??
+                                s.celebrateGarbaSubtitle),
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.92),
                         fontSize: 12.0,
@@ -1438,8 +1651,11 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.calendar_today_rounded,
-                              size: 12.0, color: Colors.white70),
+                          const Icon(
+                            Icons.calendar_today_rounded,
+                            size: 12.0,
+                            color: Colors.white70,
+                          ),
                           const SizedBox(width: 4.0),
                           Text(
                             _currentFestival.dateDisplay,
@@ -1455,15 +1671,20 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                       // Divider pipe
                       Text(
                         '|',
-                        style: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.5),
+                        ),
                       ),
 
                       // Tag
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.label_outline_rounded,
-                              size: 13.0, color: Colors.white70),
+                          const Icon(
+                            Icons.label_outline_rounded,
+                            size: 13.0,
+                            color: Colors.white70,
+                          ),
                           const SizedBox(width: 3.0),
                           Text(
                             _currentFestival.categoryName.isNotEmpty
@@ -1482,7 +1703,9 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                       if (_currentFestival.isUpcoming)
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 2.5),
+                            horizontal: 8.0,
+                            vertical: 2.5,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFFFEF3C7), // Warm yellow/amber
                             borderRadius: BorderRadius.circular(10.0),
@@ -1490,8 +1713,11 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: const [
-                              Icon(Icons.access_time_filled_rounded,
-                                  size: 11.0, color: Color(0xFF92400E)),
+                              Icon(
+                                Icons.access_time_filled_rounded,
+                                size: 11.0,
+                                color: Color(0xFF92400E),
+                              ),
                               SizedBox(width: 3.0),
                               Text(
                                 'Upcoming',
@@ -1520,7 +1746,9 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                             foregroundColor: Colors.white,
                             elevation: 3.0,
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 12.0, vertical: 8.0),
+                              horizontal: 12.0,
+                              vertical: 8.0,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                             ),
@@ -1557,7 +1785,9 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                             side: BorderSide.none,
                             elevation: 2.0,
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 12.0, vertical: 8.0),
+                              horizontal: 12.0,
+                              vertical: 8.0,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                             ),
@@ -1650,10 +1880,7 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
               const SizedBox(height: 14.0),
 
               // Light divider
-              Container(
-                height: 1.0,
-                color: const Color(0xFFE2E8F0),
-              ),
+              Container(height: 1.0, color: const Color(0xFFE2E8F0)),
               const SizedBox(height: 12.0),
 
               // 3-Column stats row
@@ -1827,10 +2054,7 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
         // Subtitle
         Text(
           s.createFestivalPostsSubtitle,
-          style: const TextStyle(
-            fontSize: 12.0,
-            color: Color(0xFF64748B),
-          ),
+          style: const TextStyle(fontSize: 12.0, color: Color(0xFF64748B)),
         ),
         const SizedBox(height: 12.0),
 
@@ -1854,7 +2078,10 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
     );
   }
 
-  Widget _buildPosterCard(BuildContext context, FestivalPosterTemplate template) {
+  Widget _buildPosterCard(
+    BuildContext context,
+    FestivalPosterTemplate template,
+  ) {
     return InkWell(
       key: ValueKey('poster_card_${template.id}'),
       borderRadius: BorderRadius.circular(14.0),
@@ -1895,12 +2122,16 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
               ),
 
               // If has recommended frame, show gold badge
-              if (template.recommendedFrameId != null && template.recommendedFrameId!.isNotEmpty)
+              if (template.recommendedFrameId != null &&
+                  template.recommendedFrameId!.isNotEmpty)
                 Positioned(
                   top: 8.0,
                   left: 8.0,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6.0,
+                      vertical: 2.0,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFD97706),
                       borderRadius: BorderRadius.circular(6.0),
@@ -2055,15 +2286,16 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                           height: 42.0,
                           width: double.infinity,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            height: 42.0,
-                            color: const Color(0xFFEDE9FE),
-                            child: const Icon(
-                              Icons.style_rounded,
-                              size: 20.0,
-                              color: Color(0xFF7C3AED),
-                            ),
-                          ),
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                height: 42.0,
+                                color: const Color(0xFFEDE9FE),
+                                child: const Icon(
+                                  Icons.style_rounded,
+                                  size: 20.0,
+                                  color: Color(0xFF7C3AED),
+                                ),
+                              ),
                         ),
                       ),
                       const SizedBox(height: 5.0),
@@ -2074,8 +2306,9 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 10.0,
-                          fontWeight:
-                              isSelected ? FontWeight.w800 : FontWeight.w600,
+                          fontWeight: isSelected
+                              ? FontWeight.w800
+                              : FontWeight.w600,
                           color: isSelected
                               ? const Color(0xFF6D28D9)
                               : const Color(0xFF334155),
@@ -2162,21 +2395,23 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
               backgroundColor: const Color(0xFF6D28D9),
               foregroundColor: Colors.white,
               elevation: 2.0,
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 9.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12.0,
+                vertical: 9.0,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16.0),
               ),
             ),
             onPressed: () {
-              final project = PosterTemplateProject.createDefaultNavratriProject(
-                templateId: 'festival_${_currentFestival.id}',
-                imageAsset: _currentFestival.imageAsset,
-                title: _currentFestival.name,
-              );
-              Navigator.of(context).pushNamed(
-                AppRoutes.posterEditor,
-                arguments: project,
-              );
+              final project =
+                  PosterTemplateProject.createDefaultNavratriProject(
+                    templateId: 'festival_${_currentFestival.id}',
+                    imageAsset: _currentFestival.imageAsset,
+                    title: _currentFestival.name,
+                  );
+              Navigator.of(context)
+                  .pushNamed(AppRoutes.posterEditor, arguments: project);
             },
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -2203,9 +2438,7 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(
-          top: BorderSide(color: Color(0xFFE2E8F0), width: 0.8),
-        ),
+        border: Border(top: BorderSide(color: Color(0xFFE2E8F0), width: 0.8)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 6.0),
       child: Row(
