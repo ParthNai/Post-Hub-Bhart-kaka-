@@ -79,6 +79,7 @@ class AuthService {
         fullName: 'Krushnapalsinh Parmar',
         username: '7359265501',
         displayName: 'Krushnapalsinh Parmar (સરપંચ શ્રી)',
+        profilePhotoUrl: 'https://ui-avatars.com/api/?name=Krushnapalsinh+Parmar&background=ffaa40&color=ffffff',
         passwordHash: hashPassword('1234'),
         villageCity: 'Palanpur',
         state: 'Banaskantha',
@@ -284,6 +285,10 @@ class AuthService {
             final village = userObj['village']?.toString() ?? '';
             final district = userObj['district']?.toString() ?? '';
             final occupation = userObj['occupation']?.toString() ?? '';
+            final photoUrl = userObj['profileImage']?.toString() ??
+                userObj['image']?.toString() ??
+                userObj['profilePhoto']?.toString() ??
+                userObj['photo']?.toString();
             final now = DateTime.now();
             final expiry = rememberMe ? now.add(const Duration(days: 30)) : now.add(const Duration(days: 1));
 
@@ -296,6 +301,7 @@ class AuthService {
               fullName: name,
               username: cleanUsername,
               displayName: occupation.isNotEmpty ? '$name ($occupation)' : name,
+              profilePhotoUrl: photoUrl,
               passwordHash: hashPassword(password),
               villageCity: village,
               state: district,

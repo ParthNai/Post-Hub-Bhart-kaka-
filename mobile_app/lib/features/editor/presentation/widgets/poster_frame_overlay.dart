@@ -1085,10 +1085,7 @@ class PosterFrameOverlay extends StatelessWidget {
       return Stack(
         clipBehavior: Clip.none,
         children: [
-          // 1. Image Regions (Behind frame graphic cutout)
-          ...imageWidgets,
-
-          // 2. The Transparent Admin Frame Graphic Overlay
+          // 1. The Transparent Admin Frame Graphic Overlay
           Positioned.fill(
             child: IgnorePointer(
               child: _buildResolvedImage(
@@ -1098,6 +1095,9 @@ class PosterFrameOverlay extends StatelessWidget {
               ),
             ),
           ),
+
+          // 2. Image Regions (User Photo, Logos - ON TOP of frame graphic)
+          ...imageWidgets,
 
           // 3. Text Regions (In front of frame graphic)
           ...textWidgets,
@@ -1211,7 +1211,28 @@ class PosterFrameOverlay extends StatelessWidget {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTapPhoto,
-        child: photo,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            photo,
+            if (_effectivePhotoUrl != null && _effectivePhotoUrl!.isNotEmpty)
+              Positioned(
+                bottom: 2,
+                right: 2,
+                child: Container(
+                  padding: const EdgeInsets.all(2.5),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF2563EB),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(color: Colors.black26, blurRadius: 3),
+                    ],
+                  ),
+                  child: const Icon(Icons.camera_alt, size: 9.0, color: Colors.white),
+                ),
+              ),
+          ],
+        ),
       );
     }
     return photo;
