@@ -53,6 +53,8 @@ class FestivalItem {
     this.recommendedFrameId,
     this.showInHero = false,
     this.isAnnouncement = false,
+    this.isEditable = false,
+    this.showAtBottom = true,
   });
 
   final String id;
@@ -75,6 +77,8 @@ class FestivalItem {
   final String? recommendedFrameId;
   final bool showInHero;
   final bool isAnnouncement;
+  final bool isEditable;
+  final bool showAtBottom;
 
   /// Check if this festival matches the search query and filters.
   bool matches({

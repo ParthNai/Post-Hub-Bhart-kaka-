@@ -99,7 +99,24 @@ class _HomeScreenState extends State<HomeScreen> {
         mappedSliders.add({
           'title': s['title']?.toString() ?? '',
           'imageUrl': img,
+          'isAnnouncement': 'false',
+          'isEditable': 'true',
         });
+      }
+    }
+
+    // Merge announcements and festivals that have showInHero enabled
+    for (final f in festivals) {
+      if (f.showInHero && f.imageAsset.isNotEmpty) {
+        if (!mappedSliders.any((s) => s['imageUrl'] == f.imageAsset)) {
+          mappedSliders.add({
+            'title': f.name,
+            'imageUrl': f.imageAsset,
+            'isAnnouncement': f.isAnnouncement ? 'true' : 'false',
+            'isEditable': f.isEditable ? 'true' : 'false',
+            'festivalId': f.id,
+          });
+        }
       }
     }
 
@@ -885,7 +902,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     // 6. Popular Templates Section (5 vertical cards)
                     _buildPopularTemplatesSection(),
-                    const SizedBox(height: 12.0),
+                    const SizedBox(height: 20.0),
+
+                    // 7. Official Announcements Section (At Bottom of Home Page)
+                    _buildAnnouncementsBottomSection(),
+                    const SizedBox(height: 16.0),
                   ],
                 ),
               ),
@@ -1131,7 +1152,37 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: GestureDetector(
-                      onTap: () => _showAllTemplatesLibrary(context),
+                      onTap: () {
+                        if (banner['isAnnouncement'] == 'true' && banner['isEditable'] != 'true') {
+                          final matched = _adminFestivals.firstWhere(
+                            (f) => f.imageAsset == banner['imageUrl'] || f.id == banner['festivalId'],
+                            orElse: () => FestivalItem(
+                              id: 'announcement',
+                              name: banner['title'] ?? 'પરિપત્ર / જાહેરાત',
+                              nameGu: banner['title'] ?? 'પરિપત્ર / જાહેરાત',
+                              nameHi: banner['title'] ?? 'પરિપત્ર / જાહેરાત',
+                              dateDisplay: 'તાજેતર',
+                              category: 'cultural',
+                              categoryName: 'Announcement',
+                              imageAsset: banner['imageUrl'] ?? '',
+                              isAnnouncement: true,
+                              isEditable: false,
+                            ),
+                          );
+                          _showAnnouncementViewer(context, matched);
+                        } else if (banner['festivalId'] != null) {
+                          final matched = _adminFestivals.firstWhere(
+                            (f) => f.id == banner['festivalId'],
+                            orElse: () => _festivalService.getFeaturedFestival(),
+                          );
+                          Navigator.of(context).pushNamed(
+                            AppRoutes.festivalDetail,
+                            arguments: matched,
+                          );
+                        } else {
+                          _showAllTemplatesLibrary(context);
+                        }
+                      },
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(22.0),
@@ -1835,6 +1886,370 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 8.0),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- Announcements Bottom Section ---
+
+  Widget _buildAnnouncementsBottomSection() {
+    final announcements = _adminFestivals
+        .where((f) => f.isAnnouncement && f.showAtBottom && f.imageAsset.isNotEmpty)
+        .toList();
+    if (announcements.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text('📢', style: TextStyle(fontSize: 16)),
+                  ),
+                  const SizedBox(width: 8),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'સરકારી પરિપત્ર અને જાહેરાત',
+                        style: TextStyle(
+                          fontSize: 16.5,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textNavy,
+                        ),
+                      ),
+                      Text(
+                        'સત્તાવાર પરિપત્રો (Official Announcements)',
+                        style: TextStyle(
+                          fontSize: 11.0,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDBEAFE),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  '${announcements.length} સક્રિય',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1E40AF),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 175,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              itemCount: announcements.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 12),
+              itemBuilder: (context, index) {
+                final item = announcements[index];
+                return GestureDetector(
+                  onTap: () {
+                    if (!item.isEditable) {
+                      _showAnnouncementViewer(context, item);
+                    } else {
+                      Navigator.of(context).pushNamed(
+                        AppRoutes.festivalDetail,
+                        arguments: item,
+                      );
+                    }
+                  },
+                  child: Container(
+                    width: 125,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Image.network(
+                                item.imageAsset,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) => Container(
+                                  color: const Color(0xFFEFF6FF),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.description_outlined,
+                                      color: Color(0xFF3B82F6),
+                                      size: 32,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: 6,
+                                right: 6,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: item.isEditable
+                                        ? const Color(0xFF16A34A)
+                                        : const Color(0xFF2563EB),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    item.isEditable ? '✏️ ફ્રેમ' : '👁️ માત્ર જુઓ',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF1E293B),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                item.isEditable ? 'ફ્રેમ ઉમેરી શકાય છે' : 'માત્ર જુઓ અને શેર કરો',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: item.isEditable
+                                      ? const Color(0xFF15803D)
+                                      : const Color(0xFF64748B),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAnnouncementViewer(BuildContext context, FestivalItem item) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+      ),
+      builder: (ctx) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(ctx).size.height * 0.90,
+        ),
+        padding: const EdgeInsets.fromLTRB(18, 12, 18, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFCBD5E1),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Text('📢', style: TextStyle(fontSize: 16)),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFDBEAFE),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'સત્તાવાર પરિપત્ર',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF1E40AF),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        item.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textNavy,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded),
+                  onPressed: () => Navigator.of(ctx).pop(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Flexible(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Image.network(
+                    item.imageAsset,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, _, _) => const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(40),
+                        child: Icon(Icons.broken_image_rounded, color: Colors.white38, size: 48),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFF3B82F6)),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'આ પરિપત્ર સત્તાવાર જાહેરાત છે, તેથી ફ્રેમ વગર સીધો શેર કરી શકાય છે.',
+                      style: TextStyle(fontSize: 11, color: Color(0xFF475569), fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.download_rounded, size: 18),
+                    label: const Text('ડાઉનલોડ'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF1E293B),
+                      side: const BorderSide(color: Color(0xFFCBD5E1)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('✅ પરિપત્ર ગેલેરીમાં સેવ થયો!'),
+                          backgroundColor: Color(0xFF15803D),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.share_rounded, size: 18),
+                    label: const Text('WhatsApp પર શેર કરો'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF25D366),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('📲 WhatsApp પર પરિપત્ર શેર થઈ રહ્યો છે...'),
+                          backgroundColor: Color(0xFF15803D),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

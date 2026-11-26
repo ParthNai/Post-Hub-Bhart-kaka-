@@ -57,6 +57,8 @@ class FestivalService {
       final isAnnouncement = (raw['categoryType']?.toString() == 'announcement') ||
           (raw['isAnnouncement'] == true) ||
           (name.contains('પરિપત્ર') || name.contains('જાહેરાત'));
+      final isEditable = raw['isEditable'] == true || raw['isEditable'] == 'true';
+      final showAtBottom = raw['showAtBottom'] != false && raw['showAtBottom'] != 'false';
 
       final posterTemplates = <FestivalPosterTemplate>[
         if (mainImg.isNotEmpty)
@@ -104,6 +106,8 @@ class FestivalService {
           recommendedFrameId: recommendedFrameId,
           showInHero: showInHero,
           isAnnouncement: isAnnouncement,
+          isEditable: isEditable,
+          showAtBottom: showAtBottom,
         ),
       );
     }
