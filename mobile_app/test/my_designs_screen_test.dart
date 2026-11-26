@@ -71,7 +71,7 @@ void main() {
   });
 
   group('Screen 14: My Designs Screen Core UI Tests', () {
-    testWidgets('Renders header with title, subtitle, notification and avatar', (tester) async {
+    testWidgets('Renders header with Gujarati title, subtitle, notification and avatar', (tester) async {
       await tester.pumpWidget(
         buildTestableMyDesignsScreen(localeController: englishController),
       );
@@ -79,6 +79,8 @@ void main() {
 
       expect(find.byKey(const ValueKey('my_designs_page_title')), findsOneWidget);
       expect(find.byKey(const ValueKey('my_designs_page_subtitle')), findsOneWidget);
+      expect(find.text('મારા ડિઝાઇન્સ'), findsOneWidget);
+      expect(find.text('તમારી બધી રચનાત્મક ડિઝાઇન્સ એક જગ્યાએ'), findsOneWidget);
       expect(find.byKey(const ValueKey('my_designs_notification_button')), findsOneWidget);
       expect(find.byKey(const ValueKey('my_designs_profile_avatar')), findsOneWidget);
     });
@@ -95,7 +97,6 @@ void main() {
 
       expect(find.text('Total Designs'), findsOneWidget);
       expect(find.text('Recently Created'), findsOneWidget);
-      // 'Favorites' also appears in category chips, so find inside metric card
       expect(
         find.descendant(
           of: find.byKey(const ValueKey('metric_favorites')),
@@ -103,6 +104,10 @@ void main() {
         ),
         findsOneWidget,
       );
+
+      // Real user data: 4 designs total, 4 recently created, 2 favorites
+      expect(find.text('4'), findsWidgets);
+      expect(find.text('2'), findsWidgets);
     });
 
     testWidgets('Renders search bar, filter button and category chips', (tester) async {
@@ -113,15 +118,17 @@ void main() {
 
       expect(find.byKey(const ValueKey('my_designs_search_field')), findsOneWidget);
       expect(find.byKey(const ValueKey('my_designs_filter_button')), findsOneWidget);
+      expect(find.text('Search your designs...'), findsOneWidget);
 
       expect(find.byKey(const ValueKey('chip_category_All Designs')), findsOneWidget);
       expect(find.byKey(const ValueKey('chip_category_Festivals')), findsOneWidget);
       expect(find.byKey(const ValueKey('chip_category_Panchayat')), findsOneWidget);
       expect(find.byKey(const ValueKey('chip_category_Business')), findsOneWidget);
+      expect(find.byKey(const ValueKey('chip_category_Other')), findsOneWidget);
       expect(find.byKey(const ValueKey('chip_category_Favorites')), findsOneWidget);
     });
 
-    testWidgets('Renders gallery toolbar with title and view mode buttons', (tester) async {
+    testWidgets('Renders gallery toolbar with title, view mode toggles and sort button', (tester) async {
       await tester.pumpWidget(
         buildTestableMyDesignsScreen(localeController: englishController),
       );
@@ -133,6 +140,35 @@ void main() {
       expect(find.byKey(const ValueKey('button_sort_designs')), findsOneWidget);
     });
 
+    testWidgets('Renders 4 reference posters with complete artwork and dates', (tester) async {
+      await tester.pumpWidget(
+        buildTestableMyDesignsScreen(localeController: englishController),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Navratri Wishes Poster'), findsOneWidget);
+      expect(find.text('Independence Day Poster'), findsOneWidget);
+      expect(find.text('Diwali Wishes Poster'), findsOneWidget);
+      expect(find.text('Ganesh Chaturthi Poster'), findsOneWidget);
+
+      expect(find.text('Oct 10, 2025'), findsOneWidget);
+      expect(find.text('Aug 15, 2025'), findsOneWidget);
+      expect(find.text('Oct 20, 2025'), findsOneWidget);
+      expect(find.text('Aug 27, 2025'), findsOneWidget);
+    });
+
+    testWidgets('Renders creation banner at bottom with Gujarati action', (tester) async {
+      await tester.pumpWidget(
+        buildTestableMyDesignsScreen(localeController: englishController),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('નવું ડિઝાઇન બનાવો'), findsOneWidget);
+      expect(find.text('તમે નવી પોસ્ટર બનાવવા માંગો છો?'), findsOneWidget);
+      expect(find.text('નવી ડિઝાઇન'), findsOneWidget);
+      expect(find.byKey(const ValueKey('banner_create_first_poster_btn')), findsOneWidget);
+    });
+
     testWidgets('Renders bottom navigation bar with My Designs active', (tester) async {
       await tester.pumpWidget(
         buildTestableMyDesignsScreen(localeController: englishController),
@@ -140,6 +176,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byKey(const ValueKey('bottom_nav_my_designs')), findsOneWidget);
+      expect(find.byKey(const ValueKey('bottom_nav_home')), findsOneWidget);
+      expect(find.byKey(const ValueKey('bottom_nav_festivals')), findsOneWidget);
+      expect(find.byKey(const ValueKey('bottom_nav_templates')), findsOneWidget);
+      expect(find.byKey(const ValueKey('bottom_nav_profile')), findsOneWidget);
     });
   });
 
@@ -155,8 +195,8 @@ void main() {
       await tester.enterText(searchField, 'Diwali');
       await tester.pumpAndSettle();
 
-      expect(find.text('Happy Diwali'), findsOneWidget);
-      expect(find.text('Navratri Wishes'), findsNothing);
+      expect(find.text('Diwali Wishes Poster'), findsOneWidget);
+      expect(find.text('Navratri Wishes Poster'), findsNothing);
 
       // Clear search
       final clearButton = find.byKey(const ValueKey('designs_search_clear'));
@@ -164,8 +204,8 @@ void main() {
       await tester.tap(clearButton);
       await tester.pumpAndSettle();
 
-      expect(find.text('Navratri Wishes'), findsOneWidget);
-      expect(find.text('Happy Diwali'), findsOneWidget);
+      expect(find.text('Navratri Wishes Poster'), findsOneWidget);
+      expect(find.text('Diwali Wishes Poster'), findsOneWidget);
     });
 
     testWidgets('Filters designs when tapping category chip', (tester) async {
@@ -178,19 +218,18 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('chip_category_Panchayat')));
       await tester.pumpAndSettle();
 
-      expect(find.text('Village Development'), findsOneWidget);
-      expect(find.text('Gram Sabha Notice'), findsOneWidget);
-      expect(find.text('Navratri Wishes'), findsNothing);
+      expect(find.text('Independence Day Poster'), findsOneWidget);
+      expect(find.text('Navratri Wishes Poster'), findsNothing);
 
       // Return to All Designs
       await tester.tap(find.byKey(const ValueKey('chip_category_All Designs')));
       await tester.pumpAndSettle();
 
-      expect(find.text('Navratri Wishes'), findsOneWidget);
-      expect(find.text('Village Development'), findsOneWidget);
+      expect(find.text('Navratri Wishes Poster'), findsOneWidget);
+      expect(find.text('Independence Day Poster'), findsOneWidget);
     });
 
-    testWidgets('Toggles favorite state on poster card', (tester) async {
+    testWidgets('Toggles favorite state on poster card and updates metrics', (tester) async {
       await tester.pumpWidget(
         buildTestableMyDesignsScreen(localeController: englishController),
       );
@@ -259,7 +298,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify copy exists
-      expect(find.text('Navratri Wishes (Copy)'), findsOneWidget);
+      expect(find.text('Navratri Wishes Poster (Copy)'), findsOneWidget);
     });
 
     testWidgets('Shows delete confirmation dialog and cancels', (tester) async {
@@ -288,7 +327,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Design is still present
-      expect(find.text('Navratri Wishes'), findsOneWidget);
+      expect(find.text('Navratri Wishes Poster'), findsOneWidget);
     });
 
     testWidgets('Renders empty state when designs list is empty', (tester) async {

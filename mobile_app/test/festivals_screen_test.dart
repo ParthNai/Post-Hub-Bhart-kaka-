@@ -45,11 +45,10 @@ void main() {
       await tester.pumpWidget(buildTestableFestivalsScreen(localeController: englishController));
       await tester.pumpAndSettle();
 
-      // A. Header
-      expect(find.byIcon(Icons.chevron_left_rounded), findsOneWidget);
-      expect(find.text('Panchayat'), findsOneWidget);
-      expect(find.text('Post'), findsOneWidget);
-      expect(find.text('Festivals'), findsWidgets); // Header & Nav tab
+      // A. Header (Strict: Original Logo badge only, NO "Panchayat Post" text beside logo)
+      expect(find.byKey(const Key('festival_back_button')), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
+      expect(find.text('Festivals'), findsWidgets); // Header title & Nav tab
       expect(find.text('Discover beautiful festival designs'), findsOneWidget);
       expect(find.byIcon(Icons.notifications_none_rounded), findsOneWidget);
 
@@ -75,23 +74,17 @@ void main() {
       expect(find.text('Upcoming Festivals'), findsOneWidget);
       expect(find.text('View Calendar'), findsOneWidget);
 
+      expect(find.text('Independence Day'), findsOneWidget);
       expect(find.text('Diwali'), findsOneWidget);
-      expect(find.text('Bhai Beej'), findsOneWidget);
-      expect(find.text('Christmas'), findsOneWidget);
+      expect(find.text('Ganesh Chaturthi'), findsOneWidget);
 
-      expect(find.text('22 Oct – 30 Oct'), findsOneWidget);
-      expect(find.text('12 Nov – 20 Nov'), findsOneWidget);
-      expect(find.text('16 Nov'), findsOneWidget);
-      expect(find.text('25 Dec'), findsOneWidget);
+      expect(find.text('Oct 1, 2025'), findsOneWidget);
+      expect(find.text('Aug 15, 2025'), findsOneWidget);
+      expect(find.text('Oct 20, 2025'), findsOneWidget);
+      expect(find.text('Aug 27, 2025'), findsOneWidget);
       expect(find.text('Upcoming'), findsWidgets);
 
-      // F. Explore All Festivals Carousel
-      expect(find.text('Explore All Festivals'), findsOneWidget);
-      expect(find.text('Makar Sankranti'), findsOneWidget);
-      expect(find.text('Holi'), findsOneWidget);
-      expect(find.text('Janmashtami'), findsOneWidget);
-
-      // G. Bottom Navigation Bar
+      // F. Bottom Navigation Bar
       expect(find.text('Home'), findsOneWidget);
       expect(find.text('Templates'), findsOneWidget);
       expect(find.text('My Designs'), findsOneWidget);
@@ -152,7 +145,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Festival Calendar 2026'), findsOneWidget);
-      expect(find.text('22 Oct – 30 Oct'), findsWidgets);
+      expect(find.text('Oct 1, 2025'), findsWidgets);
     });
 
     testWidgets('Tapping a category chip filters the upcoming festival grid', (tester) async {
@@ -163,15 +156,15 @@ void main() {
       await tester.pumpWidget(buildTestableFestivalsScreen(localeController: englishController));
       await tester.pumpAndSettle();
 
-      final hinduChip = find.text('Hindu Festivals');
-      expect(hinduChip, findsOneWidget);
+      final nationalChip = find.text('National Days');
+      expect(nationalChip, findsOneWidget);
 
-      await tester.tap(hinduChip);
+      await tester.tap(nationalChip);
       await tester.pumpAndSettle();
 
-      // Hindu festivals match, Christmas (religious) is filtered out
-      expect(find.text('Diwali'), findsOneWidget);
-      expect(find.text('Christmas'), findsNothing);
+      // National Day matches, Diwali is filtered out
+      expect(find.text('Independence Day'), findsOneWidget);
+      expect(find.text('Diwali'), findsNothing);
     });
 
     testWidgets('Searching for a festival dynamically filters results', (tester) async {
@@ -186,9 +179,9 @@ void main() {
       await tester.enterText(searchField, 'Diwali');
       await tester.pumpAndSettle();
 
-      // Search results list has Diwali card, Christmas is filtered out
+      // Search results list has Diwali card, Independence Day is filtered out
       expect(find.widgetWithText(Container, 'Diwali'), findsWidgets);
-      expect(find.text('Christmas'), findsNothing);
+      expect(find.text('Independence Day'), findsNothing);
     });
 
     testWidgets('Search with no match displays clean empty state', (tester) async {
@@ -207,7 +200,7 @@ void main() {
       expect(find.text('Clear Search'), findsOneWidget);
     });
 
-    testWidgets('Tapping View Designs on a festival card opens template editor sheet', (tester) async {
+    testWidgets('Tapping View Designs on a festival card opens festival details screen', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -220,8 +213,7 @@ void main() {
       await tester.tap(viewDesignsBtn);
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('Poster Designs'), findsOneWidget);
-      expect(find.text('Download / Share Poster'), findsOneWidget);
+      expect(find.textContaining('Festival Details'), findsWidgets);
     });
 
     testWidgets('Tapping Back Button returns to previous screen', (tester) async {
@@ -261,7 +253,7 @@ void main() {
 
       expect(find.text('Discover beautiful festival designs'), findsOneWidget);
 
-      final backBtn = find.byIcon(Icons.chevron_left_rounded);
+      final backBtn = find.byKey(const Key('festival_back_button'));
       await tester.tap(backBtn);
       await tester.pumpAndSettle();
 

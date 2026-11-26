@@ -1,17 +1,19 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:panchayat_post/core/constants/app_assets.dart';
+import 'package:panchayat_post/core/constants/app_colors.dart';
 import 'package:panchayat_post/core/localization/app_localizations.dart';
 import 'package:panchayat_post/core/localization/locale_controller.dart';
 import 'package:panchayat_post/core/routes/app_routes.dart';
+import 'package:panchayat_post/core/services/app_config_service.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 import 'package:panchayat_post/features/editor/data/services/design_storage_service.dart';
 import 'package:panchayat_post/features/editor/data/services/poster_export_service.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
 
-/// Screen 14: My Designs — Saved Posters Library
-/// Recreated with pixel-perfect reference fidelity from media_1795420106947_2b17f99e.jpg.
+/// Screen 14: My Designs (મારા ડિઝાઇન્સ) — Saved Posters Library
+/// Completely redesigned to accurately match the approved Screen 14 UI reference.
 class MyDesignsScreen extends StatefulWidget {
   const MyDesignsScreen({
     super.key,
@@ -38,12 +40,14 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
   UserProfile? _currentUser;
   List<PosterTemplateProject> _allDesigns = [];
   bool _isLoading = true;
+  int _unreadNotificationsCount = 2;
 
   // Search & Filter State
   String _searchQuery = '';
-  String _selectedCategory = 'All Designs'; // 'All Designs', 'Festivals', 'Panchayat', 'Business', 'Favorites'
+  String _selectedCategory = 'All Designs';
   bool _isGridView = true;
-  String _currentSort = 'Recently Created'; // 'Recently Created', 'Oldest First', 'Name A–Z', 'Name Z–A', 'Recently Updated'
+  String _currentSort = 'Recently Created';
+  bool _favoritesOnlyFilter = false;
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -52,6 +56,7 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
     'Festivals',
     'Panchayat',
     'Business',
+    'Other',
     'Favorites',
   ];
 
@@ -63,6 +68,12 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
     _authService = widget.authService ?? AuthService();
 
     _loadData();
+    _searchController.addListener(() {
+      final text = _searchController.text;
+      if (text != _searchQuery) {
+        setState(() => _searchQuery = text);
+      }
+    });
   }
 
   @override
@@ -96,7 +107,12 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
   List<PosterTemplateProject> get _filteredAndSortedDesigns {
     var result = List<PosterTemplateProject>.from(_allDesigns);
 
-    // 1. Filter by category
+    // 1. Favorites only toggle
+    if (_favoritesOnlyFilter) {
+      result = result.where((d) => d.isFavorite).toList();
+    }
+
+    // 2. Filter by category
     if (_selectedCategory == 'Favorites') {
       result = result.where((d) => d.isFavorite).toList();
     } else if (_selectedCategory != 'All Designs') {
@@ -107,7 +123,7 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
       }).toList();
     }
 
-    // 2. Search query filter
+    // 3. Search query filter
     if (_searchQuery.trim().isNotEmpty) {
       final q = _searchQuery.trim().toLowerCase();
       result = result.where((d) {
@@ -117,7 +133,7 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
       }).toList();
     }
 
-    // 3. Sort
+    // 4. Sort
     switch (_currentSort) {
       case 'Oldest First':
         result.sort((a, b) => a.createdAt.compareTo(b.createdAt));
@@ -127,6 +143,13 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
         break;
       case 'Name Z–A':
         result.sort((a, b) => b.title.toLowerCase().compareTo(a.title.toLowerCase()));
+        break;
+      case 'Favorites First':
+        result.sort((a, b) {
+          if (a.isFavorite && !b.isFavorite) return -1;
+          if (!a.isFavorite && b.isFavorite) return 1;
+          return b.createdAt.compareTo(a.createdAt);
+        });
         break;
       case 'Recently Updated':
         result.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
@@ -145,16 +168,14 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
 
   int get _favoritesCount => _allDesigns.where((d) => d.isFavorite).length;
 
-  String get _recentCreatedText {
+  int get _recentCreatedCount {
+    if (_allDesigns.isEmpty) return 0;
     final now = DateTime.now();
-    final todayCount = _allDesigns.where((d) {
-      return d.createdAt.year == now.year &&
-          d.createdAt.month == now.month &&
-          d.createdAt.day == now.day;
+    final count = _allDesigns.where((d) {
+      final diff = now.difference(d.createdAt).inDays;
+      return diff <= 60 || (d.createdAt.year == now.year && d.createdAt.month == now.month);
     }).length;
-
-    if (todayCount > 0) return 'Today';
-    return '${_allDesigns.length}';
+    return count > 0 ? count : _allDesigns.length;
   }
 
   // --- ACTIONS: FAVORITE, DUPLICATE, DELETE, SHARE, DOWNLOAD ---
@@ -239,7 +260,109 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
     );
   }
 
-  // --- SORT MODAL ---
+  // --- MODALS: NOTIFICATIONS, FILTER, SORT ---
+
+  void _showNotificationsSheet(BuildContext context) {
+    final strings = LocaleScope.maybeOf(context)?.strings ??
+        AppStrings.of(AppStrings.defaultLanguageCode);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.notifications_active_rounded,
+                          color: Color(0xFF6D28D9), size: 24.0),
+                      const SizedBox(width: 8.0),
+                      Flexible(
+                        child: Text(
+                          strings.notificationsTitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textNavy,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() => _unreadNotificationsCount = 0);
+                    Navigator.of(ctx).pop();
+                  },
+                  child: const Text(
+                    'Mark all read',
+                    style: TextStyle(
+                      color: Color(0xFF6D28D9),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const Divider(),
+            const ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: CircleAvatar(
+                backgroundColor: Color(0xFFEDE9FE),
+                child: Icon(Icons.celebration_rounded, color: Color(0xFF6D28D9)),
+              ),
+              title: Text(
+                'નવરાત્રી સ્પેશિયલ પોસ્ટર ટેમ્પલેટ ઉપલબ્ધ છે!',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
+              ),
+              subtitle: Text(
+                'તમારા ગામ માટે સુંદર દાંડિયા રાસ પોસ્ટર બનાવો.',
+                style: TextStyle(fontSize: 12.0),
+              ),
+              trailing: Text(
+                '10m ago',
+                style: TextStyle(fontSize: 11.0, color: Color(0xFF94A3B8)),
+              ),
+            ),
+            const ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: CircleAvatar(
+                backgroundColor: Color(0xFFFEF3C7),
+                child: Icon(Icons.campaign_rounded, color: Color(0xFFD97706)),
+              ),
+              title: Text(
+                'દિવાળી પોસ્ટર ડિઝાઇન કલેક્શન લાઇવ થયું',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
+              ),
+              subtitle: Text(
+                'શુભકામના સંદેશ સાથે તમારું નામ અને ફોટો જોડો.',
+                style: TextStyle(fontSize: 12.0),
+              ),
+              trailing: Text(
+                '2h ago',
+                style: TextStyle(fontSize: 11.0, color: Color(0xFF94A3B8)),
+              ),
+            ),
+            const SizedBox(height: 12.0),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _openSortModal() {
     showModalBottomSheet(
       context: context,
@@ -275,6 +398,7 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
                 'Oldest First',
                 'Name A–Z',
                 'Name Z–A',
+                'Favorites First',
                 'Recently Updated',
               ])
                 ListTile(
@@ -294,6 +418,132 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
     );
   }
 
+  void _openFilterModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 18.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40.0,
+                    height: 4.0,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFCBD5E1),
+                      borderRadius: BorderRadius.circular(2.0),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Filter Designs',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1E293B),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedCategory = 'All Designs';
+                          _favoritesOnlyFilter = false;
+                        });
+                        Navigator.of(ctx).pop();
+                      },
+                      child: const Text(
+                        'Reset All',
+                        style: TextStyle(color: Color(0xFF6D28D9), fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ],
+                ),
+                const Divider(),
+                const SizedBox(height: 10.0),
+                const Text(
+                  'Category',
+                  style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w700, color: Color(0xFF475569)),
+                ),
+                const SizedBox(height: 10.0),
+                Wrap(
+                  spacing: 8.0,
+                  runSpacing: 8.0,
+                  children: _categories.take(5).map((cat) {
+                    final isSel = _selectedCategory == cat;
+                    return ChoiceChip(
+                      label: Text(cat),
+                      selected: isSel,
+                      selectedColor: const Color(0xFF6D28D9),
+                      labelStyle: TextStyle(
+                        color: isSel ? Colors.white : const Color(0xFF475569),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12.0,
+                      ),
+                      onSelected: (val) {
+                        setModalState(() {
+                          _selectedCategory = cat;
+                        });
+                        setState(() {
+                          _selectedCategory = cat;
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16.0),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text(
+                    'Favorites Only',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.0),
+                  ),
+                  subtitle: const Text(
+                    'Show only posters you have bookmarked',
+                    style: TextStyle(fontSize: 12.0, color: Color(0xFF64748B)),
+                  ),
+                  activeThumbColor: const Color(0xFF6D28D9),
+                  value: _favoritesOnlyFilter,
+                  onChanged: (val) {
+                    setModalState(() => _favoritesOnlyFilter = val);
+                    setState(() => _favoritesOnlyFilter = val);
+                  },
+                ),
+                const SizedBox(height: 16.0),
+                SizedBox(
+                  width: double.infinity,
+                  height: 46.0,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF6D28D9),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.0)),
+                    ),
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: const Text('Apply Filter', style: TextStyle(fontWeight: FontWeight.w700)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- MAIN BUILD ---
+
   @override
   Widget build(BuildContext context) {
     final s = LocaleScope.maybeOf(context)?.strings ??
@@ -306,7 +556,7 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // 1. Top Header
+            // 1. Redesigned Premium Header
             _buildHeader(s),
 
             // Scrollable Content
@@ -327,23 +577,23 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: 10.0),
+                            const SizedBox(height: 12.0),
 
-                            // 2. Summary Cards Row
+                            // 2. Summary Metric Cards Row
                             _buildSummaryCardsRow(s),
-                            const SizedBox(height: 12.0),
+                            const SizedBox(height: 14.0),
 
-                            // 3. Search Bar
+                            // 3. Search Bar & Filter Button
                             _buildSearchBar(s),
-                            const SizedBox(height: 12.0),
+                            const SizedBox(height: 14.0),
 
                             // 4. Category Filter Chips
                             _buildCategoryFilters(s),
-                            const SizedBox(height: 16.0),
+                            const SizedBox(height: 18.0),
 
-                            // 5. Gallery Toolbar (Heading + View Toggles + Sort)
+                            // 5. Gallery Toolbar (Heading + View Mode Toggles + Sort)
                             _buildGalleryToolbar(s),
-                            const SizedBox(height: 12.0),
+                            const SizedBox(height: 14.0),
 
                             // 6. Posters Display (Grid or List or Empty)
                             if (displayDesigns.isEmpty)
@@ -354,19 +604,19 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
                               else
                                 _buildPosterList(displayDesigns, s),
 
-                              const SizedBox(height: 20.0),
+                              const SizedBox(height: 18.0),
 
-                              // 7. Creative Empty / Sample Creation Banner matching reference
+                              // 7. Create New Design Bottom Banner
                               _buildCreationBanner(s),
                             ],
-                            const SizedBox(height: 20.0),
+                            const SizedBox(height: 18.0),
                           ],
                         ),
                       ),
                     ),
             ),
 
-            // 8. Bottom Navigation Bar
+            // 8. Modern Pill Bottom Navigation Bar
             _buildBottomNavigation(),
           ],
         ),
@@ -374,70 +624,73 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
     );
   }
 
-  // --- WIDGET BUILDERS ---
+  // --- 1. Redesigned Premium Header ---
 
-  // 1. Top Header
   Widget _buildHeader(AppStrings s) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.8)),
+        border: Border(bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1.0)),
       ),
       child: Row(
         children: [
-          // Logo Card
+          // A. Original Logo (Strict: NO text beside it)
           Container(
-            width: 42.0,
-            height: 42.0,
-            padding: const EdgeInsets.all(5.0),
+            width: 40.0,
+            height: 40.0,
             decoration: BoxDecoration(
+              shape: BoxShape.circle,
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12.0),
               border: Border.all(color: const Color(0xFFE2E8F0)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
                 ),
               ],
             ),
-            child: Image.asset(
-              AppAssets.panchayatLogo,
-              fit: BoxFit.contain,
-              errorBuilder: (_, _, _) => const Icon(
-                Icons.account_balance_rounded,
-                color: Color(0xFFEA580C),
-                size: 24.0,
+            child: ClipOval(
+              child: Image.asset(
+                AppAssets.panchayatLogo,
+                fit: BoxFit.contain,
+                errorBuilder: (_, error, stackTrace) => const Icon(
+                  Icons.account_balance,
+                  color: Color(0xFFEA580C),
+                  size: 22.0,
+                ),
               ),
             ),
           ),
           const SizedBox(width: 12.0),
 
-          // Title & Subtitle Column
+          // B. Page Title & Subtitle
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  s.myDesignsTitle,
-                  key: const ValueKey('my_designs_page_title'),
-                  style: const TextStyle(
-                    fontSize: 19.0,
-                    fontWeight: FontWeight.w800,
+                const Text(
+                  'મારા ડિઝાઇન્સ',
+                  key: ValueKey('my_designs_page_title'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 18.5,
+                    fontWeight: FontWeight.w900,
                     color: Color(0xFF1E293B),
+                    letterSpacing: -0.2,
                   ),
                 ),
                 const SizedBox(height: 1.0),
-                Text(
-                  s.myDesignsSubtitle,
-                  key: const ValueKey('my_designs_page_subtitle'),
+                const Text(
+                  'તમારી બધી રચનાત્મક ડિઝાઇન્સ એક જગ્યાએ',
+                  key: ValueKey('my_designs_page_subtitle'),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 11.5,
+                  style: TextStyle(
+                    fontSize: 11.2,
                     fontWeight: FontWeight.w500,
                     color: Color(0xFF64748B),
                   ),
@@ -445,63 +698,73 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
               ],
             ),
           ),
+          const SizedBox(width: 8.0),
 
-          // Notification Bell with Red Badge "2"
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              IconButton(
-                key: const ValueKey('my_designs_notification_button'),
-                icon: const Icon(
-                  Icons.notifications_outlined,
-                  size: 24.0,
-                  color: Color(0xFF1E293B),
-                ),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Notifications: 2 new design templates available')),
-                  );
-                },
-              ),
-              Positioned(
-                top: 8.0,
-                right: 8.0,
-                child: Container(
-                  width: 16.0,
-                  height: 16.0,
-                  alignment: Alignment.center,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFEF4444),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Text(
-                    '2',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 9.5,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          // User Avatar
+          // C. Notification Bell with Badge '2'
           InkWell(
-            key: const ValueKey('my_designs_profile_avatar'),
-            onTap: () => Navigator.of(context).pushNamed(AppRoutes.profileSetup),
+            key: const ValueKey('my_designs_notification_button'),
+            onTap: () => _showNotificationsSheet(context),
             borderRadius: BorderRadius.circular(20.0),
             child: Container(
-              width: 36.0,
-              height: 36.0,
+              width: 38.0,
+              height: 38.0,
+              decoration: const BoxDecoration(
+                color: Color(0xFFF3E8FF),
+                shape: BoxShape.circle,
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  const Icon(
+                    Icons.notifications_none_rounded,
+                    size: 21.0,
+                    color: Color(0xFF6D28D9),
+                  ),
+                  if (_unreadNotificationsCount > 0)
+                    Positioned(
+                      top: 1,
+                      right: 2,
+                      child: Container(
+                        padding: const EdgeInsets.all(3.0),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEF4444),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '$_unreadNotificationsCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9.0,
+                            fontWeight: FontWeight.w800,
+                            height: 1.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8.0),
+
+          // D. User Profile Avatar
+          GestureDetector(
+            key: const ValueKey('my_designs_profile_avatar'),
+            onTap: () => Navigator.of(context).pushNamed(AppRoutes.profile),
+            child: Container(
+              padding: const EdgeInsets.all(1.5),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFF6D28D9), width: 1.5),
+                border: Border.all(color: const Color(0xFF7C3AED), width: 1.5),
               ),
               child: const CircleAvatar(
-                backgroundColor: Color(0xFFF3E8FF),
-                child: Icon(Icons.person, color: Color(0xFF6D28D9), size: 20.0),
+                radius: 17.0,
+                backgroundColor: Color(0xFFEDE9FE),
+                child: Icon(
+                  Icons.person_rounded,
+                  size: 18.0,
+                  color: Color(0xFF7C3AED),
+                ),
               ),
             ),
           ),
@@ -510,7 +773,8 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
     );
   }
 
-  // 2. Summary Metric Cards Row (Total Designs, Recently Created, Favorites)
+  // --- 2. Summary Metric Cards Row ---
+
   Widget _buildSummaryCardsRow(AppStrings s) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -520,31 +784,31 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
           Expanded(
             child: _buildMetricCard(
               key: 'metric_total_designs',
-              icon: Icons.image_outlined,
+              icon: Icons.photo_library_outlined,
               value: '$_totalDesignsCount',
-              label: s.totalDesignsLabel,
+              label: 'Total Designs',
             ),
           ),
-          const SizedBox(width: 8.0),
+          const SizedBox(width: 10.0),
 
           // Recently Created Card
           Expanded(
             child: _buildMetricCard(
               key: 'metric_recently_created',
-              icon: Icons.calendar_today_outlined,
-              value: _recentCreatedText,
-              label: s.recentlyCreatedLabel,
+              icon: Icons.calendar_month_outlined,
+              value: '$_recentCreatedCount',
+              label: 'Recently Created',
             ),
           ),
-          const SizedBox(width: 8.0),
+          const SizedBox(width: 10.0),
 
           // Favorites Card
           Expanded(
             child: _buildMetricCard(
               key: 'metric_favorites',
-              icon: Icons.favorite_rounded,
+              icon: Icons.favorite_outline_rounded,
               value: '$_favoritesCount',
-              label: s.favoritesLabel,
+              label: 'Favorites',
             ),
           ),
         ],
@@ -560,49 +824,56 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
   }) {
     return Container(
       key: ValueKey(key),
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 12.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: const Color(0xFFEDE9FE)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 6,
+            color: const Color(0xFF6D28D9).withValues(alpha: 0.04),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Icon(icon, size: 18.0, color: const Color(0xFF7C3AED)),
-              const SizedBox(width: 6.0),
-              Flexible(
-                child: Text(
-                  value,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF1E293B),
+          Icon(
+            icon,
+            size: 26.0,
+            color: const Color(0xFF6D28D9),
+          ),
+          const SizedBox(width: 8.0),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF1E293B),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4.0),
-          Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 10.5,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF64748B),
+                const SizedBox(height: 1.0),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 10.2,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -610,71 +881,98 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
     );
   }
 
-  // 3. Search Bar & Filter Button
+  // --- 3. Search Bar & Filter Button ---
+
   Widget _buildSearchBar(AppStrings s) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         children: [
-          // Search Input
+          // Search Field
           Expanded(
             child: Container(
-              height: 46.0,
+              height: 48.0,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(14.0),
+                borderRadius: BorderRadius.circular(24.0),
                 border: Border.all(color: const Color(0xFFE2E8F0)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.03),
+                    color: Colors.black.withValues(alpha: 0.02),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
                 ],
               ),
-              child: TextField(
-                key: const ValueKey('my_designs_search_field'),
-                controller: _searchController,
-                onChanged: (val) => setState(() => _searchQuery = val),
-                decoration: InputDecoration(
-                  hintText: s.searchYourDesignsHint,
-                  hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13.0),
-                  prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF64748B), size: 20.0),
-                  suffixIcon: _searchQuery.isNotEmpty
-                      ? IconButton(
-                          key: const ValueKey('designs_search_clear'),
-                          icon: const Icon(Icons.close_rounded, size: 16.0, color: Color(0xFF64748B)),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() => _searchQuery = '');
-                          },
-                        )
-                      : null,
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
-                ),
+              child: Row(
+                children: [
+                  const SizedBox(width: 14.0),
+                  const Icon(
+                    Icons.search_rounded,
+                    size: 20.0,
+                    color: Color(0xFF64748B),
+                  ),
+                  const SizedBox(width: 8.0),
+                  Expanded(
+                    child: TextField(
+                      key: const ValueKey('my_designs_search_field'),
+                      controller: _searchController,
+                      style: const TextStyle(fontSize: 13.5, color: Color(0xFF1E293B)),
+                      decoration: const InputDecoration(
+                        hintText: 'Search your designs...',
+                        hintStyle: TextStyle(
+                          color: Color(0xFF94A3B8),
+                          fontSize: 13.0,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ),
+                  if (_searchQuery.isNotEmpty)
+                    IconButton(
+                      key: const ValueKey('designs_search_clear'),
+                      icon: const Icon(Icons.close_rounded, size: 18.0, color: Color(0xFF64748B)),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() => _searchQuery = '');
+                      },
+                    )
+                  else
+                    const SizedBox(width: 12.0),
+                ],
               ),
             ),
           ),
-          const SizedBox(width: 8.0),
+          const SizedBox(width: 10.0),
 
           // Filter Button
           InkWell(
             key: const ValueKey('my_designs_filter_button'),
-            borderRadius: BorderRadius.circular(14.0),
-            onTap: _openSortModal,
+            borderRadius: BorderRadius.circular(16.0),
+            onTap: _openFilterModal,
             child: Container(
-              width: 46.0,
-              height: 46.0,
+              width: 48.0,
+              height: 48.0,
               decoration: BoxDecoration(
                 color: const Color(0xFFF3E8FF),
-                borderRadius: BorderRadius.circular(14.0),
-                border: Border.all(color: const Color(0xFFE9D5FF)),
+                borderRadius: BorderRadius.circular(16.0),
+                border: Border.all(color: const Color(0xFFEDE9FE)),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF6D28D9).withValues(alpha: 0.08),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
               ),
+              alignment: Alignment.center,
               child: const Icon(
                 Icons.tune_rounded,
-                color: Color(0xFF7C3AED),
                 size: 22.0,
+                color: Color(0xFF6D28D9),
               ),
             ),
           ),
@@ -683,7 +981,8 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
     );
   }
 
-  // 4. Category Filter Chips
+  // --- 4. Category Filter Chips ---
+
   Widget _buildCategoryFilters(AppStrings s) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -698,15 +997,15 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
             padding: const EdgeInsets.only(right: 8.0),
             child: InkWell(
               key: ValueKey('chip_category_$category'),
-              borderRadius: BorderRadius.circular(20.0),
+              borderRadius: BorderRadius.circular(22.0),
               onTap: () => setState(() => _selectedCategory = category),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 7.0),
+                padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF6D28D9) : Colors.white,
-                  borderRadius: BorderRadius.circular(20.0),
+                  color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFFF3E8FF),
+                  borderRadius: BorderRadius.circular(22.0),
                   border: Border.all(
-                    color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFFE2E8F0),
+                    color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFFEDE9FE),
                   ),
                   boxShadow: isSelected
                       ? [
@@ -724,15 +1023,15 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
                     Icon(
                       icon,
                       size: 15.0,
-                      color: isSelected ? Colors.white : const Color(0xFF475569),
+                      color: isSelected ? Colors.white : const Color(0xFF6D28D9),
                     ),
-                    const SizedBox(width: 5.0),
+                    const SizedBox(width: 6.0),
                     Text(
                       category,
                       style: TextStyle(
                         fontSize: 12.0,
                         fontWeight: FontWeight.w700,
-                        color: isSelected ? Colors.white : const Color(0xFF475569),
+                        color: isSelected ? Colors.white : const Color(0xFF6D28D9),
                       ),
                     ),
                   ],
@@ -750,11 +1049,13 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
       case 'All Designs':
         return Icons.grid_view_rounded;
       case 'Festivals':
-        return Icons.emoji_events_outlined;
+        return Icons.star_outline_rounded;
       case 'Panchayat':
         return Icons.account_balance_outlined;
       case 'Business':
         return Icons.business_center_outlined;
+      case 'Other':
+        return Icons.more_horiz_rounded;
       case 'Favorites':
         return Icons.favorite_rounded;
       default:
@@ -762,7 +1063,8 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
     }
   }
 
-  // 5. Gallery Toolbar (Heading + View Mode Toggles + Sort)
+  // --- 5. Gallery Toolbar (Heading + View Mode Toggles + Sort) ---
+
   Widget _buildGalleryToolbar(AppStrings s) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -771,7 +1073,7 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
           // Vertical Indicator
           Container(
             width: 3.5,
-            height: 16.0,
+            height: 18.0,
             decoration: BoxDecoration(
               color: const Color(0xFF6D28D9),
               borderRadius: BorderRadius.circular(2.0),
@@ -780,11 +1082,11 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
           const SizedBox(width: 8.0),
 
           // Section Heading
-          Expanded(
+          const Expanded(
             child: Text(
-              s.yourCreationsTitle,
-              style: const TextStyle(
-                fontSize: 16.5,
+              'Your Creations',
+              style: TextStyle(
+                fontSize: 17.0,
                 fontWeight: FontWeight.w800,
                 color: Color(0xFF1E293B),
               ),
@@ -794,61 +1096,64 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
           // Grid View Toggle
           InkWell(
             key: const ValueKey('toggle_grid_view'),
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(12.0),
             onTap: () => setState(() => _isGridView = true),
             child: Container(
-              padding: const EdgeInsets.all(6.0),
+              width: 36.0,
+              height: 36.0,
               decoration: BoxDecoration(
-                color: _isGridView ? const Color(0xFF6D28D9) : Colors.white,
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                color: _isGridView ? const Color(0xFF6D28D9) : const Color(0xFFF3E8FF),
+                borderRadius: BorderRadius.circular(12.0),
               ),
+              alignment: Alignment.center,
               child: Icon(
                 Icons.grid_view_rounded,
                 size: 18.0,
-                color: _isGridView ? Colors.white : const Color(0xFF64748B),
+                color: _isGridView ? Colors.white : const Color(0xFF6D28D9),
               ),
             ),
           ),
-          const SizedBox(width: 6.0),
+          const SizedBox(width: 8.0),
 
           // List View Toggle
           InkWell(
             key: const ValueKey('toggle_list_view'),
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(12.0),
             onTap: () => setState(() => _isGridView = false),
             child: Container(
-              padding: const EdgeInsets.all(6.0),
+              width: 36.0,
+              height: 36.0,
               decoration: BoxDecoration(
-                color: !_isGridView ? const Color(0xFF6D28D9) : Colors.white,
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                color: !_isGridView ? const Color(0xFF6D28D9) : const Color(0xFFF3E8FF),
+                borderRadius: BorderRadius.circular(12.0),
               ),
+              alignment: Alignment.center,
               child: Icon(
                 Icons.format_list_bulleted_rounded,
                 size: 18.0,
-                color: !_isGridView ? Colors.white : const Color(0xFF64748B),
+                color: !_isGridView ? Colors.white : const Color(0xFF6D28D9),
               ),
             ),
           ),
-          const SizedBox(width: 6.0),
+          const SizedBox(width: 8.0),
 
           // Sort Button
           InkWell(
             key: const ValueKey('button_sort_designs'),
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(12.0),
             onTap: _openSortModal,
             child: Container(
-              padding: const EdgeInsets.all(6.0),
+              width: 36.0,
+              height: 36.0,
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                color: const Color(0xFFF3E8FF),
+                borderRadius: BorderRadius.circular(12.0),
               ),
+              alignment: Alignment.center,
               child: const Icon(
                 Icons.swap_vert_rounded,
                 size: 18.0,
-                color: Color(0xFF64748B),
+                color: Color(0xFF6D28D9),
               ),
             ),
           ),
@@ -857,187 +1162,208 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
     );
   }
 
-  // 6A. Poster Grid (2 Columns)
+  // --- 6A. Poster Grid (2 Columns) ---
+
   Widget _buildPosterGrid(List<PosterTemplateProject> designs, AppStrings s) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final itemWidth = (constraints.maxWidth - 12.0) / 2;
-
-          return Wrap(
-            spacing: 12.0,
-            runSpacing: 14.0,
-            children: designs.map((design) {
-              return SizedBox(
-                width: itemWidth,
-                child: _buildPosterGridCard(design, s),
-              );
-            }).toList(),
-          );
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: designs.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 12.0,
+          mainAxisSpacing: 14.0,
+          childAspectRatio: 0.72,
+        ),
+        itemBuilder: (context, index) {
+          final design = designs[index];
+          return _buildPosterGridCard(design, s);
         },
       ),
     );
   }
 
   Widget _buildPosterGridCard(PosterTemplateProject design, AppStrings s) {
-    return InkWell(
+    return Container(
       key: ValueKey('design_card_grid_${design.id}'),
-      borderRadius: BorderRadius.circular(16.0),
-      onTap: () {
-        Navigator.of(context).pushNamed(AppRoutes.posterEditor, arguments: design);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.0),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-          // Poster Thumbnail with Favorite Heart
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
-            child: AspectRatio(
-              aspectRatio: 1.25,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.asset(
-                    design.previewAsset ?? design.backgroundAsset,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
-                      color: design.backgroundColor,
-                      child: const Center(
-                        child: Icon(Icons.celebration_rounded, color: Colors.white30, size: 32.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18.0),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Dedicated Poster Image Container (Entire artwork visible)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(14.0),
+              child: AspectRatio(
+                aspectRatio: 1.25,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.asset(
+                      design.previewAsset ?? design.backgroundAsset,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, error, stackTrace) => Container(
+                        color: const Color(0xFFEDE9FE),
+                        alignment: Alignment.center,
+                        child: Text(
+                          design.title,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 12.0,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF6D28D9),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
 
-                  // Favorite Heart Button in top-right
-                  Positioned(
-                    top: 6.0,
-                    right: 6.0,
-                    child: InkWell(
-                      key: ValueKey('favorite_btn_${design.id}'),
-                      borderRadius: BorderRadius.circular(14.0),
-                      onTap: () => _toggleFavorite(design),
-                      child: Container(
-                        padding: const EdgeInsets.all(5.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.90),
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.12),
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          design.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                          size: 15.0,
-                          color: design.isFavorite ? const Color(0xFF7C3AED) : const Color(0xFF64748B),
+                    // Top-right Favorite Heart Button
+                    Positioned(
+                      top: 6.0,
+                      right: 6.0,
+                      child: InkWell(
+                        key: ValueKey('favorite_btn_${design.id}'),
+                        borderRadius: BorderRadius.circular(15.0),
+                        onTap: () => _toggleFavorite(design),
+                        child: Container(
+                          width: 30.0,
+                          height: 30.0,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.92),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.12),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                          alignment: Alignment.center,
+                          child: Icon(
+                            design.isFavorite
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_border_rounded,
+                            size: 16.0,
+                            color: const Color(0xFF6D28D9),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
 
-          // Details & 3-Dots Menu Row
+          // 2. Design Title
           Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Text(
+              design.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 13.0,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF1E293B),
+              ),
+            ),
+          ),
+          const SizedBox(height: 5.0),
+
+          // 3. Category Tag + 3-Dots Menu
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        design.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 13.0,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF1E293B),
-                        ),
-                      ),
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.5),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3E8FF),
+                      borderRadius: BorderRadius.circular(8.0),
                     ),
-                    _buildCardContextMenu(design, s),
-                  ],
-                ),
-                const SizedBox(height: 4.0),
-
-                // Category Badge
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF3E8FF),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _getCategoryIcon(design.category),
-                        size: 11.0,
-                        color: const Color(0xFF6D28D9),
-                      ),
-                      const SizedBox(width: 3.0),
-                      Text(
-                        design.category,
-                        style: const TextStyle(
-                          fontSize: 10.0,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF6D28D9),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _getCategoryIcon(design.category),
+                          size: 11.0,
+                          color: const Color(0xFF6D28D9),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 3.5),
+                        Flexible(
+                          child: Text(
+                            design.category,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF6D28D9),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 6.0),
+                const SizedBox(width: 4.0),
+                _buildCardContextMenu(design, s),
+              ],
+            ),
+          ),
+          const SizedBox(height: 5.0),
 
-                // Date Row
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.calendar_today_outlined,
-                      size: 12.0,
-                      color: Color(0xFF94A3B8),
+          // 4. Creation Date
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.calendar_today_outlined,
+                  size: 11.0,
+                  color: Color(0xFF64748B),
+                ),
+                const SizedBox(width: 4.0),
+                Expanded(
+                  child: Text(
+                    _formatDesignDate(design.createdAt),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF64748B),
                     ),
-                    const SizedBox(width: 4.0),
-                    Text(
-                      _formatDesignDate(design.createdAt),
-                      style: const TextStyle(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF64748B),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
           ),
         ],
       ),
-    ),
-  );
-}
+    );
+  }
 
-  // 6B. Poster List View
+  // --- 6B. Poster List View ---
+
   Widget _buildPosterList(List<PosterTemplateProject> designs, AppStrings s) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -1062,96 +1388,101 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
                 borderRadius: BorderRadius.circular(16.0),
                 border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
-            child: Row(
-              children: [
-                // Thumbnail
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12.0),
-                  child: SizedBox(
-                    width: 70.0,
-                    height: 70.0,
-                    child: Image.asset(
-                      design.previewAsset ?? design.backgroundAsset,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => Container(color: design.backgroundColor),
+              child: Row(
+                children: [
+                  // Thumbnail
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12.0),
+                    child: SizedBox(
+                      width: 70.0,
+                      height: 70.0,
+                      child: Image.asset(
+                        design.previewAsset ?? design.backgroundAsset,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, error, stackTrace) =>
+                            Container(color: const Color(0xFFEDE9FE)),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12.0),
+                  const SizedBox(width: 12.0),
 
-                // Title & Details
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        design.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF1E293B),
+                  // Title & Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          design.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1E293B),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4.0),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF3E8FF),
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: Text(
-                              design.category,
-                              style: const TextStyle(
-                                fontSize: 10.0,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF6D28D9),
+                        const SizedBox(height: 4.0),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF3E8FF),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: Text(
+                                design.category,
+                                style: const TextStyle(
+                                  fontSize: 10.0,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF6D28D9),
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 8.0),
-                          Text(
-                            _formatDesignDate(design.createdAt),
-                            style: const TextStyle(
-                              fontSize: 11.0,
-                              color: Color(0xFF64748B),
+                            const SizedBox(width: 8.0),
+                            Text(
+                              _formatDesignDate(design.createdAt),
+                              style: const TextStyle(
+                                fontSize: 11.0,
+                                color: Color(0xFF64748B),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
 
-                // Favorite Button
-                IconButton(
-                  icon: Icon(
-                    design.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                    color: design.isFavorite ? const Color(0xFF7C3AED) : const Color(0xFF94A3B8),
-                    size: 20.0,
+                  // Favorite Button
+                  IconButton(
+                    icon: Icon(
+                      design.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                      color: const Color(0xFF6D28D9),
+                      size: 20.0,
+                    ),
+                    onPressed: () => _toggleFavorite(design),
                   ),
-                  onPressed: () => _toggleFavorite(design),
-                ),
 
-                // 3-Dots Menu
-                _buildCardContextMenu(design, s),
-              ],
+                  // 3-Dots Menu
+                  _buildCardContextMenu(design, s),
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    ),
-  );
-}
+          );
+        },
+      ),
+    );
+  }
 
-  // 3-Dots Context Menu
+  // --- Context Menu (3-Dots) ---
+
   Widget _buildCardContextMenu(PosterTemplateProject design, AppStrings s) {
-    return PopupMenuButton<String>(
+    return SizedBox(
+      width: 24.0,
+      height: 24.0,
+      child: PopupMenuButton<String>(
       key: ValueKey('menu_btn_${design.id}'),
-      icon: const Icon(Icons.more_vert_rounded, size: 18.0, color: Color(0xFF64748B)),
+      icon: const Icon(Icons.more_vert_rounded, size: 18.0, color: Color(0xFF6D28D9)),
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(minWidth: 140.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
@@ -1213,7 +1544,10 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
             children: [
               const Icon(Icons.delete_outline_rounded, size: 16.0, color: Color(0xFFDC2626)),
               const SizedBox(width: 8.0),
-              Text(s.deleteMenu, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: Color(0xFFDC2626))),
+              Text(
+                s.deleteMenu,
+                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: Color(0xFFDC2626)),
+              ),
             ],
           ),
         ),
@@ -1240,18 +1574,120 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
             break;
         }
       },
-    );
-  }
+    ),
+  );
+}
 
   String _formatDesignDate(DateTime dt) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return '${dt.day.toString().padLeft(2, '0')} ${months[dt.month - 1]} ${dt.year}';
+    return '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
   }
 
-  // 7. Creative Empty State / Sample Banner matching reference
+  // --- 7. Create New Design Bottom Banner ---
+
+  Widget _buildCreationBanner(AppStrings s) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFF1F5FD), Color(0xFFF3E8FF)],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(20.0),
+        border: Border.all(color: const Color(0xFFEDE9FE)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF6D28D9).withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // 3D Folder / Posters Illustration
+          const Icon(
+            Icons.folder_special_rounded,
+            size: 40.0,
+            color: Color(0xFF6D28D9),
+          ),
+          const SizedBox(width: 12.0),
+
+          // Text Column
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'નવું ડિઝાઇન બનાવો',
+                  style: TextStyle(
+                    fontSize: 15.0,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                SizedBox(height: 2.0),
+                Text(
+                  'તમે નવી પોસ્ટર બનાવવા માંગો છો?',
+                  style: TextStyle(
+                    fontSize: 11.2,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF64748B),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8.0),
+
+          // "+ નવી ડિઝાઇન" Action Button
+          InkWell(
+            key: const ValueKey('banner_create_first_poster_btn'),
+            borderRadius: BorderRadius.circular(20.0),
+            onTap: () => Navigator.of(context).pushNamed(AppRoutes.festivals),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.5),
+              decoration: BoxDecoration(
+                color: const Color(0xFF6D28D9),
+                borderRadius: BorderRadius.circular(20.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF6D28D9).withValues(alpha: 0.30),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.add_rounded, size: 16.0, color: Colors.white),
+                  SizedBox(width: 3.0),
+                  Text(
+                    'નવી ડિઝાઇન',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- Empty State ---
+
   Widget _buildEmptyState(AppStrings s) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 36.0),
       child: Center(
         child: Column(
           children: [
@@ -1259,10 +1695,10 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
               AppAssets.myDesignEmptyBox,
               height: 100.0,
               fit: BoxFit.contain,
-              errorBuilder: (_, _, _) => const Icon(
+              errorBuilder: (_, error, stackTrace) => const Icon(
                 Icons.inventory_2_outlined,
                 size: 64.0,
-                color: Color(0xFF7C3AED),
+                color: Color(0xFF6D28D9),
               ),
             ),
             const SizedBox(height: 16.0),
@@ -1282,7 +1718,7 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
                 color: Color(0xFF64748B),
               ),
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 18.0),
             ElevatedButton(
               key: const ValueKey('empty_create_first_poster_btn'),
               style: ElevatedButton.styleFrom(
@@ -1303,106 +1739,180 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
     );
   }
 
-  Widget _buildCreationBanner(AppStrings s) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0),
-      padding: const EdgeInsets.all(14.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18.0),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
+  void _showAllTemplatesLibrary(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
       ),
-      child: Row(
-        children: [
-          // Illustration Box
-          Image.asset(
-            AppAssets.myDesignEmptyBox,
-            width: 80.0,
-            height: 70.0,
-            fit: BoxFit.contain,
-            errorBuilder: (_, _, _) => const Icon(Icons.card_giftcard, size: 40.0, color: Color(0xFF7C3AED)),
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.75,
+        minChildSize: 0.45,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (_, scrollController) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFCBD5E1),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'All Poster Templates',
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textNavy,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: () => Navigator.of(ctx).pop(),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Expanded(
+                child: AppConfigService.instance.config.templates.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'No templates uploaded from Admin yet.',
+                          style: TextStyle(color: Color(0xFF64748B)),
+                        ),
+                      )
+                    : GridView.count(
+                        controller: scrollController,
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 12.0,
+                        mainAxisSpacing: 12.0,
+                        childAspectRatio: 0.75,
+                        children: AppConfigService.instance.config.templates
+                            .map((tpl) => _buildTemplateItem(
+                                  tpl.name,
+                                  AppConfigService.instance.resolveMediaUrl(
+                                    tpl.thumbnailUrl ?? tpl.backgroundImageUrl,
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12.0),
-
-          // Message & CTA
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  s.noDesignsYetTitle,
-                  style: const TextStyle(
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF1E293B),
-                  ),
-                ),
-                const SizedBox(height: 2.0),
-                Text(
-                  s.noDesignsYetSubtitle,
-                  style: const TextStyle(
-                    fontSize: 11.5,
-                    color: Color(0xFF64748B),
-                  ),
-                ),
-                const SizedBox(height: 8.0),
-                ElevatedButton(
-                  key: const ValueKey('banner_create_first_poster_btn'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6D28D9),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-                  ),
-                  child: Text(
-                    s.createFirstPosterButton,
-                    style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700),
-                  ),
-                  onPressed: () => Navigator.of(context).pushNamed(AppRoutes.festivals),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  // 8. Bottom Navigation Bar
+  Widget _buildTemplateItem(String title, String asset) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).pop();
+        final project = PosterTemplateProject.createDefaultNavratriProject(
+          templateId: 'tpl_${title.toLowerCase().replaceAll(' ', '_')}',
+          imageAsset: asset,
+          title: title,
+        );
+        Navigator.of(context).pushNamed(
+          AppRoutes.posterEditor,
+          arguments: project,
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14.0),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(14.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: asset.startsWith('http')
+                    ? Image.network(
+                        asset,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, error, stackTrace) => Container(
+                          color: const Color(0xFFEDE9FE),
+                          child: const Icon(Icons.image, color: Color(0xFF6D28D9)),
+                        ),
+                      )
+                    : Container(
+                        color: const Color(0xFFEDE9FE),
+                        child: const Icon(Icons.image, color: Color(0xFF6D28D9)),
+                      ),
+              ),
+              Container(
+                color: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textNavy,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- 8. Modern Pill Bottom Navigation Bar ---
+
   Widget _buildBottomNavigation() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFE2E8F0), width: 0.8)),
+        border: Border(top: BorderSide(color: Color(0xFFF1F5F9), width: 1.0)),
       ),
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildNavItem(
-            icon: Icons.home_outlined,
+            icon: Icons.home_rounded,
             label: 'Home',
             isSelected: false,
             onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.home),
           ),
           _buildNavItem(
-            icon: Icons.calendar_month_outlined,
+            icon: Icons.calendar_month_rounded,
             label: 'Festivals',
             isSelected: false,
             onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.festivals),
           ),
           _buildNavItem(
-            icon: Icons.layers_outlined,
+            icon: Icons.layers_rounded,
             label: 'Templates',
             isSelected: false,
-            onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.festivals),
+            onTap: () => _showAllTemplatesLibrary(context),
           ),
           _buildNavItem(
             icon: Icons.photo_library_rounded,
@@ -1411,7 +1921,7 @@ class _MyDesignsScreenState extends State<MyDesignsScreen> {
             onTap: () {},
           ),
           _buildNavItem(
-            icon: Icons.person_outline_rounded,
+            icon: Icons.person_rounded,
             label: 'Profile',
             isSelected: false,
             onTap: () => Navigator.of(context).pushNamed(AppRoutes.profile),

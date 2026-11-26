@@ -2239,11 +2239,7 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
               icon: Icons.grid_view_outlined,
               activeIcon: Icons.grid_view_rounded,
               label: s.navTemplates,
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Templates section')),
-                );
-              },
+              onTap: _scrollToPosterGrid,
             ),
           ),
           Expanded(
