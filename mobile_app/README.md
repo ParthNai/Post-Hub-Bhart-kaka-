@@ -34,3 +34,9 @@ Android enables `FLAG_SECURE` for the whole app, blocking screenshots and screen
 recordings and hiding the app preview in the recent-apps switcher. This setting
 does not apply to iOS or web; iOS does not provide a supported API to block
 screenshots.
+
+## Saving generated posters
+
+Festival posters are rendered from the preview and saved to the device gallery
+on Android and iOS. The operating system may ask for photo-library access on
+the first save. Web and desktop builds do not support gallery saving.

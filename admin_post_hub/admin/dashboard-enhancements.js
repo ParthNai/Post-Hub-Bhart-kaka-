@@ -2121,6 +2121,10 @@
       const dialog = document.querySelector('.MuiDialog-root, .MuiDialog-paper');
       if (!dialog) return;
 
+      if (dialog.querySelector('input[name="frameName"]')) {
+        dialog.classList.add('frame-template-editor-dialog');
+      }
+
       // 1. FESTIVAL DIALOG ENHANCEMENTS
       const festivalInput = dialog.querySelector('input[name="festivalName"], input[placeholder*="Festival"]');
       if (festivalInput && !dialog.querySelector('#enh-injected-fields')) {

@@ -18,80 +18,86 @@ try {
 
 const register = async (data) => {
   try {
-    const checkExist = await Token.findOne({ token: data.token });
-    if (checkExist && checkExist.length > 0) {
-      return { status: httpStatus.OK };
+    if (!data || typeof data.token !== "string" || !data.token.trim()) {
+      return {
+        status: httpStatus.BAD_REQUEST,
+        message: "A non-empty device token is required",
+      };
     }
-    await Token.create(data);
+
+    await Token.findOneAndUpdate(
+      { token: data.token.trim() },
+      { $set: { token: data.token.trim() } },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
     return { status: httpStatus.OK, message: "Token registered successfully" };
   } catch (error) {
     console.log(error);
-    return { status: httpStatus.INTERNAL_SERVER_ERROR, message: error };
+    return {
+      status: httpStatus.INTERNAL_SERVER_ERROR,
+      message: "Failed to register device token",
+    };
   }
 };
 
 const sendNotifications = async ({ title, body, imageUrl }) => {
   try {
-    const alltokens = await Token.find();
-    const tokens = await Promise.all(
-      alltokens.map((t) => {
-        return t.token;
-      })
+    if (admin.apps.length === 0) {
+      return {
+        status: httpStatus.SERVICE_UNAVAILABLE,
+        message: "Firebase Admin is not initialized",
+      };
+    }
+
+    const tokenDocs = await Token.find().select("token").lean();
+    const tokens = Array.from(
+      new Set(tokenDocs.map((tokenDoc) => tokenDoc.token).filter(Boolean))
     );
+    if (tokens.length === 0) {
+      return {
+        status: httpStatus.NOT_FOUND,
+        message: "No device tokens are registered",
+      };
+    }
 
-    const sendNoti = async (first, second) => {
-      const finalTokens = tokens.slice(first, second);
-      if (finalTokens.length > 0) {
-        const send = await admin.messaging().sendMulticast({
-          tokens: finalTokens,
-          notification: {
-            title,
-            body,
-            imageUrl,
-          },
-          topic: "egrampost",
+    let successCount = 0;
+    let failureCount = 0;
+    const failureCodes = new Set();
+    for (let offset = 0; offset < tokens.length; offset += 500) {
+      const response = await admin.messaging().sendMulticast({
+        tokens: tokens.slice(offset, offset + 500),
+        notification: {
+          title,
+          body,
+          imageUrl,
+        },
+      });
 
-          // data: data
-        });
-        console.log("send", send);
-        if (send.responses[0].success) {
-          return {
-            status: httpStatus.OK,
-            message: "Notification sent successfully",
-          };
-        } else {
-          return {
-            status: httpStatus.INTERNAL_SERVER_ERROR,
-            message: send.responses[0].error || "Failed to send notification",
-          };
+      successCount += response.successCount;
+      failureCount += response.failureCount;
+      response.responses.forEach((result) => {
+        if (!result.success && result.error) {
+          failureCodes.add(result.error.code);
         }
-      }
-    };
+      });
+    }
 
-    let firstSlice = 0;
-    let secondSlice = 499;
-    const getTokens = async () => {
-      if (secondSlice < tokens?.length) {
-        await sendNoti(firstSlice, secondSlice);
-        firstSlice += 500;
-        secondSlice += 500;
-        await getTokens();
-        console.log("if");
-      } else {
-        console.log("else");
-
-        if (secondSlice !== tokens?.length) {
-          secondSlice = tokens?.length;
-          await sendNoti(firstSlice, secondSlice);
-        }
-      }
+    return {
+      status: failureCount === 0
+        ? httpStatus.OK
+        : successCount === 0
+        ? httpStatus.INTERNAL_SERVER_ERROR
+        : 207,
+      message: `Notification sent to ${successCount} of ${tokens.length} devices`,
+      successCount,
+      failureCount,
+      failureCodes: Array.from(failureCodes),
     };
-    await getTokens();
   } catch (error) {
     console.log(error);
     return {
       status: httpStatus.INTERNAL_SERVER_ERROR,
-      message: "Failed to send notification",
+      message: error.message || "Failed to send notification",
     };
   }
 };

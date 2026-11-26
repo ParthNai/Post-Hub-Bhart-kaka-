@@ -11,6 +11,7 @@ import 'package:panchayat_post/core/routes/app_routes.dart';
 import 'package:panchayat_post/core/services/background_remover_service.dart';
 import 'package:panchayat_post/features/auth/data/auth_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
+import 'package:panchayat_post/features/editor/data/services/poster_export_service.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
 import 'package:panchayat_post/features/festivals/data/services/festival_service.dart';
 import 'package:panchayat_post/features/festivals/domain/models/festival_item.dart';
@@ -28,11 +29,13 @@ class FestivalDetailScreen extends StatefulWidget {
     this.festival,
     this.festivalService,
     this.authService,
+    this.posterExportService,
   });
 
   final FestivalItem? festival;
   final FestivalService? festivalService;
   final AuthService? authService;
+  final PosterExportService? posterExportService;
 
   @override
   State<FestivalDetailScreen> createState() => _FestivalDetailScreenState();
@@ -41,8 +44,10 @@ class FestivalDetailScreen extends StatefulWidget {
 class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
   late final FestivalService _festivalService;
   late final AuthService _authService;
+  late final PosterExportService _posterExportService;
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _posterGridKey = GlobalKey();
+  final GlobalKey _posterPreviewKey = GlobalKey();
 
   UserProfile? _currentUser;
   late FestivalItem _currentFestival;
@@ -314,6 +319,7 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
     super.initState();
     _festivalService = widget.festivalService ?? FestivalService();
     _authService = widget.authService ?? AuthService();
+    _posterExportService = widget.posterExportService ?? PosterExportService();
     _currentFestival =
         widget.festival ?? _festivalService.getFeaturedFestival();
     _loadUserProfile();
@@ -461,6 +467,67 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
         )
         .id;
     String selectedFrameId = recommendedFrameId;
+    var isSavingPoster = false;
+
+    Future<void> savePoster(
+      BuildContext sheetContext,
+      void Function(void Function()) setSheetState,
+    ) async {
+      if (isSavingPoster) return;
+      setSheetState(() => isSavingPoster = true);
+      final messenger = ScaffoldMessenger.of(context);
+
+      try {
+        await WidgetsBinding.instance.endOfFrame;
+        final bytes = await _posterExportService.captureBoundaryToBytes(
+          _posterPreviewKey,
+          pixelRatio: 3.0,
+        );
+        if (bytes == null || bytes.isEmpty) {
+          throw StateError('The poster could not be rendered.');
+        }
+
+        final safeTitle = title
+            .trim()
+            .toLowerCase()
+            .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+            .replaceAll(RegExp(r'^_+|_+$'), '');
+        final filename =
+            '${safeTitle.isEmpty ? 'festival_poster' : safeTitle}_'
+            '${DateTime.now().microsecondsSinceEpoch}';
+        await _posterExportService.savePosterToGallery(
+          bytes: bytes,
+          filename: filename,
+        );
+
+        if (!mounted || !sheetContext.mounted) return;
+        Navigator.of(sheetContext).pop();
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text('$title poster saved to your gallery.'),
+            backgroundColor: const Color(0xFF059669),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } catch (error, stackTrace) {
+        debugPrint('Poster gallery save failed: $error\n$stackTrace');
+        if (!mounted || !sheetContext.mounted) return;
+        final message = error is UnsupportedError
+            ? 'Gallery saving is available on Android and iOS.'
+            : 'Could not save the poster. Check photo access and try again.';
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: const Color(0xFFB91C1C),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } finally {
+        if (sheetContext.mounted) {
+          setSheetState(() => isSavingPoster = false);
+        }
+      }
+    }
 
     showModalBottomSheet(
       context: context,
@@ -587,27 +654,30 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
 
                   // --- ANNOUNCEMENT VIEW (View & Share only, no user frame) ---
                   if (isAnnouncement) ...[
-                    Container(
-                      height: 320.0,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(16.0),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 10.0,
-                            offset: const Offset(0, 3),
+                    RepaintBoundary(
+                      key: _posterPreviewKey,
+                      child: Container(
+                        height: 320.0,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(16.0),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10.0,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16.0),
+                          child: _buildAdaptiveImage(
+                            imageAsset,
+                            fit: BoxFit.contain,
+                            width: double.infinity,
+                            height: double.infinity,
                           ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16.0),
-                        child: _buildAdaptiveImage(
-                          imageAsset,
-                          fit: BoxFit.contain,
-                          width: double.infinity,
-                          height: double.infinity,
                         ),
                       ),
                     ),
@@ -649,48 +719,51 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                         final canvasWidth = constraints.maxWidth;
                         final canvasHeight = canvasWidth;
 
-                        return Container(
-                          width: canvasWidth,
-                          height: canvasHeight,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF0F172A),
-                            borderRadius: BorderRadius.circular(16.0),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.12),
-                                blurRadius: 12.0,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16.0),
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                // 1. Base Festival Artwork
-                                _buildAdaptiveImage(
-                                  imageAsset,
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                ),
-
-                                // 2. Instant Frame Overlay with user's name & details
-                                PosterFrameOverlay(
-                                  frameId: selectedFrameId,
-                                  user: _currentUser,
-                                  w: canvasWidth,
-                                  h: canvasHeight,
-                                  customPhotoUrl:
-                                      (_customPhotoUrl != null &&
-                                          _customPhotoUrl!.isNotEmpty)
-                                      ? _customPhotoUrl
-                                      : _currentUser?.profilePhotoUrl,
-                                  onTapPhoto: () =>
-                                      _pickUserPhoto(setSheetState),
+                        return RepaintBoundary(
+                          key: _posterPreviewKey,
+                          child: Container(
+                            width: canvasWidth,
+                            height: canvasHeight,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0F172A),
+                              borderRadius: BorderRadius.circular(16.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.12),
+                                  blurRadius: 12.0,
+                                  offset: const Offset(0, 4),
                                 ),
                               ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16.0),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  // 1. Base Festival Artwork
+                                  _buildAdaptiveImage(
+                                    imageAsset,
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                  ),
+
+                                  // 2. Instant Frame Overlay with user's name & details
+                                  PosterFrameOverlay(
+                                    frameId: selectedFrameId,
+                                    user: _currentUser,
+                                    w: canvasWidth,
+                                    h: canvasHeight,
+                                    customPhotoUrl:
+                                        (_customPhotoUrl != null &&
+                                            _customPhotoUrl!.isNotEmpty)
+                                        ? _customPhotoUrl
+                                        : _currentUser?.profilePhotoUrl,
+                                    onTapPhoto: () =>
+                                        _pickUserPhoto(setSheetState),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -1087,45 +1160,30 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                               borderRadius: BorderRadius.circular(12.0),
                             ),
                           ),
-                          icon: const Icon(Icons.download_rounded, size: 18.0),
+                          icon: isSavingPoster
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(Icons.download_rounded, size: 18.0),
                           label: Text(
-                            isAnnouncement ? 'પરિપત્ર ડાઉનલોડ' : 'ડાઉનલોડ કરો',
+                            isSavingPoster
+                                ? 'સાચવી રહ્યું છે...'
+                                : isAnnouncement
+                                ? 'પરિપત્ર ડાઉનલોડ'
+                                : 'ડાઉનલોડ કરો',
                             style: const TextStyle(
                               fontWeight: FontWeight.w800,
                               fontSize: 13.5,
                             ),
                           ),
-                          onPressed: () {
-                            Navigator.of(ctx).pop();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.download_done_rounded,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        '${_currentFestival.name} પોસ્ટર ગેલેરીમાં સાચવવામાં આવ્યું!',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                backgroundColor: const Color(0xFF059669),
-                                behavior: SnackBarBehavior.floating,
-                                duration: const Duration(seconds: 3),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                            );
-                          },
+                          onPressed: isSavingPoster
+                              ? null
+                              : () => savePoster(ctx, setSheetState),
                         ),
                       ),
                     ],

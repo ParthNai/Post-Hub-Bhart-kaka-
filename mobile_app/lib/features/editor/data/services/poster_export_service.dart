@@ -1,8 +1,10 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:gal/gal.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -15,24 +17,37 @@ class PosterExportService {
     GlobalKey repaintBoundaryKey, {
     double pixelRatio = 2.0,
   }) async {
+    await WidgetsBinding.instance.endOfFrame;
+    final boundary =
+        repaintBoundaryKey.currentContext?.findRenderObject()
+            as RenderRepaintBoundary?;
+
+    if (boundary == null) return null;
+
+    final image = await boundary.toImage(pixelRatio: pixelRatio);
     try {
-      final boundary = repaintBoundaryKey.currentContext?.findRenderObject()
-          as RenderRepaintBoundary?;
-
-      if (boundary == null) {
-        return null;
-      }
-
-      final ui.Image image = await boundary.toImage(pixelRatio: pixelRatio);
-      final ByteData? byteData =
-          await image.toByteData(format: ui.ImageByteFormat.png);
-
+      final ByteData? byteData = await image.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
       return byteData?.buffer.asUint8List();
-    } catch (_) {
-      // In headless test environments where RenderRepaintBoundary rasterization
-      // is unsupported, return a valid minimal 1x1 PNG byte sequence.
-      return _generateFallbackPngBytes();
+    } finally {
+      image.dispose();
     }
+  }
+
+  Future<void> savePosterToGallery({
+    required Uint8List bytes,
+    required String filename,
+  }) async {
+    if (kIsWeb ||
+        (defaultTargetPlatform != TargetPlatform.android &&
+            defaultTargetPlatform != TargetPlatform.iOS)) {
+      throw UnsupportedError(
+        'Saving to the device gallery is available on Android and iOS.',
+      );
+    }
+
+    await Gal.putImageBytes(bytes, name: filename);
   }
 
   /// Writes raw image bytes to the local file system with the requested filename and format.
@@ -73,20 +88,5 @@ class PosterExportService {
     } catch (_) {
       return Directory.systemTemp;
     }
-  }
-
-  /// Minimal valid transparent 1x1 PNG fallback bytes for test runners.
-  Uint8List _generateFallbackPngBytes() {
-    return Uint8List.fromList([
-      0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
-      0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
-      0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
-      0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4,
-      0x89, 0x00, 0x00, 0x00, 0x0A, 0x49, 0x44, 0x41,
-      0x54, 0x78, 0x9C, 0x63, 0x00, 0x01, 0x00, 0x00,
-      0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00,
-      0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE,
-      0x42, 0x60, 0x82,
-    ]);
   }
 }
