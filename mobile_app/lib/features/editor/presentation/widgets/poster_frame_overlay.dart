@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:panchayat_post/core/services/app_config_service.dart';
 import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 
