@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:panchayat_post/core/constants/app_assets.dart';
 import 'package:panchayat_post/core/constants/app_colors.dart';
 import 'package:panchayat_post/core/localization/app_localizations.dart';
@@ -42,6 +44,163 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
   UserProfile? _currentUser;
   late FestivalItem _currentFestival;
   String? _selectedStyleFilter;
+  String? _customPhotoUrl;
+
+  Future<void> _pickUserPhoto(void Function(void Function()) setSheetState) async {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFCBD5E1),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const Text(
+                'તમારો ફોટો પસંદ કરો (Add Your Photo)',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEFF6FF),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.camera_alt_rounded, color: Color(0xFF2563EB)),
+                ),
+                title: const Text('કેમેરાથી ફોટો પાડો (Camera)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  _executePhotoPick(ImageSource.camera, setSheetState);
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0FDF4),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.photo_library_rounded, color: Color(0xFF16A34A)),
+                ),
+                title: const Text('ગેલેરીમાંથી પસંદ કરો (Gallery)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  _executePhotoPick(ImageSource.gallery, setSheetState);
+                },
+              ),
+              if (_customPhotoUrl != null || _currentUser?.profilePhotoUrl?.isNotEmpty == true) ...[
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF2F2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.delete_outline_rounded, color: Color(0xFFDC2626)),
+                  ),
+                  title: const Text('ફોટો દૂર કરો (Remove Photo)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Color(0xFFDC2626))),
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    setSheetState(() {
+                      _customPhotoUrl = '';
+                    });
+                    setState(() {
+                      _customPhotoUrl = '';
+                    });
+                  },
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _executePhotoPick(ImageSource source, void Function(void Function()) setSheetState) async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      if (picked == null) return;
+
+      final bytes = await picked.readAsBytes();
+      final dataUrl = 'data:image/png;base64,${base64Encode(bytes)}';
+
+      setSheetState(() {
+        _customPhotoUrl = dataUrl;
+      });
+      setState(() {
+        _customPhotoUrl = dataUrl;
+      });
+
+      // Persist in background to user profile if logged in
+      if (_currentUser != null) {
+        try {
+          final savedUrl = await _authService.saveProfilePhoto(
+            userId: _currentUser!.userId,
+            imageBytes: bytes,
+            fileName: picked.name,
+          );
+          final updated = await _authService.updateUserProfile(
+            userId: _currentUser!.userId,
+            profilePhotoUrl: savedUrl,
+          );
+          if (mounted) {
+            setState(() {
+              _currentUser = updated;
+            });
+          }
+        } catch (_) {}
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ ફોટો સફળતાપૂર્વક ફ્રેમમાં સેટ થયો!'),
+            backgroundColor: Color(0xFF15803D),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('⚠️ ફોટો પસંદ કરવામાં ભૂલ: $e'),
+            backgroundColor: const Color(0xFFDC2626),
+          ),
+        );
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -384,6 +543,10 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                                   user: _currentUser,
                                   w: canvasWidth,
                                   h: canvasHeight,
+                                  customPhotoUrl: (_customPhotoUrl != null && _customPhotoUrl!.isNotEmpty)
+                                      ? _customPhotoUrl
+                                      : _currentUser?.profilePhotoUrl,
+                                  onTapPhoto: () => _pickUserPhoto(setSheetState),
                                 ),
                               ],
                             ),
@@ -393,44 +556,112 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                     ),
                     const SizedBox(height: 12.0),
 
-                    // User identity chip
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
-                      ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 12.0,
-                            backgroundColor: const Color(0xFF7C3AED),
-                            backgroundImage: (_currentUser?.profilePhotoUrl != null &&
-                                    _currentUser!.profilePhotoUrl!.isNotEmpty)
-                                ? NetworkImage(_currentUser!.profilePhotoUrl!)
-                                : null,
-                            child: (_currentUser?.profilePhotoUrl == null ||
-                                    _currentUser!.profilePhotoUrl!.isEmpty)
-                                ? const Icon(Icons.person, size: 14.0, color: Colors.white)
-                                : null,
+                    // User identity chip with "Add / Change Photo" action
+                    Builder(
+                      builder: (context) {
+                        final effectivePhoto = (_customPhotoUrl != null && _customPhotoUrl!.isNotEmpty)
+                            ? _customPhotoUrl
+                            : _currentUser?.profilePhotoUrl;
+                        final hasPhoto = effectivePhoto != null && effectivePhoto.isNotEmpty;
+
+                        ImageProvider? photoProvider;
+                        if (hasPhoto) {
+                          if (effectivePhoto.startsWith('data:')) {
+                            final raw = effectivePhoto.contains(',') ? effectivePhoto.split(',').last : effectivePhoto;
+                            try {
+                              photoProvider = MemoryImage(base64Decode(raw));
+                            } catch (_) {}
+                          } else if (effectivePhoto.startsWith('http://') || effectivePhoto.startsWith('https://')) {
+                            photoProvider = NetworkImage(effectivePhoto);
+                          }
+                        }
+
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.circular(12.0),
+                            border: Border.all(color: const Color(0xFFE2E8F0)),
                           ),
-                          const SizedBox(width: 8.0),
-                          Expanded(
-                            child: Text(
-                              '${_currentUser?.effectiveDisplayName ?? 'રાહુલ શર્મા'} (સરપંચ શ્રી) | ${_currentUser?.villageCity ?? 'પાલનપુર ગ્રામ પંચાયત'}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF334155),
+                          child: Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () => _pickUserPhoto(setSheetState),
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 16.0,
+                                      backgroundColor: const Color(0xFF7C3AED),
+                                      backgroundImage: photoProvider,
+                                      child: !hasPhoto
+                                          ? const Icon(Icons.person, size: 18.0, color: Colors.white)
+                                          : null,
+                                    ),
+                                    Positioned(
+                                      bottom: -2,
+                                      right: -2,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2.5),
+                                        decoration: const BoxDecoration(
+                                          color: Color(0xFF2563EB),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(Icons.camera_alt, size: 8.5, color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
+                              const SizedBox(width: 10.0),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      '${_currentUser?.effectiveDisplayName ?? 'રાહુલ શર્મા'} (સરપંચ શ્રી)',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 12.0,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF1E293B),
+                                      ),
+                                    ),
+                                    Text(
+                                      _currentUser?.villageCity ?? 'પાલનપુર ગ્રામ પંચાયત',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xFF64748B),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8.0),
+                              ElevatedButton.icon(
+                                icon: const Icon(Icons.add_a_photo_rounded, size: 14.0),
+                                label: Text(
+                                  hasPhoto ? 'ફોટો બદલો' : 'ફોટો ઉમેરો',
+                                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF2563EB),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+                                  elevation: 0,
+                                ),
+                                onPressed: () => _pickUserPhoto(setSheetState),
+                              ),
+                            ],
                           ),
-                          const Icon(Icons.verified, size: 16.0, color: Color(0xFF2563EB)),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 12.0),
 

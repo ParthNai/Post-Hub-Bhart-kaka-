@@ -228,7 +228,9 @@
 
   // Only 4 focused tabs - Default to preloader so opening splash is always shown first
   let activeStudioTab = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('active_studio_tab')) || 'preloader';
+  if (activeStudioTab === 'frames' || activeStudioTab === 'content') activeStudioTab = 'preloader';
   let phoneActiveTab = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('phone_active_view')) || 'preloader';
+  if (phoneActiveTab === 'frames') phoneActiveTab = 'preloader';
   let configLoaded = false;
   const previewContent = {
     loading: true,
@@ -631,10 +633,6 @@
               <span class="studio-tab-icon">✨</span>
               <span class="studio-tab-label">Home Hero</span>
             </button>
-            <button class="studio-tab-v2 ${activeStudioTab === 'frames' ? 'active' : ''}" data-tab="frames">
-              <span class="studio-tab-icon">🖼️</span>
-              <span class="studio-tab-label">Digital Frames</span>
-            </button>
           </div>
 
           <!-- Dynamic Tab Content -->
@@ -677,9 +675,6 @@
             </button>
             <button class="simulator-view-btn ${phoneActiveTab === 'appicon' ? 'active' : ''}" id="sim-view-launcher">
               <span>📱</span> Launcher
-            </button>
-            <button class="simulator-view-btn ${phoneActiveTab === 'frames' ? 'active' : ''}" id="sim-view-frames">
-              <span>🖼️</span> Poster Frame
             </button>
           </div>
         </div>
@@ -1108,43 +1103,7 @@
     }
 
     
-    if (tab === 'frames') {
-      const frames = window.__adminFramesList || [];
-      return `
-        <div class="hero-tab-header-v2" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <div>
-            <h3 class="hero-tab-title-v2" style="margin: 0; font-size: 18px; font-weight: 800; color: #1E293B;">🖼️ Digital Poster Frames Management</h3>
-            <p class="hero-tab-desc-v2" style="margin: 4px 0 0 0; font-size: 13px; color: #64748B;">
-              Manage transparent identity frames that appear inside the mobile app poster editor for Sarpanch & Panchayat leaders.
-            </p>
-          </div>
-          <label for="ctrl-frame-file-upload" class="studio-btn studio-btn-primary" style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; background: #6D28D9; color: white;">
-            <span>+</span> Upload New Frame (PNG)
-          </label>
-          <input type="file" id="ctrl-frame-file-upload" accept="image/png" style="display: none;" />
-        </div>
 
-        <!-- Frame List Grid -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;">
-          ${frames.map((f, idx) => `
-            <div style="background: white; border: 1.5px solid #E2E8F0; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: transform 0.2s;">
-              <div style="height: 140px; background: #0F172A; display: flex; align-items: center; justify-content: center; position: relative; padding: 12px;">
-                <img src="${f.path.startsWith('http') ? f.path : 'http://localhost:3000' + f.path}" alt="${f.frameName}" style="max-height: 100%; max-width: 100%; object-fit: contain;" />
-                <span style="position: absolute; top: 8px; right: 8px; background: #6D28D9; color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 12px;">Admin</span>
-              </div>
-              <div style="padding: 12px;">
-                <h4 style="margin: 0 0 4px 0; font-size: 13px; font-weight: 700; color: #1E293B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${f.frameName}</h4>
-                <p style="margin: 0 0 10px 0; font-size: 11px; color: #64748B;">Transparent Frame Overlay</p>
-                <div style="display: flex; gap: 8px;">
-                  <button class="frame-preview-sim-btn" data-url="${f.path}" style="flex: 1; padding: 6px 10px; font-size: 11px; font-weight: 600; background: #F3E8FF; color: #6D28D9; border: none; border-radius: 8px; cursor: pointer;">Preview on Phone</button>
-                  <button class="frame-delete-btn" data-id="${f._id || f.id}" style="padding: 6px 10px; font-size: 11px; font-weight: 600; background: #FEE2E2; color: #DC2626; border: none; border-radius: 8px; cursor: pointer;">Delete</button>
-                </div>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    }
 
 
 
@@ -2819,10 +2778,6 @@
       .then(r => r.json())
       .then(res => {
         window.__adminFramesList = res.data || [];
-        if (activeStudioTab === 'frames') {
-          const tabContent = document.getElementById('studio-tab-content');
-          if (tabContent) tabContent.innerHTML = renderTabContent('frames');
-        }
       })
       .catch(() => {});
   }
