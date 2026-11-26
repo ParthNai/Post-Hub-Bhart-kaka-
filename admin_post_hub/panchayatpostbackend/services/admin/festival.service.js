@@ -12,12 +12,25 @@ const all = async () => {
       festivals.map(async (f) => {
         const images = await Image.find({ festivalId: f._id });
         let festivalImages = [];
+        let festivalImagesDetails = [];
         await Promise.all(
           images.map((i) => {
             festivalImages.push(i.path);
+            festivalImagesDetails.push({
+              id: i._id,
+              path: i.path,
+              recommendedFrameId: i.recommendedFrameId || f.recommendedFrameId || null,
+              showInHero: Boolean(i.showInHero ?? f.showInHero ?? false)
+            });
           })
         );
-        return { ...f._doc, festivalImages: festivalImages };
+        return {
+          ...f._doc,
+          recommendedFrameId: f.recommendedFrameId || null,
+          showInHero: Boolean(f.showInHero),
+          festivalImages: festivalImages,
+          festivalImagesDetails: festivalImagesDetails
+        };
       })
     );
     return {
@@ -38,17 +51,25 @@ const create = async (data, files) => {
         message: error.details[0].message,
       };
     }
-    const isFixedDate = data.isFixedDate === "true" ? true : false;
+    const isFixedDate = data.isFixedDate === "true" || data.isFixedDate === true;
+    const showInHero = data.showInHero === "true" || data.showInHero === true;
     const created = await Festival.create({
       ...data,
       festivalDate:
         data.festivalDate !== "undefined" ? data.festivalDate : undefined,
       isFixedDate: isFixedDate,
+      showInHero: showInHero,
+      recommendedFrameId: data.recommendedFrameId || null,
     });
     const myImages = await getFilesData(files);
     await Promise.all(
       myImages.map(async (a) => {
-        await Image.create({ festivalId: created._id || created.id, path: a });
+        await Image.create({
+          festivalId: created._id || created.id,
+          path: a,
+          recommendedFrameId: data.recommendedFrameId || null,
+          showInHero: showInHero,
+        });
       })
     );
 

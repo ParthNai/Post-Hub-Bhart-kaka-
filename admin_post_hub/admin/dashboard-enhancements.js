@@ -635,6 +635,10 @@
               <span class="studio-tab-icon">🖼️</span>
               <span class="studio-tab-label">Digital Frames</span>
             </button>
+            <button class="studio-tab-v2 ${activeStudioTab === 'content' ? 'active' : ''}" data-tab="content">
+              <span class="studio-tab-icon">🗂️</span>
+              <span class="studio-tab-label">Categories &amp; Festivals</span>
+            </button>
           </div>
 
           <!-- Dynamic Tab Content -->
@@ -1142,6 +1146,136 @@
               </div>
             </div>
           `).join('')}
+        </div>
+      `;
+    }
+
+    if (tab === 'content') {
+      const liveFestivals = previewContent.festivals || [];
+      const frames = window.__adminFramesList || [];
+
+      return `
+        <div class="hero-tab-header-v2" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div>
+            <h3 class="hero-tab-title-v2" style="margin: 0; font-size: 18px; font-weight: 800; color: #1E293B;">🗂️ Categories, Announcements &amp; Festival Posters</h3>
+            <p class="hero-tab-desc-v2" style="margin: 4px 0 0 0; font-size: 13px; color: #64748B;">
+              Simplified 1-click management: Upload government circulars or festive artworks, choose recommended frames, and pin to Top Hero Slider.
+            </p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+          <!-- CARD 1: 📢 ANNOUNCEMENT (View & Share Only) -->
+          <div style="background: white; border: 1.5px solid #DBEAFE; border-radius: 16px; padding: 20px; box-shadow: 0 4px 14px rgba(37,99,235,0.06);">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+              <span style="font-size: 24px;">📢</span>
+              <div>
+                <h4 style="margin: 0; font-size: 15px; font-weight: 800; color: #1E3A8A;">સરકારી પરિપત્ર / જાહેરાત (Announcement)</h4>
+                <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #3B82F6;">View &amp; WhatsApp Share only (no user frames)</p>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+              <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px;">પરિપત્ર / જાહેરાતનું શીર્ષક (Title):</label>
+              <input type="text" id="ctrl-announcement-title" placeholder="દા.ત. ગ્રામ પંચાયત સામાન્ય સભા પરિપત્ર" style="width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 13px;" />
+            </div>
+
+            <div style="margin-bottom: 12px;">
+              <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px;">પરિપત્ર / નોટિસ ઇમેજ (Image/Circular):</label>
+              <input type="file" id="ctrl-announcement-file" accept="image/*" style="width: 100%; font-size: 12px;" />
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; background: #EFF6FF; padding: 10px; border-radius: 10px;">
+              <input type="checkbox" id="ctrl-announcement-hero" checked style="width: 16px; height: 16px; cursor: pointer;" />
+              <label for="ctrl-announcement-hero" style="font-size: 12.5px; font-weight: 700; color: #1E40AF; cursor: pointer;">
+                📢 ટોપ સ્લાઇડર બેનરમાં બતાવો? (Show in Hero Slider)
+              </label>
+            </div>
+
+            <button type="button" id="ctrl-announcement-submit-btn" style="width: 100%; background: #2563EB; color: white; border: none; border-radius: 10px; padding: 11px; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <span>🚀</span> પરિપત્ર પ્રસિદ્ધ કરો (Publish Announcement)
+            </button>
+          </div>
+
+          <!-- CARD 2: 🪔 FESTIVAL POSTER (1-Click Frame & Recommended Frame) -->
+          <div style="background: white; border: 1.5px solid #FDE68A; border-radius: 16px; padding: 20px; box-shadow: 0 4px 14px rgba(217,119,6,0.06);">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+              <span style="font-size: 24px;">🪔</span>
+              <div>
+                <h4 style="margin: 0; font-size: 15px; font-weight: 800; color: #92400E;">તહેવાર પોસ્ટર આર્ટવર્ક (Festival Poster)</h4>
+                <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #B45309;">Users can apply their frame in 1-click</p>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+              <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px;">તહેવારનું નામ (Festival Name):</label>
+              <input type="text" id="ctrl-festival-title" placeholder="દા.ત. મહા શિવરાત્રી, હોળી ધુળેટી" style="width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 13px;" />
+            </div>
+
+            <div style="margin-bottom: 12px;">
+              <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px;">પોસ્ટર આર્ટવર્ક ઇમેજ (Poster Artwork):</label>
+              <input type="file" id="ctrl-festival-file" accept="image/*" style="width: 100%; font-size: 12px;" />
+            </div>
+
+            <div style="margin-bottom: 12px;">
+              <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px;">⭐ શ્રેષ્ઠ મેળ ખાતી ફ્રેમ (Recommended Frame):</label>
+              <select id="ctrl-festival-frame-select" style="width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 13px; background: white;">
+                <option value="admin_kesariya">⭐ Royal Kesariya (કેસરિયા ભલામણ)</option>
+                <option value="admin_sarpanch">👑 Gram Panchayat VIP (વી.આઇ.પી.)</option>
+                <option value="admin_tricolor">🇮🇳 Tricolor Leader (ત્રિરંગા)</option>
+                <option value="cutout_leader">✂️ Cutout Leader (કટઆઉટ)</option>
+                <option value="gold_vip">🏆 VIP Gold</option>
+                <option value="royal_blue">🔷 Royal Executive Blue</option>
+                <option value="kesariya_ribbon">🎗️ Kesariya Festive Ribbon</option>
+                <option value="dark_glass">🌑 Modern Dark Glass</option>
+                ${frames.map(f => `<option value="${f._id || f.id || f.frameName}">🖼️ ${f.frameName} (Custom Admin Frame)</option>`).join('')}
+              </select>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; background: #FEF3C7; padding: 10px; border-radius: 10px;">
+              <input type="checkbox" id="ctrl-festival-hero" style="width: 16px; height: 16px; cursor: pointer;" />
+              <label for="ctrl-festival-hero" style="font-size: 12.5px; font-weight: 700; color: #92400E; cursor: pointer;">
+                📢 ટોપ સ્લાઇડર બેનરમાં બતાવો? (Show in Hero Slider)
+              </label>
+            </div>
+
+            <button type="button" id="ctrl-festival-submit-btn" style="width: 100%; background: #D97706; color: white; border: none; border-radius: 10px; padding: 11px; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <span>🚀</span> તહેવાર પોસ્ટર સેવ કરો (Publish Festival Poster)
+            </button>
+          </div>
+        </div>
+
+        <!-- SECTION 3: LIVE ACTIVE ITEMS -->
+        <div style="background: white; border: 1.5px solid #E2E8F0; border-radius: 16px; padding: 20px;">
+          <h4 style="margin: 0 0 14px 0; font-size: 15px; font-weight: 800; color: #1E293B;">
+            📋 હાલમાં પ્રકાશિત સક્રિય આઇટમ્સ (Active Announcements &amp; Festivals)
+          </h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px;" id="admin-content-items-grid">
+            ${liveFestivals.map(f => {
+              const isHero = f.showInHero === true || f.showInHero === 'true';
+              const isAnn = f.categoryType === 'announcement' || f.isAnnouncement === true || (f.festivalName && (f.festivalName.includes('પરિપત્ર') || f.festivalName.includes('જાહેરાત')));
+              const imgUrl = f.festivalImage || (f.festivalImages && f.festivalImages[0]) || f.imageUrl || '';
+              const fullImg = imgUrl.startsWith('http') ? imgUrl : (imgUrl ? 'http://localhost:3000' + imgUrl : '');
+
+              return `
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 12px; display: flex; gap: 12px; align-items: center; position: relative;">
+                  <img src="${escapeHtml(fullImg)}" alt="" style="width: 52px; height: 52px; object-fit: cover; border-radius: 8px; background: #E2E8F0; flex-shrink: 0;" onerror="this.src='/panchayat_logo.png'" />
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="display: flex; gap: 4px; margin-bottom: 4px;">
+                      <span style="font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 6px; background: ${isAnn ? '#DBEAFE' : '#FEF3C7'}; color: ${isAnn ? '#1E40AF' : '#92400E'};">
+                        ${isAnn ? '📢 પરિપત્ર' : '🪔 તહેવાર'}
+                      </span>
+                      ${isHero ? '<span style="font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 6px; background: #DCFCE7; color: #166534;">⭐ Hero Active</span>' : ''}
+                    </div>
+                    <h5 style="margin: 0; font-size: 13px; font-weight: 700; color: #1E293B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                      ${escapeHtml(f.festivalName || f.title || 'Festival')}
+                    </h5>
+                    ${f.recommendedFrameId ? `<span style="font-size: 10px; color: #64748B;">ફ્રેમ: ${escapeHtml(f.recommendedFrameId)}</span>` : ''}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
         </div>
       `;
     }
@@ -2031,6 +2165,167 @@
         }
       });
     });
+
+    // ===== 6. CATEGORIES, ANNOUNCEMENTS & FESTIVALS CONTROLS =====
+    const annSubmitBtn = document.getElementById('ctrl-announcement-submit-btn');
+    if (annSubmitBtn) {
+      annSubmitBtn.addEventListener('click', async () => {
+        const titleInput = document.getElementById('ctrl-announcement-title');
+        const fileInput = document.getElementById('ctrl-announcement-file');
+        const heroCheck = document.getElementById('ctrl-announcement-hero');
+
+        const title = (titleInput && titleInput.value.trim()) || '';
+        const file = fileInput && fileInput.files && fileInput.files[0];
+
+        if (!title) {
+          showToast('⚠️ Please enter the announcement title');
+          return;
+        }
+        if (!file) {
+          showToast('⚠️ Please select a circular or announcement image');
+          return;
+        }
+
+        annSubmitBtn.disabled = true;
+        annSubmitBtn.textContent = '⏳ Publishing Announcement...';
+
+        try {
+          const fd = new FormData();
+          fd.append('festivalName', title);
+          fd.append('category', 'cultural');
+          fd.append('categoryType', 'announcement');
+          fd.append('isAnnouncement', 'true');
+          fd.append('showInHero', heroCheck && heroCheck.checked ? 'true' : 'false');
+          fd.append('image', file);
+
+          const res = await fetch('/adminapi/festival', {
+            method: 'POST',
+            body: fd
+          });
+          const json = await res.json();
+          if (json.status || res.ok) {
+            showToast('✅ પરિપત્ર સફળતાપૂર્વક પ્રસિદ્ધ થયો (Announcement Published)!');
+            await loadPreviewContent();
+            const content = document.getElementById('studio-tab-content');
+            if (content) content.innerHTML = renderTabContent('content');
+            bindControlInputs();
+            updatePhoneSimulator();
+          } else {
+            showToast('❌ Error: ' + (json.message || 'Could not publish announcement'));
+          }
+        } catch (err) {
+          showToast('❌ Upload failed: ' + err.message);
+        } finally {
+          annSubmitBtn.disabled = false;
+          annSubmitBtn.innerHTML = '<span>🚀</span> પરિપત્ર પ્રસિદ્ધ કરો (Publish Announcement)';
+        }
+      });
+    }
+
+    const festSubmitBtn = document.getElementById('ctrl-festival-submit-btn');
+    if (festSubmitBtn) {
+      festSubmitBtn.addEventListener('click', async () => {
+        const titleInput = document.getElementById('ctrl-festival-title');
+        const fileInput = document.getElementById('ctrl-festival-file');
+        const frameSelect = document.getElementById('ctrl-festival-frame-select');
+        const heroCheck = document.getElementById('ctrl-festival-hero');
+
+        const title = (titleInput && titleInput.value.trim()) || '';
+        const file = fileInput && fileInput.files && fileInput.files[0];
+        const recFrame = (frameSelect && frameSelect.value) || 'admin_kesariya';
+
+        if (!title) {
+          showToast('⚠️ Please enter the festival name');
+          return;
+        }
+        if (!file) {
+          showToast('⚠️ Please select a festival artwork image');
+          return;
+        }
+
+        festSubmitBtn.disabled = true;
+        festSubmitBtn.textContent = '⏳ Saving Festival Poster...';
+
+        try {
+          const fd = new FormData();
+          fd.append('festivalName', title);
+          fd.append('category', 'cultural');
+          fd.append('categoryType', 'festival');
+          fd.append('recommendedFrameId', recFrame);
+          fd.append('showInHero', heroCheck && heroCheck.checked ? 'true' : 'false');
+          fd.append('image', file);
+
+          const res = await fetch('/adminapi/festival', {
+            method: 'POST',
+            body: fd
+          });
+          const json = await res.json();
+          if (json.status || res.ok) {
+            showToast('✅ તહેવાર પોસ્ટર સફળતાપૂર્વક સેવ થયું (Festival Poster Published)!');
+            await loadPreviewContent();
+            const content = document.getElementById('studio-tab-content');
+            if (content) content.innerHTML = renderTabContent('content');
+            bindControlInputs();
+            updatePhoneSimulator();
+          } else {
+            showToast('❌ Error: ' + (json.message || 'Could not save festival poster'));
+          }
+        } catch (err) {
+          showToast('❌ Upload failed: ' + err.message);
+        } finally {
+          festSubmitBtn.disabled = false;
+          festSubmitBtn.innerHTML = '<span>🚀</span> તહેવાર પોસ્ટર સેવ કરો (Publish Festival Poster)';
+        }
+      });
+    }
+  }
+
+  function setupModalEnhancer() {
+    if (typeof MutationObserver === 'undefined') return;
+
+    const observer = new MutationObserver(() => {
+      const dialog = document.querySelector('.MuiDialog-root, .MuiDialog-paper');
+      if (!dialog) return;
+
+      const festivalInput = dialog.querySelector('input[name="festivalName"], input[name="name"], input[placeholder*="Festival"], input[placeholder*="Name"]');
+      if (festivalInput && !dialog.querySelector('#enh-injected-fields')) {
+        const container = document.createElement('div');
+        container.id = 'enh-injected-fields';
+        container.style.padding = '12px 0';
+        container.style.borderTop = '1px solid #E2E8F0';
+        container.style.marginTop = '12px';
+
+        const frames = window.__adminFramesList || [];
+        container.innerHTML = `
+          <div style="margin-bottom: 12px;">
+            <label style="display: block; font-size: 12px; font-weight: 700; color: #1E293B; margin-bottom: 4px;">
+              ⭐ શ્રેષ્ઠ મેળ ખાતી ફ્રેમ (Recommended Frame):
+            </label>
+            <select id="enh-rec-frame" style="width: 100%; padding: 8px 12px; border: 1.5px solid #CBD5E1; border-radius: 8px; font-size: 13px; background: white;">
+              <option value="admin_kesariya">⭐ Royal Kesariya (કેસરિયા)</option>
+              <option value="admin_sarpanch">👑 Gram Panchayat VIP (વી.આઇ.પી.)</option>
+              <option value="admin_tricolor">🇮🇳 Tricolor Leader (ત્રિરંગા)</option>
+              <option value="cutout_leader">✂️ Cutout Leader</option>
+              <option value="gold_vip">🏆 VIP Gold</option>
+              ${frames.map(f => `<option value="${f._id || f.id || f.frameName}">🖼️ ${f.frameName}</option>`).join('')}
+            </select>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; background: #EFF6FF; padding: 10px; border-radius: 8px;">
+            <input type="checkbox" id="enh-hero-toggle" style="width: 16px; height: 16px; cursor: pointer;" />
+            <label for="enh-hero-toggle" style="font-size: 12.5px; font-weight: 700; color: #1E40AF; cursor: pointer;">
+              📢 ટોપ સ્લાઇડર બેનરમાં બતાવો? (Show in Hero Slider)
+            </label>
+          </div>
+        `;
+
+        const form = dialog.querySelector('form') || dialog.querySelector('.MuiDialogContent-root');
+        if (form) {
+          form.appendChild(container);
+        }
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
   }
 
   function updateHeroIconPreview() {
@@ -2503,6 +2798,7 @@
     injectAppScreensStudio();
     injectDashboardEnhancements();
     fixPinVisibility();
+    setupModalEnhancer();
   });
 
   // Periodic observer to catch single-page route navigation & DOM changes
@@ -2520,6 +2816,7 @@
     injectAppScreensStudio();
     fixSidebarAndProfile();
     fixPinVisibility();
+    setupModalEnhancer();
   });
 })();
 

@@ -20,6 +20,15 @@ const festivalSchema = mongoose.Schema(
       type: String,
       required: false
     },
+    recommendedFrameId: {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: 'Frame',
+      required: false
+    },
+    showInHero: {
+      type: Boolean,
+      default: false
+    },
     status: {
       type: Boolean,
       default: true

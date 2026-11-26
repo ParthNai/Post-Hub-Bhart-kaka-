@@ -6,6 +6,7 @@ class FestivalPosterTemplate {
     required this.imageAsset,
     this.style = 'traditional',
     this.tag,
+    this.recommendedFrameId,
   });
 
   final String id;
@@ -13,6 +14,7 @@ class FestivalPosterTemplate {
   final String imageAsset;
   final String style;
   final String? tag;
+  final String? recommendedFrameId;
 }
 
 /// Popular design style model for festival posters.
@@ -48,6 +50,9 @@ class FestivalItem {
     this.aboutText,
     this.heroBannerAsset,
     this.posterTemplates = const [],
+    this.recommendedFrameId,
+    this.showInHero = false,
+    this.isAnnouncement = false,
   });
 
   final String id;
@@ -67,6 +72,9 @@ class FestivalItem {
   final String? aboutText;
   final String? heroBannerAsset;
   final List<FestivalPosterTemplate> posterTemplates;
+  final String? recommendedFrameId;
+  final bool showInHero;
+  final bool isAnnouncement;
 
   /// Check if this festival matches the search query and filters.
   bool matches({

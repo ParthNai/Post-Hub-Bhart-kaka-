@@ -52,6 +52,12 @@ class FestivalService {
           .where((url) => url.isNotEmpty)
           .toList();
 
+      final recommendedFrameId = raw['recommendedFrameId']?.toString();
+      final showInHero = raw['showInHero'] == true || raw['showInHero'] == 'true';
+      final isAnnouncement = (raw['categoryType']?.toString() == 'announcement') ||
+          (raw['isAnnouncement'] == true) ||
+          (name.contains('પરિપત્ર') || name.contains('જાહેરાત'));
+
       final posterTemplates = <FestivalPosterTemplate>[
         if (mainImg.isNotEmpty)
           FestivalPosterTemplate(
@@ -59,6 +65,7 @@ class FestivalService {
             title: name,
             imageAsset: mainImg,
             style: 'traditional',
+            recommendedFrameId: recommendedFrameId,
           ),
         for (int i = 0; i < rawGallery.length; i++)
           FestivalPosterTemplate(
@@ -66,6 +73,7 @@ class FestivalService {
             title: name,
             imageAsset: rawGallery[i],
             style: 'traditional',
+            recommendedFrameId: recommendedFrameId,
           ),
       ];
 
@@ -93,6 +101,9 @@ class FestivalService {
               : (rawGallery.isNotEmpty ? rawGallery.first : ''),
           posterTemplates: posterTemplates,
           templateCount: posterTemplates.length,
+          recommendedFrameId: recommendedFrameId,
+          showInHero: showInHero,
+          isAnnouncement: isAnnouncement,
         ),
       );
     }

@@ -48,6 +48,15 @@ const imageSchema = mongoose.Schema(
     downloadCount: {
       type: Number,
       default: 0,
+    },
+    recommendedFrameId: {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: 'Frame',
+      required: false,
+    },
+    showInHero: {
+      type: Boolean,
+      default: false,
     }
   },
   {

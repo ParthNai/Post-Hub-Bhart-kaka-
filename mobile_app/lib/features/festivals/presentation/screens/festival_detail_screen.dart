@@ -9,6 +9,7 @@ import 'package:panchayat_post/features/auth/domain/models/user_profile.dart';
 import 'package:panchayat_post/features/editor/domain/models/poster_template_project.dart';
 import 'package:panchayat_post/features/festivals/data/services/festival_service.dart';
 import 'package:panchayat_post/features/festivals/domain/models/festival_item.dart';
+import 'package:panchayat_post/features/editor/presentation/widgets/poster_frame_overlay.dart';
 
 /// Screen 11: Festival Details & Poster Collection
 ///
@@ -48,7 +49,42 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
     _festivalService = widget.festivalService ?? FestivalService();
     _authService = widget.authService ?? AuthService();
     _currentFestival = widget.festival ?? _festivalService.getFeaturedFestival();
+    PosterFrames.loadAdminFrames();
     _loadUserProfile();
+  }
+
+  /// Universal adaptive image loader supporting network URLs and local assets safely.
+  Widget _buildAdaptiveImage(
+    String path, {
+    BoxFit fit = BoxFit.cover,
+    double? width,
+    double? height,
+    Alignment alignment = Alignment.center,
+    Widget? fallback,
+  }) {
+    if (path.isEmpty) {
+      return fallback ?? Container(color: const Color(0xFFEDE9FE));
+    }
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return Image.network(
+        path,
+        fit: fit,
+        width: width,
+        height: height,
+        alignment: alignment,
+        errorBuilder: (context, error, stackTrace) =>
+            fallback ?? Container(color: const Color(0xFFEDE9FE)),
+      );
+    }
+    return Image.asset(
+      path,
+      fit: fit,
+      width: width,
+      height: height,
+      alignment: alignment,
+      errorBuilder: (context, error, stackTrace) =>
+          fallback ?? Container(color: const Color(0xFFEDE9FE)),
+    );
   }
 
   @override
@@ -122,13 +158,14 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
   }) {
     final title = template?.title ?? _currentFestival.name;
     final imageAsset = template?.imageAsset ?? _currentFestival.imageAsset;
+    final isAnnouncement = _currentFestival.isAnnouncement;
 
-    final nameController = TextEditingController(
-      text: _currentUser?.effectiveDisplayName ?? 'Rahul Sharma',
-    );
-    final villageController = TextEditingController(
-      text: _currentUser?.villageCity ?? 'Palanpur Gram Panchayat',
-    );
+    // Pre-select Recommended Frame set by Admin, defaulting to 'admin_kesariya'
+    final recommendedFrameId = template?.recommendedFrameId ??
+        _currentFestival.recommendedFrameId ??
+        'admin_kesariya';
+
+    String selectedFrameId = recommendedFrameId;
 
     showModalBottomSheet(
       context: context,
@@ -138,133 +175,506 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
       ),
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheetState) => Padding(
-          padding: EdgeInsets.only(
-            left: 20.0,
-            right: 20.0,
-            top: 18.0,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20.0,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Customize: $title',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 17.0,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textNavy,
+        builder: (ctx, setSheetState) {
+          final bottomPadding = MediaQuery.of(ctx).viewInsets.bottom + 20.0;
+          final availableFrames = PosterFrames.list;
+
+          return Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(ctx).size.height * 0.92,
+            ),
+            child: SingleChildScrollView(
+              padding: EdgeInsets.only(
+                left: 18.0,
+                right: 18.0,
+                top: 14.0,
+                bottom: bottomPadding,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Top Drag handle
+                  Center(
+                    child: Container(
+                      width: 42.0,
+                      height: 4.5,
+                      margin: const EdgeInsets.only(bottom: 12.0),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFCBD5E1),
+                        borderRadius: BorderRadius.circular(3.0),
+                      ),
+                    ),
+                  ),
+
+                  // Header Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                if (isAnnouncement)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
+                                    margin: const EdgeInsets.only(right: 6.0),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFEFF6FF),
+                                      borderRadius: BorderRadius.circular(6.0),
+                                      border: Border.all(color: const Color(0xFF93C5FD)),
+                                    ),
+                                    child: const Text(
+                                      '📢 પરિપત્ર / જાહેરાત',
+                                      style: TextStyle(
+                                        fontSize: 11.0,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF1D4ED8),
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
+                                    margin: const EdgeInsets.only(right: 6.0),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFDF2F8),
+                                      borderRadius: BorderRadius.circular(6.0),
+                                      border: Border.all(color: const Color(0xFFFBCFE8)),
+                                    ),
+                                    child: const Text(
+                                      '⭐ ૧-ક્લિક ફ્રેમ પોસ્ટર',
+                                      style: TextStyle(
+                                        fontSize: 11.0,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFFDB2777),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 4.0),
+                            Text(
+                              title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 17.0,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.textNavy,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
+                        onPressed: () => Navigator.of(ctx).pop(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12.0),
+
+                  // --- ANNOUNCEMENT VIEW (View & Share only, no user frame) ---
+                  if (isAnnouncement) ...[
+                    Container(
+                      height: 320.0,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(16.0),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 10.0,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16.0),
+                        child: _buildAdaptiveImage(
+                          imageAsset,
+                          fit: BoxFit.contain,
+                          width: double.infinity,
+                          height: double.infinity,
                         ),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close_rounded),
-                      onPressed: () => Navigator.of(ctx).pop(),
+                    const SizedBox(height: 12.0),
+                    Container(
+                      padding: const EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF0FDF4),
+                        borderRadius: BorderRadius.circular(10.0),
+                        border: Border.all(color: const Color(0xFFBBF7D0)),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.info_outline_rounded, color: Color(0xFF16A34A), size: 18.0),
+                          SizedBox(width: 8.0),
+                          Expanded(
+                            child: Text(
+                              'આ સત્તાવાર પરિપત્ર છે. તેને સીધું ગ્રામજનો અને વોટ્સએપ ગ્રુપમાં શેર કરી શકો છો.',
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                color: Color(0xFF15803D),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ]
+
+                  // --- FESTIVAL POSTER VIEW (1-Click Frame Overlay) ---
+                  else ...[
+                    // Square live canvas preview with PosterFrameOverlay
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final canvasWidth = constraints.maxWidth;
+                        final canvasHeight = canvasWidth;
+
+                        return Container(
+                          width: canvasWidth,
+                          height: canvasHeight,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0F172A),
+                            borderRadius: BorderRadius.circular(16.0),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.12),
+                                blurRadius: 12.0,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16.0),
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                // 1. Base Festival Artwork
+                                _buildAdaptiveImage(
+                                  imageAsset,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                ),
+
+                                // 2. Instant Frame Overlay with user's name & details
+                                PosterFrameOverlay(
+                                  frameId: selectedFrameId,
+                                  user: _currentUser,
+                                  w: canvasWidth,
+                                  h: canvasHeight,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12.0),
+
+                    // User identity chip
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(10.0),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 12.0,
+                            backgroundColor: const Color(0xFF7C3AED),
+                            backgroundImage: (_currentUser?.profilePhotoUrl != null &&
+                                    _currentUser!.profilePhotoUrl!.isNotEmpty)
+                                ? NetworkImage(_currentUser!.profilePhotoUrl!)
+                                : null,
+                            child: (_currentUser?.profilePhotoUrl == null ||
+                                    _currentUser!.profilePhotoUrl!.isEmpty)
+                                ? const Icon(Icons.person, size: 14.0, color: Colors.white)
+                                : null,
+                          ),
+                          const SizedBox(width: 8.0),
+                          Expanded(
+                            child: Text(
+                              '${_currentUser?.effectiveDisplayName ?? 'રાહુલ શર્મા'} (સરપંચ શ્રી) | ${_currentUser?.villageCity ?? 'પાલનપુર ગ્રામ પંચાયત'}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF334155),
+                              ),
+                            ),
+                          ),
+                          const Icon(Icons.verified, size: 16.0, color: Color(0xFF2563EB)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12.0),
+
+                    // Frame Selector Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'ફ્રેમ પસંદ કરો / Choose Frame:',
+                          style: TextStyle(
+                            fontSize: 13.0,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1E293B),
+                          ),
+                        ),
+                        if (selectedFrameId == recommendedFrameId)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFEF3C7),
+                              borderRadius: BorderRadius.circular(8.0),
+                              border: Border.all(color: const Color(0xFFFDE68A)),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.star_rounded, size: 13.0, color: Color(0xFFD97706)),
+                                SizedBox(width: 3.0),
+                                Text(
+                                  'શ્રેષ્ઠ મેળ ખાતી ભલામણ',
+                                  style: TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFFB45309),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 8.0),
+
+                    // Horizontal Frame Thumbnails
+                    SizedBox(
+                      height: 80.0,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: availableFrames.length,
+                        separatorBuilder: (context, index) => const SizedBox(width: 8.0),
+                        itemBuilder: (context, idx) {
+                          final f = availableFrames[idx];
+                          final isSelected = (selectedFrameId == f.id);
+                          final isRec = (f.id == recommendedFrameId ||
+                              (recommendedFrameId.isNotEmpty && f.id.contains(recommendedFrameId)));
+
+                          return InkWell(
+                            key: ValueKey('frame_pick_${f.id}'),
+                            borderRadius: BorderRadius.circular(12.0),
+                            onTap: () {
+                              setSheetState(() {
+                                selectedFrameId = f.id;
+                              });
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 180),
+                              width: 76.0,
+                              padding: const EdgeInsets.all(4.0),
+                              decoration: BoxDecoration(
+                                color: isSelected ? const Color(0xFFF3E8FF) : Colors.white,
+                                borderRadius: BorderRadius.circular(12.0),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? const Color(0xFF7C3AED)
+                                      : (isRec ? const Color(0xFFF59E0B) : const Color(0xFFE2E8F0)),
+                                  width: isSelected ? 2.0 : (isRec ? 1.5 : 1.0),
+                                ),
+                                boxShadow: [
+                                  if (isSelected)
+                                    BoxShadow(
+                                      color: const Color(0xFF7C3AED).withValues(alpha: 0.20),
+                                      blurRadius: 6.0,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      Container(
+                                        width: 32.0,
+                                        height: 32.0,
+                                        decoration: BoxDecoration(
+                                          color: f.previewColor.withValues(alpha: 0.20),
+                                          shape: BoxShape.circle,
+                                          border: Border.all(color: f.previewColor, width: 1.5),
+                                        ),
+                                        child: Center(
+                                          child: Icon(
+                                            Icons.crop_original_rounded,
+                                            size: 16.0,
+                                            color: f.previewColor,
+                                          ),
+                                        ),
+                                      ),
+                                      if (isRec)
+                                        Positioned(
+                                          top: -4.0,
+                                          right: -4.0,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(2.0),
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFFF59E0B),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.star_rounded,
+                                              size: 10.0,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4.0),
+                                  Text(
+                                    f.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 9.5,
+                                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                                      color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFF475569),
+                                    ),
+                                  ),
+                                  if (isRec)
+                                    const Text(
+                                      '⭐ ભલામણ',
+                                      style: TextStyle(
+                                        fontSize: 8.0,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFFD97706),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 10.0),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(14.0),
-                  child: Image.asset(
-                    imageAsset,
-                    height: 140.0,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const SizedBox(height: 14.0),
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: 'તમારું નામ / Your Name',
-                    filled: true,
-                    fillColor: const Color(0xFFF8FAFC),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10.0),
-                TextField(
-                  controller: villageController,
-                  decoration: InputDecoration(
-                    labelText: 'ગામનું નામ / Village or City',
-                    filled: true,
-                    fillColor: const Color(0xFFF8FAFC),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16.0),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6D28D9),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 13.0),
-                  ),
-                  icon: const Icon(Icons.download_rounded, size: 20.0),
-                  label: const Text(
-                    'Download & Share Poster',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15.0),
-                  ),
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          '${template?.title ?? _currentFestival.name} poster saved to gallery!',
+
+                  const SizedBox(height: 16.0),
+
+                  // --- ACTION BUTTONS (WhatsApp Share & Download) ---
+                  Row(
+                    children: [
+                      // 🟢 WhatsApp Share Button
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          key: const ValueKey('sheet_whatsapp_share_btn'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF25D366),
+                            foregroundColor: Colors.white,
+                            elevation: 2.0,
+                            padding: const EdgeInsets.symmetric(vertical: 12.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                          ),
+                          icon: const Icon(Icons.share_rounded, size: 18.0),
+                          label: const Text(
+                            'વોટ્સએપ શેર',
+                            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5),
+                          ),
+                          onPressed: () {
+                            Navigator.of(ctx).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Row(
+                                  children: [
+                                    const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'શુભ ${_currentFestival.name}! વોટ્સએપ પર શેરિંગ તૈયાર છે.',
+                                        style: const TextStyle(fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                backgroundColor: const Color(0xFF16A34A),
+                                behavior: SnackBarBehavior.floating,
+                                duration: const Duration(seconds: 3),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                            );
+                          },
                         ),
-                        backgroundColor: const Color(0xFF059669),
                       ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 10.0),
-                OutlinedButton.icon(
-                  key: const ValueKey('open_editor_studio_button'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF6D28D9),
-                    side: const BorderSide(color: Color(0xFF6D28D9), width: 1.2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      const SizedBox(width: 10.0),
+
+                      // 🟣 Download Poster Button
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          key: const ValueKey('sheet_download_poster_btn'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF6D28D9),
+                            foregroundColor: Colors.white,
+                            elevation: 2.0,
+                            padding: const EdgeInsets.symmetric(vertical: 12.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                          ),
+                          icon: const Icon(Icons.download_rounded, size: 18.0),
+                          label: Text(
+                            isAnnouncement ? 'પરિપત્ર ડાઉનલોડ' : 'ડાઉનલોડ કરો',
+                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5),
+                          ),
+                          onPressed: () {
+                            Navigator.of(ctx).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Row(
+                                  children: [
+                                    const Icon(Icons.download_done_rounded, color: Colors.white, size: 20),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        '${_currentFestival.name} પોસ્ટર ગેલેરીમાં સાચવવામાં આવ્યું!',
+                                        style: const TextStyle(fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                backgroundColor: const Color(0xFF059669),
+                                behavior: SnackBarBehavior.floating,
+                                duration: const Duration(seconds: 3),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                  icon: const Icon(Icons.tune_rounded, size: 18.0),
-                  label: const Text(
-                    'Open in Poster Editor Studio',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.0),
-                  ),
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    final project = PosterTemplateProject.createDefaultNavratriProject(
-                      templateId: template?.id ?? 'festival_${_currentFestival.id}',
-                      imageAsset: template?.imageAsset ?? _currentFestival.imageAsset,
-                      title: template?.title ?? _currentFestival.name,
-                    );
-                    Navigator.of(context).pushNamed(
-                      AppRoutes.posterEditor,
-                      arguments: project,
-                    );
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -673,11 +1083,11 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                   bottomRight: Radius.circular(20.0),
                 ),
                 child: (_currentFestival.heroBannerAsset?.isNotEmpty == true)
-                    ? Image.network(
+                    ? _buildAdaptiveImage(
                         _currentFestival.heroBannerAsset!,
                         fit: BoxFit.cover,
                         alignment: Alignment.centerLeft,
-                        errorBuilder: (_, error, stackTrace) => const SizedBox(),
+                        fallback: const SizedBox(),
                       )
                     : const SizedBox(),
               ),
@@ -1222,10 +1632,10 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
             fit: StackFit.expand,
             children: [
               // Poster Graphic Asset
-              Image.asset(
+              _buildAdaptiveImage(
                 template.imageAsset,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
+                fallback: Container(
                   color: const Color(0xFFEDE9FE),
                   alignment: Alignment.center,
                   child: Text(
@@ -1239,6 +1649,42 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                   ),
                 ),
               ),
+
+              // If has recommended frame, show gold badge
+              if (template.recommendedFrameId != null && template.recommendedFrameId!.isNotEmpty)
+                Positioned(
+                  top: 8.0,
+                  left: 8.0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD97706),
+                      borderRadius: BorderRadius.circular(6.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 3,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.star_rounded, size: 10, color: Colors.white),
+                        SizedBox(width: 2),
+                        Text(
+                          'ભલામણ',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9.0,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
               // Bottom right circular white button with purple forward arrow
               Positioned(
