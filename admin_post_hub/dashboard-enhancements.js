@@ -2742,11 +2742,72 @@
     });
   }
 
+  function enhancePostsCalendarPage() {
+    const isPostsPage = window.location.pathname.includes('/posts') ||
+      window.location.hash.includes('/posts') ||
+      Boolean(document.querySelector('.rbc-calendar'));
+
+    if (!isPostsPage) {
+      const existingHeader = document.getElementById('modern-posts-header');
+      if (existingHeader) existingHeader.remove();
+      return;
+    }
+
+    const rbcCalendar = document.querySelector('.rbc-calendar');
+    if (!rbcCalendar) return;
+
+    // 1. Force remove the hardcoded 130vh inline style
+    if (rbcCalendar.style.height === '130vh' || rbcCalendar.getAttribute('style')?.includes('130vh')) {
+      rbcCalendar.style.setProperty('height', 'calc(100vh - 210px)', 'important');
+      rbcCalendar.style.setProperty('min-height', '560px', 'important');
+      rbcCalendar.style.setProperty('max-height', '740px', 'important');
+    }
+
+    // 2. Inject sleek page header if not present
+    if (!document.getElementById('modern-posts-header')) {
+      const header = document.createElement('div');
+      header.id = 'modern-posts-header';
+      header.className = 'posts-calendar-header';
+      header.innerHTML = `
+        <div class="posts-calendar-header-left">
+          <div class="posts-calendar-breadcrumb">
+            <span>Dashboard</span>
+            <span class="sep">/</span>
+            <span class="active">Festival &amp; Announcement Posts</span>
+          </div>
+          <h1 class="posts-calendar-title">📅 Post Calendar &amp; Schedule</h1>
+          <p class="posts-calendar-subtitle">Schedule upcoming festival greetings, announcements, and posters for automatic release on the mobile app.</p>
+        </div>
+        <div class="posts-calendar-header-right">
+          <button type="button" class="posts-calendar-add-btn" id="posts-calendar-quick-add">
+            <span>➕</span>
+            <span>Schedule New Post</span>
+          </button>
+        </div>
+      `;
+
+      rbcCalendar.parentElement.insertBefore(header, rbcCalendar);
+
+      // Handle Quick Add button click
+      const addBtn = document.getElementById('posts-calendar-quick-add');
+      if (addBtn) {
+        addBtn.addEventListener('click', () => {
+          // Trigger click on today's slot or first selectable slot
+          const todayCell = document.querySelector('.rbc-today, .rbc-day-bg');
+          if (todayCell) {
+            todayCell.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+          }
+        });
+      }
+    }
+  }
+
   // Hook into popstate for SPA navigation
   window.addEventListener('popstate', () => {
     injectAppScreensStudio();
     injectDashboardEnhancements();
     enhanceCategoriesPage();
+    enhancePostsCalendarPage();
     fixPinVisibility();
     setupModalEnhancer();
   });
@@ -2757,6 +2818,7 @@
     injectDashboardEnhancements();
     injectAppScreensStudio();
     enhanceCategoriesPage();
+    enhancePostsCalendarPage();
     fixSidebarAndProfile();
     fixPinVisibility();
   }, 200);
@@ -2766,6 +2828,7 @@
     injectDashboardEnhancements();
     injectAppScreensStudio();
     enhanceCategoriesPage();
+    enhancePostsCalendarPage();
     fixSidebarAndProfile();
     fixPinVisibility();
     setupModalEnhancer();

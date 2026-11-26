@@ -113,6 +113,13 @@ class PosterFrames {
           path,
           baseUrlOverride: base,
         );
+        final rawUpdated = f['updatedAt']?.toString() ?? '';
+        final cacheTag = rawUpdated.isNotEmpty
+            ? rawUpdated.hashCode.abs().toString()
+            : '${DateTime.now().millisecondsSinceEpoch ~/ 30000}';
+        final bustedUrl = fullUrl.contains('?')
+            ? '$fullUrl&v=$cacheTag'
+            : '$fullUrl?v=$cacheTag';
         final regions = f['regions'] as List<dynamic>?;
         final imgH = (f['imageHeight'] as num?)?.toDouble() ?? 708.0;
         final imgW = (f['imageWidth'] as num?)?.toDouble() ?? 708.0;
@@ -122,7 +129,7 @@ class PosterFrames {
           name: name,
           previewColor: const Color(0xFFF59E0B),
           badgeText: 'Admin',
-          imageUrl: fullUrl,
+          imageUrl: bustedUrl,
           regions: regions,
           imageHeight: imgH,
           imageWidth: imgW,
@@ -134,7 +141,7 @@ class PosterFrames {
             name: name,
             previewColor: const Color(0xFFF59E0B),
             badgeText: 'Admin',
-            imageUrl: fullUrl,
+            imageUrl: bustedUrl,
             regions: regions,
             imageHeight: imgH,
             imageWidth: imgW,
@@ -147,7 +154,7 @@ class PosterFrames {
             name: name,
             previewColor: const Color(0xFFF59E0B),
             badgeText: 'Admin',
-            imageUrl: fullUrl,
+            imageUrl: bustedUrl,
             regions: regions,
             imageHeight: imgH,
             imageWidth: imgW,
@@ -939,7 +946,13 @@ class PosterFrameOverlay extends StatelessWidget {
       ),
     );
 
-    final effectiveImage = overrideImageUrl ?? adminImageUrl ?? currentDef.imageUrl;
+    var effectiveImage = overrideImageUrl ?? adminImageUrl ?? currentDef.imageUrl;
+    if (effectiveImage != null && (effectiveImage.startsWith('http://') || effectiveImage.startsWith('https://'))) {
+      if (!effectiveImage.contains('v=')) {
+        final sep = effectiveImage.contains('?') ? '&' : '?';
+        effectiveImage = '$effectiveImage${sep}v=${DateTime.now().millisecondsSinceEpoch ~/ 30000}';
+      }
+    }
 
     final regions = currentDef.regions;
     if (regions != null && regions.isNotEmpty) {
