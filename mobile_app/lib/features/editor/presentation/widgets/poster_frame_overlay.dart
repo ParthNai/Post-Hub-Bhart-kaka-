@@ -100,46 +100,73 @@ class PosterFrames {
     _isLoadingAdminFrames = true;
 
     try {
-      final baseUrl = AppConfigService.instance.serverBaseUrl;
-      final uri = Uri.parse('$baseUrl/adminapi/frame');
-      final res = await http.get(uri).timeout(const Duration(seconds: 3));
-      if (res.statusCode == 200) {
-        final body = jsonDecode(res.body);
-        final data = body['data'] as List<dynamic>?;
-        if (data != null && data.isNotEmpty) {
-          final fetched = <PosterFrameDef>[];
-          for (final f in data) {
-            final id = f['id']?.toString() ?? '';
-            final name = f['frameName']?.toString() ?? 'Admin Frame';
-            final path = f['path']?.toString() ?? '';
-            if (path.isEmpty) continue;
-            final fullUrl = path.startsWith('http') ? path : '$baseUrl$path';
-            final regions = f['regions'] as List<dynamic>?;
-            final imgH = (f['imageHeight'] as num?)?.toDouble();
-            final imgW = (f['imageWidth'] as num?)?.toDouble();
-            fetched.add(PosterFrameDef(
-              id: 'admin_$id',
-              name: name,
-              previewColor: const Color(0xFFF59E0B),
-              badgeText: 'Admin',
-              imageUrl: fullUrl,
-              regions: regions,
-              imageHeight: imgH,
-              imageWidth: imgW,
-            ));
-          }
-          if (fetched.isNotEmpty) {
-            final existingIds = list.map((e) => e.id).toSet();
-            for (final f in fetched.reversed) {
-              if (!existingIds.contains(f.id)) {
-                list.insert(1, f);
-              }
-            }
+      final rawList = await AppConfigService.instance.fetchAdminFrames();
+      if (rawList.isEmpty) return;
+
+      final fetched = <PosterFrameDef>[];
+      for (final f in rawList) {
+        final base = f['_resolvedBase']?.toString();
+        final id = f['id']?.toString() ?? f['_id']?.toString() ?? '';
+        final name = f['frameName']?.toString() ?? 'Custom Frame';
+        final path = f['path']?.toString() ?? '';
+        if (path.isEmpty) continue;
+        final fullUrl = AppConfigService.instance.resolveMediaUrl(
+          path,
+          baseUrlOverride: base,
+        );
+        final regions = f['regions'] as List<dynamic>?;
+        final imgH = (f['imageHeight'] as num?)?.toDouble() ?? 708.0;
+        final imgW = (f['imageWidth'] as num?)?.toDouble() ?? 708.0;
+
+        fetched.add(PosterFrameDef(
+          id: id,
+          name: name,
+          previewColor: const Color(0xFFF59E0B),
+          badgeText: 'Admin',
+          imageUrl: fullUrl,
+          regions: regions,
+          imageHeight: imgH,
+          imageWidth: imgW,
+        ));
+
+        if (!id.startsWith('admin_')) {
+          fetched.add(PosterFrameDef(
+            id: 'admin_$id',
+            name: name,
+            previewColor: const Color(0xFFF59E0B),
+            badgeText: 'Admin',
+            imageUrl: fullUrl,
+            regions: regions,
+            imageHeight: imgH,
+            imageWidth: imgW,
+          ));
+        }
+
+        if (name.isNotEmpty && name != id) {
+          fetched.add(PosterFrameDef(
+            id: name,
+            name: name,
+            previewColor: const Color(0xFFF59E0B),
+            badgeText: 'Admin',
+            imageUrl: fullUrl,
+            regions: regions,
+            imageHeight: imgH,
+            imageWidth: imgW,
+          ));
+        }
+      }
+
+      if (fetched.isNotEmpty) {
+        final existingIds = list.map((e) => e.id).toSet();
+        // Insert custom admin frames at index 1 (right after 'none')
+        for (final f in fetched.reversed) {
+          if (!existingIds.contains(f.id)) {
+            list.insert(1, f);
           }
         }
       }
     } catch (_) {
-      // Offline fallback: built-in asset frames remain active
+      // Offline fallback
     } finally {
       _isLoadingAdminFrames = false;
     }
@@ -172,14 +199,20 @@ class PosterFrameOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     if (frameId == 'none') return const SizedBox.shrink();
 
-    // Check if this frame is an admin image frame (either via explicit adminImageUrl or lookup in list)
-    final effectiveAdminImage = adminImageUrl ??
-        PosterFrames.list
-            .firstWhere(
-              (f) => f.id == frameId,
-              orElse: () => const PosterFrameDef(id: '', name: '', previewColor: Colors.transparent),
-            )
-            .imageUrl;
+    // Check if this frame is an admin image frame (via explicit adminImageUrl or lookup in list)
+    final matchedDef = PosterFrames.list.firstWhere(
+      (f) =>
+          f.id == frameId ||
+          f.id == 'admin_$frameId' ||
+          'admin_${f.id}' == frameId ||
+          (f.name.isNotEmpty && f.name.toLowerCase() == frameId.toLowerCase()),
+      orElse: () => PosterFrames.list.firstWhere(
+        (f) => f.imageUrl != null && f.imageUrl!.isNotEmpty,
+        orElse: () => const PosterFrameDef(id: '', name: '', previewColor: Colors.transparent),
+      ),
+    );
+
+    final effectiveAdminImage = adminImageUrl ?? matchedDef.imageUrl;
 
     if (effectiveAdminImage != null && effectiveAdminImage.isNotEmpty) {
       return _buildAdminImageFrame(effectiveAdminImage);
@@ -199,6 +232,13 @@ class PosterFrameOverlay extends StatelessWidget {
       case 'dark_glass':
         return _buildDarkGlassFrame();
       default:
+        final firstAdminFrame = PosterFrames.list.firstWhere(
+          (f) => f.imageUrl != null && f.imageUrl!.isNotEmpty,
+          orElse: () => const PosterFrameDef(id: 'none', name: 'None', previewColor: Colors.transparent),
+        );
+        if (firstAdminFrame.imageUrl != null && firstAdminFrame.imageUrl!.isNotEmpty) {
+          return _buildAdminImageFrame(firstAdminFrame.imageUrl);
+        }
         return _buildGoldVipFrame();
     }
   }
@@ -240,9 +280,13 @@ class PosterFrameOverlay extends StatelessWidget {
   }) {
     if (url == null || url.isEmpty) return fallback;
 
-    if (url.startsWith('http://') || url.startsWith('https://')) {
+    final resolved = (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:'))
+        ? url
+        : AppConfigService.instance.resolveMediaUrl(url);
+
+    if (resolved.startsWith('http://') || resolved.startsWith('https://')) {
       return Image.network(
-        url,
+        resolved,
         fit: fit,
         alignment: alignment,
         errorBuilder: (_, _, _) => fallback,
@@ -882,13 +926,20 @@ class PosterFrameOverlay extends StatelessWidget {
 
   // Admin image frame overlay
   Widget _buildAdminImageFrame([String? overrideImageUrl]) {
-    final effectiveImage = overrideImageUrl ?? adminImageUrl;
-
     // Check if the admin frame has custom designer regions configured
     final currentDef = PosterFrames.list.firstWhere(
-      (f) => f.id == frameId,
-      orElse: () => const PosterFrameDef(id: 'none', name: 'None', previewColor: Colors.grey),
+      (f) =>
+          f.id == frameId ||
+          f.id == 'admin_$frameId' ||
+          'admin_${f.id}' == frameId ||
+          (f.name.isNotEmpty && f.name.toLowerCase() == frameId.toLowerCase()),
+      orElse: () => PosterFrames.list.firstWhere(
+        (f) => f.imageUrl != null && f.imageUrl!.isNotEmpty,
+        orElse: () => const PosterFrameDef(id: 'none', name: 'None', previewColor: Colors.grey),
+      ),
     );
+
+    final effectiveImage = overrideImageUrl ?? adminImageUrl ?? currentDef.imageUrl;
 
     final regions = currentDef.regions;
     if (regions != null && regions.isNotEmpty) {

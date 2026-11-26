@@ -257,4 +257,34 @@ class AppConfigService {
     }
     return const [];
   }
+
+  /// Fetches live custom poster frames uploaded in the Admin Panel (/adminapi/frame).
+  Future<List<Map<String, dynamic>>> fetchAdminFrames() async {
+    for (final base in _adminApiBases) {
+      for (final endpoint in ['/adminapi/frame', '/adminapi/frames']) {
+        try {
+          final response = await http
+              .get(
+                Uri.parse('$base$endpoint'),
+                headers: const {'Accept': 'application/json'},
+              )
+              .timeout(const Duration(milliseconds: 2500));
+
+          if (response.statusCode == 200) {
+            final decoded = jsonDecode(response.body);
+            final list = decoded is Map<String, dynamic>
+                ? (decoded['data'] as List<dynamic>? ?? const [])
+                : (decoded is List<dynamic> ? decoded : const []);
+            return list.whereType<Map<String, dynamic>>().map((item) {
+              return {
+                ...item,
+                '_resolvedBase': base,
+              };
+            }).toList();
+          }
+        } catch (_) {}
+      }
+    }
+    return const [];
+  }
 }

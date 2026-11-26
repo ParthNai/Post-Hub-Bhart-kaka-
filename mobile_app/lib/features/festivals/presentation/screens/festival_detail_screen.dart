@@ -49,8 +49,13 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
     _festivalService = widget.festivalService ?? FestivalService();
     _authService = widget.authService ?? AuthService();
     _currentFestival = widget.festival ?? _festivalService.getFeaturedFestival();
-    PosterFrames.loadAdminFrames();
     _loadUserProfile();
+    _loadFrames();
+  }
+
+  Future<void> _loadFrames() async {
+    await PosterFrames.loadAdminFrames();
+    if (mounted) setState(() {});
   }
 
   /// Universal adaptive image loader supporting network URLs and local assets safely.
@@ -160,11 +165,19 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
     final imageAsset = template?.imageAsset ?? _currentFestival.imageAsset;
     final isAnnouncement = _currentFestival.isAnnouncement;
 
-    // Pre-select Recommended Frame set by Admin, defaulting to 'admin_kesariya'
-    final recommendedFrameId = template?.recommendedFrameId ??
-        _currentFestival.recommendedFrameId ??
-        'admin_kesariya';
+    // Pre-select:
+    // 1. If template or festival has a specific recommended frame ID, use it.
+    // 2. Otherwise, if the admin uploaded any custom frame, use the first custom admin frame!
+    // 3. Fallback to 'admin_kesariya'.
+    String? explicitRec = template?.recommendedFrameId ?? _currentFestival.recommendedFrameId;
+    if (explicitRec != null && explicitRec.trim().isEmpty) explicitRec = null;
 
+    final firstAdminCustomFrame = PosterFrames.list.firstWhere(
+      (f) => f.imageUrl != null && f.imageUrl!.isNotEmpty,
+      orElse: () => const PosterFrameDef(id: 'admin_kesariya', name: 'Royal Kesariya', previewColor: Colors.amber),
+    );
+
+    final recommendedFrameId = explicitRec ?? firstAdminCustomFrame.id;
     String selectedFrameId = recommendedFrameId;
 
     showModalBottomSheet(
