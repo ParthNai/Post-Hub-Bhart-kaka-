@@ -93,6 +93,17 @@ class PosterFrames {
 
   static bool _isLoadingAdminFrames = false;
 
+  static void addAdminFrames(Iterable<PosterFrameDef> frames) {
+    final existingIds = list.map((frame) => frame.id).toSet();
+    final uniqueFrames = <PosterFrameDef>[];
+    for (final frame in frames) {
+      if (frame.id.isNotEmpty && existingIds.add(frame.id)) {
+        uniqueFrames.add(frame);
+      }
+    }
+    list.insertAll(1, uniqueFrames);
+  }
+
   /// Dynamically loads new frames uploaded by Admin via backend API
   static Future<void> loadAdminFrames() async {
     if (_isLoadingAdminFrames) return;
@@ -108,7 +119,7 @@ class PosterFrames {
         final id = f['id']?.toString() ?? f['_id']?.toString() ?? '';
         final name = f['frameName']?.toString() ?? 'Custom Frame';
         final path = f['path']?.toString() ?? '';
-        if (path.isEmpty) continue;
+        if (id.isEmpty || path.isEmpty) continue;
         final fullUrl = AppConfigService.instance.resolveMediaUrl(
           path,
           baseUrlOverride: base,
@@ -134,42 +145,10 @@ class PosterFrames {
           imageHeight: imgH,
           imageWidth: imgW,
         ));
-
-        if (!id.startsWith('admin_')) {
-          fetched.add(PosterFrameDef(
-            id: 'admin_$id',
-            name: name,
-            previewColor: const Color(0xFFF59E0B),
-            badgeText: 'Admin',
-            imageUrl: bustedUrl,
-            regions: regions,
-            imageHeight: imgH,
-            imageWidth: imgW,
-          ));
-        }
-
-        if (name.isNotEmpty && name != id) {
-          fetched.add(PosterFrameDef(
-            id: name,
-            name: name,
-            previewColor: const Color(0xFFF59E0B),
-            badgeText: 'Admin',
-            imageUrl: bustedUrl,
-            regions: regions,
-            imageHeight: imgH,
-            imageWidth: imgW,
-          ));
-        }
       }
 
       if (fetched.isNotEmpty) {
-        final existingIds = list.map((e) => e.id).toSet();
-        // Insert custom admin frames at index 1 (right after 'none')
-        for (final f in fetched.reversed) {
-          if (!existingIds.contains(f.id)) {
-            list.insert(1, f);
-          }
-        }
+        addAdminFrames(fetched);
       }
     } catch (_) {
       // Offline fallback

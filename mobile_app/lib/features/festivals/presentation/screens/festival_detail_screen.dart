@@ -449,7 +449,17 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
       ),
     );
 
-    final recommendedFrameId = explicitRec ?? firstAdminCustomFrame.id;
+    final requestedFrameId = explicitRec ?? firstAdminCustomFrame.id;
+    final recommendedFrameId = PosterFrames.list
+        .firstWhere(
+          (frame) =>
+              frame.id == requestedFrameId ||
+              frame.id == 'admin_$requestedFrameId' ||
+              'admin_${frame.id}' == requestedFrameId ||
+              frame.name.toLowerCase() == requestedFrameId.toLowerCase(),
+          orElse: () => firstAdminCustomFrame,
+        )
+        .id;
     String selectedFrameId = recommendedFrameId;
 
     showModalBottomSheet(
@@ -886,10 +896,7 @@ class _FestivalDetailScreenState extends State<FestivalDetailScreen> {
                         itemBuilder: (context, idx) {
                           final f = availableFrames[idx];
                           final isSelected = (selectedFrameId == f.id);
-                          final isRec =
-                              (f.id == recommendedFrameId ||
-                              (recommendedFrameId.isNotEmpty &&
-                                  f.id.contains(recommendedFrameId)));
+                          final isRec = f.id == recommendedFrameId;
 
                           return InkWell(
                             key: ValueKey('frame_pick_${f.id}'),
