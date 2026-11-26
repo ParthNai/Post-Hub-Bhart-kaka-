@@ -44,18 +44,13 @@ the first save. Web and desktop builds do not support gallery saving.
 ## Android push notifications
 
 The Android app uses OneSignal for push subscriptions and notification display.
-Create an Android app in OneSignal, configure its Firebase credentials, and
-place that app's `google-services.json` at `android/app/google-services.json`.
-The file is intentionally ignored by Git. Register the Firebase Android app
-with package `com.panchayatpost.panchayat_post` and use the same Firebase
-project configured in OneSignal.
-
-Build or run the app with the public OneSignal App ID:
-
-```shell
-flutter run --dart-define=ONESIGNAL_APP_ID=<onesignal-app-id>
-```
+The public OneSignal App ID is configured in
+`lib/core/services/one_signal_notification_service.dart`. Configure Android
+FCM credentials in the OneSignal dashboard by uploading the Firebase service
+account private key. This setup does not require `google-services.json` or the
+Google Services Gradle plugin.
 
 Configure `ONESIGNAL_APP_ID` and `ONESIGNAL_REST_API_KEY` in the backend's
-private `.env` file. Keep the REST API key server-side; never put it in Flutter
-or commit it. The app requests notification permission on first launch.
+private `.env` file, using the same App ID. Keep the REST API key server-side;
+never put it in Flutter or commit it. The app requests notification permission
+on first launch.

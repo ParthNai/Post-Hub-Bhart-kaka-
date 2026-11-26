@@ -16,5 +16,4 @@ module.exports.UserSubscription = require('./usersubscriptions.model');
 module.exports.Slider = require('./slider.model');
 module.exports.ThemeSample = require('./themesample.model');
 module.exports.Greeting = require('./greetings.model');
-module.exports.Token = require('./token.model');
 module.exports.AppControl = require('./appcontrol.model');

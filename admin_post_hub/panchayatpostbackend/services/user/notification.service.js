@@ -1,33 +1,8 @@
 const httpStatus = require("http-status");
 const { FestivalPost, Festival, Image } = require("../../models");
 const moment = require("moment");
-const { Token } = require("../../models");
 const axios = require("axios");
 const config = require("../../config/config");
-
-const register = async (data) => {
-  try {
-    if (!data || typeof data.token !== "string" || !data.token.trim()) {
-      return {
-        status: httpStatus.BAD_REQUEST,
-        message: "A non-empty device token is required",
-      };
-    }
-
-    await Token.findOneAndUpdate(
-      { token: data.token.trim() },
-      { $set: { token: data.token.trim() } },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
-    );
-    return { status: httpStatus.OK, message: "Token registered successfully" };
-  } catch (error) {
-    console.log(error);
-    return {
-      status: httpStatus.INTERNAL_SERVER_ERROR,
-      message: "Failed to register device token",
-    };
-  }
-};
 
 const sendNotifications = async ({ title, body, imageUrl }) => {
   if (
@@ -143,7 +118,6 @@ const sendFestivalNotification = async (data) => {
 };
 
 module.exports = {
-  register,
   sendNotifications,
   sendFestivalNotification,
 };

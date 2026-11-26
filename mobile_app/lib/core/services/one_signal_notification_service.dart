@@ -6,17 +6,13 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 class OneSignalNotificationService {
   OneSignalNotificationService._();
 
-  static const _appId = String.fromEnvironment('ONESIGNAL_APP_ID');
+  static const _appId = String.fromEnvironment(
+    'ONESIGNAL_APP_ID',
+    defaultValue: '558ad57a-68a5-4149-90e4-72feaed0d583',
+  );
 
   static void initialize() {
     if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
-    if (_appId.trim().isEmpty) {
-      debugPrint(
-        'Push notifications are disabled: build with ONESIGNAL_APP_ID configured.',
-      );
-      return;
-    }
-
     try {
       OneSignal.initialize(_appId);
       unawaited(_requestPermission());
@@ -27,7 +23,7 @@ class OneSignalNotificationService {
 
   static Future<void> _requestPermission() async {
     try {
-      final granted = await OneSignal.Notifications.requestPermission(false);
+      final granted = await OneSignal.Notifications.requestPermission(true);
       if (!granted) {
         debugPrint('Push notification permission was not granted.');
       }
