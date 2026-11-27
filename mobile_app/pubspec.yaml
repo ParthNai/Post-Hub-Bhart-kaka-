@@ -43,7 +43,7 @@ dependencies:
   image: ^4.13.1
   google_mlkit_selfie_segmentation: ^1.0.3
   gal: ^3.0.1
-  onesignal_flutter: ^5.8.0
+  onesignal_flutter: 5.5.2
 
 dev_dependencies:
   flutter_test:
